@@ -12,11 +12,12 @@ export function useSeriesFilters() {
   const [searchParams, setSearchParams] = useSearchParams()
 
   const filters = parseFilters(searchParams)
+  const query = (searchParams.get('q') ?? '').trim()
   const page = parsePage(searchParams.get('page'), MAX_PAGE)
   const activeCount =
     FILTER_KEYS.filter((key) => filters[key] !== '').length + Number(filters.sort !== DEFAULT_SORT)
 
-  function update(changes) {
+  function update(changes, options) {
     setSearchParams((prev) => {
       const next = new URLSearchParams(prev)
       for (const [key, value] of Object.entries(changes)) {
@@ -24,7 +25,7 @@ export function useSeriesFilters() {
         else next.set(key, String(value))
       }
       return next
-    })
+    }, options)
   }
 
   // Any filter change sends the user back to page 1 — page 7 of the old results means nothing now.
@@ -36,9 +37,16 @@ export function useSeriesFilters() {
     update({ page: nextPage === 1 ? '' : nextPage })
   }
 
+  // Starting a search adds one history entry (Back returns to browsing);
+  // refining it replaces that entry instead of adding one per debounced query.
+  function setQuery(nextQuery) {
+    update({ q: nextQuery, page: '' }, { replace: query !== '' })
+  }
+
+  // Clears filters and sort but keeps the search query: they are separate controls.
   function resetFilters() {
     update({ ...Object.fromEntries(FILTER_KEYS.map((key) => [key, ''])), sort: '', page: '' })
   }
 
-  return { filters, page, activeCount, setFilter, setPage, resetFilters }
+  return { filters, query, page, activeCount, setFilter, setQuery, setPage, resetFilters }
 }

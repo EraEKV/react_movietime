@@ -33,3 +33,11 @@
 .reset {
   flex-shrink: 0;
 }
+
+.hint {
+  order: 3;
+  flex-basis: 100%;
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
