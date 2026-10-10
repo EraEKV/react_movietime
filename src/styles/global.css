@@ -1,0 +1,85 @@
+:root {
+  /* Brand — TMDB teal → lime, same palette as the Android Movietime app */
+  --accent: #01b4e4;
+  --accent-2: #90cea1;
+  --gradient: linear-gradient(90deg, #01b4e4, #90cea1);
+
+  --bg: #0d1117;
+  --surface: #161b22;
+  --surface-2: #1f2630;
+  --border: #2a313c;
+  --text: #e6edf3;
+  --text-muted: #8b949e;
+  --danger: #f85149;
+
+  /* Rating scale used by cards and the episode heatmap */
+  --rating-great: #2ea043;
+  --rating-good: #7ac74f;
+  --rating-ok: #d6b400;
+  --rating-bad: #e5534b;
+
+  --radius: 12px;
+  --radius-sm: 8px;
+  --container: 1200px;
+  --gutter: 16px;
+
+  color-scheme: dark;
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+  line-height: 1.5;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --gutter: 24px;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  line-height: 1.2;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
