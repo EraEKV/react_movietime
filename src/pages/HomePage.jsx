@@ -1,34 +1,30 @@
-import { useSearchParams } from 'react-router'
 import { endpoints, MAX_PAGE } from '../api/tmdb.js'
 import Button from '../components/Button/Button.jsx'
+import FilterBar from '../components/FilterBar/FilterBar.jsx'
 import Pagination from '../components/Pagination/Pagination.jsx'
 import SeriesGrid from '../components/SeriesGrid/SeriesGrid.jsx'
 import SkeletonGrid from '../components/Skeleton/SkeletonGrid.jsx'
 import StatusMessage from '../components/StatusMessage/StatusMessage.jsx'
 import { useFetch } from '../hooks/useFetch.js'
 import { useGenres } from '../hooks/useGenres.js'
-import { formatNumber, parsePage } from '../utils/format.js'
+import { useSeriesFilters } from '../hooks/useSeriesFilters.js'
+import { toDiscoverParams } from '../utils/filters.js'
+import { formatNumber } from '../utils/format.js'
 import styles from './HomePage.module.css'
 
 export default function HomePage() {
-  // The URL is the source of truth for the page number: back/forward and refresh just work.
-  const [searchParams, setSearchParams] = useSearchParams()
-  const page = parsePage(searchParams.get('page'), MAX_PAGE)
+  const { filters, page, activeCount, setFilter, setPage, resetFilters } = useSeriesFilters()
+  const { genres, genresById } = useGenres()
 
+  // The path string changes whenever filters or page change → useFetch re-runs its effect.
   const { status, data, error, reload } = useFetch(
-    endpoints.discoverSeries({ page, sortBy: 'popularity.desc' }),
+    endpoints.discoverSeries(toDiscoverParams(filters, page)),
   )
-  const { genresById } = useGenres()
 
   const totalPages = data ? Math.min(data.total_pages, MAX_PAGE) : 0
 
   function handlePageChange(nextPage) {
-    setSearchParams((prev) => {
-      const next = new URLSearchParams(prev)
-      if (nextPage === 1) next.delete('page')
-      else next.set('page', String(nextPage))
-      return next
-    })
+    setPage(nextPage)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
@@ -36,12 +32,20 @@ export default function HomePage() {
     <section>
       <header className={styles.header}>
         <h1>Discover TV series</h1>
-        {status === 'success' && (
+        {status === 'success' && data.total_results > 0 && (
           <p className={styles.count}>
             {formatNumber(data.total_results)} series · page {page} of {formatNumber(totalPages)}
           </p>
         )}
       </header>
+
+      <FilterBar
+        filters={filters}
+        genres={genres}
+        activeCount={activeCount}
+        onFilterChange={setFilter}
+        onReset={resetFilters}
+      />
 
       {status === 'loading' && <SkeletonGrid />}
 
@@ -57,16 +61,22 @@ export default function HomePage() {
 
       {status === 'success' && data.results.length === 0 && (
         <StatusMessage
-          title="No series here"
+          title={activeCount > 0 ? 'No series match these filters' : 'No series on this page'}
           action={
-            page > 1 && (
-              <Button variant="ghost" onClick={() => handlePageChange(1)}>
-                Back to first page
+            activeCount > 0 ? (
+              <Button variant="ghost" onClick={resetFilters}>
+                Reset filters
               </Button>
+            ) : (
+              page > 1 && (
+                <Button variant="ghost" onClick={() => handlePageChange(1)}>
+                  Back to first page
+                </Button>
+              )
             )
           }
         >
-          This page has no results. Try another page.
+          {activeCount > 0 ? 'Try a different genre, year or a lower rating.' : 'Try another page.'}
         </StatusMessage>
       )}
 

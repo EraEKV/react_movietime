@@ -60,7 +60,16 @@ export function imageUrl(path, size = 'w342') {
 export const endpoints = {
   genres: () => buildPath('/genre/tv/list'),
 
-  discoverSeries: ({ page = 1, sortBy, genre, year, minRating, minVotes } = {}) =>
+  discoverSeries: ({
+    page = 1,
+    sortBy,
+    genre,
+    year,
+    minRating,
+    minVotes,
+    status,
+    airedBefore,
+  } = {}) =>
     buildPath('/discover/tv', {
       page,
       sort_by: sortBy,
@@ -68,6 +77,8 @@ export const endpoints = {
       first_air_date_year: year,
       'vote_average.gte': minRating,
       'vote_count.gte': minVotes,
+      with_status: status,
+      'first_air_date.lte': airedBefore,
     }),
 
   searchSeries: ({ query, page = 1, year } = {}) =>
