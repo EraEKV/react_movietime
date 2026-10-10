@@ -1,0 +1,49 @@
+.page {
+  max-width: 640px;
+  margin: 24px auto 0;
+  text-align: center;
+}
+
+.code {
+  margin: 0 0 16px;
+  font-size: clamp(4rem, 15vw, 7rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.primary,
+.secondary {
+  display: inline-flex;
+  align-items: center;
+  height: 40px;
+  padding: 0 16px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+}
+
+.primary {
+  background: var(--gradient);
+  color: #0d1117;
+}
+
+.secondary {
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.secondary:hover {
+  border-color: var(--accent);
+}
