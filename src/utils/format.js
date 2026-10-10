@@ -13,6 +13,7 @@ export function formatNumber(value) {
 /** Maps a 0–10 score to a tone used by badges and the episode heatmap. */
 export function ratingTone(vote) {
   if (!vote) return 'none'
+  if (vote >= 9) return 'awesome'
   if (vote >= 8) return 'great'
   if (vote >= 7) return 'good'
   if (vote >= 5.5) return 'ok'
@@ -42,4 +43,9 @@ export function pluralize(count, word) {
 export function formatDate(date) {
   if (!date) return null
   return new Intl.DateTimeFormat('en-US', { dateStyle: 'medium' }).format(new Date(date))
+}
+
+/** S01E05 */
+export function episodeCode(season, episode) {
+  return `S${String(season).padStart(2, '0')}E${String(episode).padStart(2, '0')}`
 }

@@ -1,0 +1,302 @@
+.heatmap {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.loading {
+  height: 320px;
+  border-radius: var(--radius);
+  background: linear-gradient(90deg, var(--surface) 0%, var(--surface-2) 50%, var(--surface) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.2s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+/* ---- highlights ---- */
+
+.highlights {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.highlight {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  cursor: pointer;
+  text-align: left;
+}
+
+.highlight:hover {
+  border-color: var(--accent);
+}
+
+.highlightLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.highlightName {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stats {
+  margin: 0 0 0 auto;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+/* ---- grid ---- */
+
+.scroller {
+  overflow-x: auto;
+  max-height: 560px;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.table {
+  border-collapse: separate;
+  border-spacing: 3px;
+  margin: 0 auto;
+  padding: 6px;
+  font-variant-numeric: tabular-nums;
+}
+
+.table th {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  padding: 4px;
+}
+
+/* Season headers stay visible while scrolling down long seasons */
+.table thead tr:first-child th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--surface);
+}
+
+/* Episode numbers stay visible while scrolling across many seasons */
+.rowHead {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--surface);
+  text-align: right;
+}
+
+.corner {
+  left: 0;
+  z-index: 2 !important;
+}
+
+.table td {
+  padding: 0;
+}
+
+.cell {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 32px;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 6px;
+  background: var(--surface-2);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+button.cell {
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+
+button.cell:hover {
+  transform: scale(1.08);
+}
+
+button.cell[aria-pressed='true'] {
+  border-color: #fff;
+}
+
+.avg {
+  border-style: dashed;
+  border-color: rgb(255 255 255 / 0.35);
+}
+
+.cell[data-tone='awesome'],
+.swatch[data-tone='awesome'] {
+  background: var(--rating-awesome);
+}
+.cell[data-tone='great'],
+.swatch[data-tone='great'] {
+  background: var(--rating-great);
+}
+.cell[data-tone='good'],
+.swatch[data-tone='good'] {
+  background: var(--rating-good);
+  color: #0d1117;
+}
+.cell[data-tone='ok'],
+.swatch[data-tone='ok'] {
+  background: var(--rating-ok);
+  color: #0d1117;
+}
+.cell[data-tone='bad'],
+.swatch[data-tone='bad'] {
+  background: var(--rating-bad);
+}
+.cell[data-tone='none'] {
+  color: var(--text-muted);
+}
+
+/* ---- legend ---- */
+
+.legend {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin: 0;
+  padding: 0;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.legend li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  background: var(--surface-2);
+}
+
+/* ---- episode panel ---- */
+
+.hint {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.panel {
+  position: relative;
+  display: grid;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+@media (min-width: 640px) {
+  .panel {
+    grid-template-columns: 240px 1fr;
+  }
+}
+
+.still {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+}
+
+.panelBody {
+  min-width: 0;
+  padding-right: 32px;
+}
+
+.code {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.panelTitle {
+  margin-top: 4px;
+  font-size: 1.15rem;
+}
+
+.panelMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.overview {
+  margin: 12px 0 0;
+  line-height: 1.6;
+}
+
+.close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--surface-2);
+  color: var(--text-muted);
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.close:hover {
+  color: var(--text);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loading {
+    animation: none;
+  }
+}

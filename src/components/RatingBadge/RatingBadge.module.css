@@ -23,6 +23,9 @@
   font-size: 0.875rem;
 }
 
+.badge[data-tone='awesome'] {
+  background: var(--rating-awesome);
+}
 .badge[data-tone='great'] {
   background: var(--rating-great);
 }

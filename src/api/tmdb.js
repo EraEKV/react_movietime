@@ -5,6 +5,9 @@ const TOKEN = import.meta.env.VITE_TMDB_TOKEN
 // TMDB reports more pages than it serves: any page above 500 returns an error.
 export const MAX_PAGE = 500
 
+// append_to_response accepts at most 20 sub-requests.
+export const MAX_APPEND = 20
+
 export class ApiError extends Error {
   constructor(message, status) {
     super(message)
@@ -88,4 +91,10 @@ export const endpoints = {
     buildPath(`/tv/${id}`, { append_to_response: 'credits,videos,recommendations' }),
 
   season: (id, seasonNumber) => buildPath(`/tv/${id}/season/${seasonNumber}`),
+
+  // Up to MAX_APPEND seasons with all their episodes in a single request.
+  seasonsBatch: (id, seasonNumbers) =>
+    buildPath(`/tv/${id}`, {
+      append_to_response: seasonNumbers.map((n) => `season/${n}`).join(','),
+    }),
 }

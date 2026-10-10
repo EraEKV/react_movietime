@@ -5,6 +5,7 @@ import { pickTrailer, sortSeasons } from '../../utils/series.js'
 import BackButton from '../BackButton/BackButton.jsx'
 import Button from '../Button/Button.jsx'
 import CastList from '../CastList/CastList.jsx'
+import EpisodeHeatmap from '../EpisodeHeatmap/EpisodeHeatmap.jsx'
 import SeasonList from '../SeasonList/SeasonList.jsx'
 import Section from '../Section/Section.jsx'
 import SeriesGrid from '../SeriesGrid/SeriesGrid.jsx'
@@ -42,6 +43,8 @@ export default function SeriesDetails({ seriesId }) {
   const cast = series.credits.cast.slice(0, MAX_CAST)
   const trailer = pickTrailer(series.videos.results)
   const seasons = sortSeasons(series.seasons)
+  // Specials (season 0) are left out of the heatmap: they aren't part of the story arc.
+  const regularSeasons = seasons.filter((s) => s.season_number > 0).map((s) => s.season_number)
   const recommendations = series.recommendations.results.slice(0, MAX_RECOMMENDATIONS)
 
   return (
@@ -51,6 +54,12 @@ export default function SeriesDetails({ seriesId }) {
 
       <BackButton />
       <SeriesHero series={series} />
+
+      {regularSeasons.length > 0 && (
+        <Section title="Episode ratings">
+          <EpisodeHeatmap seriesId={seriesId} seasonNumbers={regularSeasons} />
+        </Section>
+      )}
 
       {seasons.length > 0 && (
         <Section title="Seasons">

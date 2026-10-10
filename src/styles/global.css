@@ -13,6 +13,7 @@
   --danger: #f85149;
 
   /* Rating scale used by cards and the episode heatmap */
+  --rating-awesome: #1a7f37;
   --rating-great: #2ea043;
   --rating-good: #7ac74f;
   --rating-ok: #d6b400;
