@@ -1,0 +1,15 @@
+.section {
+  margin-top: 40px;
+}
+
+.header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.title {
+  font-size: 1.3rem;
+}

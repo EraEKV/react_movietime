@@ -1,7 +1,16 @@
-import { NavLink, Outlet } from 'react-router'
+import { useEffect } from 'react'
+import { NavLink, Outlet, useLocation } from 'react-router'
 import styles from './Layout.module.css'
 
 export default function Layout() {
+  const { pathname } = useLocation()
+
+  // Syncs the browser's scroll position (an external system) with the route:
+  // opening another page starts at the top. Filter/page changes keep the same pathname.
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [pathname])
+
   return (
     <div className={styles.shell}>
       <header className={styles.header}>

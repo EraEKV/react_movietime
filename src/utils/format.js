@@ -25,3 +25,21 @@ export function parsePage(value, max) {
   if (!Number.isFinite(page) || page < 1) return 1
   return Math.min(page, max)
 }
+
+/** "2008–2013", "2019–" for running shows, or a single year. */
+export function formatYearRange(firstAirDate, lastAirDate, inProduction) {
+  const first = getYear(firstAirDate)
+  if (!first) return null
+  if (inProduction) return `${first}–`
+  const last = getYear(lastAirDate)
+  return last && last !== first ? `${first}–${last}` : first
+}
+
+export function pluralize(count, word) {
+  return `${count} ${count === 1 ? word : `${word}s`}`
+}
+
+export function formatDate(date) {
+  if (!date) return null
+  return new Intl.DateTimeFormat('en-US', { dateStyle: 'medium' }).format(new Date(date))
+}
