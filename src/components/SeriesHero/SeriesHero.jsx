@@ -3,7 +3,8 @@ import { formatNumber, formatYearRange, pluralize } from '../../utils/format.js'
 import RatingBadge from '../RatingBadge/RatingBadge.jsx'
 import styles from './SeriesHero.module.css'
 
-export default function SeriesHero({ series }) {
+/** `actions` is a slot: the hero stays presentational, the page decides what goes there. */
+export default function SeriesHero({ series, actions }) {
   const backdrop = imageUrl(series.backdrop_path, 'w1280')
   const poster = imageUrl(series.poster_path, 'w500')
 
@@ -45,6 +46,8 @@ export default function SeriesHero({ series }) {
                 : 'No votes yet'}
             </span>
           </div>
+
+          {actions && <div className={styles.actions}>{actions}</div>}
 
           {series.genres.length > 0 && (
             <ul className={styles.genres}>

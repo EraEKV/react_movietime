@@ -12,6 +12,7 @@ import SeriesGrid from '../SeriesGrid/SeriesGrid.jsx'
 import SeriesHero from '../SeriesHero/SeriesHero.jsx'
 import StatusMessage from '../StatusMessage/StatusMessage.jsx'
 import Trailer from '../Trailer/Trailer.jsx'
+import WatchlistButton from '../WatchlistButton/WatchlistButton.jsx'
 import DetailsSkeleton from './DetailsSkeleton.jsx'
 
 const MAX_CAST = 12
@@ -53,7 +54,7 @@ export default function SeriesDetails({ seriesId }) {
       <title>{`${series.name} · Movietime`}</title>
 
       <BackButton />
-      <SeriesHero series={series} />
+      <SeriesHero series={series} actions={<WatchlistButton seriesId={series.id} />} />
 
       {regularSeasons.length > 0 && (
         <Section title="Episode ratings">

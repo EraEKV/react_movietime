@@ -1,0 +1,20 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  height: 40px;
+  padding: 0 16px;
+  border-radius: var(--radius-sm);
+  background: var(--gradient);
+  color: #0d1117;
+  font-weight: 600;
+}
+
+.button:hover {
+  opacity: 0.9;
+}
+
+.added {
+  background: var(--surface-2);
+  border: 1px solid var(--rating-great);
+  color: var(--text);
+}

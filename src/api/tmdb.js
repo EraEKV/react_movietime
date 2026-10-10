@@ -87,6 +87,8 @@ export const endpoints = {
   searchSeries: ({ query, page = 1, year } = {}) =>
     buildPath('/search/tv', { query, page, first_air_date_year: year }),
 
+  seriesSummary: (id) => buildPath(`/tv/${id}`),
+
   seriesDetails: (id) =>
     buildPath(`/tv/${id}`, { append_to_response: 'credits,videos,recommendations' }),
 
