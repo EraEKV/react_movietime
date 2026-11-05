@@ -5,10 +5,10 @@
   max-width: 800px;
   aspect-ratio: 16 / 9;
   padding: 0;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
   overflow: hidden;
-  background: #000;
+  border: 0;
+  border-radius: var(--radius-lg);
+  background: var(--surface-sunken);
 }
 
 button.frame {
@@ -26,18 +26,17 @@ button.frame {
 .play {
   position: absolute;
   inset: 0;
-  margin: auto;
   display: grid;
   place-items: center;
   width: 72px;
   height: 72px;
-  padding-left: 6px;
+  margin: auto;
+  padding-left: 4px;
   border-radius: 50%;
-  background: var(--gradient);
-  color: #0d1117;
-  font-size: 1.8rem;
-  box-shadow: 0 8px 24px rgb(0 0 0 / 0.5);
-  transition: transform 0.15s;
+  background: var(--gradient-brand);
+  color: var(--on-accent);
+  box-shadow: var(--shadow-3);
+  transition: transform var(--dur-fast) var(--ease-out);
 }
 
 button.frame:hover .play {
@@ -49,9 +48,9 @@ button.frame:hover .play {
   left: 0;
   right: 0;
   bottom: 0;
-  padding: 24px 16px 12px;
-  background: linear-gradient(transparent, rgb(0 0 0 / 0.8));
-  color: #fff;
+  padding: var(--space-6) var(--space-4) var(--space-3);
+  background: var(--scrim-backdrop);
+  color: var(--text-on-backdrop);
   font-weight: 600;
   text-align: left;
 }

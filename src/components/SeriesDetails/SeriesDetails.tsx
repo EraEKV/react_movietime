@@ -4,14 +4,14 @@ import { useGenres } from '../../hooks/useGenres'
 import type { SeriesDetails as SeriesDetailsData } from '../../types/tmdb'
 import { pickTrailer, sortSeasons } from '../../utils/series'
 import BackButton from '../BackButton/BackButton'
-import Button from '../Button/Button'
+import ButtonLink from '../ButtonLink/ButtonLink'
 import CastList from '../CastList/CastList'
+import ErrorState from '../EmptyState/ErrorState'
 import EpisodeHeatmap from '../EpisodeHeatmap/EpisodeHeatmap'
 import SeasonList from '../SeasonList/SeasonList'
 import Section from '../Section/Section'
 import SeriesGrid from '../SeriesGrid/SeriesGrid'
 import SeriesHero from '../SeriesHero/SeriesHero'
-import StatusMessage from '../StatusMessage/StatusMessage'
 import Trailer from '../Trailer/Trailer'
 import WatchlistButton from '../WatchlistButton/WatchlistButton'
 import DetailsSkeleton from './DetailsSkeleton'
@@ -36,13 +36,19 @@ export default function SeriesDetails({ seriesId }: { seriesId: string }) {
     return (
       <>
         <BackButton />
-        <StatusMessage
-          tone="error"
-          title={notFound ? 'Series not found' : "Couldn't load this series"}
-          action={!notFound && <Button onClick={reload}>Try again</Button>}
-        >
-          {notFound ? 'It may have been removed from TMDB, or the link is wrong.' : error.message}
-        </StatusMessage>
+        <ErrorState
+          icon={notFound ? 'tv' : 'alert'}
+          title={notFound ? 'Series not found' : 'We couldn’t load this series'}
+          body={
+            notFound ? 'It may have been removed from TMDB, or the link is wrong.' : error.message
+          }
+          onRetry={notFound ? undefined : reload}
+          secondary={
+            <ButtonLink to="/" icon="compass">
+              Browse series
+            </ButtonLink>
+          }
+        />
       </>
     )
   }
@@ -88,7 +94,7 @@ export default function SeriesDetails({ seriesId }: { seriesId: string }) {
 
       {recommendations.length > 0 && (
         <Section title="You might also like">
-          <SeriesGrid items={recommendations} genresById={genresById} />
+          <SeriesGrid items={recommendations} genresById={genresById} label="Recommendations" />
         </Section>
       )}
     </article>

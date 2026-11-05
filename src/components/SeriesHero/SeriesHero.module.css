@@ -1,9 +1,12 @@
 .hero {
   position: relative;
-  border-radius: var(--radius);
+  display: flex;
+  align-items: flex-end;
+  min-height: 360px;
   overflow: hidden;
-  background: var(--surface);
-  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface-sunken);
+  color: var(--text-on-backdrop);
 }
 
 .backdrop {
@@ -11,33 +14,45 @@
   inset: 0;
   background-size: cover;
   background-position: center top;
-  opacity: 0.25;
-  mask-image: linear-gradient(to bottom, #000 30%, transparent);
+}
+
+/* Text over imagery always sits on the dark scrim, in both themes. */
+.hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--scrim-backdrop);
 }
 
 .content {
   position: relative;
+  z-index: 1;
   display: grid;
-  gap: 24px;
-  padding: 20px;
+  gap: var(--space-5);
+  width: 100%;
+  padding: var(--space-5);
 }
 
 @media (min-width: 768px) {
+  .hero {
+    min-height: 420px;
+  }
+
   .content {
-    grid-template-columns: 260px 1fr;
-    gap: 32px;
-    padding: 32px;
+    grid-template-columns: 200px minmax(0, 1fr);
+    align-items: end;
+    gap: var(--space-8);
+    padding: var(--space-8);
   }
 }
 
 .poster {
-  width: min(220px, 60%);
-  margin: 0 auto;
+  width: 120px;
   aspect-ratio: 2 / 3;
-  border-radius: var(--radius);
   overflow: hidden;
-  background: var(--surface-2);
-  box-shadow: 0 12px 32px rgb(0 0 0 / 0.5);
+  border-radius: var(--radius-sm);
+  background: var(--surface-sunken);
+  box-shadow: var(--shadow-3);
 }
 
 @media (min-width: 768px) {
@@ -52,97 +67,100 @@
   object-fit: cover;
 }
 
-.poster span {
+.posterFallback {
   display: grid;
   place-items: center;
   height: 100%;
-  padding: 16px;
-  text-align: center;
-  color: var(--text-muted);
+  color: var(--text-subtle);
 }
 
 .info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
   min-width: 0;
 }
 
-.title {
-  font-size: clamp(1.75rem, 5vw, 2.6rem);
-  letter-spacing: -0.02em;
+.genres {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
 }
 
-.original {
-  margin: 4px 0 0;
-  color: var(--text-muted);
+.genres li {
+  padding: 2px var(--space-3);
+  border-radius: var(--radius-pill);
+  background: var(--overlay);
+  color: var(--text-on-backdrop);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 20px;
+}
+
+.title {
+  composes: displayL from '../../styles/typography.module.css';
+  overflow-wrap: anywhere;
+}
+
+.muted {
+  color: var(--text-on-backdrop-muted);
 }
 
 .tagline {
-  margin: 8px 0 0;
+  color: var(--text-on-backdrop-muted);
   font-style: italic;
-  color: var(--accent-2);
-}
-
-.meta {
-  margin: 12px 0 0;
-  color: var(--text-muted);
 }
 
 .rating {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 12px;
-  margin-top: 16px;
-}
-
-.votes {
-  color: var(--text-muted);
-  font-size: 0.9rem;
-}
-
-.genres {
-  list-style: none;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 16px 0 0;
-  padding: 0;
-}
-
-.genres li {
-  padding: 4px 12px;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  background: var(--surface-2);
-  font-size: 0.85rem;
-}
-
-.overview {
-  margin: 20px 0 0;
-  max-width: 70ch;
-  line-height: 1.65;
-}
-
-.facts {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px 40px;
-  margin: 20px 0 0;
-}
-
-.facts dt {
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--text-muted);
-}
-
-.facts dd {
-  margin: 4px 0 0;
+  gap: var(--space-3);
+  font-variant-numeric: tabular-nums;
 }
 
 .actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 16px;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+/* Overview and facts sit below the hero, on the page ground. */
+.about {
+  display: grid;
+  gap: var(--space-6);
+  margin-top: var(--space-6);
+}
+
+@media (min-width: 1024px) {
+  .about {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    gap: var(--space-12);
+  }
+}
+
+.overview {
+  composes: bodyL from '../../styles/typography.module.css';
+  max-width: 70ch;
+}
+
+.facts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin: 0;
+}
+
+.facts dt {
+  color: var(--text-muted);
+  font-size: 11px;
+  line-height: 16px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.facts dd {
+  margin: var(--space-1) 0 0;
 }

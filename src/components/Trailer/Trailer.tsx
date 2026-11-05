@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { Video } from '../../types/tmdb'
+import Icon from '../Icon/Icon'
 import styles from './Trailer.module.css'
 
 /**
@@ -34,7 +35,7 @@ export default function Trailer({ video, title }: { video: Video; title: string 
     >
       <img src={`https://i.ytimg.com/vi/${video.key}/hqdefault.jpg`} alt="" loading="lazy" />
       <span className={styles.play} aria-hidden="true">
-        ▶
+        <Icon name="play" size={28} />
       </span>
       <span className={styles.caption}>{video.name}</span>
     </button>
