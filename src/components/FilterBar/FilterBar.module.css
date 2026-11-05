@@ -1,26 +1,32 @@
 .bar {
   display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  gap: 12px 16px;
-  padding: 16px;
-  margin-bottom: 24px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* Inline selects from tablet up; on phones they live in a bottom sheet. */
+.inline {
+  display: none;
 }
 
 .fields {
-  /* Takes the whole row on narrow screens, so Reset wraps below instead of squeezing the selects */
-  flex: 1 1 300px;
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-4);
 }
 
-@media (min-width: 640px) {
+@media (min-width: 768px) {
+  .inline {
+    display: block;
+  }
+
   .fields {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-3);
+  }
+
+  .sheetButton {
+    display: none;
   }
 }
 
@@ -30,14 +36,25 @@
   }
 }
 
-.reset {
-  flex-shrink: 0;
+.summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
 }
 
-.hint {
-  order: 3;
-  flex-basis: 100%;
-  margin: 0;
-  font-size: 0.85rem;
-  color: var(--text-muted);
+.clear {
+  composes: label from '../../styles/typography.module.css';
+  min-height: 36px;
+  padding: 0 var(--space-2);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--accent);
+  cursor: pointer;
+}
+
+.clear:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }

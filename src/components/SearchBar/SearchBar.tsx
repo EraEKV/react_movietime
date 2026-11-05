@@ -1,4 +1,6 @@
 import { useEffect, useEffectEvent, useId, useState, type FormEvent } from 'react'
+import fieldStyles from '../Field/Field.module.css'
+import Icon from '../Icon/Icon'
 import styles from './SearchBar.module.css'
 
 const DEBOUNCE_MS = 400
@@ -18,7 +20,7 @@ interface SearchBarProps {
 export default function SearchBar({
   query,
   onSearch,
-  placeholder = 'Search TV series…',
+  placeholder = 'Search series by title',
 }: SearchBarProps) {
   const id = useId()
   const [value, setValue] = useState(query)
@@ -64,32 +66,31 @@ export default function SearchBar({
 
   return (
     <form role="search" className={styles.form} onSubmit={handleSubmit}>
-      <label htmlFor={id} className={styles.srOnly}>
+      <label htmlFor={id} className="sr-only">
         Search TV series
       </label>
-      <span className={styles.icon} aria-hidden="true">
-        ⌕
-      </span>
-      <input
-        id={id}
-        type="search"
-        className={styles.input}
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        placeholder={placeholder}
-        autoComplete="off"
-        spellCheck="false"
-      />
-      {value && (
-        <button
-          type="button"
-          className={styles.clear}
-          onClick={handleClear}
-          aria-label="Clear search"
-        >
-          ×
-        </button>
-      )}
+      <div className={fieldStyles.control}>
+        <Icon name="search" size={18} className={fieldStyles.leading} />
+        <input
+          id={id}
+          type="search"
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          placeholder={placeholder}
+          autoComplete="off"
+          spellCheck="false"
+        />
+        {value && (
+          <button
+            type="button"
+            className={fieldStyles.inlineButton}
+            onClick={handleClear}
+            aria-label="Clear search"
+          >
+            <Icon name="x" size={16} />
+          </button>
+        )}
+      </div>
     </form>
   )
 }
