@@ -53,7 +53,8 @@ Legend: ✅ implemented, 🚧 in progress.
 ### App
 
 - ✅ Loading skeletons, error states with retry, empty states, responsive layout.
-- 🚧 Light / dark theme, English / Russian / Kazakh (also for TMDB content).
+- ✅ Light / dark theme that follows the system by default, with a toggle in the header.
+- 🚧 English / Russian / Kazakh (also for TMDB content).
 - 🚧 Installable PWA with offline support.
 
 | Series page                                     | Episode ratings                                  |
@@ -67,10 +68,10 @@ Legend: ✅ implemented, 🚧 in progress.
 ## Tech stack
 
 - **React 19** + **TypeScript** (strict) + **Vite**, **React Router** (declarative mode)
-- 🚧 **Redux Toolkit**: global state (auth, library, preferences)
+- **Redux Toolkit**: global state; `preferences` with listener middleware ✅, `auth` and `library` 🚧
 - **Firebase**: Authentication (email/password, Google), Cloud Firestore
 - **TMDB API** for movies and series
-- **CSS Modules** with design tokens
+- **CSS Modules** on design tokens (`styles/tokens.css`), dark and light themes via `data-theme`
 - Plain `fetch` + custom hooks for TMDB, `onSnapshot` + custom hooks for Firestore
 - 🚧 `react-i18next`
 - 🚧 **Service worker** written with Workbox (`vite-plugin-pwa`, `injectManifest` mode)

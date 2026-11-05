@@ -1,11 +1,13 @@
+import { useLocation } from 'react-router'
 import { endpoints, MAX_PAGE } from '../api/tmdb'
 import Button from '../components/Button/Button'
+import EmptyState from '../components/EmptyState/EmptyState'
+import ErrorState from '../components/EmptyState/ErrorState'
 import FilterBar from '../components/FilterBar/FilterBar'
 import Pagination from '../components/Pagination/Pagination'
 import SearchBar from '../components/SearchBar/SearchBar'
 import SeriesGrid from '../components/SeriesGrid/SeriesGrid'
 import SkeletonGrid from '../components/Skeleton/SkeletonGrid'
-import StatusMessage from '../components/StatusMessage/StatusMessage'
 import { useFetch } from '../hooks/useFetch'
 import { useGenres } from '../hooks/useGenres'
 import { useSeriesFilters } from '../hooks/useSeriesFilters'
@@ -14,10 +16,23 @@ import { toDiscoverParams } from '../utils/filters'
 import { formatNumber } from '../utils/format'
 import styles from './HomePage.module.css'
 
+/** Router state is untyped (any page can push anything), so check its shape before trusting it. */
+function wantsSearchFocus(state: unknown): boolean {
+  return (
+    typeof state === 'object' &&
+    state !== null &&
+    'focusSearch' in state &&
+    state.focusSearch === true
+  )
+}
+
 export default function HomePage() {
   const { filters, query, page, activeCount, setFilter, setQuery, setPage, resetFilters } =
     useSeriesFilters()
   const { genres, genresById } = useGenres()
+  // The header's mobile search button navigates here with { focusSearch: true }.
+  const location = useLocation()
+  const focusSearch = wantsSearchFocus(location.state)
 
   // TMDB can't combine text search with discover filters, so a query switches the endpoint.
   const searchMode = query !== ''
@@ -37,17 +52,20 @@ export default function HomePage() {
   }
 
   return (
-    <section>
+    <section className={styles.page} aria-labelledby="catalog-title">
       <header className={styles.header}>
-        <h1>{searchMode ? `Results for “${query}”` : 'Discover TV series'}</h1>
-        {status === 'success' && data.total_results > 0 && (
-          <p className={styles.count}>
-            {formatNumber(data.total_results)} series · page {page} of {formatNumber(totalPages)}
-          </p>
-        )}
+        <h1 id="catalog-title" className={styles.title}>
+          {searchMode ? `Results for “${query}”` : 'Series'}
+        </h1>
+        {/* aria-live: the count is announced when results change after typing or filtering. */}
+        <p className={styles.count} aria-live="polite">
+          {status === 'success' && data.total_results > 0
+            ? `${formatNumber(data.total_results)} series · page ${page} of ${formatNumber(totalPages)}`
+            : '\u00a0'}
+        </p>
       </header>
 
-      <SearchBar query={query} onSearch={setQuery} />
+      <SearchBar query={query} onSearch={setQuery} autoFocus={focusSearch} />
 
       <FilterBar
         filters={filters}
@@ -61,13 +79,7 @@ export default function HomePage() {
       {(status === 'idle' || status === 'loading') && <SkeletonGrid />}
 
       {status === 'error' && (
-        <StatusMessage
-          tone="error"
-          title="Couldn't load series"
-          action={<Button onClick={reload}>Try again</Button>}
-        >
-          {error.message}
-        </StatusMessage>
+        <ErrorState title="We couldn’t load series" body={error.message} onRetry={reload} />
       )}
 
       {status === 'success' && data.results.length === 0 && (
@@ -83,10 +95,11 @@ export default function HomePage() {
       )}
 
       {status === 'success' && data.results.length > 0 && (
-        <>
-          <SeriesGrid items={data.results} genresById={genresById} />
+        <div>
+          <h2 className="sr-only">Results</h2>
+          <SeriesGrid items={data.results} genresById={genresById} label="Series" />
           <Pagination page={page} totalPages={totalPages} onPageChange={handlePageChange} />
-        </>
+        </div>
       )}
     </section>
   )
@@ -114,46 +127,31 @@ function EmptyResults({
 }: EmptyResultsProps) {
   if (searchMode) {
     return (
-      <StatusMessage
+      <EmptyState
+        icon="search"
         title={`Nothing found for “${query}”`}
-        action={
-          <Button variant="ghost" onClick={onClearSearch}>
-            Clear search
-          </Button>
-        }
-      >
-        Check the spelling or try the original title.
-      </StatusMessage>
+        body="Check the spelling or try the original title."
+        actions={<Button onClick={onClearSearch}>Clear search</Button>}
+      />
     )
   }
 
   if (hasFilters) {
     return (
-      <StatusMessage
+      <EmptyState
+        icon="filter"
         title="No series match these filters"
-        action={
-          <Button variant="ghost" onClick={onResetFilters}>
-            Reset filters
-          </Button>
-        }
-      >
-        Try a different genre, year or a lower rating.
-      </StatusMessage>
+        body="Try a different genre, year or a lower rating."
+        actions={<Button onClick={onResetFilters}>Clear all filters</Button>}
+      />
     )
   }
 
   return (
-    <StatusMessage
+    <EmptyState
       title="No series on this page"
-      action={
-        page > 1 && (
-          <Button variant="ghost" onClick={onFirstPage}>
-            Back to first page
-          </Button>
-        )
-      }
-    >
-      Try another page.
-    </StatusMessage>
+      body="Try another page."
+      actions={page > 1 && <Button onClick={onFirstPage}>Back to first page</Button>}
+    />
   )
 }

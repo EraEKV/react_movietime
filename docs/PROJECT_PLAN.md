@@ -269,23 +269,24 @@ Vitest + React Testing Library + jsdom, `npm test`:
 Each phase is one feature branch and one PR (see [CONTRIBUTING.md](CONTRIBUTING.md)).
 Small fixes between phases go straight to `main`.
 
-| #   | Branch                    | Scope                                                                                                                                                          |
-| --- | ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 0   | `main` ✅                 | These docs and the README                                                                                                                                      |
-| 0.5 | `refactor/typescript` ✅  | Codebase migrated to TypeScript (strict), typed TMDB responses, `typescript-eslint`                                                                            |
-| 1   | `feat/firebase-auth`      | Redux store + `auth` slice, Firebase init, auth service, Login/Signup (email + Google), verification, protected/guest routes, user in header, profile document |
-| 2   | `feat/routing`            | Home landing, About, catalog moved to `/series`, nested routes, lazy pages, Profile page                                                                       |
-| 3   | `feat/movies`             | Movie catalog and details, shared media helpers, 5th filter, language filter, page size                                                                        |
-| 4   | `feat/library-firestore`  | Watchlist → Library, Firestore sync, guest merge on sign-in                                                                                                    |
-| 5   | `feat/lists`              | Lists CRUD and list items                                                                                                                                      |
-| 6   | `feat/sharing`            | Link visibility, members and roles, "Shared with me", copy list, Firestore rules                                                                               |
-| 7   | `feat/planner`            | Schedule generation, calendar, complete / reschedule / skip, `.ics` export, plan sharing                                                                       |
-| 8   | `feat/dashboard`          | Stats, breakdowns, filters and navigation                                                                                                                      |
-| 9   | `feat/theme`              | Theme switcher, settings page                                                                                                                                  |
-| 10  | `feat/i18n`               | en / ru / kk, TMDB language                                                                                                                                    |
-| 11  | `feat/pwa`                | Manifest, service worker, caching, offline page, status indicator                                                                                              |
-| 12  | `test/unit-and-component` | Vitest + Testing Library: logic, slices, hooks, components (see 3.12)                                                                                          |
-| 13  | `docs/final-readme`       | Final README, screenshots, defense notes                                                                                                                       |
+| #   | Branch                    | Scope                                                                                                                                                                 |
+| --- | ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 0   | `main` ✅                 | These docs and the README                                                                                                                                             |
+| 0.5 | `refactor/typescript` ✅  | Codebase migrated to TypeScript (strict), typed TMDB responses, `typescript-eslint`                                                                                   |
+| 1   | `feat/ui-foundation` ✅   | Design tokens (both themes), fonts, base UI components, header + mobile tab bar, Redux store with the `preferences` slice and theme listener, existing pages restyled |
+| 2   | `feat/firebase-auth`      | `auth` slice, Firebase init, auth service, Login/Signup (email + Google), verification, protected/guest routes, user in header, profile document                      |
+| 3   | `feat/routing`            | Home landing, About, catalog moved to `/series`, nested routes, lazy pages                                                                                            |
+| 4   | `feat/movies`             | Movie catalog and details, shared media helpers, 5th filter, language filter, page size                                                                               |
+| 5   | `feat/library`            | Watchlist → Library, Firestore sync, guest merge on sign-in                                                                                                           |
+| 6   | `feat/lists`              | Lists CRUD and list items                                                                                                                                             |
+| 7   | `feat/sharing`            | Link visibility, members and roles, "Shared with me", copy list, Firestore rules                                                                                      |
+| 8   | `feat/planner`            | Schedule generation, calendar, complete / reschedule / skip, `.ics` export, plan sharing                                                                              |
+| 9   | `feat/dashboard`          | Stats, breakdowns, filters and navigation                                                                                                                             |
+| 10  | `feat/profile`            | Profile page, settings (theme, language, display name)                                                                                                                |
+| 11  | `feat/i18n`               | en / ru / kk, TMDB language                                                                                                                                           |
+| 12  | `feat/pwa`                | Manifest, service worker, caching, offline page, status indicator                                                                                                     |
+| 13  | `test/unit-and-component` | Vitest + Testing Library: logic, slices, hooks, components (see 3.12)                                                                                                 |
+| 14  | `docs/final`              | Final README, screenshots, defense notes                                                                                                                              |
 
 ## 6. Requirements checklist
 

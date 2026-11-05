@@ -1,137 +1,93 @@
 .form {
   display: flex;
   flex-direction: column;
-  gap: 22px;
+  gap: var(--space-6);
   max-width: 640px;
-  padding: 20px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
 }
 
-@media (min-width: 768px) {
-  .form {
-    padding: 28px;
-  }
-}
-
-.field {
+.fieldset {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--space-2);
   min-width: 0;
   margin: 0;
   padding: 0;
   border: 0;
 }
 
-.label {
+.legend {
+  margin-bottom: var(--space-2);
   padding: 0;
-  font-size: 0.75rem;
+  font-size: 14px;
+  line-height: 20px;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--text-muted);
-}
-
-.labelRow {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
 }
 
 .fixed {
-  margin: 0;
-  font-size: 1.1rem;
-  font-weight: 600;
-}
-
-.segments {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-}
-
-@media (min-width: 560px) {
-  .segments {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-}
-
-.segment {
-  position: relative;
-}
-
-/* Visually hidden but still focusable and checkable via keyboard */
-.segment input {
-  position: absolute;
-  opacity: 0;
-  inset: 0;
-  margin: 0;
-  cursor: pointer;
-}
-
-.segment span {
-  display: grid;
-  place-items: center;
-  height: 40px;
-  padding: 0 8px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: var(--surface-2);
-  font-size: 0.9rem;
-  font-weight: 500;
-  text-align: center;
-}
-
-.segment input:checked + span {
-  border-color: var(--accent);
-  background: color-mix(in srgb, var(--accent) 18%, var(--surface-2));
-  color: var(--text);
-}
-
-.segment input:focus-visible + span {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
-
-.textarea {
-  width: 100%;
-  padding: 10px 12px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: var(--surface-2);
-  resize: vertical;
-  line-height: 1.5;
-}
-
-.textarea:focus {
-  outline: none;
-  border-color: var(--accent);
-}
-
-.textarea[aria-invalid='true'] {
-  border-color: var(--danger);
-}
-
-.counter {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  font-variant-numeric: tabular-nums;
-}
-
-.counter[data-over] {
-  color: var(--danger);
+  composes: titleM from '../../styles/typography.module.css';
 }
 
 .error {
-  margin: 0;
-  font-size: 0.85rem;
+  display: flex;
+  gap: var(--space-1);
   color: var(--danger);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.error svg {
+  margin-top: 2px;
+}
+
+/* Radio cards: a real radio input inside each label, styled as a card. */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--space-2);
+}
+
+.card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 56px;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    border-color var(--dur-fast),
+    background var(--dur-fast);
+}
+
+.card:hover {
+  background: var(--surface-hover);
+}
+
+.card input {
+  position: absolute;
+  opacity: 0;
+}
+
+.card:has(input:checked) {
+  border-color: var(--accent);
+  background: var(--surface-selected);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+.card:has(input:focus-visible) {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
 }
 
 .actions {
   display: flex;
+  flex-wrap: wrap;
   justify-content: flex-end;
-  gap: 10px;
+  gap: var(--space-2);
+  padding-top: var(--space-2);
 }

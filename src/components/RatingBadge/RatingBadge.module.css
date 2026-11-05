@@ -2,41 +2,48 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-weight: 700;
-  border-radius: 999px;
-  color: #fff;
-  background: var(--surface-2);
-  font-variant-numeric: tabular-nums;
-}
-
-.sm {
-  min-width: 36px;
+  min-width: 34px;
   height: 24px;
-  padding: 0 8px;
-  font-size: 0.75rem;
+  padding: 0 6px;
+  border-radius: var(--radius-xs);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--on-rating);
 }
 
-.md {
-  min-width: 44px;
-  height: 30px;
-  padding: 0 10px;
-  font-size: 0.875rem;
+.lg {
+  min-width: 52px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-display);
+  font-size: 16px;
 }
 
-.badge[data-tone='awesome'] {
-  background: var(--rating-awesome);
+/* The number is always printed, so colour is never the only signal. */
+.step0 {
+  background: var(--rating-none);
+  color: var(--text-muted);
 }
-.badge[data-tone='great'] {
-  background: var(--rating-great);
+
+.step1 {
+  background: var(--rating-1);
+  color: var(--on-rating-1);
 }
-.badge[data-tone='good'] {
-  background: var(--rating-good);
-  color: #0d1117;
+
+.step2 {
+  background: var(--rating-2);
 }
-.badge[data-tone='ok'] {
-  background: var(--rating-ok);
-  color: #0d1117;
+
+.step3 {
+  background: var(--rating-3);
 }
-.badge[data-tone='bad'] {
-  background: var(--rating-bad);
+
+.step4 {
+  background: var(--rating-4);
+}
+
+.step5 {
+  background: var(--rating-5);
 }

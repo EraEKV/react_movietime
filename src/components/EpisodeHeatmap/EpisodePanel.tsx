@@ -1,6 +1,7 @@
 import { imageUrl } from '../../api/tmdb'
 import { episodeCode, formatDate, formatNumber } from '../../utils/format'
 import type { Episode } from '../../hooks/useEpisodeRatings'
+import IconButton from '../IconButton/IconButton'
 import RatingBadge from '../RatingBadge/RatingBadge'
 import styles from './EpisodeHeatmap.module.css'
 
@@ -24,14 +25,12 @@ export default function EpisodePanel({ episode, onClose }: EpisodePanelProps) {
         <p className={styles.code}>{episodeCode(episode.season, episode.number)}</p>
         <h3 className={styles.panelTitle}>{episode.name}</h3>
         <div className={styles.panelMeta}>
-          <RatingBadge vote={episode.rating} size="sm" />
+          <RatingBadge value={episode.rating} />
           <span>{meta.join(' · ')}</span>
         </div>
         <p className={styles.overview}>{episode.overview || 'No overview available.'}</p>
       </div>
-      <button type="button" className={styles.close} onClick={onClose} aria-label="Close episode">
-        ×
-      </button>
+      <IconButton icon="x" label="Close episode" className={styles.close} onClick={onClose} />
     </div>
   )
 }

@@ -1,12 +1,13 @@
 import { useEffect } from 'react'
-import { NavLink, Outlet, useLocation } from 'react-router'
-import { useWatchlist } from '../../hooks/useWatchlist'
+import { Outlet, useLocation } from 'react-router'
+import { useSystemThemeSync } from '../../hooks/useTheme'
+import Header from './Header'
 import styles from './Layout.module.css'
+import TabBar from './TabBar'
 
 export default function Layout() {
   const { pathname } = useLocation()
-  const { entries } = useWatchlist()
-  const navClass = ({ isActive }: { isActive: boolean }) => (isActive ? styles.active : undefined)
+  useSystemThemeSync()
 
   // Syncs the browser's scroll position (an external system) with the route:
   // opening another page starts at the top. Filter/page changes keep the same pathname.
@@ -16,33 +17,27 @@ export default function Layout() {
 
   return (
     <div className={styles.shell}>
-      <header className={styles.header}>
-        <div className={styles.inner}>
-          <NavLink to="/" className={styles.logo}>
-            Movie<span>time</span>
-          </NavLink>
-          <nav className={styles.nav}>
-            <NavLink to="/" end className={navClass}>
-              Discover
-            </NavLink>
-            <NavLink to="/watchlist" className={navClass}>
-              Watchlist
-              {entries.length > 0 && <span className={styles.count}>{entries.length}</span>}
-            </NavLink>
-          </nav>
-        </div>
-      </header>
+      <a href="#main" className={styles.skipLink}>
+        Skip to content
+      </a>
+      <Header />
 
-      <main className={styles.main}>
+      {/* tabIndex=-1 lets the skip link move focus here without adding a Tab stop. */}
+      <main id="main" tabIndex={-1} className={styles.main}>
         <Outlet />
       </main>
 
       <footer className={styles.footer}>
-        Data provided by{' '}
-        <a href="https://www.themoviedb.org/" target="_blank" rel="noreferrer">
-          TMDB
-        </a>
+        <p>
+          Movie and series data from{' '}
+          <a href="https://www.themoviedb.org/" target="_blank" rel="noreferrer">
+            TMDB
+          </a>
+          . This product uses the TMDB API but is not endorsed or certified by TMDB.
+        </p>
       </footer>
+
+      <TabBar />
     </div>
   )
 }

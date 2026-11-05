@@ -25,7 +25,7 @@ export default function SeasonList({ seasons }: { seasons: SeasonSummary[] }) {
                   .filter(Boolean)
                   .join(' · ')}
               </p>
-              <RatingBadge vote={season.vote_average} size="sm" />
+              <RatingBadge value={season.vote_average} />
             </div>
           </li>
         )

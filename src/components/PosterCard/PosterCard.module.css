@@ -1,0 +1,136 @@
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.art {
+  position: relative;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+  background: var(--surface-sunken);
+  transition:
+    transform var(--dur-base) var(--ease-out),
+    box-shadow var(--dur-base) var(--ease-out);
+}
+
+.art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Posters lift on hover; focus-within mirrors it for keyboard users. */
+.card:hover .art,
+.card:focus-within .art {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-2);
+}
+
+.placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  height: 100%;
+  padding: var(--space-3);
+  color: var(--text-subtle);
+  text-align: center;
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.badges {
+  position: absolute;
+  top: var(--space-2);
+  left: var(--space-2);
+  right: var(--space-2);
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+  pointer-events: none;
+}
+
+.progress {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  height: 4px;
+  background: var(--overlay);
+}
+
+.progress span {
+  display: block;
+  height: 100%;
+  background: var(--gradient-brand);
+}
+
+/* Actions sit above the stretched link, so they are separate buttons, not nested in it. */
+.actions {
+  position: absolute;
+  inset: auto var(--space-2) var(--space-2);
+  z-index: 3;
+  display: flex;
+  gap: var(--space-1);
+  opacity: 0;
+  transform: translateY(6px);
+  transition:
+    opacity var(--dur-base),
+    transform var(--dur-base) var(--ease-out);
+}
+
+.card:hover .actions,
+.card:focus-within .actions {
+  opacity: 1;
+  transform: none;
+}
+
+/* Touch screens have no hover: actions live on the details page instead. */
+@media (hover: none) {
+  .actions {
+    display: none;
+  }
+}
+
+.title {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  font-size: 15px;
+  line-height: 20px;
+  font-weight: 600;
+}
+
+.meta {
+  margin-top: -4px;
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 18px;
+}
+
+/* The whole tile is one link: an invisible layer over the card. */
+.link {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: var(--radius-sm);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: var(--space-6) var(--space-4);
+}
+
+@media (min-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
+  }
+}

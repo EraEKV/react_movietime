@@ -1,20 +1,21 @@
 import { useState } from 'react'
 import { useEpisodeRatings, type Episode } from '../../hooks/useEpisodeRatings'
-import type { RatingTone } from '../../utils/format'
-import Button from '../Button/Button'
+import { episodeCode } from '../../utils/format'
+import { RATING_WORDS, type RatingStep } from '../../utils/rating'
+import EmptyState from '../EmptyState/EmptyState'
+import ErrorState from '../EmptyState/ErrorState'
 import RatingBadge from '../RatingBadge/RatingBadge'
-import StatusMessage from '../StatusMessage/StatusMessage'
+import Skeleton from '../Skeleton/Skeleton'
 import EpisodePanel from './EpisodePanel'
 import HeatmapGrid from './HeatmapGrid'
 import styles from './EpisodeHeatmap.module.css'
 
-const LEGEND: { tone: RatingTone; label: string }[] = [
-  { tone: 'awesome', label: '9+' },
-  { tone: 'great', label: '8–9' },
-  { tone: 'good', label: '7–8' },
-  { tone: 'ok', label: '5.5–7' },
-  { tone: 'bad', label: '< 5.5' },
-  { tone: 'none', label: 'Not rated' },
+const LEGEND: { step: RatingStep; range: string }[] = [
+  { step: 1, range: '< 5' },
+  { step: 2, range: '5–6.4' },
+  { step: 3, range: '6.5–7.4' },
+  { step: 4, range: '7.5–8.4' },
+  { step: 5, range: '8.5+' },
 ]
 
 interface EpisodeHeatmapProps {
@@ -30,18 +31,21 @@ export default function EpisodeHeatmap({ seriesId, seasonNumbers }: EpisodeHeatm
   const [selectedId, setSelectedId] = useState<number | null>(null)
 
   if (status === 'idle' || status === 'loading') {
-    return <div className={styles.loading} aria-busy="true" aria-label="Loading episode ratings" />
+    return (
+      <div aria-busy="true" aria-label="Loading episode ratings">
+        <Skeleton height={320} radius="md" />
+      </div>
+    )
   }
 
   if (status === 'error') {
     return (
-      <StatusMessage
-        tone="error"
-        title="Couldn't load episode ratings"
-        action={<Button onClick={reload}>Try again</Button>}
-      >
-        {error.message}
-      </StatusMessage>
+      <ErrorState
+        headingLevel="h3"
+        title="We couldn’t load episode ratings"
+        body={error.message}
+        onRetry={reload}
+      />
     )
   }
 
@@ -50,9 +54,12 @@ export default function EpisodeHeatmap({ seriesId, seasonNumbers }: EpisodeHeatm
 
   if (rated.length === 0) {
     return (
-      <StatusMessage title="No episode ratings yet">
-        Episodes appear here once TMDB users start voting on them.
-      </StatusMessage>
+      <EmptyState
+        icon="heat"
+        headingLevel="h3"
+        title="No episode ratings yet"
+        body="Ratings appear after episodes air and TMDB users vote on them."
+      />
     )
   }
 
@@ -69,24 +76,34 @@ export default function EpisodeHeatmap({ seriesId, seasonNumbers }: EpisodeHeatm
   return (
     <div className={styles.heatmap}>
       <div className={styles.highlights}>
-        <HighlightButton label="Best episode" episode={best} onSelect={handleSelect} />
+        <HighlightButton label="★ Best" episode={best} onSelect={handleSelect} />
         {worst.id !== best.id && (
-          <HighlightButton label="Lowest rated" episode={worst} onSelect={handleSelect} />
+          <HighlightButton label="▼ Lowest" episode={worst} onSelect={handleSelect} />
         )}
         <p className={styles.stats}>
           {rated.length} of {episodes.length} episodes rated
         </p>
       </div>
 
-      <HeatmapGrid seasons={seasons} selectedId={selectedId} onSelect={handleSelect} />
+      <HeatmapGrid
+        seasons={seasons}
+        selectedId={selectedId}
+        bestId={best.id}
+        worstId={worst.id === best.id ? null : worst.id}
+        onSelect={handleSelect}
+      />
 
-      <ul className={styles.legend} aria-label="Rating colors">
+      <ul className={styles.legend} aria-label="Rating colours">
         {LEGEND.map((item) => (
-          <li key={item.tone}>
-            <span className={styles.swatch} data-tone={item.tone} />
-            {item.label}
+          <li key={item.step}>
+            <span className={styles.swatch} data-step={item.step} />
+            {RATING_WORDS[item.step]} {item.range}
           </li>
         ))}
+        <li>
+          <span className={styles.swatch} data-step={0} />
+          Not aired
+        </li>
       </ul>
 
       {selected ? (
@@ -109,9 +126,9 @@ function HighlightButton({ label, episode, onSelect }: HighlightButtonProps) {
     <button type="button" className={styles.highlight} onClick={() => onSelect(episode.id)}>
       <span className={styles.highlightLabel}>{label}</span>
       <span className={styles.highlightName}>
-        S{episode.season}E{episode.number} · {episode.name}
+        {episodeCode(episode.season, episode.number)} · {episode.name}
       </span>
-      <RatingBadge vote={episode.rating} size="sm" />
+      <RatingBadge value={episode.rating} />
     </button>
   )
 }

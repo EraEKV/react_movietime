@@ -1,7 +1,6 @@
-import { Link } from 'react-router'
 import { useWatchlist } from '../../hooks/useWatchlist'
 import { statusLabel } from '../../utils/watchlist'
-import styles from './WatchlistButton.module.css'
+import ButtonLink from '../ButtonLink/ButtonLink'
 
 export default function WatchlistButton({ seriesId }: { seriesId: number }) {
   const { entries } = useWatchlist()
@@ -9,15 +8,15 @@ export default function WatchlistButton({ seriesId }: { seriesId: number }) {
 
   if (entry) {
     return (
-      <Link to={`/watchlist/${entry.id}/edit`} className={`${styles.button} ${styles.added}`}>
-        ✓ In watchlist · {statusLabel(entry.status)}
-      </Link>
+      <ButtonLink to={`/watchlist/${entry.id}/edit`} icon="check">
+        In library · {statusLabel(entry.status)}
+      </ButtonLink>
     )
   }
 
   return (
-    <Link to={`/watchlist/new?series=${seriesId}`} className={styles.button}>
-      + Add to watchlist
-    </Link>
+    <ButtonLink to={`/watchlist/new?series=${seriesId}`} variant="primary" icon="plus">
+      Add to library
+    </ButtonLink>
   )
 }

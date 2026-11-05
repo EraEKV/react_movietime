@@ -1,15 +1,36 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#0d1117" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#0b0c0f" />
     <title>Movietime</title>
     <meta
       name="description"
-      content="Discover TV series and explore episode ratings, powered by TMDB."
+      content="Discover movies and series, track what you watch and plan watching together. Powered by TMDB."
     />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=Unbounded:wght@600;700&display=swap"
+    />
+    <script>
+      // Applies the saved theme before the first paint, so the page never flashes the wrong theme.
+      // Must stay in sync with src/storage/preferencesStorage.ts (key and shape).
+      ;(function () {
+        var theme = 'system'
+        try {
+          var saved = JSON.parse(localStorage.getItem('movietime.preferences.v1') || '{}')
+          if (saved.theme === 'light' || saved.theme === 'dark') theme = saved.theme
+        } catch (e) {}
+        if (theme === 'system') {
+          theme = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'
+        }
+        document.documentElement.dataset.theme = theme
+      })()
+    </script>
   </head>
   <body>
     <div id="root"></div>

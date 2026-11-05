@@ -38,6 +38,26 @@ Rule of thumb: **pages and components render and handle events; hooks connect Re
 services; services talk to the network or storage; utils are pure and know nothing about
 React.**
 
+### Design system and styles
+
+- **Tokens** (`styles/tokens.css`): every colour and shadow has a dark and a light value under
+  `[data-theme='dark']` / `[data-theme='light']`; spacing (`--space-1…16`, 4/8 scale), radius,
+  layout and z-index tokens are theme-independent. Dark is the default.
+- **Theme switch = one attribute.** `<html data-theme>` swaps every colour at once; components
+  only ever write `var(--token)`, never a hex value. An inline script in `index.html` applies the
+  saved theme before the first paint, so there is no flash of the wrong theme.
+- `styles/global.css`: motion (`--dur-fast/base/slow`, `--ease-out`, zeroed under
+  `prefers-reduced-motion`), `prefers-contrast: more`, base element styles, the focus ring.
+- `styles/typography.module.css`: the type scale (Unbounded for display text, Onest for UI);
+  component modules reuse it with `composes:`.
+- Base components (`Button`, `IconButton`, `ButtonLink`, `TextField`, `Textarea`, `SelectField`,
+  `Chip`, `Tabs`, `SegmentedControl`, `Card`, `PosterCard`, `RatingBadge`, `Skeleton`,
+  `EmptyState`, `ErrorState`, `Banner`, `Toast`, `Dialog`/`BottomSheet`, …) each live in their
+  own folder with a CSS Module. Dialogs use the native `<dialog>` element (`showModal()` gives
+  the focus trap, Esc and the top layer).
+- Layout: ≥ 1024px a sticky header with the main nav; below, a compact header and a bottom tab
+  bar. Skip link to `#main`, TMDB attribution in the footer.
+
 ### Global state: Redux Toolkit
 
 ```
@@ -50,7 +70,7 @@ React.**
 | ------------- | ----------------------------------------------- | ------------------------------------------------------- |
 | `auth`        | `user` (serializable subset), `status`, `error` | auth listener, sign-in / sign-out thunks                |
 | `library`     | entries by media key, `status`, `error`         | Firestore snapshot listener, guest storage, CRUD thunks |
-| `preferences` | `theme`, `language`                             | settings page; persisted by a listener                  |
+| `preferences` | `theme`, `language`, `systemTheme`              | header toggle, settings page, `matchMedia` listener     |
 
 - **Side effects live outside components** in RTK **listener middleware** (`store/listeners.ts`):
   - `onIdTokenChanged` → `auth/changed`;

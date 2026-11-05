@@ -1,4 +1,5 @@
 import { useLocation, useNavigate } from 'react-router'
+import Button from '../Button/Button'
 import styles from './BackButton.module.css'
 
 /**
@@ -11,12 +12,13 @@ export default function BackButton() {
   const hasHistory = location.key !== 'default'
 
   return (
-    <button
-      type="button"
+    <Button
+      variant="ghost"
+      icon="chevron-left"
       className={styles.back}
       onClick={() => (hasHistory ? navigate(-1) : navigate('/'))}
     >
-      ← Back
-    </button>
+      Back
+    </Button>
   )
 }

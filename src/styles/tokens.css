@@ -1,0 +1,147 @@
+/*
+ * Design tokens (Movietime design system, tokens.json → CSS custom properties).
+ * Colours and shadows have a value per theme; everything else is theme-independent.
+ * Dark is the default: it applies when <html> has no data-theme yet.
+ * Modules reference these as var(--token) — never raw hex values.
+ */
+
+:root,
+[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #0b0c0f;
+  --surface: #16191f;
+  --surface-raised: #22262e;
+  --surface-sunken: #0e1014;
+  --surface-hover: #2a2f38;
+  --surface-selected: #1d2a30;
+  --border: #2a2f37;
+  --border-strong: #6a7380;
+  --overlay: rgba(5, 6, 8, 0.72);
+  --text: #e8eaed;
+  --text-muted: #a6adb8;
+  --text-subtle: #98a0ab;
+  --text-on-backdrop: #ffffff;
+  --text-disabled: #5b626c;
+  --brand-teal: #01b4e4;
+  --brand-lime: #90cea1;
+  --accent: #3cc6ea;
+  --accent-soft: #0f2c35;
+  --on-accent: #04212a;
+  --focus-ring: #7fdcf5;
+  --danger: #ff7a6e;
+  --danger-soft: #3a1714;
+  --on-danger: #1a0503;
+  --danger-solid: #ff7a6e;
+  --warning: #f2c14e;
+  --warning-soft: #33290f;
+  --success: #5fd3a0;
+  --rating-1: #c43c33;
+  --rating-2: #e07a35;
+  --rating-3: #e3bd3c;
+  --rating-4: #86c450;
+  --rating-5: #2fa864;
+  --rating-none: #2a2f37;
+  --on-rating: #121417;
+  --on-rating-1: #ffffff;
+  --plan-1: #5aa9f6;
+  --plan-2: #b08cf5;
+  --plan-3: #ef8fbd;
+  --plan-4: #d9b98a;
+  --plan-5: #8fb1c9;
+  --plan-6: #e9a86a;
+  --status-plan: #a6adb8;
+  --status-watching: #3cc6ea;
+  --status-completed: #d6dbe2;
+  --status-dropped: #98a0ab;
+  --shadow-1: 0 1px 0 0 rgba(255, 255, 255, 0.04) inset, 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-2: 0 8px 24px rgba(0, 0, 0, 0.45);
+  --shadow-3: 0 24px 64px rgba(0, 0, 0, 0.6);
+}
+
+[data-theme='light'] {
+  color-scheme: light;
+  --bg: #f5f3ee;
+  --surface: #ffffff;
+  --surface-raised: #ffffff;
+  --surface-sunken: #ece9e2;
+  --surface-hover: #f0ede6;
+  --surface-selected: #e3f1f4;
+  --border: #e1ddd4;
+  --border-strong: #7b8089;
+  --overlay: rgba(22, 24, 28, 0.44);
+  --text: #16181c;
+  --text-muted: #4c525c;
+  --text-subtle: #5a606a;
+  --text-on-backdrop: #ffffff;
+  --text-disabled: #a3a7ae;
+  --brand-teal: #01b4e4;
+  --brand-lime: #90cea1;
+  --accent: #00739a;
+  --accent-soft: #dcf0f5;
+  --on-accent: #04212a;
+  --focus-ring: #005f80;
+  --danger: #b42318;
+  --danger-soft: #fdecea;
+  --on-danger: #ffffff;
+  --danger-solid: #b42318;
+  --warning: #8a5a00;
+  --warning-soft: #fdf3d8;
+  --success: #17734b;
+  --rating-1: #b3332b;
+  --rating-2: #d0682a;
+  --rating-3: #d9ad2a;
+  --rating-4: #6fb33f;
+  --rating-5: #23945a;
+  --rating-none: #dcd8cf;
+  --on-rating: #121417;
+  --on-rating-1: #ffffff;
+  --plan-1: #2f7fd0;
+  --plan-2: #7a52d1;
+  --plan-3: #c24f86;
+  --plan-4: #97703a;
+  --plan-5: #4b6f88;
+  --plan-6: #ad6420;
+  --status-plan: #4c525c;
+  --status-watching: #00739a;
+  --status-completed: #16181c;
+  --status-dropped: #5a606a;
+  --shadow-1: 0 1px 2px rgba(22, 24, 28, 0.06), 0 1px 1px rgba(22, 24, 28, 0.04);
+  --shadow-2: 0 8px 24px rgba(22, 24, 28, 0.1), 0 2px 6px rgba(22, 24, 28, 0.06);
+  --shadow-3: 0 24px 64px rgba(22, 24, 28, 0.18);
+}
+
+:root {
+  --font-display: 'Unbounded', 'Onest', system-ui, sans-serif;
+  --font-sans: 'Onest', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+  --radius-pill: 999px;
+
+  --gradient-brand: linear-gradient(100deg, #01b4e4 0%, #90cea1 100%);
+
+  --container-max: 1280px;
+  --header-height: 64px;
+  --tabbar-height: 64px;
+  --touch-min: 44px;
+  /* bp-tablet: 768px — media queries can't read custom properties */
+  /* bp-desktop: 1024px — media queries can't read custom properties */
+
+  --z-header: 40;
+  --z-overlay: 60;
+  --z-menu: 70;
+  --z-toast: 80;
+}

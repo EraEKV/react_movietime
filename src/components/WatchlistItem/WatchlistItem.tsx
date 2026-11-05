@@ -1,9 +1,15 @@
 import { Link } from 'react-router'
 import { imageUrl } from '../../api/tmdb'
-import { formatDate, getYear } from '../../utils/format'
 import type { WatchlistEntry, WatchStatus } from '../../types/watchlist'
-import { isWatchStatus, WATCH_STATUSES } from '../../utils/watchlist'
+import { cx } from '../../utils/cx'
+import { formatDate, getYear } from '../../utils/format'
+import { WATCH_STATUSES } from '../../utils/watchlist'
+import Button from '../Button/Button'
+import ButtonLink from '../ButtonLink/ButtonLink'
+import Icon from '../Icon/Icon'
 import RatingBadge from '../RatingBadge/RatingBadge'
+import SelectField from '../SelectField/SelectField'
+import StatusMarker from '../StatusMarker/StatusMarker'
 import styles from './WatchlistItem.module.css'
 
 interface WatchlistItemProps {
@@ -17,9 +23,15 @@ export default function WatchlistItem({ entry, onStatusChange, onRemove }: Watch
   const year = getYear(entry.firstAirDate)
 
   return (
-    <article className={styles.item}>
-      <Link to={`/series/${entry.seriesId}`} className={styles.poster} tabIndex={-1}>
-        {poster ? <img src={poster} alt="" loading="lazy" /> : <span>{entry.name}</span>}
+    <article className={cx(styles.item, entry.status === 'dropped' && styles.dropped)}>
+      {/* Decorative duplicate of the title link: hidden from keyboard and screen readers. */}
+      <Link
+        to={`/series/${entry.seriesId}`}
+        className={styles.poster}
+        tabIndex={-1}
+        aria-hidden="true"
+      >
+        {poster ? <img src={poster} alt="" loading="lazy" /> : <Icon name="tv" size={24} />}
       </Link>
 
       <div className={styles.body}>
@@ -33,39 +45,44 @@ export default function WatchlistItem({ entry, onStatusChange, onRemove }: Watch
         </div>
 
         <div className={styles.scores}>
-          <span className={styles.scoreLabel}>You</span>
-          <RatingBadge vote={entry.score} size="sm" />
-          <span className={styles.scoreLabel}>TMDB</span>
-          <RatingBadge vote={entry.tmdbRating} size="sm" />
+          <StatusMarker status={entry.status} />
+          <span className={styles.score}>
+            You <RatingBadge value={entry.score} />
+          </span>
+          <span className={styles.score}>
+            TMDB <RatingBadge value={entry.tmdbRating} />
+          </span>
         </div>
 
         {entry.notes && <p className={styles.notes}>{entry.notes}</p>}
 
         <div className={styles.actions}>
-          <label className={styles.srOnly} htmlFor={`status-${entry.id}`}>
-            Status of {entry.name}
-          </label>
-          <select
-            id={`status-${entry.id}`}
+          <SelectField
+            label={`Status of ${entry.name}`}
+            hideLabel
             className={styles.status}
-            data-status={entry.status}
             value={entry.status}
-            onChange={(e) => {
-              if (isWatchStatus(e.target.value)) onStatusChange(entry.id, e.target.value)
-            }}
+            options={WATCH_STATUSES}
+            onChange={(value) => onStatusChange(entry.id, value)}
+          />
+          <ButtonLink
+            to={`/watchlist/${entry.id}/edit`}
+            variant="ghost"
+            size="sm"
+            icon="edit"
+            aria-label={`Edit ${entry.name}`}
           >
-            {WATCH_STATUSES.map((s) => (
-              <option key={s.value} value={s.value}>
-                {s.label}
-              </option>
-            ))}
-          </select>
-          <Link to={`/watchlist/${entry.id}/edit`} className={styles.action}>
             Edit
-          </Link>
-          <button type="button" className={styles.action} onClick={() => onRemove(entry.id)}>
+          </ButtonLink>
+          <Button
+            variant="ghost"
+            size="sm"
+            icon="trash"
+            onClick={() => onRemove(entry.id)}
+            aria-label={`Remove ${entry.name}`}
+          >
             Remove
-          </button>
+          </Button>
         </div>
       </div>
     </article>

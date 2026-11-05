@@ -1,56 +1,51 @@
 .pagination {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
   justify-content: center;
-  gap: 8px;
-  margin-top: 32px;
+  margin-top: var(--space-10);
 }
 
 .pages {
-  list-style: none;
-  margin: 0;
-  padding: 0;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 6px;
+  align-items: center;
+  gap: var(--space-1);
 }
 
 .button {
-  min-width: 40px;
-  height: 40px;
-  padding: 0 12px;
-  border: 1px solid var(--border);
+  display: inline-grid;
+  place-items: center;
+  min-width: var(--touch-min);
+  height: var(--touch-min);
+  padding: 0 var(--space-2);
+  border: 0;
   border-radius: var(--radius-sm);
-  background: var(--surface);
-  cursor: pointer;
-  font-weight: 500;
+  background: none;
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
-  transition:
-    background 0.15s,
-    border-color 0.15s;
+  cursor: pointer;
 }
 
 .button:hover:not(:disabled) {
-  border-color: var(--accent);
+  background: var(--surface-hover);
+  color: var(--text);
 }
 
 .button:disabled {
-  opacity: 0.4;
+  color: var(--text-disabled);
   cursor: not-allowed;
 }
 
 .button[aria-current='page'] {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: #0d1117;
-  font-weight: 700;
+  background: var(--accent-soft);
+  color: var(--text);
+  box-shadow: inset 0 0 0 1px var(--accent);
 }
 
 .gap {
-  display: grid;
-  place-items: center;
   min-width: 24px;
-  color: var(--text-muted);
+  color: var(--text-subtle);
+  text-align: center;
 }

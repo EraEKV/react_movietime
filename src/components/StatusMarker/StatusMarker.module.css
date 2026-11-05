@@ -1,0 +1,26 @@
+.marker {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--text);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 600;
+}
+
+/* Library statuses use neutrals + accent, never the rating red/green. */
+.plan svg {
+  color: var(--status-plan);
+}
+
+.watching svg {
+  color: var(--status-watching);
+}
+
+.completed svg {
+  color: var(--status-completed);
+}
+
+.dropped svg {
+  color: var(--status-dropped);
+}

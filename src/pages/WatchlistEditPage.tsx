@@ -1,6 +1,7 @@
-import { Link, useNavigate, useParams } from 'react-router'
+import { useNavigate, useParams } from 'react-router'
 import BackButton from '../components/BackButton/BackButton'
-import StatusMessage from '../components/StatusMessage/StatusMessage'
+import ButtonLink from '../components/ButtonLink/ButtonLink'
+import EmptyState from '../components/EmptyState/EmptyState'
 import WatchlistForm from '../components/WatchlistForm/WatchlistForm'
 import { useWatchlist } from '../hooks/useWatchlist'
 import type { NewWatchlistEntry } from '../types/watchlist'
@@ -14,18 +15,18 @@ export default function WatchlistEditPage() {
 
   if (!entry) {
     return (
-      <section>
+      <section className={styles.page}>
         <BackButton />
-        <StatusMessage
-          title="Entry not found"
-          action={
-            <Link to="/watchlist" className={styles.link}>
-              Open watchlist
-            </Link>
+        <EmptyState
+          icon="bookmark"
+          title="This entry isn’t in your library"
+          body="It may have been removed, possibly in another tab."
+          actions={
+            <ButtonLink to="/watchlist" variant="primary" icon="bookmark">
+              Go to library
+            </ButtonLink>
           }
-        >
-          It may have been removed, possibly in another tab.
-        </StatusMessage>
+        />
       </section>
     )
   }
@@ -39,7 +40,7 @@ export default function WatchlistEditPage() {
   }
 
   return (
-    <section>
+    <section className={styles.page}>
       <title>{`Edit ${entry.name} · Movietime`}</title>
       <BackButton />
       <h1 className={styles.title}>Edit “{entry.name}”</h1>

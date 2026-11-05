@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router'
 import Button from '../components/Button/Button'
+import ButtonLink from '../components/ButtonLink/ButtonLink'
+import EmptyState from '../components/EmptyState/EmptyState'
 import Pagination from '../components/Pagination/Pagination'
 import SelectField from '../components/SelectField/SelectField'
-import StatusMessage from '../components/StatusMessage/StatusMessage'
-import StatusTabs from '../components/StatusTabs/StatusTabs'
+import Tabs, { type TabItem } from '../components/Tabs/Tabs'
+import TextField from '../components/TextField/TextField'
 import Toast from '../components/Toast/Toast'
 import WatchlistItem from '../components/WatchlistItem/WatchlistItem'
 import { useWatchlist } from '../hooks/useWatchlist'
@@ -45,7 +46,7 @@ export default function WatchlistPage() {
   const currentPage = Math.min(page, totalPages) // removing the last item of a page
   const visible = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
 
-  const tabs: { value: StatusFilter; label: string; count: number }[] = [
+  const tabs: TabItem<StatusFilter>[] = [
     { value: 'all', label: 'All', count: entries.length },
     ...WATCH_STATUSES.map((s) => ({
       ...s,
@@ -90,54 +91,51 @@ export default function WatchlistPage() {
   }
 
   return (
-    <section>
-      <title>Watchlist · Movietime</title>
+    <section className={styles.page}>
+      <title>Library · Movietime</title>
 
       <header className={styles.header}>
         <div>
-          <h1>My watchlist</h1>
-          <p className={styles.subtitle}>Saved in this browser · {entries.length} series</p>
+          <h1 className={styles.title}>Library</h1>
+          <p className={styles.subtitle}>Saved on this device · {entries.length} series</p>
         </div>
-        <Link to="/watchlist/new" className={styles.addLink}>
-          + Add series
-        </Link>
+        <ButtonLink to="/watchlist/new" variant="primary" icon="plus">
+          Add series
+        </ButtonLink>
       </header>
 
       {entries.length === 0 ? (
-        <StatusMessage
-          title="Your watchlist is empty"
-          action={
-            <div className={styles.emptyActions}>
-              <Link to="/watchlist/new" className={styles.addLink}>
-                Add your first series
-              </Link>
-              <Link to="/" className={styles.secondaryLink}>
-                Browse series
-              </Link>
-            </div>
+        <EmptyState
+          icon="bookmark"
+          title="Your library is empty"
+          body="Series you add appear here with your status, score and notes."
+          actions={
+            <ButtonLink to="/" variant="primary" icon="compass">
+              Discover series
+            </ButtonLink>
           }
-        >
-          Keep track of what you are watching, what you finished and how you rated it.
-        </StatusMessage>
+        />
       ) : (
         <>
           <div className={styles.toolbar}>
-            <StatusTabs
+            <Tabs
               label="Filter by status"
-              tabs={tabs}
+              items={tabs}
               value={status}
               onChange={handleStatusChange}
+              panelId="library-results"
             />
             <div className={styles.controls}>
-              <label className={styles.searchField}>
-                <span className={styles.srOnly}>Search your watchlist</span>
-                <input
-                  type="search"
-                  value={search}
-                  onChange={(e) => handleSearchChange(e.target.value)}
-                  placeholder="Search your watchlist…"
-                />
-              </label>
+              <TextField
+                label="Search your library"
+                hideLabel
+                type="search"
+                icon="search"
+                value={search}
+                onChange={handleSearchChange}
+                placeholder="Search your library"
+                autoComplete="off"
+              />
               <SelectField
                 label="Sort by"
                 value={sort}
@@ -147,45 +145,37 @@ export default function WatchlistPage() {
             </div>
           </div>
 
-          {visible.length === 0 ? (
-            <StatusMessage
-              title="Nothing matches"
-              action={
-                <Button variant="ghost" onClick={handleClearFilters}>
-                  Clear search and filters
-                </Button>
-              }
-            >
-              No series in your watchlist match the current search and status.
-            </StatusMessage>
-          ) : (
-            <>
-              <ul className={styles.list}>
-                {visible.map((entry) => (
-                  // entry.id is created once with crypto.randomUUID() and never changes.
-                  <li key={entry.id}>
-                    <WatchlistItem
-                      entry={entry}
-                      onStatusChange={(id, value) => updateEntry(id, { status: value })}
-                      onRemove={handleRemove}
-                    />
-                  </li>
-                ))}
-              </ul>
-              <Pagination page={currentPage} totalPages={totalPages} onPageChange={setPage} />
-            </>
-          )}
+          <div id="library-results" role="tabpanel">
+            {visible.length === 0 ? (
+              <EmptyState
+                icon="search"
+                title="Nothing matches"
+                body="No series in your library match the current search and status."
+                actions={<Button onClick={handleClearFilters}>Clear search and filters</Button>}
+              />
+            ) : (
+              <>
+                <ul className={styles.list}>
+                  {visible.map((entry) => (
+                    // entry.id is created once with crypto.randomUUID() and never changes.
+                    <li key={entry.id}>
+                      <WatchlistItem
+                        entry={entry}
+                        onStatusChange={(id, value) => updateEntry(id, { status: value })}
+                        onRemove={handleRemove}
+                      />
+                    </li>
+                  ))}
+                </ul>
+                <Pagination page={currentPage} totalPages={totalPages} onPageChange={setPage} />
+              </>
+            )}
+          </div>
         </>
       )}
 
       {removed && (
-        <Toast
-          action={
-            <Button variant="ghost" onClick={handleUndo}>
-              Undo
-            </Button>
-          }
-        >
+        <Toast actionLabel="Undo" onAction={handleUndo}>
           Removed “{removed.entry.name}”
         </Toast>
       )}
