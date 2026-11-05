@@ -15,12 +15,14 @@ interface SearchBarProps {
   query: string
   onSearch: (query: string) => void
   placeholder?: string
+  autoFocus?: boolean
 }
 
 export default function SearchBar({
   query,
   onSearch,
   placeholder = 'Search series by title',
+  autoFocus = false,
 }: SearchBarProps) {
   const id = useId()
   const [value, setValue] = useState(query)
@@ -79,6 +81,7 @@ export default function SearchBar({
           placeholder={placeholder}
           autoComplete="off"
           spellCheck="false"
+          autoFocus={autoFocus}
         />
         {value && (
           <button

@@ -1,3 +1,4 @@
+import { useLocation } from 'react-router'
 import { endpoints, MAX_PAGE } from '../api/tmdb'
 import Button from '../components/Button/Button'
 import EmptyState from '../components/EmptyState/EmptyState'
@@ -15,10 +16,23 @@ import { toDiscoverParams } from '../utils/filters'
 import { formatNumber } from '../utils/format'
 import styles from './HomePage.module.css'
 
+/** Router state is untyped (any page can push anything), so check its shape before trusting it. */
+function wantsSearchFocus(state: unknown): boolean {
+  return (
+    typeof state === 'object' &&
+    state !== null &&
+    'focusSearch' in state &&
+    state.focusSearch === true
+  )
+}
+
 export default function HomePage() {
   const { filters, query, page, activeCount, setFilter, setQuery, setPage, resetFilters } =
     useSeriesFilters()
   const { genres, genresById } = useGenres()
+  // The header's mobile search button navigates here with { focusSearch: true }.
+  const location = useLocation()
+  const focusSearch = wantsSearchFocus(location.state)
 
   // TMDB can't combine text search with discover filters, so a query switches the endpoint.
   const searchMode = query !== ''
@@ -51,7 +65,7 @@ export default function HomePage() {
         </p>
       </header>
 
-      <SearchBar query={query} onSearch={setQuery} />
+      <SearchBar query={query} onSearch={setQuery} autoFocus={focusSearch} />
 
       <FilterBar
         filters={filters}
@@ -82,6 +96,7 @@ export default function HomePage() {
 
       {status === 'success' && data.results.length > 0 && (
         <div>
+          <h2 className="sr-only">Results</h2>
           <SeriesGrid items={data.results} genresById={genresById} label="Series" />
           <Pagination page={page} totalPages={totalPages} onPageChange={handlePageChange} />
         </div>
