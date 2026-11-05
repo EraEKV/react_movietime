@@ -25,7 +25,8 @@ TMDB title ──(media key)──► library entry      users/{uid}/library/{me
   `"HH:mm"`. A calendar day is not a moment in time, and strings sort and compare correctly in
   queries.
 - Every document written by the app has `createdAt` / `updatedAt` where it makes sense.
-- The schemas below are also written as JSDoc `@typedef`s in the service modules.
+- The schemas below are also defined as TypeScript types in `src/types/` and used by the
+  services, so a wrong field name is a compile error.
 
 ## TMDB resources
 
@@ -63,19 +64,21 @@ Unknown or invalid values in the URL are dropped and replaced by defaults.
 ### Title (normalized from TMDB)
 
 TMDB returns different field names for movies and series (`title` / `name`,
-`release_date` / `first_air_date`). `utils/media.js` normalizes both into one shape for cards
+`release_date` / `first_air_date`). `utils/media.ts` normalizes both into one shape for cards
 and for the snapshots stored in Firestore:
 
-```js
-/** @typedef {Object} MediaSummary
- * @property {'movie'|'tv'} mediaType
- * @property {number} tmdbId
- * @property {string} title
- * @property {string|null} posterPath
- * @property {string|null} year        "2008"
- * @property {number[]} genreIds
- * @property {number|null} tmdbRating  0–10
- */
+```ts
+export type MediaType = 'movie' | 'tv'
+
+export interface MediaSummary {
+  mediaType: MediaType
+  tmdbId: number
+  title: string
+  posterPath: string | null
+  year: string | null // "2008"
+  genreIds: number[]
+  tmdbRating: number | null // 0–10
+}
 ```
 
 ## Firestore collections
@@ -343,6 +346,6 @@ Sessions are queried inside one plan by `date` (single-field index, created auto
 
 | Key                        | Module                          | Content                                    |
 | -------------------------- | ------------------------------- | ------------------------------------------ |
-| `movietime.library.v1`     | `storage/libraryStorage.js`     | Guest library entries                      |
-| `movietime.preferences.v1` | `storage/preferencesStorage.js` | `{ theme, language }`                      |
+| `movietime.library.v1`     | `storage/libraryStorage.ts`     | Guest library entries                      |
+| `movietime.preferences.v1` | `storage/preferencesStorage.ts` | `{ theme, language }`                      |
 | `movietime.watchlist.v1`   | (legacy, midterm)               | Migrated to the library once, then removed |

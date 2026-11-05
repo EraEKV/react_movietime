@@ -66,13 +66,16 @@ Legend: ✅ implemented, 🚧 in progress.
 
 ## Tech stack
 
-- **React 19** + **Vite**, **React Router** (declarative mode)
+- **React 19** + **TypeScript** (strict) + **Vite**, **React Router** (declarative mode)
+- 🚧 **Redux Toolkit**: global state (auth, library, preferences)
 - **Firebase**: Authentication (email/password, Google), Cloud Firestore
 - **TMDB API** for movies and series
 - **CSS Modules** with design tokens
 - Plain `fetch` + custom hooks for TMDB, `onSnapshot` + custom hooks for Firestore
-- 🚧 `react-i18next`, `vite-plugin-pwa`
-- **ESLint** + **Prettier**
+- 🚧 `react-i18next`
+- 🚧 **Service worker** written with Workbox (`vite-plugin-pwa`, `injectManifest` mode)
+- 🚧 **Vitest** + **React Testing Library**
+- **ESLint** (`typescript-eslint`) + **Prettier**
 
 ## Getting started
 
@@ -88,14 +91,15 @@ cp .env.example .env.local   # fill in the values, see below
 npm run dev
 ```
 
-| Script                 | Description                 |
-| ---------------------- | --------------------------- |
-| `npm run dev`          | Start the dev server        |
-| `npm run build`        | Production build to `dist/` |
-| `npm run preview`      | Serve the production build  |
-| `npm run lint`         | Lint with ESLint            |
-| `npm run format`       | Format with Prettier        |
-| `npm run format:check` | Check formatting            |
+| Script                 | Description                                  |
+| ---------------------- | -------------------------------------------- |
+| `npm run dev`          | Start the dev server                         |
+| `npm run build`        | Type-check, then production build to `dist/` |
+| `npm run typecheck`    | Type-check with `tsc -b`                     |
+| `npm run preview`      | Serve the production build                   |
+| `npm run lint`         | Lint with ESLint                             |
+| `npm run format`       | Format with Prettier                         |
+| `npm run format:check` | Check formatting                             |
 
 ### Environment variables
 
@@ -170,8 +174,10 @@ src/
 ├── api/          TMDB client and endpoint builders
 ├── services/     Firebase: auth, profile, library, lists, sharing, planner
 ├── storage/      localStorage modules
-├── context/      global state providers
+├── store/        Redux store, slices, typed hooks
+├── context/      React context (midterm watchlist; replaced by the store)
 ├── hooks/        custom hooks
+├── types/        TypeScript types for TMDB responses and app data
 ├── components/   reusable UI, one folder per component + CSS Module
 ├── pages/        one file per route
 ├── styles/       global styles, design tokens, themes

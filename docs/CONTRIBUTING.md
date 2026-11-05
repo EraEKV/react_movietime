@@ -24,7 +24,8 @@ Pull requests:
 - Title in Conventional Commits format (it becomes the squash-merge commit):
   `feat(auth): email and google sign-in`.
 - Description: what changed, how to test, screenshots for UI changes.
-- Before merging: `npm run lint`, `npm run format:check`, `npm run build` pass and the Vercel
+- Before merging: `npm run typecheck`, `npm run lint`, `npm run format:check`, `npm test`
+  (once tests exist) and `npm run build` pass and the Vercel
   preview works.
 - Merge with **squash**, then delete the branch.
 
@@ -52,7 +53,8 @@ Pull requests:
 | `chore`    | Anything else (tooling, configs)                        |
 
 Scopes used in this project: `auth`, `catalog`, `movies`, `series`, `library`, `lists`,
-`sharing`, `planner`, `dashboard`, `profile`, `theme`, `i18n`, `pwa`, `firebase`, `ui`, `deps`.
+`sharing`, `planner`, `dashboard`, `profile`, `theme`, `i18n`, `pwa`, `firebase`, `store`,
+`types`, `ui`, `deps`.
 
 Examples:
 
