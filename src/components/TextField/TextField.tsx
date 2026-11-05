@@ -13,6 +13,8 @@ interface TextFieldProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'on
   error?: string | null
   icon?: IconName
   optional?: boolean
+  /** Keeps the label for screen readers only (e.g. a search box with a placeholder). */
+  hideLabel?: boolean
   /** Extra element at the right edge of the control. */
   trailing?: ReactNode
 }
@@ -29,6 +31,7 @@ export default function TextField({
   error,
   icon,
   optional,
+  hideLabel,
   trailing,
   type = 'text',
   id: idProp,
@@ -42,7 +45,15 @@ export default function TextField({
   const describedBy = error || hint ? hintId(id) : undefined
 
   return (
-    <Field id={id} label={label} hint={hint} error={error} optional={optional} disabled={disabled}>
+    <Field
+      id={id}
+      label={label}
+      hint={hint}
+      error={error}
+      optional={optional}
+      disabled={disabled}
+      hideLabel={hideLabel}
+    >
       <div className={styles.control}>
         {icon && <Icon name={icon} size={18} className={styles.leading} />}
         <input

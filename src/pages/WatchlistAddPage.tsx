@@ -1,8 +1,8 @@
 import { useNavigate, useSearchParams } from 'react-router'
 import { endpoints } from '../api/tmdb'
 import BackButton from '../components/BackButton/BackButton'
-import Button from '../components/Button/Button'
-import StatusMessage from '../components/StatusMessage/StatusMessage'
+import ErrorState from '../components/EmptyState/ErrorState'
+import Skeleton from '../components/Skeleton/Skeleton'
 import WatchlistForm from '../components/WatchlistForm/WatchlistForm'
 import { useFetch } from '../hooks/useFetch'
 import { useWatchlist } from '../hooks/useWatchlist'
@@ -30,16 +30,20 @@ export default function WatchlistAddPage() {
 
   let content
   if (preset.status === 'loading') {
-    content = <p className={styles.loading}>Loading series…</p>
+    content = (
+      <div className={styles.loading} aria-busy="true" aria-label="Loading series">
+        <Skeleton width={80} height={20} />
+        <Skeleton height={72} radius="md" />
+        <Skeleton height={56} radius="md" />
+      </div>
+    )
   } else if (preset.status === 'error') {
     content = (
-      <StatusMessage
-        tone="error"
-        title="Couldn't load that series"
-        action={<Button onClick={preset.reload}>Try again</Button>}
-      >
-        {preset.error.message}
-      </StatusMessage>
+      <ErrorState
+        title="We couldn’t load that series"
+        body={preset.error.message}
+        onRetry={preset.reload}
+      />
     )
   } else {
     const series = preset.data ? toWatchlistSeries(preset.data) : null
@@ -57,10 +61,10 @@ export default function WatchlistAddPage() {
   }
 
   return (
-    <section>
-      <title>Add to watchlist · Movietime</title>
+    <section className={styles.page}>
+      <title>Add to library · Movietime</title>
       <BackButton />
-      <h1 className={styles.title}>Add to watchlist</h1>
+      <h1 className={styles.title}>Add to library</h1>
       {content}
     </section>
   )

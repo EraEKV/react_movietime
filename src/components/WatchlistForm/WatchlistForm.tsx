@@ -2,8 +2,11 @@ import { useId, useState, type FormEvent } from 'react'
 import type { NewWatchlistEntry, WatchlistFormValues } from '../../types/watchlist'
 import { isWatchStatus, NOTES_MAX, SCORE_OPTIONS, WATCH_STATUSES } from '../../utils/watchlist'
 import Button from '../Button/Button'
+import Icon from '../Icon/Icon'
 import SelectField from '../SelectField/SelectField'
 import SeriesPicker from '../SeriesPicker/SeriesPicker'
+import StatusMarker from '../StatusMarker/StatusMarker'
+import Textarea from '../Textarea/Textarea'
 import styles from './WatchlistForm.module.css'
 
 type FormErrors = Partial<Record<'series' | 'notes' | 'score', string>>
@@ -15,7 +18,7 @@ function validate(
   const errors: FormErrors = {}
   if (!values.series) errors.series = 'Pick a series from the search results.'
   else if (isDuplicate(values.series.seriesId))
-    errors.series = 'This series is already in your watchlist.'
+    errors.series = 'This series is already in your library.'
   if (values.notes.length > NOTES_MAX)
     errors.notes = `Notes can be at most ${NOTES_MAX} characters.`
   if (values.status === 'completed' && !values.score)
@@ -70,12 +73,12 @@ export default function WatchlistForm({
     })
   }
 
-  const errorId = (field: keyof FormErrors) => `${baseId}-${field}-error`
+  const errorId = (field: 'series') => `${baseId}-${field}-error`
 
   return (
     <form className={styles.form} onSubmit={handleSubmit} noValidate>
-      <fieldset className={styles.field} disabled={mode === 'edit'}>
-        <legend className={styles.label}>Series</legend>
+      <fieldset className={styles.fieldset} disabled={mode === 'edit'}>
+        <legend className={styles.legend}>Series</legend>
         {mode === 'edit' ? (
           <p className={styles.fixed}>{values.series?.name}</p>
         ) : (
@@ -88,16 +91,17 @@ export default function WatchlistForm({
         )}
         {showErrors && errors.series && (
           <p id={errorId('series')} className={styles.error}>
+            <Icon name="alert" size={16} />
             {errors.series}
           </p>
         )}
       </fieldset>
 
-      <fieldset className={styles.field}>
-        <legend className={styles.label}>Status</legend>
-        <div className={styles.segments}>
+      <fieldset className={styles.fieldset}>
+        <legend className={styles.legend}>Status</legend>
+        <div className={styles.cards}>
           {WATCH_STATUSES.map((status) => (
-            <label key={status.value} className={styles.segment}>
+            <label key={status.value} className={styles.card}>
               <input
                 type="radio"
                 name={`${baseId}-status`}
@@ -107,48 +111,37 @@ export default function WatchlistForm({
                   if (isWatchStatus(e.target.value)) setField('status', e.target.value)
                 }}
               />
-              <span>{status.label}</span>
+              <StatusMarker status={status.value} />
             </label>
           ))}
         </div>
       </fieldset>
 
-      <div className={styles.field}>
-        <SelectField
-          label="Your score"
-          value={values.score}
-          options={SCORE_OPTIONS}
-          onChange={(value) => setField('score', value)}
-        />
-        {showErrors && errors.score && <p className={styles.error}>{errors.score}</p>}
-      </div>
+      <SelectField
+        label="Your score"
+        value={values.score}
+        options={SCORE_OPTIONS}
+        onChange={(value) => setField('score', value)}
+        error={showErrors ? errors.score : null}
+      />
 
-      <div className={styles.field}>
-        <div className={styles.labelRow}>
-          <label htmlFor={`${baseId}-notes`} className={styles.label}>
-            Notes
-          </label>
-          <span className={styles.counter} data-over={values.notes.length > NOTES_MAX || undefined}>
-            {values.notes.length} / {NOTES_MAX}
-          </span>
-        </div>
-        <textarea
-          id={`${baseId}-notes`}
-          className={styles.textarea}
-          rows={4}
-          value={values.notes}
-          onChange={(e) => setField('notes', e.target.value)}
-          placeholder="Where you stopped, who recommended it, what you think so far…"
-          aria-invalid={showErrors && Boolean(errors.notes)}
-        />
-        {showErrors && errors.notes && <p className={styles.error}>{errors.notes}</p>}
-      </div>
+      <Textarea
+        label="Notes"
+        optional
+        maxLength={NOTES_MAX}
+        value={values.notes}
+        onChange={(value) => setField('notes', value)}
+        placeholder="Where you stopped, who recommended it, what you think so far…"
+        error={showErrors ? errors.notes : null}
+      />
 
       <div className={styles.actions}>
         <Button variant="ghost" onClick={onCancel}>
           Cancel
         </Button>
-        <Button type="submit">{mode === 'edit' ? 'Save changes' : 'Add to watchlist'}</Button>
+        <Button type="submit" variant="primary">
+          {mode === 'edit' ? 'Save changes' : 'Add to library'}
+        </Button>
       </div>
     </form>
   )

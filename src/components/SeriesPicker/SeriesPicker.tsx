@@ -6,6 +6,9 @@ import { getYear } from '../../utils/format'
 import type { Paginated, SeriesListItem } from '../../types/tmdb'
 import type { WatchlistSeries } from '../../types/watchlist'
 import { toWatchlistSeries } from '../../utils/watchlist'
+import Button from '../Button/Button'
+import fieldStyles from '../Field/Field.module.css'
+import Icon from '../Icon/Icon'
 import styles from './SeriesPicker.module.css'
 
 const MAX_SUGGESTIONS = 6
@@ -48,29 +51,31 @@ export default function SeriesPicker({
           <strong>{value.name}</strong>
           <span>{getYear(value.firstAirDate) ?? 'Unknown year'}</span>
         </div>
-        <button type="button" className={styles.change} onClick={() => onChange(null)}>
+        <Button variant="ghost" size="sm" onClick={() => onChange(null)}>
           Change
-        </button>
+        </Button>
       </div>
     )
   }
 
   return (
     <div className={styles.picker}>
-      <label htmlFor={inputId} className={styles.srOnly}>
+      <label htmlFor={inputId} className="sr-only">
         Search series
       </label>
-      <input
-        id={inputId}
-        type="search"
-        className={styles.input}
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        placeholder="Start typing a title, e.g. Severance"
-        autoComplete="off"
-        aria-invalid={invalid}
-        aria-describedby={invalid ? errorId : undefined}
-      />
+      <div className={fieldStyles.control}>
+        <Icon name="search" size={18} className={fieldStyles.leading} />
+        <input
+          id={inputId}
+          type="search"
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder="Start typing a title, e.g. Severance"
+          autoComplete="off"
+          aria-invalid={invalid}
+          aria-describedby={invalid ? errorId : undefined}
+        />
+      </div>
 
       {shouldSearch && (
         <div className={styles.dropdown} role="listbox" aria-label="Matching series">
