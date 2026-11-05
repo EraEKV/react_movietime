@@ -24,7 +24,7 @@ export default function EpisodePanel({ episode, onClose }: EpisodePanelProps) {
         <p className={styles.code}>{episodeCode(episode.season, episode.number)}</p>
         <h3 className={styles.panelTitle}>{episode.name}</h3>
         <div className={styles.panelMeta}>
-          <RatingBadge vote={episode.rating} size="sm" />
+          <RatingBadge value={episode.rating} />
           <span>{meta.join(' · ')}</span>
         </div>
         <p className={styles.overview}>{episode.overview || 'No overview available.'}</p>

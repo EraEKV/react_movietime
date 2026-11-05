@@ -179,13 +179,7 @@ export default function WatchlistPage() {
       )}
 
       {removed && (
-        <Toast
-          action={
-            <Button variant="ghost" onClick={handleUndo}>
-              Undo
-            </Button>
-          }
-        >
+        <Toast actionLabel="Undo" onAction={handleUndo}>
           Removed “{removed.entry.name}”
         </Toast>
       )}

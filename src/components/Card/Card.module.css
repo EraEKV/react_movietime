@@ -1,0 +1,21 @@
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-1);
+}
+
+/* Dark theme separates cards by surface step, not hairlines. */
+:global([data-theme='dark']) .card {
+  border-color: transparent;
+}
+
+.padded {
+  padding: var(--space-4);
+}
+
+@media (min-width: 768px) {
+  .padded {
+    padding: var(--space-6);
+  }
+}

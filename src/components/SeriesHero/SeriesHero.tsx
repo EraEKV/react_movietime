@@ -46,7 +46,7 @@ export default function SeriesHero({ series, actions }: SeriesHeroProps) {
           <p className={styles.meta}>{meta.join(' · ')}</p>
 
           <div className={styles.rating}>
-            <RatingBadge vote={series.vote_average} />
+            <RatingBadge value={series.vote_average} />
             <span className={styles.votes}>
               {series.vote_count > 0
                 ? `${formatNumber(series.vote_count)} votes on TMDB`

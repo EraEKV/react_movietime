@@ -111,7 +111,7 @@ function HighlightButton({ label, episode, onSelect }: HighlightButtonProps) {
       <span className={styles.highlightName}>
         S{episode.season}E{episode.number} · {episode.name}
       </span>
-      <RatingBadge vote={episode.rating} size="sm" />
+      <RatingBadge value={episode.rating} />
     </button>
   )
 }

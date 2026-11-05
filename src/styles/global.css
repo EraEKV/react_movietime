@@ -131,3 +131,8 @@ ol {
   clip: rect(0 0 0 0);
   white-space: nowrap;
 }
+
+/* No page scrolling behind an open modal dialog or sheet. */
+:root:has(dialog[open]) {
+  overflow: hidden;
+}

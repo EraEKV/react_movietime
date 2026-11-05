@@ -34,9 +34,9 @@ export default function WatchlistItem({ entry, onStatusChange, onRemove }: Watch
 
         <div className={styles.scores}>
           <span className={styles.scoreLabel}>You</span>
-          <RatingBadge vote={entry.score} size="sm" />
+          <RatingBadge value={entry.score} />
           <span className={styles.scoreLabel}>TMDB</span>
-          <RatingBadge vote={entry.tmdbRating} size="sm" />
+          <RatingBadge value={entry.tmdbRating} />
         </div>
 
         {entry.notes && <p className={styles.notes}>{entry.notes}</p>}

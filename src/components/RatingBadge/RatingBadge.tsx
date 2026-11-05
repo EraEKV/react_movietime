@@ -1,19 +1,28 @@
-import { formatRating, ratingTone } from '../../utils/format'
+import { cx } from '../../utils/cx'
+import { formatNumber } from '../../utils/format'
+import { RATING_WORDS, ratingStep } from '../../utils/rating'
 import styles from './RatingBadge.module.css'
 
 interface RatingBadgeProps {
-  vote: number | null | undefined
-  size?: 'sm' | 'md'
+  /** 0–10; null/0 means not rated. */
+  value: number | null | undefined
+  size?: 'sm' | 'lg'
+  votes?: number
 }
 
-export default function RatingBadge({ vote, size = 'md' }: RatingBadgeProps) {
+export default function RatingBadge({ value, size = 'sm', votes }: RatingBadgeProps) {
+  const step = ratingStep(value)
+  const word = RATING_WORDS[step]
+  const label = step === 0 || !value ? word : `Rated ${value.toFixed(1)} of 10, ${word}`
+
   return (
     <span
-      className={`${styles.badge} ${styles[size]}`}
-      data-tone={ratingTone(vote)}
-      title={vote ? `TMDB rating ${formatRating(vote)} / 10` : 'Not rated yet'}
+      className={cx(styles.badge, styles[`step${step}`], size === 'lg' && styles.lg)}
+      role="img"
+      aria-label={label}
+      title={votes ? `${word} · ${formatNumber(votes)} votes` : word}
     >
-      {formatRating(vote)}
+      {step === 0 || !value ? '—' : value.toFixed(1)}
     </span>
   )
 }

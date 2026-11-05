@@ -23,7 +23,7 @@ export default function SeriesCard({ series, genreNames = [] }: SeriesCardProps)
           <span className={styles.noPoster}>{series.name}</span>
         )}
         <div className={styles.rating}>
-          <RatingBadge vote={series.vote_average} size="sm" />
+          <RatingBadge value={series.vote_average} />
         </div>
       </div>
       <div className={styles.body}>
