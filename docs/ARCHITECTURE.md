@@ -14,11 +14,13 @@ This document has two parts:
 
 ```
 src/
-├── api/            tmdb.js: TMDB client, endpoint builders, ApiError
-├── services/       firebase.js, authService, profileService, libraryService,
+├── api/            tmdb.ts: TMDB client, endpoint builders, ApiError
+├── services/       firebase.ts, authService, profileService, libraryService,
 │                   listsService, sharingService, plannerService
 ├── storage/        localStorage modules (guest library, preferences)
-├── context/        AuthProvider, LibraryProvider, PreferencesProvider (+ context objects)
+├── store/          store.ts, hooks.ts (typed useAppDispatch / useAppSelector),
+│                   authSlice, librarySlice, preferencesSlice, listeners.ts
+├── types/          TMDB responses, Firestore documents, shared types
 ├── hooks/          useFetch, useFirestoreQuery, useAuth, useLibrary, useLists, usePlanner,
 │                   useDashboardStats, useDebouncedValue, useOnlineStatus, …
 ├── components/     reusable UI, one folder per component + CSS Module
@@ -28,6 +30,7 @@ src/
 ├── pages/          one file per route
 ├── i18n/           i18next setup + en / ru / kk resources
 ├── styles/         global.css, design tokens, themes
+├── sw.ts           service worker (Workbox)
 └── utils/          pure functions: media, filters, schedule, stats, validation, firebaseErrors
 ```
 
@@ -35,22 +38,35 @@ Rule of thumb: **pages and components render and handle events; hooks connect Re
 services; services talk to the network or storage; utils are pure and know nothing about
 React.**
 
-### Providers
+### Global state: Redux Toolkit
 
 ```
-<BrowserRouter>
-└── <PreferencesProvider>       theme + language (localStorage for guests, profile for users)
-    └── <AuthProvider>          Firebase user, profile, auth status
-        └── <LibraryProvider>   guest storage ↔ Firestore, merge on sign-in
-            └── <App>           routes
+<Provider store={store}>
+└── <BrowserRouter>
+    └── <App>                       routes
 ```
 
-`AuthProvider` subscribes to `onIdTokenChanged` once. Until Firebase reports the first
-state, `status` is `"loading"` and protected routes render a loader instead of redirecting.
+| Slice         | State                                           | Written by                                              |
+| ------------- | ----------------------------------------------- | ------------------------------------------------------- |
+| `auth`        | `user` (serializable subset), `status`, `error` | auth listener, sign-in / sign-out thunks                |
+| `library`     | entries by media key, `status`, `error`         | Firestore snapshot listener, guest storage, CRUD thunks |
+| `preferences` | `theme`, `language`                             | settings page; persisted by a listener                  |
 
-`LibraryProvider` is global because the library is used by the catalog cards, the title
-pages, the library page, the planner and the dashboard. Lists and plans are **not** global:
-each page subscribes to what it shows through `useLists` / `usePlan`.
+- **Side effects live outside components** in RTK **listener middleware** (`store/listeners.ts`):
+  - `onIdTokenChanged` → `auth/changed`;
+  - on `auth/changed`, start or stop the Firestore subscription of the library (and merge the
+    guest library on the first sign-in);
+  - on `preferences/*` changes, save to `localStorage` (guests) or the profile (users) and set
+    `data-theme` on `<html>`.
+- **Only serializable data goes into the store.** Firebase `User` objects and Firestore
+  `Timestamp`s are converted in the service layer (ISO strings, plain objects).
+- Components use the typed hooks `useAppSelector` / `useAppDispatch`, wrapped in feature hooks
+  (`useAuth`, `useLibrary`, `useTheme`) so pages don't depend on the store's shape.
+- **Memoized selectors** (`createSelector`) derive filtered lists and dashboard statistics.
+- Until Firebase reports the first auth state, `auth.status` is `"loading"` and protected
+  routes render a loader instead of redirecting.
+- Lists and plans are **not** in the store: each page subscribes to what it shows through
+  `useList` / `usePlan`.
 
 ### Routing
 
@@ -82,16 +98,16 @@ header stays visible while a chunk loads.
 
 ### State map
 
-| State                                     | Where                             | Why                                           |
-| ----------------------------------------- | --------------------------------- | --------------------------------------------- |
-| Signed-in user, profile, auth status      | `AuthProvider`                    | Needed by the header, routes and services     |
-| Theme, language                           | `PreferencesProvider`             | Affects the whole tree and every TMDB request |
-| Library entries                           | `LibraryProvider`                 | Used on many routes                           |
-| Lists, list items, plans, sessions        | Page-level hooks (`onSnapshot`)   | Only the current page needs them              |
-| Catalog search, filters, sort, page, size | URL (`useCatalogFilters`)         | Shareable, survives refresh and back/forward  |
-| Library filters                           | URL                               | Dashboard links to filtered library           |
-| Calendar month, dialogs, form values      | `useState` in the page/component  | Local UI state                                |
-| Dashboard numbers                         | `useMemo` from library + sessions | Derived; never stored                         |
+| State                                     | Where                            | Why                                           |
+| ----------------------------------------- | -------------------------------- | --------------------------------------------- |
+| Signed-in user, profile, auth status      | Redux `auth` slice               | Needed by the header, routes and services     |
+| Theme, language                           | Redux `preferences` slice        | Affects the whole tree and every TMDB request |
+| Library entries                           | Redux `library` slice            | Used on many routes                           |
+| Lists, list items, plans, sessions        | Page-level hooks (`onSnapshot`)  | Only the current page needs them              |
+| Catalog search, filters, sort, page, size | URL (`useCatalogFilters`)        | Shareable, survives refresh and back/forward  |
+| Library filters                           | URL                              | Dashboard links to filtered library           |
+| Calendar month, dialogs, form values      | `useState` in the page/component | Local UI state                                |
+| Dashboard numbers                         | `createSelector` / `useMemo`     | Derived; never stored                         |
 
 ### Realtime data
 

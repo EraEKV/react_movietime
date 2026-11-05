@@ -9,20 +9,21 @@ pages / components
       ▼
 hooks (useFetch, useLibrary, useLists, usePlanner, …)
       │
-      ├──► src/api/tmdb.js          TMDB REST (read-only)
-      ├──► src/services/*.js        Firebase Auth + Firestore
-      └──► src/storage/*.js         localStorage (guests, preferences)
+      ├──► src/api/tmdb.ts          TMDB REST (read-only)
+      ├──► src/services/*.ts        Firebase Auth + Firestore
+      └──► src/storage/*.ts         localStorage (guests, preferences)
                 │
-src/utils/*.js  pure functions: normalization, filters, schedule, stats
+src/utils/*.ts  pure functions: normalization, filters, schedule, stats
 ```
 
 Status legend: ✅ exists (midterm), 🚧 planned for the end-term.
 
-Data shapes referenced here are defined in [DATA_MODEL.md](DATA_MODEL.md).
+Data shapes referenced here are defined in [DATA_MODEL.md](DATA_MODEL.md) and as TypeScript
+types in `src/types/`.
 
 ## Conventions
 
-- Every async function returns a **Promise**.
+- Every async function returns a typed **Promise**, e.g. `tmdbGet<SeriesDetails>(path)`.
 - TMDB functions accept `{ signal }` (an `AbortSignal`) so that outdated requests can be
   cancelled.
 - Firestore "watch" functions subscribe with `onSnapshot` and **return an unsubscribe
@@ -30,10 +31,10 @@ Data shapes referenced here are defined in [DATA_MODEL.md](DATA_MODEL.md).
 - Errors are normalized:
   - TMDB → `ApiError { message, status }` (`status: 0` = network error).
   - Firebase → `AppError { code, message }`, where `message` is a user-friendly text from
-    `utils/firebaseErrors.js` (for example `auth/invalid-credential` → "Wrong email or
+    `utils/firebaseErrors.ts` (for example `auth/invalid-credential` → "Wrong email or
     password"). `permission-denied` → "You don't have access to this".
 
-## TMDB: `src/api/tmdb.js`
+## TMDB: `src/api/tmdb.ts`
 
 | Function / endpoint builder                     |    Status     | Request                                                         |
 | ----------------------------------------------- | :-----------: | --------------------------------------------------------------- |
@@ -63,13 +64,13 @@ switch changes the path string and `useFetch` refetches.
 
 ## Firebase: `src/services/`
 
-### `firebase.js` 🚧
+### `firebase.ts` 🚧
 
 Initializes the app from `VITE_FIREBASE_*` env variables and exports `app`, `auth`, `db`.
 Firestore uses `persistentLocalCache({ tabManager: persistentMultipleTabManager() })` for
 offline support.
 
-### `authService.js` 🚧
+### `authService.ts` 🚧
 
 | Function                                            | Returns         | Notes                                                                          |
 | --------------------------------------------------- | --------------- | ------------------------------------------------------------------------------ |
@@ -82,7 +83,7 @@ offline support.
 | `onAuthChange(callback)`                            | `unsubscribe`   | Wraps `onIdTokenChanged`, so `email_verified` updates after verification       |
 | `reloadUser()`                                      | `Promise<User>` | Refreshes the token after the user verifies                                    |
 
-### `profileService.js` 🚧
+### `profileService.ts` 🚧
 
 | Function                                  | Returns                                                    |
 | ----------------------------------------- | ---------------------------------------------------------- |
@@ -92,7 +93,7 @@ offline support.
 | `watchActivity(uid, { limit }, callback)` | `unsubscribe`                                              |
 | `logActivity(uid, activity)`              | `Promise<void>` (usually added to a batch instead)         |
 
-### `libraryService.js` 🚧
+### `libraryService.ts` 🚧
 
 | Function                                             | Returns                       | Notes                                      |
 | ---------------------------------------------------- | ----------------------------- | ------------------------------------------ |
@@ -102,7 +103,7 @@ offline support.
 | `removeFromLibrary(uid, mediaKey)`                   | `Promise<void>`               |                                            |
 | `mergeGuestLibrary(uid, entries)`                    | `Promise<{ added, skipped }>` | Batch; existing entries win                |
 
-### `listsService.js` 🚧
+### `listsService.ts` 🚧
 
 | Function                                               | Returns                | Notes                                 |
 | ------------------------------------------------------ | ---------------------- | ------------------------------------- |
@@ -118,7 +119,7 @@ offline support.
 | `removeListItem(listId, mediaKey)`                     | `Promise<void>`        | Batch: delete + `itemCount` decrement |
 | `copyList(listId, user)`                               | `Promise<string>`      | New private list owned by `user`      |
 
-### `sharingService.js` 🚧
+### `sharingService.ts` 🚧
 
 Works for both collections: `kind` is `"lists"` or `"plans"`.
 
@@ -132,7 +133,7 @@ Works for both collections: `kind` is `"lists"` or `"plans"`.
 | `getRole(doc, user)`                           | `"owner" \| "editor" \| "viewer" \| "link" \| null` | Pure, for the UI                    |
 | `shareUrl(kind, id)`                           | string                                              | `https://…/lists/{id}`              |
 
-### `plannerService.js` 🚧
+### `plannerService.ts` 🚧
 
 | Function                                                            | Returns           | Notes                                                 |
 | ------------------------------------------------------------------- | ----------------- | ----------------------------------------------------- |
@@ -147,7 +148,7 @@ Works for both collections: `kind` is `"lists"` or `"plans"`.
 | `skipSession(planId, sessionId)`                                    | `Promise<void>`   |                                                       |
 | `deletePlan(planId)`                                                | `Promise<void>`   |                                                       |
 
-Pure helpers in `src/utils/schedule.js` (unit tested on their own):
+Pure helpers in `src/utils/schedule.ts` (unit tested on their own):
 
 | Function                                   | Description                                                                                           |
 | ------------------------------------------ | ----------------------------------------------------------------------------------------------------- |
@@ -160,11 +161,24 @@ Pure helpers in `src/utils/schedule.js` (unit tested on their own):
 
 | Module                  | Status | Functions                                                                                            |
 | ----------------------- | :----: | ---------------------------------------------------------------------------------------------------- |
-| `watchlistStorage.js`   |   ✅   | `loadWatchlist()`, `saveWatchlist(entries)` (legacy)                                                 |
-| `libraryStorage.js`     |   🚧   | `loadGuestLibrary()`, `saveGuestLibrary(entries)`, `clearGuestLibrary()`, `migrateLegacyWatchlist()` |
-| `preferencesStorage.js` |   🚧   | `loadPreferences()`, `savePreferences({ theme, language })`                                          |
+| `watchlistStorage.ts`   |   ✅   | `loadWatchlist()`, `saveWatchlist(entries)` (legacy)                                                 |
+| `libraryStorage.ts`     |   🚧   | `loadGuestLibrary()`, `saveGuestLibrary(entries)`, `clearGuestLibrary()`, `migrateLegacyWatchlist()` |
+| `preferencesStorage.ts` |   🚧   | `loadPreferences()`, `savePreferences({ theme, language })`                                          |
 
 All of them catch storage errors (private mode, quota) and fall back to defaults.
+
+## Redux store: `src/store/` 🚧
+
+| Module                | Exports                                                                                                                                                                    |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `store.ts`            | `store`, `RootState`, `AppDispatch`                                                                                                                                        |
+| `hooks.ts`            | `useAppDispatch`, `useAppSelector` (typed)                                                                                                                                 |
+| `authSlice.ts`        | `authChanged`, `signInWithEmail`, `signInWithGoogle`, `signUp`, `signOut` thunks; `selectUser`, `selectAuthStatus`                                                         |
+| `librarySlice.ts`     | `librarySynced`, `addToLibrary`, `updateLibraryEntry`, `removeFromLibrary` thunks; `selectLibrary`, `selectEntry(mediaKey)`, `selectFilteredLibrary`, `selectLibraryStats` |
+| `preferencesSlice.ts` | `themeChanged`, `languageChanged`; `selectTheme`, `selectLanguage`                                                                                                         |
+| `listeners.ts`        | Listener middleware: auth subscription, library sync, preferences persistence                                                                                              |
+
+Thunks call the services above; reducers stay pure. The store only holds serializable data.
 
 ## Hooks
 
@@ -175,7 +189,7 @@ All of them catch storage errors (private mode, quota) and fall back to defaults
 | `useEpisodeRatings(id, seasons)`                      |   ✅    | Episode ratings for the heatmap                                                            |
 | `useSeriesFilters()` → `useCatalogFilters(mediaType)` | ✅ → 🚧 | Filters, sort, page, size from the URL, plus setters                                       |
 | `useGenres(mediaType)`                                | ✅ / 🚧 | Genre list and id → name map                                                               |
-| `useAuth()`                                           |   🚧    | `{ user, profile, status, error, signIn…, signOut }`                                       |
+| `useAuth()`                                           |   🚧    | `{ user, status, error }` from the store + sign-in/out actions                             |
 | `useFirestoreQuery(subscribe, deps)`                  |   🚧    | `{ status, data, error }` for any `watch*` function                                        |
 | `useLibrary()`                                        |   🚧    | Entries + `add`, `update`, `remove`, `getEntry(mediaKey)`; uses guest storage or Firestore |
 | `useLists()` / `useList(id)`                          |   🚧    | Lists, list + items + current role, CRUD actions                                           |

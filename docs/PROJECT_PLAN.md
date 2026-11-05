@@ -84,7 +84,7 @@ Full schemas: [DATA_MODEL.md](DATA_MODEL.md).
 - After email signup a verification email is sent. Verification is required to receive shared
   access by email (see 3.6), because the security rules check `email_verified`.
 - Session persists across reloads (Firebase default `browserLocalPersistence`).
-- `AuthProvider` exposes `{ user, status, error }`. While Firebase restores the session, the
+- The `auth` slice in the Redux store holds `{ user, status, error }`. While Firebase restores the session, the
   app shows a loader instead of flashing the login page.
 - `ProtectedRoute` redirects guests to `/login?redirect=<original path>`.
   `GuestRoute` redirects signed-in users away from `/login` and `/signup`.
@@ -210,8 +210,11 @@ app shows "Today's sessions" in the header and on the dashboard.
 
 ### 3.11 PWA and offline (mandatory)
 
-- `vite-plugin-pwa`: manifest (name, icons 192/512 + maskable, `display: standalone`,
-  theme color), service worker with auto update.
+- `vite-plugin-pwa` in **`injectManifest`** mode: the plugin generates the manifest (name,
+  icons 192/512 + maskable, `display: standalone`, theme color) and the precache list, and the
+  **service worker itself is our own `src/sw.ts`** written with Workbox modules, so every
+  caching rule is visible in the code. An update prompt asks the user to reload when a new
+  version is installed.
 - Precached app shell and static assets.
 - Runtime caching: TMDB API **network-first** (falls back to the last response offline),
   TMDB images **cache-first** with an expiration limit.
@@ -219,6 +222,18 @@ app shows "Today's sessions" in the header and on the dashboard.
   and plans are readable offline and writes are synced on reconnect.
 - A dedicated `/offline` page shown when a required resource isn't cached.
 - Online/offline indicator in the header (`useOnlineStatus`).
+
+### 3.12 Tests
+
+Vitest + React Testing Library + jsdom, `npm test`:
+
+- **Pure logic:** `buildSchedule` / `shiftSessions` (planner), `parseFilters` /
+  `toDiscoverParams`, signup validation, dashboard stats, `filterWatchlist`.
+- **Redux:** reducers and selectors of the `auth`, `library` and `preferences` slices.
+- **Hooks:** `useDebouncedValue` with fake timers, `useFetch` race condition (a slow old
+  response must not overwrite a newer one) with a mocked `fetch`.
+- **Components:** signup form validation messages, `ProtectedRoute` redirect, `Pagination`.
+- Optional: Firestore security rules with `@firebase/rules-unit-testing` and the emulator.
 
 ## 4. Pages and routes
 
@@ -254,21 +269,23 @@ app shows "Today's sessions" in the header and on the dashboard.
 Each phase is one feature branch and one PR (see [CONTRIBUTING.md](CONTRIBUTING.md)).
 Small fixes between phases go straight to `main`.
 
-| #   | Branch                   | Scope                                                                                                                                              |
-| --- | ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 0   | `main`                   | These docs and the README                                                                                                                          |
-| 1   | `feat/firebase-auth`     | Firebase init, auth service, `AuthProvider`, Login/Signup (email + Google), verification, protected/guest routes, user in header, profile document |
-| 2   | `feat/routing`           | Home landing, About, catalog moved to `/series`, nested routes, lazy pages, Profile page                                                           |
-| 3   | `feat/movies`            | Movie catalog and details, shared media helpers, 5th filter, language filter, page size                                                            |
-| 4   | `feat/library-firestore` | Watchlist → Library, Firestore sync, guest merge on sign-in                                                                                        |
-| 5   | `feat/lists`             | Lists CRUD and list items                                                                                                                          |
-| 6   | `feat/sharing`           | Link visibility, members and roles, "Shared with me", copy list, Firestore rules                                                                   |
-| 7   | `feat/planner`           | Schedule generation, calendar, complete / reschedule / skip, `.ics` export, plan sharing                                                           |
-| 8   | `feat/dashboard`         | Stats, breakdowns, filters and navigation                                                                                                          |
-| 9   | `feat/theme`             | Theme switcher, settings page                                                                                                                      |
-| 10  | `feat/i18n`              | en / ru / kk, TMDB language                                                                                                                        |
-| 11  | `feat/pwa`               | Manifest, service worker, caching, offline page, status indicator                                                                                  |
-| 12  | `docs/final-readme`      | Final README, screenshots, defense notes                                                                                                           |
+| #   | Branch                    | Scope                                                                                                                                                          |
+| --- | ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 0   | `main` ✅                 | These docs and the README                                                                                                                                      |
+| 0.5 | `refactor/typescript` ✅  | Codebase migrated to TypeScript (strict), typed TMDB responses, `typescript-eslint`                                                                            |
+| 1   | `feat/firebase-auth`      | Redux store + `auth` slice, Firebase init, auth service, Login/Signup (email + Google), verification, protected/guest routes, user in header, profile document |
+| 2   | `feat/routing`            | Home landing, About, catalog moved to `/series`, nested routes, lazy pages, Profile page                                                                       |
+| 3   | `feat/movies`             | Movie catalog and details, shared media helpers, 5th filter, language filter, page size                                                                        |
+| 4   | `feat/library-firestore`  | Watchlist → Library, Firestore sync, guest merge on sign-in                                                                                                    |
+| 5   | `feat/lists`              | Lists CRUD and list items                                                                                                                                      |
+| 6   | `feat/sharing`            | Link visibility, members and roles, "Shared with me", copy list, Firestore rules                                                                               |
+| 7   | `feat/planner`            | Schedule generation, calendar, complete / reschedule / skip, `.ics` export, plan sharing                                                                       |
+| 8   | `feat/dashboard`          | Stats, breakdowns, filters and navigation                                                                                                                      |
+| 9   | `feat/theme`              | Theme switcher, settings page                                                                                                                                  |
+| 10  | `feat/i18n`               | en / ru / kk, TMDB language                                                                                                                                    |
+| 11  | `feat/pwa`                | Manifest, service worker, caching, offline page, status indicator                                                                                              |
+| 12  | `test/unit-and-component` | Vitest + Testing Library: logic, slices, hooks, components (see 3.12)                                                                                          |
+| 13  | `docs/final-readme`       | Final README, screenshots, defense notes                                                                                                                       |
 
 ## 6. Requirements checklist
 
@@ -291,7 +308,7 @@ Small fixes between phases go straight to `main`.
 | pages / components / hooks / services / styles | `src/pages`, `src/components`, `src/hooks`, `src/services`, `src/styles`            |
 | Logic outside components                       | Firestore and TMDB calls in `src/services` and `src/api`; pure logic in `src/utils` |
 | No `localStorage` in UI components             | Only in `src/storage/*` modules                                                     |
-| One page per file                              | `src/pages/*Page.jsx`                                                               |
+| One page per file                              | `src/pages/*Page.tsx`                                                               |
 
 ### API & data (0.5)
 
@@ -301,7 +318,7 @@ Small fixes between phases go straight to `main`.
 | ≥ 100 items                                                | TMDB: hundreds of thousands of movies and series                     |
 | List with search, 5 filters, sort, paging via query params | `/discover/*`, `/search/*`                                           |
 | Separate details endpoint, ≥ 7 fields                      | `/movie/:id`, `/tv/:id` (12+ fields)                                 |
-| Documented data models                                     | [DATA_MODEL.md](DATA_MODEL.md), JSDoc typedefs in services           |
+| Documented data models                                     | [DATA_MODEL.md](DATA_MODEL.md), TS types in `src/types`              |
 | Loading / error / empty / invalid id                       | Skeletons, `StatusMessage` with retry, empty states, not-found state |
 | Stale responses                                            | `AbortController` + ignore flag in `useFetch`                        |
 
@@ -319,17 +336,22 @@ progress and status.
 
 ### Authentication (1)
 
-Email/Password + Google, signup validation, login/logout, persistent session, `AuthProvider`
-context, protected routes with redirect back, loading and error states, user in header,
+Email/Password + Google, signup validation, login/logout, persistent session, `auth` slice in
+the Redux store, protected routes with redirect back, loading and error states, user in header,
 profile page, per-user Firestore data protected by rules, guest data merged on sign-in.
 
 ### State management (1)
 
-| Global (Context)                   | Local (`useState`)                        | URL                   |
-| ---------------------------------- | ----------------------------------------- | --------------------- |
-| `AuthProvider`: user, status       | form values, open menus, selected episode | catalog filters, page |
-| `LibraryProvider`: library         | calendar month, dialog state              | library filters       |
-| `PreferencesProvider`: theme, lang |                                           |                       |
+Global state uses **Redux Toolkit** (an approved library in the requirements).
+
+| Global (Redux store)            | Local (`useState`)                        | URL                   |
+| ------------------------------- | ----------------------------------------- | --------------------- |
+| `auth`: user, status, error     | form values, open menus, selected episode | catalog filters, page |
+| `library`: entries, sync status | calendar month, dialog state              | library filters       |
+| `preferences`: theme, language  |                                           |                       |
+
+Lists and plans are not in the store: only the page that shows them needs them, so they stay
+in page-level hooks with Firestore subscriptions.
 
 Custom hooks (≥ 3 required):
 
@@ -338,7 +360,7 @@ Custom hooks (≥ 3 required):
 | `useDebouncedValue`                                                    | debounce                                        |
 | `useFetch`                                                             | data fetching (TMDB)                            |
 | `useFirestoreQuery`                                                    | data fetching (realtime Firestore subscription) |
-| `useLibrary`                                                           | business logic                                  |
+| `useLibrary` (dispatches library thunks, reads memoized selectors)     | business logic                                  |
 | `useLists`, `useList`                                                  | business logic                                  |
 | `usePlanner`, `usePlan`                                                | business logic                                  |
 | `useDashboardStats`                                                    | derived data (`useMemo`)                        |
@@ -368,4 +390,5 @@ Things to be ready to demonstrate and explain:
 - **Caching and invalidation:** service worker caches (Application tab), network-first vs
   cache-first, `skipWaiting` on update, Firestore offline writes syncing on reconnect.
 - **PWA:** install the app, go offline, navigate cached pages, open the offline page, reconnect.
-- **Architecture:** why state lives where it does (context vs local vs URL), services vs hooks.
+- **Architecture:** why state lives where it does (Redux vs local vs URL), services vs hooks,
+  why TypeScript (discriminated unions in `useFetch`, typed slices).
