@@ -1,46 +1,48 @@
+@import './tokens.css';
+
+/* App-level variables that are not part of tokens.json (motion, gutters, image scrims). */
 :root {
-  /* Brand — TMDB teal → lime, same palette as the Android Movietime app */
-  --accent: #01b4e4;
-  --accent-2: #90cea1;
-  --gradient: linear-gradient(90deg, #01b4e4, #90cea1);
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --dur-fast: 120ms;
+  --dur-base: 200ms;
+  --dur-slow: 320ms;
 
-  --bg: #0d1117;
-  --surface: #161b22;
-  --surface-2: #1f2630;
-  --border: #2a313c;
-  --text: #e6edf3;
-  --text-muted: #8b949e;
-  --danger: #f85149;
+  --header-height-mobile: 56px;
+  --page-gutter: var(--space-4);
+  --section-gap: var(--space-10);
 
-  /* Rating scale used by cards and the episode heatmap */
-  --rating-awesome: #1a7f37;
-  --rating-great: #2ea043;
-  --rating-good: #7ac74f;
-  --rating-ok: #d6b400;
-  --rating-bad: #e5534b;
-
-  --radius: 12px;
-  --radius-sm: 8px;
-  --container: 1200px;
-  --gutter: 16px;
-
-  color-scheme: dark;
-  font-family:
-    Inter,
-    system-ui,
-    -apple-system,
-    'Segoe UI',
-    Roboto,
-    sans-serif;
-  line-height: 1.5;
-  color: var(--text);
-  background: var(--bg);
-  -webkit-font-smoothing: antialiased;
+  /* Text over posters/backdrops always sits on this dark scrim, in both themes. */
+  --scrim-backdrop: linear-gradient(
+    0deg,
+    rgba(5, 6, 8, 0.9) 0%,
+    rgba(5, 6, 8, 0.6) 45%,
+    rgba(5, 6, 8, 0.15) 100%
+  );
+  --text-on-backdrop-muted: rgba(255, 255, 255, 0.82);
+  --skeleton-shine: rgba(127, 127, 127, 0.12);
 }
 
-@media (min-width: 768px) {
+@media (min-width: 1024px) {
   :root {
-    --gutter: 24px;
+    --page-gutter: var(--space-8);
+    --section-gap: var(--space-16);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 0ms;
+    --dur-base: 0ms;
+    --dur-slow: 0ms;
+  }
+}
+
+/* Increased contrast: hairlines become visible borders, muted text gets darker. */
+@media (prefers-contrast: more) {
+  :root {
+    --border: var(--border-strong);
+    --text-muted: var(--text);
+    --text-subtle: var(--text-muted);
   }
 }
 
@@ -50,16 +52,38 @@
   box-sizing: border-box;
 }
 
+html {
+  background: var(--bg);
+  color: var(--text);
+  -webkit-text-size-adjust: 100%;
+}
+
 body {
   margin: 0;
+  min-height: 100dvh;
   background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 24px;
+  -webkit-font-smoothing: antialiased;
+  transition:
+    background var(--dur-base) var(--ease-out),
+    color var(--dur-base) var(--ease-out);
+}
+
+h1,
+h2,
+h3,
+h4,
+p {
+  margin: 0;
 }
 
 h1,
 h2,
 h3 {
-  margin: 0;
-  line-height: 1.2;
+  font-weight: 600;
 }
 
 a {
@@ -80,7 +104,30 @@ textarea {
   color: inherit;
 }
 
+ul,
+ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* One focus style for every focusable element (≥3:1 on all grounds, both themes). */
 :focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--focus-ring);
   outline-offset: 2px;
+}
+
+::selection {
+  background: var(--accent-soft);
+  color: var(--text);
+}
+
+/* Visually hidden, still read by screen readers. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }
