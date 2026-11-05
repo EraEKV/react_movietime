@@ -1,29 +1,60 @@
 # Movietime
 
-Discover TV series, see how every episode is rated, and keep a personal watchlist.
-A React single-page application powered by the [TMDB API](https://developer.themoviedb.org/docs).
+Plan what to watch, and watch it together.
+
+Movietime is a React single-page application for movies and TV series. You discover titles
+from [TMDB](https://developer.themoviedb.org/docs), see how every episode of a series is rated,
+keep a personal library, collect titles into lists, and turn a series or a list of movies into
+a **watch schedule** on a calendar. Lists and schedules can be shared with friends by link or
+with an editor / viewer role.
 
 **Live demo:** https://react-movietime.vercel.app
 
-> Midterm project — React SPA (KBTU).
+> React end-term project (KBTU), built on top of the midterm version.
+> **Status:** midterm features are done. End-term features are in progress; see the
+> [roadmap](docs/PROJECT_PLAN.md#5-roadmap).
 
 ![Discover page with filters](docs/screenshots/discover.jpg)
 
 ## Features
 
-- **Discover**: browse 20,000+ series with filters (genre, first-air year, minimum rating, status),
-  five sort orders and pagination. Filters, sort and page live in the URL, so links can be shared
-  and back/forward works.
-- **Search**: debounced title search with cancellation of outdated requests.
-- **Series page**: overview, seasons, trailer, cast and recommendations, loaded in one request.
-- **Episode ratings heatmap** (in the style of SeriesGraph): every episode of every season colored
-  by its TMDB rating, with season averages, the best and the lowest rated episode, and an
-  episode panel with details.
-- **Watchlist**: a controlled form to add a series (with TMDB autocomplete), a status, your own
-  score and notes. You can edit and remove entries (with undo). The list has its own search,
-  status tabs, sorting and pagination. It's saved in `localStorage` and synced across tabs.
-- Loading skeletons, error states with retry, empty states for every list, and a responsive
-  layout that works on phones and desktops.
+Legend: ✅ implemented, 🚧 in progress.
+
+### Catalog
+
+- ✅ **Series catalog** with server-side search (debounced), filters (genre, year, minimum
+  rating, status), five sort orders and pagination. Everything lives in the URL, so links can be
+  shared and back/forward works.
+- 🚧 **Movies catalog** with the same UI, a 5th filter on both catalogs (original language;
+  runtime for movies) and a configurable page size (20 / 40 / 60).
+- ✅ **Series page**: overview, seasons, trailer, cast and recommendations.
+- ✅ **Episode ratings heatmap**: every episode of every season colored by its TMDB rating,
+  with season averages, best and lowest episode, and an episode panel.
+- 🚧 **Movie page**: details, cast, trailer, recommendations.
+
+### Personal data
+
+- ✅ **Watchlist** (midterm): add, edit, remove with undo, search, tabs, sort, pagination,
+  saved in `localStorage` and synced across tabs.
+- 🚧 **Authentication**: email/password with validation and email verification, Google
+  sign-in, persistent session, protected routes.
+- 🚧 **Library**: your status, score, notes and episode progress for each title. Guests keep it
+  locally, signed-in users in Firestore. The guest library is merged into your account on sign-in.
+- 🚧 **Lists**: named collections of titles with full CRUD.
+- 🚧 **Sharing**: share a list or a plan by link (read-only) or add friends by email as
+  **editor** or **viewer**. Access is enforced by Firestore security rules.
+- 🚧 **Watch Planner**: generate a schedule of viewing sessions from a series' episodes or a
+  list of movies, then complete, reschedule or skip sessions. Your library progress updates
+  automatically. Export to `.ics`.
+- 🚧 **Dashboard**: statistics and breakdowns of your library and plans, with filters and
+  links to the matching records.
+- 🚧 **Profile**: account info, activity, settings.
+
+### App
+
+- ✅ Loading skeletons, error states with retry, empty states, responsive layout.
+- 🚧 Light / dark theme, English / Russian / Kazakh (also for TMDB content).
+- 🚧 Installable PWA with offline support.
 
 | Series page                                     | Episode ratings                                  |
 | ----------------------------------------------- | ------------------------------------------------ |
@@ -35,20 +66,25 @@ A React single-page application powered by the [TMDB API](https://developer.them
 
 ## Tech stack
 
-- **React 19** + **Vite**
-- **React Router** in declarative mode: routing only. Data is loaded with `useEffect`, not router loaders.
-- **CSS Modules** with design tokens in `src/styles/global.css`
-- Plain **`fetch`** + custom hooks. I didn't use a data-fetching library on purpose, so loading,
-  cleanup and race-condition handling are visible in the code.
-- **ESLint** (`eslint-plugin-react-hooks` recommended rules) + **Prettier**
+- **React 19** + **Vite**, **React Router** (declarative mode)
+- **Firebase**: Authentication (email/password, Google), Cloud Firestore
+- **TMDB API** for movies and series
+- **CSS Modules** with design tokens
+- Plain `fetch` + custom hooks for TMDB, `onSnapshot` + custom hooks for Firestore
+- 🚧 `react-i18next`, `vite-plugin-pwa`
+- **ESLint** + **Prettier**
 
 ## Getting started
 
-Requirements: Node.js 20+ and a free [TMDB API Read Access Token](https://www.themoviedb.org/settings/api).
+Requirements: Node.js 20+, a free
+[TMDB API Read Access Token](https://www.themoviedb.org/settings/api) and a Firebase project
+(see [docs/FIREBASE_SETUP.md](docs/FIREBASE_SETUP.md)).
 
 ```bash
+git clone https://github.com/EraEKV/react_movietime.git
+cd react_movietime
 npm install
-cp .env.example .env.local   # then paste your token into VITE_TMDB_TOKEN
+cp .env.example .env.local   # fill in the values, see below
 npm run dev
 ```
 
@@ -63,183 +99,109 @@ npm run dev
 
 ### Environment variables
 
-| Name              | Description                                 |
-| ----------------- | ------------------------------------------- |
-| `VITE_TMDB_TOKEN` | TMDB API Read Access Token (sent as Bearer) |
+| Name                                | Required | Description                                    |
+| ----------------------------------- | :------: | ---------------------------------------------- |
+| `VITE_TMDB_TOKEN`                   |   yes    | TMDB API Read Access Token (sent as Bearer)    |
+| `VITE_FIREBASE_API_KEY`             |   yes    | Firebase web app config                        |
+| `VITE_FIREBASE_AUTH_DOMAIN`         |   yes    | `<project-id>.firebaseapp.com`                 |
+| `VITE_FIREBASE_PROJECT_ID`          |   yes    |                                                |
+| `VITE_FIREBASE_STORAGE_BUCKET`      |   yes    |                                                |
+| `VITE_FIREBASE_MESSAGING_SENDER_ID` |   yes    |                                                |
+| `VITE_FIREBASE_APP_ID`              |   yes    |                                                |
+| `VITE_FIREBASE_MEASUREMENT_ID`      |    no    | Only for Google Analytics, not used by the app |
 
-`.env.local` is git-ignored. The app has no backend, so the token ends up in the client bundle.
-That's acceptable here because TMDB read tokens are read-only and rate-limited. In a real
-product the requests would go through a small proxy.
+`.env.local` is git-ignored. All of these values end up in the client bundle, which is
+expected: the TMDB read token is read-only and rate-limited, and the Firebase web config only
+identifies the project. User data is protected by Firestore security rules.
+
+## API documentation
+
+Full reference: **[docs/API.md](docs/API.md)** (service functions) and
+**[docs/DATA_MODEL.md](docs/DATA_MODEL.md)** (schemas, security rules, indexes).
+
+### Resources
+
+| Resource                | Backend                                  | Operations                                                                   |
+| ----------------------- | ---------------------------------------- | ---------------------------------------------------------------------------- |
+| Titles (movies, series) | TMDB REST                                | List with search, filters, sort, paging; details by id; seasons and episodes |
+| Library entries         | Firestore `users/{uid}/library`          | Create, read, update, delete (owner only)                                    |
+| Lists + items           | Firestore `lists`, `lists/{id}/items`    | Full CRUD; shared by link or roles                                           |
+| Plans + sessions        | Firestore `plans`, `plans/{id}/sessions` | Generate, complete, reschedule, skip, delete                                 |
+| Profile, activity       | Firestore `users/{uid}`                  | Read, update                                                                 |
+
+### TMDB endpoints
+
+| Endpoint                                                                                | Used for           |
+| --------------------------------------------------------------------------------------- | ------------------ |
+| `GET /discover/tv`, `GET /discover/movie`                                               | Catalogs           |
+| `GET /search/tv`, `GET /search/movie`                                                   | Search             |
+| `GET /tv/{id}`, `GET /movie/{id}` + `append_to_response=credits,videos,recommendations` | Details            |
+| `GET /tv/{id}?append_to_response=season/1,…`                                            | Heatmap, planner   |
+| `GET /genre/{tv,movie}/list`, `GET /trending/{tv,movie}/week`                           | Filters, home page |
+
+### App URL parameters (catalog)
+
+`/movies` and `/series` accept `q`, `genre`, `year`, `rating`, `lang`, `status` (series),
+`runtime` (movies), `sort`, `page` and `size`. Invalid values fall back to defaults. Details:
+[DATA_MODEL.md → Catalog query parameters](docs/DATA_MODEL.md#catalog-query-parameters-app-url--tmdb).
+
+## Routes
+
+| Route                                     | Page             | Access                    |
+| ----------------------------------------- | ---------------- | ------------------------- |
+| `/`                                       | Home             | public                    |
+| `/about`                                  | About            | public                    |
+| `/login`, `/signup`                       | Login, Signup    | guests only               |
+| `/movies`, `/series`                      | Catalog          | public                    |
+| `/movies/:id`, `/series/:id`              | Title details    | public                    |
+| `/library`, `/library/:key/edit`          | Library          | public (local for guests) |
+| `/lists`, `/lists/new`, `/lists/:id/edit` | Lists management | signed in                 |
+| `/lists/:id`                              | List             | owner, members, link      |
+| `/planner`, `/planner/new`                | Planner          | signed in                 |
+| `/planner/:id`                            | Plan             | owner, members, link      |
+| `/dashboard`                              | Dashboard        | signed in                 |
+| `/profile`, `/profile/settings`           | Profile          | signed in                 |
+| `*`                                       | Not found        | public                    |
 
 ## Project structure
 
 ```
 src/
-├── api/
-│   └── tmdb.js               # fetch wrapper, ApiError, endpoint path builders, image URLs
-├── components/               # reusable UI, one folder per component (+ CSS Module)
-│   ├── EpisodeHeatmap/       # heatmap grid, episode panel, highlights, legend
-│   ├── FilterBar/  SearchBar/  SelectField/  StatusTabs/  Pagination/
-│   ├── SeriesCard/  SeriesGrid/  SeriesHero/  SeriesDetails/  SeasonList/  CastList/  Trailer/
-│   ├── WatchlistForm/  SeriesPicker/  WatchlistItem/  WatchlistButton/
-│   └── Button/  RatingBadge/  StatusMessage/  Skeleton/  Section/  Toast/  BackButton/  Layout/
-├── context/                  # WatchlistProvider + context object
-├── hooks/                    # useFetch, useEpisodeRatings, useSeriesFilters, useWatchlist, ...
-├── pages/                    # route components
-├── storage/                  # localStorage read/write for the watchlist
-├── styles/                   # global styles and design tokens
-└── utils/                    # pure helpers: formatting, filter config, sorting
+├── api/          TMDB client and endpoint builders
+├── services/     Firebase: auth, profile, library, lists, sharing, planner
+├── storage/      localStorage modules
+├── context/      global state providers
+├── hooks/        custom hooks
+├── components/   reusable UI, one folder per component + CSS Module
+├── pages/        one file per route
+├── styles/       global styles, design tokens, themes
+└── utils/        pure helpers: filters, formatting, schedule, stats
 ```
 
-## Architecture
+How it fits together, where each piece of state lives and why, and the React patterns used
+(effects and cleanup, race conditions, keys): **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)**.
 
-### Routes and render tree
+## Documentation
 
-| Route                      | Page                | Purpose                                       |
-| -------------------------- | ------------------- | --------------------------------------------- |
-| `/`                        | `HomePage`          | Discover + search, filters, sort, pagination  |
-| `/series/:id`              | `SeriesPage`        | Series details and episode heatmap            |
-| `/watchlist`               | `WatchlistPage`     | Personal list with search, tabs, sort, paging |
-| `/watchlist/new`           | `WatchlistAddPage`  | Add form (`?series=<id>` preselects a series) |
-| `/watchlist/:entryId/edit` | `WatchlistEditPage` | Edit form                                     |
-| `*`                        | `NotFoundPage`      | 404                                           |
-
-```
-<BrowserRouter>
-└── <App>
-    └── <WatchlistProvider>                 watchlist state (shared by several routes)
-        └── <Layout>                        header, nav with watchlist count, footer
-            ├── <HomePage>
-            │   ├── <SearchBar>
-            │   ├── <FilterBar> → <SelectField> ×5
-            │   ├── <SkeletonGrid> | <StatusMessage> | <SeriesGrid> → <SeriesCard> → <RatingBadge>
-            │   └── <Pagination>
-            ├── <SeriesPage>
-            │   └── <SeriesDetails key={id}>
-            │       ├── <SeriesHero actions={<WatchlistButton>}>
-            │       ├── <EpisodeHeatmap> → <HeatmapGrid>, <EpisodePanel>
-            │       ├── <SeasonList>, <Trailer>, <CastList>
-            │       └── <SeriesGrid>        recommendations (same component as Discover)
-            ├── <WatchlistPage> → <StatusTabs>, <SelectField>, <WatchlistItem>, <Pagination>, <Toast>
-            └── <WatchlistAddPage> / <WatchlistEditPage> → <WatchlistForm key=…> → <SeriesPicker>
-```
-
-### Where state lives and why
-
-| State                                      | Where                                              | Why                                                                                       |
-| ------------------------------------------ | -------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| Discover filters, sort, page, search query | URL search params (`useSeriesFilters`)             | Shareable links, refresh keeps them, back/forward walks through them                      |
-| Text typed in the search box               | `useState` in `SearchBar`                          | Changes on every keystroke; only the debounced value is committed to the URL              |
-| API responses + request status             | `useState` inside `useFetch` / `useEpisodeRatings` | Each component that needs data owns its request                                           |
-| Watchlist entries                          | `useState` in `WatchlistProvider` (context)        | Needed by the series page, the watchlist pages and the nav. Lifted to their common parent |
-| Watchlist search, status tab, sort, page   | `useState` in `WatchlistPage`                      | Page-only UI state. Personal data, so there is nothing to share in a URL                  |
-| Form values, "submitted" flag              | `useState` in `WatchlistForm`                      | Local to the form until submit                                                            |
-| Selected episode in the heatmap            | `useState` in `EpisodeHeatmap` (id only)           | The episode object is derived from loaded data, so it can't go stale                      |
-| Trailer playing                            | `useState` in `Trailer`                            | Pure UI state, reset per series by `key`                                                  |
-
-Things that can be computed are **not** stored: filtered/sorted watchlist, total pages,
-validation errors, `loading` status, best/worst episode, season averages.
-
-### How API data reaches the UI
-
-```
-HomePage
-  filters (URL) ──► toDiscoverParams() ──► endpoints.discoverSeries() ──► path string
-                                                                          │
-                                       useFetch(path) ◄────────────────────┘
-                                         └─ useEffect([path, attempt]) → tmdbGet(path, { signal })
-  { status, data, error, reload } ◄──────┘
-        │
-        ├─ loading → <SkeletonGrid>
-        ├─ error   → <StatusMessage tone="error"> + "Try again" (reload)
-        ├─ empty   → <StatusMessage> with a context-specific action
-        └─ success → <SeriesGrid items={data.results} genresById={…}> → <SeriesCard> (props)
-```
-
-The data isn't shown as-is. Genre ids are turned into names, unaired episodes are marked as
-"not rated" instead of 0, season averages and best/worst episodes are computed, trailers are
-picked by priority, specials are moved to the end, and search results can be saved into the
-watchlist.
-
-## React concepts in the code
-
-### Effects, dependencies and cleanup
-
-| Effect                                  | Dependencies                      | Cleanup                                |
-| --------------------------------------- | --------------------------------- | -------------------------------------- |
-| `useFetch`: load a TMDB path            | `[path, attempt]`                 | `controller.abort()` + `ignore = true` |
-| `useEpisodeRatings`: load all seasons   | `[seriesId, seasonsKey, attempt]` | aborts every batch with one controller |
-| `SearchBar`: debounce commit to the URL | `[value, query]`                  | `clearTimeout`                         |
-| `useDebouncedValue`                     | `[value, delay]`                  | `clearTimeout`                         |
-| `WatchlistProvider`: persist to storage | `[entries]`                       | none needed                            |
-| `WatchlistProvider`: cross-tab sync     | `[]`                              | `removeEventListener('storage')`       |
-| `WatchlistPage`: hide undo toast        | `[removed]`                       | `clearTimeout`                         |
-| `Layout`: scroll to top on route change | `[pathname]`                      | none needed                            |
-
-- **Stable dependencies.** Effects depend on strings, not on objects or arrays created during
-  render. `useFetch` gets a path string. `useEpisodeRatings` turns the season list into
-  `seasonNumbers.join(',')`, because a new array every render would re-run the effect forever.
-- **No synchronous `setState` in effects.** `loading` isn't stored. Each result is saved together
-  with the request key it belongs to, and if that key doesn't match the current request, the
-  request is still loading.
-- **Stale closures.** The debounce timer in `SearchBar` calls `onSearch` through
-  `useEffectEvent`, so it always uses the latest callback without making it a dependency.
-
-### Race conditions
-
-Typing "breaking bad" quickly, or clicking through pages fast, starts requests that can finish
-out of order. Every request effect:
-
-1. aborts the previous request through `AbortController` in its cleanup, and
-2. sets an `ignore` flag, so a late response is dropped even if it slipped past the abort.
-
-Combined with the 400ms debounce, a fast-typed query sends one request, and the UI always shows
-the results for the current query.
-
-### Keys, identity and resetting state
-
-- List keys are stable ids: TMDB `id` for series, `credit_id` for cast (one actor can play
-  several roles), `crypto.randomUUID()` for watchlist entries. Indexes are only used where the
-  position _is_ the identity (skeleton placeholders, heatmap rows "episode N").
-- `<SeriesDetails key={id}>`: going from one series to a recommended one would otherwise reuse
-  the component and keep its state, for example a trailer still playing. The key makes React mount
-  a fresh instance.
-- `<WatchlistForm key={…}>`: the form reads `initialValues` only on mount, so a different entry
-  or a preselected series gets its own instance.
-- `SearchBar` updates its input during render when the URL query changes from outside (back
-  button, clear). This follows React's "adjusting state when a prop changes" pattern instead of
-  an effect.
-
-### Events, forms and immutable updates
-
-- Controlled inputs everywhere: search, selects, radio group, textarea, autocomplete.
-- Several setters in one handler (`setSearch` + `setPage(1)`) are batched into one re-render.
-- Immutable updates: `[entry, ...prev]`, `prev.map(...)`, `prev.filter(...)`,
-  `[...prev.slice(0, i), entry, ...prev.slice(i)]`, and `new URLSearchParams(prev)` for the URL.
-- No direct DOM manipulation. The page `<title>` is rendered as JSX (React 19 hoists it into
-  `<head>`). `window.scrollTo` and the `storage` listener are calls to browser APIs from effects
-  and handlers.
-
-## TMDB limitations and how they are handled
-
-| Limitation                                                   | Handling                                                               |
-| ------------------------------------------------------------ | ---------------------------------------------------------------------- |
-| `/search/tv` can't filter by genre/rating/status or sort     | Search mode disables those controls and explains why. Year still works |
-| `total_pages` can be 1000+, but pages above 500 return 400   | Pages are capped at 500, also when they come from the URL              |
-| "Top rated" is dominated by shows with one 10/10 vote        | Rating sort and the rating filter require a minimum number of votes    |
-| Discover "newest" includes announced shows dated years ahead | Newest sort is capped at today                                         |
-| `append_to_response` accepts at most 20 sub-requests         | Seasons are split into batches of 20 and loaded with `Promise.all`     |
-| Unaired episodes have rating `0`                             | Shown as "not rated", not as a bad score                               |
+| Document                                    | Content                                                   |
+| ------------------------------------------- | --------------------------------------------------------- |
+| [PROJECT_PLAN.md](docs/PROJECT_PLAN.md)     | Features, roadmap, requirements checklist                 |
+| [ARCHITECTURE.md](docs/ARCHITECTURE.md)     | Folder structure, routing, state, caching, React patterns |
+| [API.md](docs/API.md)                       | Service modules, hooks                                    |
+| [DATA_MODEL.md](docs/DATA_MODEL.md)         | TMDB resources, Firestore schema, security rules          |
+| [FIREBASE_SETUP.md](docs/FIREBASE_SETUP.md) | Configuring Firebase and Vercel                           |
+| [CONTRIBUTING.md](docs/CONTRIBUTING.md)     | Branches and commit conventions                           |
 
 ## Deployment
 
-Deployed on **Vercel** from the `main` branch: https://react-movietime.vercel.app
+Deployed on **Vercel** from `main`: https://react-movietime.vercel.app
 
-- `vercel.json` rewrites every path to `index.html`, so deep links like `/series/1396` work on
-  refresh.
-- `VITE_TMDB_TOKEN` is set in the Vercel project's environment variables.
+- `vercel.json` rewrites every path to `index.html`, so deep links work on refresh.
+- Environment variables are set in the Vercel project settings.
+- Firebase (Auth + Firestore) is a hosted backend, so the deployed app doesn't depend on a
+  local machine. The production domain is listed in Firebase Auth authorized domains.
 
 ## Credits
 
-This product uses the TMDB API but is not endorsed or certified by TMDB. Series data and images
-© [The Movie Database](https://www.themoviedb.org/).
+This product uses the TMDB API but is not endorsed or certified by TMDB. Movie and series data
+and images © [The Movie Database](https://www.themoviedb.org/).
