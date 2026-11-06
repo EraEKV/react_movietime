@@ -1,0 +1,129 @@
+.kicker {
+  composes: overline from '../../styles/typography.module.css';
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.title {
+  composes: titleM from '../../styles/typography.module.css';
+  margin: 0;
+}
+
+.muted {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.today,
+.plans {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  border-radius: var(--radius-md);
+}
+
+.today {
+  background: var(--surface-selected);
+}
+
+.plans {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  box-shadow: var(--shadow-1);
+}
+
+.todayList,
+.planList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.planList {
+  gap: var(--space-1);
+}
+
+.todayItem {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.thumb {
+  flex: none;
+  width: 40px;
+  aspect-ratio: 2 / 3;
+  border-radius: var(--radius-xs);
+  overflow: hidden;
+  background: var(--surface-sunken);
+}
+
+.thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.todayText {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.todayTitle {
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.todayTitle:hover {
+  text-decoration: underline;
+}
+
+.todayText > button {
+  margin-top: var(--space-1);
+}
+
+.watched {
+  color: var(--success);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.planRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 44px;
+  padding: var(--space-2);
+  margin: 0 calc(-1 * var(--space-2));
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  text-decoration: none;
+}
+
+.planRow:hover {
+  background: var(--surface-hover);
+}
+
+.planText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.planText strong {
+  overflow: hidden;
+  font-size: 14px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
