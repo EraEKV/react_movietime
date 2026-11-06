@@ -95,13 +95,14 @@ React.**
   <Route element={<GuestRoute />}>      login, signup (signup → verify-email for new accounts)
   <Route element={<ProtectedRoute />}>  verify-email
 <Route element={<Layout />}>
-  index                         HomePage
+  index                         HomePage             (main bundle: the first screen)
   about                         AboutPage            (lazy)
-  movies, series                CatalogPage
+  movies, series                CatalogPage          (lazy)
   movies/:id                    MoviePage            (lazy)
   series/:id                    SeriesPage           (lazy)
-  library                       LibraryPage
-  library/:mediaKey/edit        LibraryEditPage
+  library                       LibraryPage          (lazy)
+  library/:mediaKey/edit        LibraryEditPage      (lazy)
+  watchlist/*                   → redirect to /library (midterm links)
   lists/:listId                 ListPage             (owner / member / link)
   planner/:planId               PlanPage             (owner / member / link)
   <Route element={<ProtectedRoute />}>
@@ -111,12 +112,28 @@ React.**
     planner/new                 PlanCreatePage
     dashboard                   DashboardPage        (lazy)
     profile                     ProfileLayout        (lazy) → index: ProfilePage, settings: ProfileSettingsPage
-  offline                       OfflinePage
+  offline                       OfflinePage          (lazy)
   *                             NotFoundPage
 ```
 
 Lazy pages are wrapped in one `<Suspense fallback={<PageLoader />}>` inside `Layout`, so the
-header stays visible while a chunk loads.
+header stays visible while a chunk loads. React Router runs navigations in a transition, so after
+the first load a page switch keeps the old page on screen until the new chunk is ready.
+
+### Code splitting
+
+| Chunk                   | Size (min) | Loaded                                                        |
+| ----------------------- | ---------- | ------------------------------------------------------------- |
+| `index` (main)          | ~410 kB    | Always: React, Router, Redux, Firebase Auth, layout, Home     |
+| One chunk per lazy page | 1–15 kB    | First visit to that route                                     |
+| Firestore SDK           | ~535 kB    | Lazy pages that read data, and the profile sync after sign-in |
+
+Firebase Auth is needed on every page (header, route guards), Firestore is not. So
+`services/firebase.ts` creates only the app and `auth`, `services/firestore.ts` creates `db`,
+and the sign-in thunks load the profile service with `await import(...)`. Before this split the
+whole app was one 1 019 kB chunk. `build.chunkSizeWarningLimit` is 600 because the only chunk
+above 500 kB is the lazily loaded Firestore SDK: cutting it with Rolldown `codeSplitting` groups
+builds, but breaks the SDK's module init order at runtime.
 
 ### State map
 
@@ -152,25 +169,36 @@ confirms later. A failed write (for example `permission-denied`) is shown as an 
 | Firestore persistent cache | User data                       | Kept in sync by snapshots; offline writes queued   |
 | `localStorage`             | Guest library, preferences      | Written on change                                  |
 
-## Current implementation (midterm)
+## Current implementation
+
+Phases 0–3 are in place. Movies, lists, planner, dashboard and settings routes exist and show a
+"Coming soon" placeholder until their phase lands, so the navigation never leads to a 404.
 
 ### Routes and render tree
 
-| Route                      | Page                | Purpose                                       |
-| -------------------------- | ------------------- | --------------------------------------------- |
-| `/`                        | `HomePage`          | Discover + search, filters, sort, pagination  |
-| `/series/:id`              | `SeriesPage`        | Series details and episode heatmap            |
-| `/watchlist`               | `WatchlistPage`     | Personal list with search, tabs, sort, paging |
-| `/watchlist/new`           | `WatchlistAddPage`  | Add form (`?series=<id>` preselects a series) |
-| `/watchlist/:entryId/edit` | `WatchlistEditPage` | Edit form                                     |
-| `*`                        | `NotFoundPage`      | 404                                           |
+| Route                    | Page                       | Purpose                                                     |
+| ------------------------ | -------------------------- | ----------------------------------------------------------- |
+| `/`                      | `HomePage`                 | Guest hero or "Up next", trending rows, heatmap teaser      |
+| `/about`                 | `AboutPage`                | Features and TMDB credit                                    |
+| `/series`                | `CatalogPage`              | Discover + search, filters, sort, pagination                |
+| `/series/:id`            | `SeriesPage`               | Series details and episode heatmap                          |
+| `/library`               | `WatchlistPage`            | Personal list with search, tabs, sort, paging               |
+| `/library/new`           | `WatchlistAddPage`         | Add form (`?series=<id>` preselects a series)               |
+| `/library/:entryId/edit` | `WatchlistEditPage`        | Edit form                                                   |
+| `/profile`               | `ProfileLayout` → children | Nested: `ProfilePage` (index), settings placeholder         |
+| `/offline`               | `OfflinePage`              | Offline screen (the service worker will serve it, phase 12) |
+| `*`                      | `NotFoundPage`             | 404                                                         |
 
 ```
 <BrowserRouter>
 └── <App>
     └── <WatchlistProvider>                 watchlist state (shared by several routes)
-        └── <Layout>                        header, nav with watchlist count, footer
+        └── <Layout>                        header, nav, footer, <Suspense> around <Outlet>
             ├── <HomePage>
+            │   ├── <HomeHero> (guests) | <UpNextSection>, <ContinueWatching> (users)
+            │   ├── <TrendingSection> → <SegmentedControl>, <PosterRow> → <PosterCard>
+            │   └── <HeatmapTeaser> → <HeatmapGrid> (inert preview)
+            ├── <CatalogPage>
             │   ├── <SearchBar>
             │   ├── <FilterBar> → <SelectField> ×5
             │   ├── <SkeletonGrid> | <StatusMessage> | <SeriesGrid> → <SeriesCard> → <RatingBadge>
@@ -204,7 +232,7 @@ validation errors, `loading` status, best/worst episode, season averages.
 ### How API data reaches the UI
 
 ```
-HomePage
+CatalogPage
   filters (URL) ──► toDiscoverParams() ──► endpoints.discoverSeries() ──► path string
                                                                           │
                                        useFetch(path) ◄────────────────────┘

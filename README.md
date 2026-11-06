@@ -166,6 +166,7 @@ Full reference: **[docs/API.md](docs/API.md)** (service functions) and
 | `/planner/:id`                            | Plan             | owner, members, link      |
 | `/dashboard`                              | Dashboard        | signed in                 |
 | `/profile`, `/profile/settings`           | Profile          | signed in                 |
+| `/offline`                                | Offline          | public                    |
 | `*`                                       | Not found        | public                    |
 
 ## Project structure
