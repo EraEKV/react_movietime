@@ -87,7 +87,7 @@ export interface MediaSummary {
 
 | Field               | Type                            | Notes                            |
 | ------------------- | ------------------------------- | -------------------------------- |
-| `displayName`       | string                          | 2–40 chars                       |
+| `displayName`       | string                          | 1–40 chars                       |
 | `email`             | string                          | lowercase, from Auth             |
 | `photoURL`          | string \| null                  | Google avatar                    |
 | `providers`         | string[]                        | `["password"]`, `["google.com"]` |
@@ -96,7 +96,10 @@ export interface MediaSummary {
 | `createdAt`         | Timestamp                       |                                  |
 | `updatedAt`         | Timestamp                       |                                  |
 
-Created on first sign-in (`ensureProfile`).
+Created on first sign-in (`ensureProfile`). `settings` is written from the device only when the
+account has none; afterwards the account wins and a listener applies it on every device
+(guests keep preferences in `localStorage` only). `localStorage` stays the first-paint cache.
+The settings page changes `displayName` (also in Firebase Auth) and `settings`.
 
 ### `users/{uid}/library/{mediaKey}`: library entry
 
@@ -117,7 +120,10 @@ Guests: the same objects in `localStorage` under `movietime.library.v1`.
 
 ### `users/{uid}/activity/{activityId}`: activity log
 
-Append-only, shown on the profile page.
+Append-only, shown on the profile page (newest 20, `orderBy('createdAt', 'desc')`). Library
+and list records are written without `await`, so a failed log never fails the action itself;
+planner records are part of the planner's batch. Rules (`validActivity`): only these fields,
+`type` from the list below, `title` 1–200, `createdAt == request.time`; no updates or deletes.
 
 | Field       | Type      | Example                                                                                    |
 | ----------- | --------- | ------------------------------------------------------------------------------------------ |
@@ -298,7 +304,10 @@ service cloud.firestore {
 
     // ---------- private user data ----------
     match /users/{userId} {
-      allow read, write: if signedIn() && uid() == userId;
+      // validProfile: only known fields, displayName 1–40, settings.theme / settings.language
+      // from their enums, updatedAt == request.time; createdAt is set once. No delete.
+      allow read: if signedIn() && uid() == userId;
+      allow create, update: if signedIn() && uid() == userId && validProfile();
 
       match /library/{mediaKey} {
         allow read, delete: if signedIn() && uid() == userId;
@@ -307,7 +316,8 @@ service cloud.firestore {
         allow create, update: if signedIn() && uid() == userId && validLibraryEntry(mediaKey);
       }
       match /activity/{activityId} {
-        allow read, create: if signedIn() && uid() == userId;
+        allow read: if signedIn() && uid() == userId;
+        allow create: if signedIn() && uid() == userId && validActivity();
       }
     }
 

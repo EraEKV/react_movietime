@@ -26,6 +26,7 @@ import type {
 } from '../types/list'
 import type { MediaKey } from '../types/media'
 import { mediaKey, parseMediaKey } from '../utils/media'
+import { logActivity } from './activityService'
 import { db } from './firestore'
 
 // lists/{listId} and lists/{listId}/items/{mediaKey} (docs/DATA_MODEL.md).
@@ -194,6 +195,8 @@ export async function createList(owner: ListAuthor, draft: ListDraft): Promise<s
     createdAt: now,
     updatedAt: now,
   })
+  // After the list exists; not awaited, so a failed log never fails the create (or a copy).
+  logActivity(owner.uid, { type: 'list.create', title: draft.name, refId: ref.id })
   return ref.id
 }
 

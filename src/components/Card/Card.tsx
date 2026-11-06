@@ -8,8 +8,23 @@ interface CardProps {
   padded?: boolean
   className?: string
   children: ReactNode
+  /** For a `section` card: the id of its heading (gives the region an accessible name). */
+  'aria-labelledby'?: string
 }
 
-export default function Card({ as: Tag = 'div', padded = true, className, children }: CardProps) {
-  return <Tag className={cx(styles.card, padded && styles.padded, className)}>{children}</Tag>
+export default function Card({
+  as: Tag = 'div',
+  padded = true,
+  className,
+  children,
+  'aria-labelledby': labelledBy,
+}: CardProps) {
+  return (
+    <Tag
+      className={cx(styles.card, padded && styles.padded, className)}
+      aria-labelledby={labelledBy}
+    >
+      {children}
+    </Tag>
+  )
 }

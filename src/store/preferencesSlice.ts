@@ -28,6 +28,11 @@ const preferencesSlice = createSlice({
     languageChanged(state, action: PayloadAction<Language>) {
       state.language = action.payload
     },
+    /** The account's settings arrived (another device changed them, or a fresh sign-in). */
+    preferencesSynced(state, action: PayloadAction<Preferences>) {
+      state.theme = action.payload.theme
+      state.language = action.payload.language
+    },
   },
   selectors: {
     selectThemePreference: (state) => state.theme,
@@ -37,7 +42,8 @@ const preferencesSlice = createSlice({
   },
 })
 
-export const { themeChanged, systemThemeChanged, languageChanged } = preferencesSlice.actions
+export const { themeChanged, systemThemeChanged, languageChanged, preferencesSynced } =
+  preferencesSlice.actions
 export const { selectThemePreference, selectLanguage, selectResolvedTheme } =
   preferencesSlice.selectors
 export default preferencesSlice

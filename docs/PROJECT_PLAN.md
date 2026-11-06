@@ -194,7 +194,16 @@ user's real library and plans:
   counts (library / lists / plans), **recent activity** (added titles, completed sessions,
   created lists).
 - `/profile/settings`: edit display name, theme, language, send verification email again,
-  sign out.
+  sign out. Notification switches from the design wait for push notifications (phase 13).
+
+| Profile requirement                   | How                                                                                                |
+| ------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| Profile / Favorites / Purchases page  | `/profile`: account info, library / lists / plans counters (links), recent activity                |
+| ≥ 1 page only for authenticated users | `/profile/*` (also Lists, Planner) behind `ProtectedRoute`; guests go to `/login`                  |
+| Theme bonus, synced with the account  | `users/{uid}.settings` + listener; account wins on sign-in, live on other devices                  |
+| Form states                           | Display name 1–40: inline error, focus on it, `aria-invalid` + `aria-describedby`, Saving… / Saved |
+| Activity                              | `users/{uid}/activity`, validated by rules, newest 20 live; skeleton / empty / retry               |
+| Language                              | EN / RU / KZ saved now; translations arrive with i18n (phase 11)                                   |
 
 ### 3.10 Bonus features
 
@@ -239,29 +248,29 @@ Vitest + React Testing Library + jsdom, `npm test`:
 
 ## 4. Pages and routes
 
-| Route                 | Page                  | Access    | Lazy | Requirement                 |
-| --------------------- | --------------------- | --------- | ---- | --------------------------- |
-| `/`                   | `HomePage`            | public    |      | Home                        |
-| `/about`              | `AboutPage`           | public    | ✓    | About                       |
-| `/login`              | `LoginPage`           | guest     |      | Login                       |
-| `/signup`             | `SignupPage`          | guest     |      | Signup                      |
-| `/movies`, `/series`  | `CatalogPage`         | public    | ✓    | Items List                  |
-| `/movies/:id`         | `MoviePage`           | public    | ✓    | Item Details                |
-| `/series/:id`         | `SeriesPage`          | public    | ✓    | Item Details                |
-| `/library`            | `LibraryPage`         | public    | ✓    | Favorites (guest + user)    |
-| `/library/:key/edit`  | `LibraryEditPage`     | public    | ✓    |                             |
-| `/lists`              | `ListsPage`           | protected | ✓    | Secondary Entity Management |
-| `/lists/new`          | `ListFormPage`        | protected |      |                             |
-| `/lists/:listId`      | `ListPage`            | role/link |      | dynamic route               |
-| `/lists/:listId/edit` | `ListFormPage`        | owner     |      |                             |
-| `/planner`            | `PlannerPage`         | protected | ✓    | Business feature            |
-| `/planner/new`        | `PlanCreatePage`      | protected |      |                             |
-| `/planner/:planId`    | `PlanPage`            | role/link |      | dynamic route               |
-| `/dashboard`          | `DashboardPage`       | public    | ✓    | Dashboard                   |
-| `/profile`            | `ProfilePage`         | protected | ✓    | Profile                     |
-| `/profile/settings`   | `ProfileSettingsPage` | protected | ✓    | nested route                |
-| `/offline`            | `OfflinePage`         | public    | ✓    | PWA                         |
-| `*`                   | `NotFoundPage`        | public    |      | 404                         |
+| Route                 | Page              | Access    | Lazy | Requirement                 |
+| --------------------- | ----------------- | --------- | ---- | --------------------------- |
+| `/`                   | `HomePage`        | public    |      | Home                        |
+| `/about`              | `AboutPage`       | public    | ✓    | About                       |
+| `/login`              | `LoginPage`       | guest     |      | Login                       |
+| `/signup`             | `SignupPage`      | guest     |      | Signup                      |
+| `/movies`, `/series`  | `CatalogPage`     | public    | ✓    | Items List                  |
+| `/movies/:id`         | `MoviePage`       | public    | ✓    | Item Details                |
+| `/series/:id`         | `SeriesPage`      | public    | ✓    | Item Details                |
+| `/library`            | `LibraryPage`     | public    | ✓    | Favorites (guest + user)    |
+| `/library/:key/edit`  | `LibraryEditPage` | public    | ✓    |                             |
+| `/lists`              | `ListsPage`       | protected | ✓    | Secondary Entity Management |
+| `/lists/new`          | `ListFormPage`    | protected |      |                             |
+| `/lists/:listId`      | `ListPage`        | role/link |      | dynamic route               |
+| `/lists/:listId/edit` | `ListFormPage`    | owner     |      |                             |
+| `/planner`            | `PlannerPage`     | protected | ✓    | Business feature            |
+| `/planner/new`        | `PlanCreatePage`  | protected |      |                             |
+| `/planner/:planId`    | `PlanPage`        | role/link |      | dynamic route               |
+| `/dashboard`          | `DashboardPage`   | public    | ✓    | Dashboard                   |
+| `/profile`            | `ProfilePage`     | protected | ✓    | Profile                     |
+| `/profile/settings`   | `SettingsPage`    | protected | ✓    | nested route                |
+| `/offline`            | `OfflinePage`     | public    | ✓    | PWA                         |
+| `*`                   | `NotFoundPage`    | public    |      | 404                         |
 
 "role/link" pages are public routes: the page decides between owner, editor, viewer, and
 "no access" from the document and the rules' answer.
@@ -284,7 +293,7 @@ Small fixes between phases go straight to `main`.
 | 7   | `feat/sharing` ✅         | Link visibility, members and roles, "Shared with me", copy list, Firestore rules                                                                                      |
 | 8   | `feat/planner` ✅         | Schedule generation, calendar, complete / reschedule / skip, `.ics` export, plan sharing                                                                              |
 | 9   | `feat/dashboard` ✅       | Stats, breakdowns, filters and navigation                                                                                                                             |
-| 10  | `feat/profile`            | Profile page, settings (theme, language, display name)                                                                                                                |
+| 10  | `feat/profile` ✅         | Profile page, settings (theme, language, display name)                                                                                                                |
 | 11  | `feat/i18n`               | en / ru / kk, TMDB language                                                                                                                                           |
 | 12  | `feat/pwa`                | Manifest, service worker, caching, offline page, status indicator                                                                                                     |
 | 13  | `test/unit-and-component` | Vitest + Testing Library: logic, slices, hooks, components (see 3.12)                                                                                                 |

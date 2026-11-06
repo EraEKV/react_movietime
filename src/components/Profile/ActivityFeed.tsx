@@ -1,0 +1,102 @@
+import { Link } from 'react-router'
+import { useActivity } from '../../hooks/useActivity'
+import { describeActivity } from '../../utils/activity'
+import { errorMessage } from '../../utils/firebaseErrors'
+import { relativeTime } from '../../utils/relativeTime'
+import ButtonLink from '../ButtonLink/ButtonLink'
+import EmptyState from '../EmptyState/EmptyState'
+import ErrorState from '../EmptyState/ErrorState'
+import Icon from '../Icon/Icon'
+import SectionHeader from '../SectionHeader/SectionHeader'
+import Skeleton from '../Skeleton/Skeleton'
+import styles from './Profile.module.css'
+
+const fullDate = new Intl.DateTimeFormat('en-US', { dateStyle: 'medium', timeStyle: 'short' })
+
+function FeedSkeleton() {
+  return (
+    <ul className={styles.feed} aria-hidden="true">
+      {[0, 1, 2, 3, 4].map((i) => (
+        <li key={i} className={styles.row}>
+          <Skeleton width={36} height={36} radius="pill" />
+          <Skeleton width={`${70 - i * 8}%`} height={16} />
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+/** The newest 20 things you did: added, moved, created, watched. Live from Firestore. */
+export default function ActivityFeed() {
+  const { status, data, error, retry } = useActivity()
+  // One "now" per render, so every row is measured against the same moment.
+  const now = new Date()
+
+  return (
+    <section
+      className={styles.activity}
+      aria-labelledby="activity-title"
+      aria-busy={status === 'loading'}
+    >
+      <SectionHeader id="activity-title" title="Recent activity" />
+
+      {(status === 'loading' || status === 'idle') && <FeedSkeleton />}
+
+      {status === 'error' && (
+        <ErrorState
+          headingLevel="h3"
+          title="Couldn’t load your activity"
+          body={errorMessage(error)}
+          onRetry={retry}
+        />
+      )}
+
+      {status === 'success' && data.length === 0 && (
+        <EmptyState
+          headingLevel="h3"
+          icon="clock"
+          title="No activity yet"
+          body="Titles you add, lists you create and sessions you watch will show up here."
+          actions={
+            <ButtonLink to="/series" variant="primary" icon="compass">
+              Find something to watch
+            </ButtonLink>
+          }
+        />
+      )}
+
+      {status === 'success' && data.length > 0 && (
+        <ul className={styles.feed}>
+          {data.map((item) => {
+            const text = describeActivity(item)
+            return (
+              <li key={item.id} className={styles.row}>
+                <span className={styles.rowIcon} aria-hidden="true">
+                  <Icon name={text.icon} size={18} />
+                </span>
+                <span className={styles.rowText}>
+                  {text.before}{' '}
+                  {text.href ? (
+                    <Link to={text.href} className={styles.rowLink}>
+                      {text.title}
+                    </Link>
+                  ) : (
+                    <strong>{text.title}</strong>
+                  )}
+                  {text.after && <span className={styles.rowAfter}> {text.after}</span>}
+                </span>
+                <time
+                  className={styles.rowTime}
+                  dateTime={item.createdAt}
+                  title={fullDate.format(new Date(item.createdAt))}
+                >
+                  {relativeTime(item.createdAt, now)}
+                </time>
+              </li>
+            )
+          })}
+        </ul>
+      )}
+    </section>
+  )
+}

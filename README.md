@@ -61,7 +61,8 @@ Legend: ✅ implemented, 🚧 in progress.
   by weekday) for all time, 30 days or this year (`?period=`). Tiles and bars open the library
   with the same filter; upcoming sessions open their plan. Works for guests from the local
   library.
-- 🚧 **Profile**: account info, activity, settings.
+- ✅ **Profile**: account info, counters, activity feed; settings for name, theme and language
+  (synced with the account).
 
 ### App
 

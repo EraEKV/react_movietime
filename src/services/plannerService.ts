@@ -41,6 +41,7 @@ import {
   shiftSessions,
   unitsLabel,
 } from '../utils/schedule'
+import { addActivity } from './activityService'
 import { db } from './firestore'
 
 // plans/{planId} and plans/{planId}/sessions/{sessionId} (docs/DATA_MODEL.md).
@@ -53,7 +54,6 @@ const planRef = (id: string) => doc(db, 'plans', id)
 const sessionsCol = (planId: string) => collection(db, 'plans', planId, 'sessions')
 const sessionRef = (planId: string, id: string) => doc(db, 'plans', planId, 'sessions', id)
 const entryRef = (uid: string, key: string) => doc(db, 'users', uid, 'library', key)
-const activityCol = (uid: string) => collection(db, 'users', uid, 'activity')
 
 /** Firestore keeps at most 500 writes in one batch; stay well below it. */
 const BATCH_LIMIT = 400
@@ -336,7 +336,7 @@ export async function loadListMovies(listId: string, signal?: AbortSignal): Prom
   }
 }
 
-/* ---------- Library and activity inside a batch ---------- */
+/* ---------- Library inside a batch ---------- */
 
 interface EntryState {
   ref: DocumentReference
@@ -390,15 +390,6 @@ function writeEntry(
     ...(status !== entry.status && { completedAt }),
     updatedAt: now,
   })
-}
-
-function addActivity(
-  batch: WriteBatch,
-  uid: string,
-  type: string,
-  fields: { title: string; refId: string; mediaKey?: string; meta?: Record<string, unknown> },
-) {
-  batch.set(doc(activityCol(uid)), { type, ...fields, createdAt: serverTimestamp() })
 }
 
 /** Commits `writes` in batches of BATCH_LIMIT, in order, one batch at a time. */
@@ -487,7 +478,8 @@ export async function createPlan(
   }
 
   writes.push((b) =>
-    addActivity(b, owner.uid, 'plan.create', {
+    addActivity(b, owner.uid, {
+      type: 'plan.create',
       title: draft.title,
       refId: ref.id,
       ...(draft.media && { mediaKey: mediaKey(draft.media.mediaType, draft.media.tmdbId) }),
@@ -558,13 +550,14 @@ export async function completeSession(
     }
   }
 
-  addActivity(batch, by.uid, 'session.done', {
+  addActivity(batch, by.uid, {
+    type: 'session.done',
     title: plan.title,
     refId: plan.id,
     ...(plan.media && { mediaKey: mediaKey('tv', plan.media.tmdbId) }),
     meta: { units: unitsLabel(session.units) },
   })
-  if (finished) addActivity(batch, by.uid, 'plan.done', { title: plan.title, refId: plan.id })
+  if (finished) addActivity(batch, by.uid, { type: 'plan.done', title: plan.title, refId: plan.id })
   await batch.commit()
 }
 

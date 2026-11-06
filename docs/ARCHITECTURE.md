@@ -76,8 +76,10 @@ React.**
   - `onIdTokenChanged` → `auth/changed`;
   - on `auth/changed`, start or stop the Firestore subscription of the library (and merge the
     guest library on the first sign-in);
-  - on `preferences/*` changes, save to `localStorage` (guests) or the profile (users) and set
-    `data-theme` on `<html>`.
+  - on `preferences/*` changes, save to `localStorage` (always, first-paint cache), write
+    `users/{uid}.settings` for signed-in users and set `data-theme` / `lang` on `<html>`;
+  - on `auth/changed`, watch `users/{uid}` and dispatch `preferencesSynced` when the account's
+    settings differ (another device changed them). That action isn't written back (no echo).
 - **Only serializable data goes into the store.** Firebase `User` objects and Firestore
   `Timestamp`s are converted in the service layer (ISO strings, plain objects).
 - Components use the typed hooks `useAppSelector` / `useAppDispatch`, wrapped in feature hooks
@@ -112,7 +114,7 @@ React.**
     lists/new, lists/:id/edit   ListFormPage         (lazy, edit = owner only)
     planner                     PlannerPage          (lazy)
     planner/new                 CreatePlanPage       (lazy; ?series=ID or ?list=ID preselects)
-    profile                     ProfileLayout        (lazy) → index: ProfilePage, settings: ProfileSettingsPage
+    profile                     ProfileLayout        (lazy) → index: ProfilePage, settings: SettingsPage
   offline                       OfflinePage          (lazy)
   *                             NotFoundPage
 ```
@@ -236,8 +238,7 @@ confirms later. A failed write (for example `permission-denied`) is shown as an 
 
 ## Current implementation
 
-Phases 0–9 are in place (library, lists, sharing, planner, dashboard). The settings route exists
-and shows a "Coming soon" placeholder until its phase lands, so the navigation never leads to a 404.
+Phases 0–10 are in place (library, lists, sharing, planner, dashboard, profile and settings).
 
 ### Routes and render tree
 
@@ -250,7 +251,7 @@ and shows a "Coming soon" placeholder until its phase lands, so the navigation n
 | `/series/:id`             | `SeriesPage`               | Series details and episode heatmap                          |
 | `/library`                | `LibraryPage`              | Status tabs, search, type/genre/sort in the URL, rows/grid  |
 | `/library/:mediaKey/edit` | `LibraryEditPage`          | Status, score, series progress, notes; remove with confirm  |
-| `/profile`                | `ProfileLayout` → children | Nested: `ProfilePage` (index), settings placeholder         |
+| `/profile`                | `ProfileLayout` → children | Nested: `ProfilePage` (index), `SettingsPage` (settings)    |
 | `/offline`                | `OfflinePage`              | Offline screen (the service worker will serve it, phase 12) |
 | `*`                       | `NotFoundPage`             | 404                                                         |
 

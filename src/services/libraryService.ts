@@ -16,6 +16,7 @@ import {
 import type { LibraryChanges, LibraryEntry, SeriesProgress } from '../types/library'
 import { isLibraryStatus } from '../utils/library'
 import { parseMediaKey } from '../utils/media'
+import { logActivity } from './activityService'
 import { db } from './firestore'
 
 // users/{uid}/library/{mediaKey}: one document per title, the key is the document id,
@@ -116,10 +117,10 @@ export function watchLibrary(
   )
 }
 
-/** A new entry: the server sets the dates. */
+/** A new entry: the server sets the dates. Also goes to the activity feed. */
 export function addEntry(uid: string, entry: LibraryEntry): Promise<void> {
   const now = serverTimestamp()
-  return setDoc(
+  const saved = setDoc(
     entryRef(uid, entry.key),
     toDocument(entry, {
       addedAt: now,
@@ -127,6 +128,14 @@ export function addEntry(uid: string, entry: LibraryEntry): Promise<void> {
       completedAt: entry.status === 'completed' ? now : null,
     }),
   )
+  // Not awaited and not part of the write above: a failed log must not fail the add.
+  logActivity(uid, {
+    type: 'library.add',
+    title: entry.title,
+    mediaKey: entry.key,
+    meta: { status: entry.status },
+  })
+  return saved
 }
 
 /** Puts a removed entry back exactly as it was ("Undo"), keeping its original dates. */
@@ -142,21 +151,31 @@ export function restoreEntry(uid: string, entry: LibraryEntry): Promise<void> {
 }
 
 /**
- * Changes some fields. `completed` says what happens to completedAt:
- * 'set' (became completed now), 'clear' (left completed) or 'keep'.
+ * Changes some fields of `entry` (the entry as it was before). `completed` says what happens
+ * to completedAt: 'set' (became completed now), 'clear' (left completed) or 'keep'.
+ * A new status goes to the activity feed; score, notes and progress don't.
  */
 export function updateEntry(
   uid: string,
-  key: string,
+  entry: Pick<LibraryEntry, 'key' | 'title' | 'status'>,
   changes: LibraryChanges,
   completed: 'set' | 'clear' | 'keep',
 ): Promise<void> {
-  return updateDoc(entryRef(uid, key), {
+  const saved = updateDoc(entryRef(uid, entry.key), {
     ...changes,
     updatedAt: serverTimestamp(),
     ...(completed === 'set' && { completedAt: serverTimestamp() }),
     ...(completed === 'clear' && { completedAt: null }),
   })
+  if (changes.status && changes.status !== entry.status) {
+    logActivity(uid, {
+      type: 'library.status',
+      title: entry.title,
+      mediaKey: entry.key,
+      meta: { status: changes.status },
+    })
+  }
+  return saved
 }
 
 export function removeEntry(uid: string, key: string): Promise<void> {

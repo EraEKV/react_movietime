@@ -85,16 +85,52 @@ service cloud.firestore {
         && d.genreIds is list;
     }
 
+    // The profile as the app writes it: known fields only, a name of 1–40 characters and
+    // settings the app understands. createdAt is the server's time on create and never moves.
+    function validProfile() {
+      let d = request.resource.data;
+      return d.keys().hasOnly(['displayName', 'email', 'photoURL', 'providers', 'settings',
+          'createdAt', 'updatedAt'])
+        && d.displayName is string && d.displayName.size() >= 1 && d.displayName.size() <= 40
+        && d.email is string
+        && (d.photoURL == null || d.photoURL is string)
+        && d.providers is list
+        && d.settings is map && d.settings.keys().hasOnly(['theme', 'language'])
+        && d.settings.get('theme', 'system') in ['light', 'dark', 'system']
+        && d.settings.get('language', 'en') in ['en', 'ru', 'kk']
+        && d.updatedAt == request.time;
+    }
+
+    // One activity record: a known type, a short title, written with serverTimestamp().
+    function validActivity() {
+      let d = request.resource.data;
+      return d.keys().hasOnly(['type', 'title', 'mediaKey', 'refId', 'meta', 'createdAt'])
+        && d.type in ['library.add', 'library.status', 'list.create', 'plan.create',
+            'session.done', 'plan.done']
+        && d.title is string && d.title.size() >= 1 && d.title.size() <= 200
+        && d.get('mediaKey', '') is string
+        && d.get('refId', '') is string
+        && d.get('meta', {}) is map
+        && d.createdAt == request.time;
+    }
+
     // ---------- private user data ----------
     match /users/{userId} {
-      allow read, write: if signedIn() && uid() == userId;
+      function self() { return signedIn() && uid() == userId; }
+
+      allow read: if self();
+      allow create: if self() && validProfile() && request.resource.data.createdAt == request.time;
+      allow update: if self() && validProfile()
+        && request.resource.data.createdAt == resource.data.createdAt;
 
       match /library/{mediaKey} {
         allow read, delete: if signedIn() && uid() == userId;
         allow create, update: if signedIn() && uid() == userId && validLibraryEntry(mediaKey);
       }
+      // Append-only: records are never edited or deleted.
       match /activity/{activityId} {
-        allow read, create: if signedIn() && uid() == userId;
+        allow read: if signedIn() && uid() == userId;
+        allow create: if signedIn() && uid() == userId && validActivity();
       }
     }
 
