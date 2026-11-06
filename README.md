@@ -85,7 +85,7 @@ with an editor / viewer role.
 - ✅ **Installable PWA with offline support**: own Workbox service worker, precached app shell,
   cached TMDB responses and images, an offline pill and an update prompt (see
   [PWA notes](#pwa-notes)).
-- ✅ **Tests**: 109 unit and component tests with Vitest and React Testing Library.
+- ✅ **Tests**: 122 unit and component tests with Vitest and React Testing Library.
 
 ## Screenshots
 
@@ -152,7 +152,7 @@ npm test             # run once, as in CI
 npm run test:watch   # re-run on change
 ```
 
-109 tests in 13 files: pure logic (schedule, stats, filters, validation, catalog paging),
+122 tests in 15 files: pure logic (schedule, stats, filters, validation, catalog paging),
 Redux slices, hooks (`useFetch`, `useDebouncedValue`) and components (pagination, signup
 validation, protected routes, and others). Vitest runs in `jsdom`; `src/test/setup.ts` loads the
 real English dictionaries from `public/locales` and stubs `matchMedia`. Tests need no network,
