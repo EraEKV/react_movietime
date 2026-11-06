@@ -1,7 +1,7 @@
+import { useTranslation } from 'react-i18next'
 import type { ReactNode } from 'react'
 import { imageUrl } from '../../api/tmdb'
 import type { Genre } from '../../types/tmdb'
-import { formatNumber } from '../../utils/format'
 import Icon from '../Icon/Icon'
 import type { IconName } from '../Icon/icons'
 import RatingBadge from '../RatingBadge/RatingBadge'
@@ -50,6 +50,7 @@ export default function TitleHero({
   facts = [],
   actions,
 }: TitleHeroProps) {
+  const { t } = useTranslation()
   const backdrop = imageUrl(backdropPath, 'w1280')
   const poster = imageUrl(posterPath, 'w342')
   const metaLine = meta.filter(Boolean).join(' · ')
@@ -64,7 +65,7 @@ export default function TitleHero({
         <div className={styles.content}>
           <div className={styles.poster}>
             {poster ? (
-              <img src={poster} alt={`${title} poster`} />
+              <img src={poster} alt={t('title.poster', { title })} />
             ) : (
               <div className={styles.posterFallback}>
                 <Icon name={fallbackIcon} size={32} />
@@ -74,7 +75,7 @@ export default function TitleHero({
 
           <div className={styles.info}>
             {genres.length > 0 && (
-              <ul className={styles.genres} aria-label="Genres">
+              <ul className={styles.genres} aria-label={t('title.genres')}>
                 {genres.map((genre) => (
                   <li key={genre.id}>{genre.name}</li>
                 ))}
@@ -91,7 +92,7 @@ export default function TitleHero({
             <div className={styles.rating}>
               <RatingBadge value={rating} size="lg" votes={votes} />
               <span className={styles.muted}>
-                {votes > 0 ? `${formatNumber(votes)} votes on TMDB` : 'No votes yet'}
+                {votes > 0 ? t('title.votes', { count: votes }) : t('title.noVotes')}
               </span>
             </div>
             {metaLine && <p className={styles.muted}>{metaLine}</p>}
@@ -102,7 +103,7 @@ export default function TitleHero({
       </div>
 
       <div className={styles.about}>
-        <p className={styles.overview}>{overview || 'No overview available yet.'}</p>
+        <p className={styles.overview}>{overview || t('title.noOverview')}</p>
         {facts.length > 0 && (
           <dl className={styles.facts}>
             {facts.map((fact) => (

@@ -1,10 +1,11 @@
+import i18n from '../../i18n'
 import { ApiError, endpoints } from '../../api/tmdb'
 import { useFetch } from '../../hooks/useFetch'
 import { useGenres } from '../../hooks/useGenres'
 import type { SeriesDetails as SeriesDetailsData } from '../../types/tmdb'
 import { useTmdbLanguage } from '../../hooks/useTmdbLanguage'
 import { fromSeries, overviewOf, pickTrailer } from '../../utils/media'
-import { formatYearRange, pluralize } from '../../utils/format'
+import { formatYearRange } from '../../utils/format'
 import { seriesToLibraryMedia } from '../../utils/library'
 import { libraryToListMedia } from '../../utils/lists'
 import { sortSeasons } from '../../utils/series'
@@ -89,8 +90,10 @@ export default function SeriesDetails({ seriesId }: { seriesId: string }) {
         votes={series.vote_count}
         meta={[
           formatYearRange(series.first_air_date, series.last_air_date, series.in_production),
-          series.number_of_seasons > 0 && pluralize(series.number_of_seasons, 'season'),
-          series.number_of_episodes > 0 && pluralize(series.number_of_episodes, 'episode'),
+          series.number_of_seasons > 0 &&
+            i18n.t('count.seasons', { count: series.number_of_seasons }),
+          series.number_of_episodes > 0 &&
+            i18n.t('count.episodes', { count: series.number_of_episodes }),
           series.status,
         ]}
         overview={overviewOf(series)}

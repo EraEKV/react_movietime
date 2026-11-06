@@ -1,4 +1,4 @@
-import { pluralize } from '../../utils/format'
+import i18n from '../../i18n'
 import ButtonLink from '../ButtonLink/ButtonLink'
 import Icon from '../Icon/Icon'
 import styles from './MarathonCard.module.css'
@@ -15,8 +15,8 @@ export default function MarathonCard({ listId, movies }: { listId: string; movie
           Plan a movie marathon
         </h2>
         <p className={styles.body}>
-          {pluralize(movies, 'movie')}, one per evening on the days you pick. Movietime works out
-          the finish date.
+          {i18n.t('count.movies', { count: movies })}, one per evening on the days you pick.
+          Movietime works out the finish date.
         </p>
       </div>
       <ButtonLink to={`/planner/new?list=${listId}`} variant="primary" icon="plus">

@@ -1,6 +1,7 @@
+import i18n from '../../i18n'
 import type { SeriesProgress } from '../../types/library'
 import type { PlanUnit } from '../../types/plan'
-import { episodeCode, formatRuntime, pluralize } from '../../utils/format'
+import { episodeCode, formatRuntime } from '../../utils/format'
 import { continueIndex, type StartChoice } from '../../utils/planner'
 import Banner from '../Banner/Banner'
 import RadioCards, { type RadioCardOption } from '../RadioCards/RadioCards'
@@ -40,7 +41,7 @@ export default function StartStep({
     options.push({
       value: 'continue',
       label: `Continue from ${code(units[next])}`,
-      description: `Right after your last watched episode (${episodeCode(progress.season, progress.episode)}) · ${pluralize(units.length - next, 'episode')}`,
+      description: `Right after your last watched episode (${episodeCode(progress.season, progress.episode)}) · ${i18n.t('count.episodes', { count: units.length - next })}`,
       icon: 'play',
     })
   }
@@ -48,7 +49,7 @@ export default function StartStep({
     {
       value: 'beginning',
       label: 'From the beginning',
-      description: `${code(units[0])} · ${pluralize(units.length, 'episode')}`,
+      description: `${code(units[0])} · ${i18n.t('count.episodes', { count: units.length })}`,
       icon: 'refresh',
     },
     {
@@ -119,8 +120,8 @@ function MovieStart({
     <div className={styles.stack}>
       {skipped > 0 && (
         <Banner>
-          {pluralize(skipped, 'series')} in this list {skipped === 1 ? 'is' : 'are'} left out: a
-          marathon plans movies. Plan a series on its own.
+          {i18n.t('count.series', { count: skipped })} in this list {skipped === 1 ? 'is' : 'are'}{' '}
+          left out: a marathon plans movies. Plan a series on its own.
         </Banner>
       )}
       <SelectField

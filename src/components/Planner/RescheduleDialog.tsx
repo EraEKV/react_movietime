@@ -1,6 +1,6 @@
+import i18n from '../../i18n'
 import { useState } from 'react'
 import type { PlanSession } from '../../types/plan'
-import { pluralize } from '../../utils/format'
 import { bySchedule, unitsLabel } from '../../utils/schedule'
 import Banner from '../Banner/Banner'
 import Button from '../Button/Button'
@@ -78,7 +78,7 @@ export default function RescheduleDialog({
       />
       {later > 0 && (
         <Checkbox
-          label={`Shift all later sessions by the same amount (${pluralize(later, 'session')})`}
+          label={`Shift all later sessions by the same amount (${i18n.t('count.sessions', { count: later })})`}
           checked={shiftLater}
           onChange={setShiftLater}
         />

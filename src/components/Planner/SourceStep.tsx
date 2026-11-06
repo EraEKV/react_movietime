@@ -1,9 +1,10 @@
+import i18n from '../../i18n'
 import { useState } from 'react'
 import { useLibrary } from '../../hooks/useLibrary'
 import { useMyLists, useSharedLists } from '../../hooks/useLists'
 import { useTitleSearch } from '../../hooks/useTitleSearch'
 import type { SourcePick } from '../../hooks/usePlanSource'
-import { episodeCode, getYear, pluralize } from '../../utils/format'
+import { episodeCode, getYear } from '../../utils/format'
 import Banner from '../Banner/Banner'
 import ButtonLink from '../ButtonLink/ButtonLink'
 import ErrorState from '../EmptyState/ErrorState'
@@ -182,8 +183,8 @@ function ListPicker({ pick, onPick }: Pick<SourceStepProps, 'pick' | 'onPick'>) 
         value: list.id,
         label: `${list.emoji} ${list.name}`,
         description: mine.data.some((m) => m.id === list.id)
-          ? pluralize(list.itemCount, 'title')
-          : `${pluralize(list.itemCount, 'title')} · by ${list.ownerName}`,
+          ? i18n.t('count.titles', { count: list.itemCount })
+          : `${i18n.t('count.titles', { count: list.itemCount })} · by ${list.ownerName}`,
       }))}
       onChange={(id) => {
         const list = lists.find((l) => l.id === id)

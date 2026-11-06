@@ -1,4 +1,4 @@
-import i18n, { type BackendModule } from 'i18next'
+import i18n, { type BackendModule, type Namespace, type ParseKeys } from 'i18next'
 import { initReactI18next } from 'react-i18next'
 import type { Language } from '../types/preferences'
 
@@ -53,6 +53,22 @@ export function initI18n(language: Language) {
  */
 export function setLanguage(language: Language) {
   if (i18n.language !== language) void i18n.changeLanguage(language)
+}
+
+/** Any key of any dictionary: 'nav.home' (common) or 'library:sort.title'. */
+export type TranslationKey = ParseKeys<Namespace>
+
+/**
+ * A select option whose label is looked up when it is read, not when the module loads:
+ * option lists stay plain constants, and every render shows them in the current language.
+ */
+export function translatedOption<T extends string>(value: T, key: TranslationKey) {
+  return {
+    value,
+    get label(): string {
+      return i18n.t(key)
+    },
+  }
 }
 
 /** The current language for Intl formatters: 'en' | 'ru' | 'kk' are valid BCP 47 tags. */

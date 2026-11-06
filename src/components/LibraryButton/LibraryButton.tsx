@@ -105,7 +105,7 @@ export default function LibraryButton({ media }: { media: LibraryMedia }) {
     <>
       {control}
       {toast && (
-        <Toast icon="check" actionLabel="Undo" onAction={handleUndo}>
+        <Toast icon="check" actionLabel="Undo" actionIcon="undo" onAction={handleUndo}>
           {toast.text}
         </Toast>
       )}

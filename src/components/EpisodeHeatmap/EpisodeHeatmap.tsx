@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useEpisodeRatings, type Episode } from '../../hooks/useEpisodeRatings'
 import { episodeCode } from '../../utils/format'
-import { RATING_WORDS, type RatingStep } from '../../utils/rating'
+import { ratingWord, type RatingStep } from '../../utils/rating'
 import EmptyState from '../EmptyState/EmptyState'
 import ErrorState from '../EmptyState/ErrorState'
 import RatingBadge from '../RatingBadge/RatingBadge'
@@ -97,7 +97,7 @@ export default function EpisodeHeatmap({ seriesId, seasonNumbers }: EpisodeHeatm
         {LEGEND.map((item) => (
           <li key={item.step}>
             <span className={styles.swatch} data-step={item.step} />
-            {RATING_WORDS[item.step]} {item.range}
+            {ratingWord(item.step)} {item.range}
           </li>
         ))}
         <li>

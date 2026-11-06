@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { Link, useLocation } from 'react-router'
 import Icon from '../Icon/Icon'
 import styles from './Layout.module.css'
@@ -5,9 +6,10 @@ import { isNavItemActive, TAB_BAR_NAV } from './navigation'
 
 /** Bottom navigation on phones and tablets (< 1024px). */
 export default function TabBar() {
+  const { t } = useTranslation()
   const { pathname } = useLocation()
   return (
-    <nav className={styles.tabBar} aria-label="Main">
+    <nav className={styles.tabBar} aria-label={t('nav.main')}>
       {TAB_BAR_NAV.map((item) => (
         <Link
           key={item.to}
@@ -16,7 +18,7 @@ export default function TabBar() {
           className={styles.tab}
         >
           <Icon name={item.icon} size={22} />
-          {item.label}
+          {t(item.label)}
         </Link>
       ))}
     </nav>

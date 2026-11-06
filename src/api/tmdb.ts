@@ -75,7 +75,7 @@ export async function tmdbGet<T>(
     })
   } catch (error) {
     if (isAbortError(error)) throw error
-    throw new ApiError('Network error. Check your connection and try again.', 0)
+    throw new ApiError(i18n.t('errors.network'), 0)
   }
 
   const body: unknown = await response.json().catch(() => null)

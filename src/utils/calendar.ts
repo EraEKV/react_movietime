@@ -5,6 +5,7 @@
 // of the next), and the schedule would slip. Treating the string as a UTC date and moving
 // by whole days with setUTCDate never sees DST, because UTC has none.
 
+import { currentLocale } from '../i18n'
 import type { Weekday } from '../types/plan'
 
 const DAY_RE = /^(\d{4})-(\d{2})-(\d{2})$/
@@ -65,19 +66,15 @@ export function weekStart(day: string): string {
 /** Weekdays in display order, Monday first; values stay Date.getDay() numbers. */
 export const WEEK_ORDER: Weekday[] = [1, 2, 3, 4, 5, 6, 0]
 
-const WEEKDAY_SHORT = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as const
-const WEEKDAY_LONG = [
-  'Sunday',
-  'Monday',
-  'Tuesday',
-  'Wednesday',
-  'Thursday',
-  'Friday',
-  'Saturday',
-] as const
+// 2023-01-01 was a Sunday: day N of that week has getUTCDay() === N, like Weekday.
+const weekdayName = (day: Weekday, weekday: 'short' | 'long', locale: string) =>
+  formatDay(`2023-01-0${day + 1}`, { weekday }, locale)
 
-export const weekdayShort = (day: Weekday) => WEEKDAY_SHORT[day]
-export const weekdayLong = (day: Weekday) => WEEKDAY_LONG[day]
+/** "Mon" / "пн" / "дс" — names come from Intl in the interface language. */
+export const weekdayShort = (day: Weekday, locale = currentLocale()) =>
+  weekdayName(day, 'short', locale)
+export const weekdayLong = (day: Weekday, locale = currentLocale()) =>
+  weekdayName(day, 'long', locale)
 
 /** A month as "YYYY-MM". */
 export interface MonthRef {
@@ -123,21 +120,33 @@ export function monthGrid({ year, month }: MonthRef): string[] {
 const UTC = 'UTC'
 
 /** Formats a calendar day with Intl, without the time zone shifting it a day. */
-export function formatDay(day: string, options: Intl.DateTimeFormatOptions): string {
-  return new Intl.DateTimeFormat('en-US', { ...options, timeZone: UTC }).format(mustParse(day))
+export function formatDay(
+  day: string,
+  options: Intl.DateTimeFormatOptions,
+  locale = currentLocale(),
+): string {
+  return new Intl.DateTimeFormat(locale, { ...options, timeZone: UTC }).format(mustParse(day))
 }
 
-/** "November 2026". */
-export const formatMonth = (ref: MonthRef) =>
-  new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric', timeZone: UTC }).format(
-    new Date(Date.UTC(ref.year, ref.month, 1)),
+const capitalize = (text: string, locale: string) =>
+  text.charAt(0).toLocaleUpperCase(locale) + text.slice(1)
+
+/** "November 2026" / "Ноябрь 2026 г." — capitalised, since it is used as a heading. */
+export const formatMonth = (ref: MonthRef, locale = currentLocale()) =>
+  capitalize(
+    new Intl.DateTimeFormat(locale, { month: 'long', year: 'numeric', timeZone: UTC }).format(
+      new Date(Date.UTC(ref.year, ref.month, 1)),
+    ),
+    locale,
   )
 
-/** "Today", "Tomorrow", or "Mon, Nov 9" relative to `today`. */
-export function relativeDay(day: string, today: string): string {
+/** "Today", "Tomorrow", "Yesterday" (in the interface language) or "Mon, Nov 9". */
+export function relativeDay(day: string, today: string, locale = currentLocale()): string {
   const diff = daysBetween(today, day)
-  if (diff === 0) return 'Today'
-  if (diff === 1) return 'Tomorrow'
-  if (diff === -1) return 'Yesterday'
-  return formatDay(day, { weekday: 'short', month: 'short', day: 'numeric' })
+  if (Math.abs(diff) <= 1) {
+    // "today" / "сегодня" / "бүгін": Intl knows the word, the UI wants it capitalised.
+    const word = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' }).format(diff, 'day')
+    return capitalize(word, locale)
+  }
+  return formatDay(day, { weekday: 'short', month: 'short', day: 'numeric' }, locale)
 }

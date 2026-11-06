@@ -242,6 +242,7 @@ export default function LibraryPage() {
       {toast && (
         <Toast
           actionLabel="Undo"
+          actionIcon="undo"
           onAction={() => {
             toast.undo()
             hideToast()

@@ -1,13 +1,22 @@
+import { currentLocale } from '../i18n'
+
+// Every formatter takes the locale as its last parameter (tests pass one); by default it is
+// the interface language, so components get "12 345" in Russian and "12,345" in English.
+
 export function getYear(date: string | null | undefined): string | null {
   return date ? date.slice(0, 4) : null
 }
 
-export function formatRating(vote: number | null | undefined): string {
-  return vote ? vote.toFixed(1) : '—'
+export function formatRating(vote: number | null | undefined, locale = currentLocale()): string {
+  return vote
+    ? new Intl.NumberFormat(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(
+        vote,
+      )
+    : '—'
 }
 
-export function formatNumber(value: number): string {
-  return new Intl.NumberFormat('en-US').format(value)
+export function formatNumber(value: number, locale = currentLocale()): string {
+  return new Intl.NumberFormat(locale).format(value)
 }
 
 /** Parses a positive integer from a URL param, falling back when invalid. */
@@ -30,13 +39,12 @@ export function formatYearRange(
   return last && last !== first ? `${first}–${last}` : first
 }
 
-export function pluralize(count: number, word: string): string {
-  return `${count} ${count === 1 ? word : `${word}s`}`
-}
-
-export function formatDate(date: string | null | undefined): string | null {
+export function formatDate(
+  date: string | null | undefined,
+  locale = currentLocale(),
+): string | null {
   if (!date) return null
-  return new Intl.DateTimeFormat('en-US', { dateStyle: 'medium' }).format(new Date(date))
+  return new Intl.DateTimeFormat(locale, { dateStyle: 'medium' }).format(new Date(date))
 }
 
 /** S2E5 — the short episode code used across the design. */
@@ -44,23 +52,30 @@ export function episodeCode(season: number, episode: number): string {
   return `S${season}E${episode}`
 }
 
-/** 136 → "2h 16m", 45 → "45m"; null for unknown (TMDB sends 0 or null). */
-export function formatRuntime(minutes: number | null | undefined): string | null {
+const unit = (locale: string, name: 'hour' | 'minute', value: number) =>
+  new Intl.NumberFormat(locale, { style: 'unit', unit: name, unitDisplay: 'narrow' }).format(value)
+
+/** 136 → "2h 16m" / "2 ч 16 мин" / "2 сағ 16 мин"; null for unknown (TMDB sends 0 or null). */
+export function formatRuntime(
+  minutes: number | null | undefined,
+  locale = currentLocale(),
+): string | null {
   if (!minutes) return null
   const hours = Math.floor(minutes / 60)
   const rest = minutes % 60
-  if (hours === 0) return `${rest}m`
-  return rest === 0 ? `${hours}h` : `${hours}h ${rest}m`
+  if (hours === 0) return unit(locale, 'minute', rest)
+  return rest === 0
+    ? unit(locale, 'hour', hours)
+    : `${unit(locale, 'hour', hours)} ${unit(locale, 'minute', rest)}`
 }
 
-const usdCompact = new Intl.NumberFormat('en-US', {
-  style: 'currency',
-  currency: 'USD',
-  notation: 'compact',
-  maximumFractionDigits: 1,
-})
-
-/** 63000000 → "$63M"; null when TMDB doesn't know (it sends 0). */
-export function formatMoney(amount: number): string | null {
-  return amount > 0 ? usdCompact.format(amount) : null
+/** 63000000 → "$63M" / "63 млн $"; null when TMDB doesn't know (it sends 0). */
+export function formatMoney(amount: number, locale = currentLocale()): string | null {
+  if (amount <= 0) return null
+  return new Intl.NumberFormat(locale, {
+    style: 'currency',
+    currency: 'USD',
+    notation: 'compact',
+    maximumFractionDigits: 1,
+  }).format(amount)
 }

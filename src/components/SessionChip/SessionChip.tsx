@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import type { CSSProperties } from 'react'
 import { Link } from 'react-router'
 import { imageUrl } from '../../api/tmdb'
@@ -5,12 +6,6 @@ import type { PlanColor, SessionStatus } from '../../types/plan'
 import { cx } from '../../utils/cx'
 import Icon from '../Icon/Icon'
 import styles from './SessionChip.module.css'
-
-const STATUS_WORD: Record<SessionStatus, string> = {
-  pending: 'planned',
-  done: 'watched',
-  skipped: 'skipped',
-}
 
 interface SessionChipProps {
   color: PlanColor
@@ -41,9 +36,15 @@ export default function SessionChip({
   compact = false,
   to,
 }: SessionChipProps) {
+  const { t } = useTranslation()
   const poster = imageUrl(posterPath, 'w92')
   const className = cx(styles.chip, styles[status], compact && styles.compact)
-  const label = `${title}, ${range}${time ? ` at ${time}` : ''}, ${STATUS_WORD[status]}`
+  const label = t(time ? 'session.labelAt' : 'session.label', {
+    title,
+    range,
+    time,
+    status: t(`session.${status}`),
+  })
   const content = (
     <>
       {compact ? (

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { useEffect, useEffectEvent, useId, useState, type FormEvent } from 'react'
 import fieldStyles from '../Field/Field.module.css'
 import Icon from '../Icon/Icon'
@@ -23,10 +24,11 @@ interface SearchBarProps {
 export default function SearchBar({
   query,
   onSearch,
-  label = 'Search series',
-  placeholder = 'Search series by title',
+  label,
+  placeholder,
   autoFocus = false,
 }: SearchBarProps) {
+  const { t } = useTranslation()
   const id = useId()
   const [value, setValue] = useState(query)
 
@@ -81,7 +83,7 @@ export default function SearchBar({
           type="search"
           value={value}
           onChange={(e) => setValue(e.target.value)}
-          placeholder={placeholder}
+          placeholder={placeholder ?? t('search.seriesPlaceholder')}
           autoComplete="off"
           spellCheck="false"
           autoFocus={autoFocus}
@@ -91,7 +93,7 @@ export default function SearchBar({
             type="button"
             className={fieldStyles.inlineButton}
             onClick={handleClear}
-            aria-label="Clear search"
+            aria-label={t('search.clear')}
           >
             <Icon name="x" size={16} />
           </button>

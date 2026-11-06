@@ -1,29 +1,26 @@
+import i18n, { type TranslationKey } from '../i18n'
 import type { AuthError } from '../types/auth'
 
-// Firebase error codes → text a person can act on. Unknown codes fall back to a generic line.
-const MESSAGES: Record<string, string> = {
-  'auth/invalid-credential': 'Wrong email or password. Check both and try again.',
-  'auth/wrong-password': 'Wrong email or password. Check both and try again.',
-  'auth/user-not-found': 'Wrong email or password. Check both and try again.',
-  'auth/invalid-email': 'Enter an email like name@example.com.',
-  'auth/email-already-in-use':
-    'An account with this email already exists. Sign in instead, or use another email.',
-  'auth/weak-password': 'Use 8+ characters with a number and a special character.',
-  'auth/user-disabled': 'This account has been disabled.',
-  'auth/too-many-requests': 'Too many attempts. Wait a few minutes and try again.',
-  'auth/network-request-failed': 'No connection. Check your internet and try again.',
-  'auth/popup-closed-by-user':
-    'The Google window was closed before you finished. Try again, or use email instead.',
-  'auth/popup-blocked': 'Your browser blocked the Google window. Allow pop-ups and try again.',
-  'auth/unauthorized-domain': 'Sign-in isn’t enabled for this site address yet.',
-  'auth/account-exists-with-different-credential':
-    'This email is already registered with another sign-in method. Use that one.',
-  'auth/requires-recent-login': 'Sign in again to continue.',
-  'permission-denied': 'You don’t have access to this.',
-  unavailable: 'The server can’t be reached. Check your connection and try again.',
+// Firebase error codes → text a person can act on (keys of the common dictionary).
+// Unknown codes fall back to a generic line.
+const MESSAGES: Record<string, TranslationKey> = {
+  'auth/invalid-credential': 'errors.wrongCredentials',
+  'auth/wrong-password': 'errors.wrongCredentials',
+  'auth/user-not-found': 'errors.wrongCredentials',
+  'auth/invalid-email': 'errors.invalidEmail',
+  'auth/email-already-in-use': 'errors.emailInUse',
+  'auth/weak-password': 'errors.weakPassword',
+  'auth/user-disabled': 'errors.userDisabled',
+  'auth/too-many-requests': 'errors.tooManyRequests',
+  'auth/network-request-failed': 'errors.noConnection',
+  'auth/popup-closed-by-user': 'errors.popupClosed',
+  'auth/popup-blocked': 'errors.popupBlocked',
+  'auth/unauthorized-domain': 'errors.unauthorizedDomain',
+  'auth/account-exists-with-different-credential': 'errors.accountExists',
+  'auth/requires-recent-login': 'errors.recentLogin',
+  'permission-denied': 'errors.permissionDenied',
+  unavailable: 'errors.unavailable',
 }
-
-const FALLBACK = 'Something went wrong. Try again.'
 
 /** Firebase errors carry a string `code`; anything else is unknown to us. */
 function errorCode(error: unknown): string {
@@ -36,7 +33,8 @@ function errorCode(error: unknown): string {
 
 export function toAuthError(error: unknown): AuthError {
   const code = errorCode(error)
-  return { code, message: MESSAGES[code] ?? FALLBACK }
+  // Translated when the error happens; a message already on screen keeps its language.
+  return { code, message: i18n.t(MESSAGES[code] ?? 'errors.fallback') }
 }
 
 /** Which form field an error belongs to; null → show it in a banner above the form. */

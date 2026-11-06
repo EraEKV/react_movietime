@@ -502,6 +502,7 @@ function PlanView({ id }: { id: string }) {
         <Toast
           icon={toast.undo ? undefined : toast.error ? 'alert' : 'check'}
           actionLabel={toast.undo ? 'Undo' : undefined}
+          actionIcon="undo"
           onAction={() => {
             toast.undo?.()
             hideToast()

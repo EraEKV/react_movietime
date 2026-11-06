@@ -1,14 +1,9 @@
+import i18n from '../i18n'
 /** 0 = not rated, 1…5 = the design system's rating scale (rating-1…rating-5 tokens). */
 export type RatingStep = 0 | 1 | 2 | 3 | 4 | 5
 
-export const RATING_WORDS: Record<RatingStep, string> = {
-  0: 'Not rated',
-  1: 'Skip',
-  2: 'Weak',
-  3: 'Fine',
-  4: 'Good',
-  5: 'Great',
-}
+/** "Not rated", "Skip" … "Great" in the interface language. */
+export const ratingWord = (step: RatingStep): string => i18n.t(`rating.${step}`)
 
 /** <5 Skip · 5–6.4 Weak · 6.5–7.4 Fine · 7.5–8.4 Good · 8.5+ Great. TMDB uses 0 for "no votes". */
 export function ratingStep(value: number | null | undefined): RatingStep {

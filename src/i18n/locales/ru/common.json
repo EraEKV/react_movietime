@@ -1,1 +1,236 @@
-{}
+{
+  "nav": {
+    "home": "Главная",
+    "movies": "Фильмы",
+    "series": "Сериалы",
+    "library": "Библиотека",
+    "lists": "Списки",
+    "planner": "Планы",
+    "discover": "Обзор",
+    "profile": "Профиль",
+    "dashboard": "Статистика",
+    "settings": "Настройки",
+    "main": "Основное меню"
+  },
+  "auth": {
+    "signIn": "Войти",
+    "signOut": "Выйти",
+    "account": "Аккаунт",
+    "accountOf": "Аккаунт: {{name}}"
+  },
+  "layout": {
+    "skip": "Перейти к содержимому",
+    "about": "О Movietime",
+    "footer": "Данные о фильмах и сериалах — <tmdb>TMDB</tmdb>. Этот продукт использует TMDB API, но не одобрен и не сертифицирован TMDB.",
+    "homeLink": "Movietime, на главную"
+  },
+  "header": {
+    "search": "Поиск",
+    "searchMovies": "Поиск фильмов",
+    "searchSeries": "Поиск сериалов",
+    "toLight": "Включить светлую тему",
+    "toDark": "Включить тёмную тему",
+    "language": "Язык: {{name}}",
+    "tonight": "Сегодня",
+    "tonightLabel": "Сегодня в {{time}}: {{title}}, {{units}}. Открыть планы"
+  },
+  "verify": {
+    "text": "Подтвердите <strong>{{email}}</strong>, чтобы пользоваться общими списками и планами.",
+    "done": "Уже подтвердил(а)",
+    "resend": "Отправить ещё раз",
+    "sent": "Отправлено"
+  },
+  "actions": {
+    "close": "Закрыть",
+    "back": "Назад",
+    "tryAgain": "Повторить",
+    "dismiss": "Скрыть",
+    "undo": "Отменить",
+    "cancel": "Отмена",
+    "save": "Сохранить",
+    "saving": "Сохраняем…",
+    "delete": "Удалить",
+    "edit": "Изменить",
+    "showLess": "Свернуть",
+    "more_one": "ещё {{count}}",
+    "more_few": "ещё {{count}}",
+    "more_many": "ещё {{count}}",
+    "more_other": "ещё {{count}}"
+  },
+  "states": {
+    "loading": "Загрузка…",
+    "loadingTitles": "Загружаем фильмы и сериалы",
+    "errorTitle": "Что-то пошло не так",
+    "errorBody": "Не получилось загрузить. Проверьте подключение и попробуйте ещё раз.",
+    "unknown": "Неизвестно"
+  },
+  "pagination": {
+    "label": "Страницы",
+    "perPage": "На странице",
+    "previous": "Предыдущая страница",
+    "next": "Следующая страница",
+    "page": "Страница {{page}}"
+  },
+  "search": {
+    "clear": "Очистить поиск",
+    "seriesLabel": "Поиск сериалов",
+    "seriesPlaceholder": "Название сериала"
+  },
+  "field": {
+    "showPassword": "Показать пароль",
+    "hidePassword": "Скрыть пароль"
+  },
+  "ui": {
+    "steps": "Шаги",
+    "progress": "Прогресс",
+    "watched": "Просмотрено",
+    "removeFilter": "Убрать фильтр: {{label}}",
+    "playTrailer": "Смотреть трейлер: {{name}}",
+    "people": "{{people}}: {{names}}"
+  },
+  "title": {
+    "genres": "Жанры",
+    "votes_one": "{{count, number}} оценка на TMDB",
+    "votes_few": "{{count, number}} оценки на TMDB",
+    "votes_many": "{{count, number}} оценок на TMDB",
+    "votes_other": "{{count, number}} оценок на TMDB",
+    "noVotes": "Пока нет оценок",
+    "noOverview": "Описания пока нет.",
+    "poster": "Постер: {{title}}",
+    "withYear": "{{title}}, {{year}}"
+  },
+  "rating": {
+    "0": "Нет оценки",
+    "1": "Мимо",
+    "2": "Слабо",
+    "3": "Нормально",
+    "4": "Хорошо",
+    "5": "Отлично",
+    "label": "Оценка {{value}} из 10, {{word}}",
+    "votes_one": "{{word}} · {{count, number}} оценка",
+    "votes_few": "{{word}} · {{count, number}} оценки",
+    "votes_many": "{{word}} · {{count, number}} оценок",
+    "votes_other": "{{word}} · {{count, number}} оценок"
+  },
+  "status": {
+    "plan": "Буду смотреть",
+    "watching": "Смотрю",
+    "completed": "Просмотрено",
+    "dropped": "Брошено"
+  },
+  "score": {
+    "1": "Ужасно",
+    "2": "Плохо",
+    "3": "Слабо",
+    "4": "Так себе",
+    "5": "Нормально",
+    "6": "Неплохо",
+    "7": "Хорошо",
+    "8": "Отлично",
+    "9": "Превосходно",
+    "10": "Шедевр",
+    "legend": "Ваша оценка",
+    "option": "{{score}}, {{label}}",
+    "hint": "{{value}} — {{word}}. Нажмите ещё раз, чтобы сбросить.",
+    "none": "Оценки пока нет."
+  },
+  "role": {
+    "owner": "Владелец",
+    "editor": "Редактор",
+    "viewer": "Зритель",
+    "link": "По ссылке"
+  },
+  "visibility": {
+    "shared": "Участников: {{count}}",
+    "link": "Все, у кого есть ссылка",
+    "private": "Личный"
+  },
+  "session": {
+    "pending": "запланирован",
+    "done": "просмотрен",
+    "skipped": "пропущен",
+    "label": "{{title}}, {{range}}, {{status}}",
+    "labelAt": "{{title}}, {{range}} в {{time}}, {{status}}"
+  },
+  "calendar": {
+    "today": "сегодня",
+    "hasSession": "есть сеанс",
+    "previousMonth": "Предыдущий месяц",
+    "nextMonth": "Следующий месяц"
+  },
+  "count": {
+    "titles_one": "{{count}} тайтл",
+    "titles_few": "{{count}} тайтла",
+    "titles_many": "{{count}} тайтлов",
+    "titles_other": "{{count}} тайтлов",
+    "movies_one": "{{count}} фильм",
+    "movies_few": "{{count}} фильма",
+    "movies_many": "{{count}} фильмов",
+    "movies_other": "{{count}} фильмов",
+    "series_one": "{{count}} сериал",
+    "series_few": "{{count}} сериала",
+    "series_many": "{{count}} сериалов",
+    "series_other": "{{count}} сериалов",
+    "seasons_one": "{{count}} сезон",
+    "seasons_few": "{{count}} сезона",
+    "seasons_many": "{{count}} сезонов",
+    "seasons_other": "{{count}} сезонов",
+    "episodes_one": "{{count}} серия",
+    "episodes_few": "{{count}} серии",
+    "episodes_many": "{{count}} серий",
+    "episodes_other": "{{count}} серий",
+    "sessions_one": "{{count}} сеанс",
+    "sessions_few": "{{count}} сеанса",
+    "sessions_many": "{{count}} сеансов",
+    "sessions_other": "{{count}} сеансов",
+    "people_one": "{{count}} человек",
+    "people_few": "{{count}} человека",
+    "people_many": "{{count}} человек",
+    "people_other": "{{count}} человек",
+    "characters_one": "{{count}} символ",
+    "characters_few": "{{count}} символа",
+    "characters_many": "{{count}} символов",
+    "characters_other": "{{count}} символов"
+  },
+  "errors": {
+    "network": "Ошибка сети. Проверьте подключение и попробуйте ещё раз.",
+    "offline": "Нет подключения. Подключитесь к интернету, чтобы сохранить изменения.",
+    "saveFailed": "Не удалось сохранить изменения. Проверьте подключение и попробуйте ещё раз.",
+    "fallback": "Что-то пошло не так. Попробуйте ещё раз.",
+    "wrongCredentials": "Неверная почта или пароль. Проверьте и попробуйте ещё раз.",
+    "invalidEmail": "Введите почту вида name@example.com.",
+    "emailInUse": "Аккаунт с этой почтой уже есть. Войдите или укажите другую почту.",
+    "weakPassword": "Нужно от 8 символов, с цифрой и спецсимволом.",
+    "userDisabled": "Этот аккаунт отключён.",
+    "tooManyRequests": "Слишком много попыток. Подождите несколько минут и попробуйте снова.",
+    "noConnection": "Нет соединения. Проверьте интернет и попробуйте ещё раз.",
+    "popupClosed": "Окно Google закрылось раньше времени. Попробуйте снова или войдите по почте.",
+    "popupBlocked": "Браузер заблокировал окно Google. Разрешите всплывающие окна и попробуйте снова.",
+    "unauthorizedDomain": "Вход для этого адреса сайта пока не включён.",
+    "accountExists": "Эта почта уже зарегистрирована с другим способом входа. Используйте его.",
+    "recentLogin": "Войдите ещё раз, чтобы продолжить.",
+    "permissionDenied": "У вас нет доступа.",
+    "unavailable": "Сервер недоступен. Проверьте подключение и попробуйте ещё раз."
+  },
+  "validation": {
+    "emailRequired": "Введите почту.",
+    "passwordCreate": "Придумайте пароль.",
+    "passwordRequired": "Введите пароль.",
+    "passwordRepeat": "Повторите пароль.",
+    "passwordMismatch": "Пароли не совпадают.",
+    "ruleLength": "От 8 символов",
+    "ruleDigit": "Цифра",
+    "ruleSpecial": "Спецсимвол",
+    "passwordRules": "Требования к паролю",
+    "atLeast_one": "Минимум {{count}} символ.",
+    "atLeast_few": "Минимум {{count}} символа.",
+    "atLeast_many": "Минимум {{count}} символов.",
+    "atLeast_other": "Минимум {{count}} символов.",
+    "atMost_one": "Не больше {{count}} символа.",
+    "atMost_few": "Не больше {{count}} символов.",
+    "atMost_many": "Не больше {{count}} символов.",
+    "atMost_other": "Не больше {{count}} символов.",
+    "met": " — выполнено",
+    "notMet": " — не выполнено"
+  }
+}

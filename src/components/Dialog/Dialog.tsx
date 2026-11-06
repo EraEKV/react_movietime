@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { useEffect, useId, useRef, type MouseEvent, type ReactNode } from 'react'
 import { cx } from '../../utils/cx'
 import IconButton from '../IconButton/IconButton'
@@ -26,6 +27,7 @@ export default function Dialog({
   footer,
   variant = 'dialog',
 }: DialogProps) {
+  const { t } = useTranslation()
   const ref = useRef<HTMLDialogElement>(null)
   const titleId = useId()
 
@@ -59,7 +61,7 @@ export default function Dialog({
         <h2 id={titleId} className={styles.title}>
           {title}
         </h2>
-        <IconButton icon="x" label="Close" onClick={onClose} />
+        <IconButton icon="x" label={t('actions.close')} onClick={onClose} />
       </div>
       {/* Children mount only while open, so their state resets every time. */}
       {open && <div className={styles.body}>{children}</div>}

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { useId } from 'react'
 import Icon from '../Icon/Icon'
 import styles from './ProgressRing.module.css'
@@ -18,9 +19,10 @@ export default function ProgressRing({
   value,
   size = 48,
   stroke = 5,
-  label = 'Progress',
+  label,
   color,
 }: ProgressRingProps) {
+  const { t } = useTranslation()
   // Several rings on one page need different gradient ids; useId gives each a unique one.
   const gradientId = useId()
   const v = Math.max(0, Math.min(1, value))
@@ -33,7 +35,7 @@ export default function ProgressRing({
       className={styles.ring}
       style={{ width: size, height: size }}
       role="progressbar"
-      aria-label={label}
+      aria-label={label ?? t('ui.progress')}
       aria-valuenow={Math.round(v * 100)}
       aria-valuemin={0}
       aria-valuemax={100}

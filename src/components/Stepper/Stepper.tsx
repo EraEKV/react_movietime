@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { Fragment } from 'react'
 import { cx } from '../../utils/cx'
 import Icon from '../Icon/Icon'
@@ -14,8 +15,9 @@ interface StepperProps {
  * On phones only the current label shows; the others stay for screen readers.
  */
 export default function Stepper({ steps, current }: StepperProps) {
+  const { t } = useTranslation()
   return (
-    <ol className={styles.stepper} aria-label="Steps">
+    <ol className={styles.stepper} aria-label={t('ui.steps')}>
       {steps.map((step, i) => {
         const state = i < current ? 'done' : i === current ? 'current' : 'upcoming'
         return (

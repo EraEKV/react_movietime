@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { useId } from 'react'
 import { Link } from 'react-router'
 import styles from './Logo.module.css'
@@ -29,8 +30,9 @@ export function LogoMark({ size = 28 }: { size?: number }) {
 }
 
 export default function Logo({ compact = false }: { compact?: boolean }) {
+  const { t } = useTranslation()
   return (
-    <Link to="/" className={styles.logo} aria-label="Movietime, home">
+    <Link to="/" className={styles.logo} aria-label={t('layout.homeLink')}>
       <LogoMark />
       {!compact && <span>movietime</span>}
     </Link>

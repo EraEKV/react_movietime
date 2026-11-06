@@ -76,7 +76,7 @@ export const isPlanColor = (value: unknown): value is PlanColor =>
 /** "Mon, Wed, Fri at 21:00" — weekdays in display order (Monday first). */
 export function scheduleLabel(weekdays: Weekday[], time: string): string {
   const days = WEEK_ORDER.filter((d) => weekdays.includes(d))
-  const text = days.length === 7 ? 'Every day' : days.map(weekdayShort).join(', ')
+  const text = days.length === 7 ? 'Every day' : days.map((day) => weekdayShort(day)).join(', ')
   return `${text} at ${time}`
 }
 

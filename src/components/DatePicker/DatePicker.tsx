@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
 import {
   addDays,
@@ -43,6 +44,7 @@ export default function DatePicker({
   marked = [],
   label,
 }: DatePickerProps) {
+  const { t } = useTranslation()
   const [month, setMonth] = useState(() => monthOf(value || today))
   const [focused, setFocused] = useState(value || today)
   // Set by arrow keys: focus follows the roving day after the next render.
@@ -81,14 +83,14 @@ export default function DatePicker({
         <IconButton
           icon="chevron-left"
           size="sm"
-          label="Previous month"
+          label={t('calendar.previousMonth')}
           onClick={() => setMonth(shiftMonth(month, -1))}
         />
         <span aria-live="polite">{formatMonth(month)}</span>
         <IconButton
           icon="chevron-right"
           size="sm"
-          label="Next month"
+          label={t('calendar.nextMonth')}
           onClick={() => setMonth(shiftMonth(month, 1))}
         />
       </div>
@@ -114,7 +116,13 @@ export default function DatePicker({
               disabled={off}
               tabIndex={day === tabDay ? 0 : -1}
               aria-pressed={day === value}
-              aria-label={`${formatDay(day, { weekday: 'long', month: 'long', day: 'numeric' })}${day === today ? ', today' : ''}${marks.has(day) ? ', has a session' : ''}`}
+              aria-label={[
+                formatDay(day, { weekday: 'long', month: 'long', day: 'numeric' }),
+                day === today && t('calendar.today'),
+                marks.has(day) && t('calendar.hasSession'),
+              ]
+                .filter(Boolean)
+                .join(', ')}
               onClick={() => {
                 setFocused(day)
                 onChange(day)

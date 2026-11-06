@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
 import type { Video } from '../../types/tmdb'
 import Icon from '../Icon/Icon'
@@ -11,6 +12,7 @@ import styles from './Trailer.module.css'
  * key={seriesId}, so opening another series resets it instead of autoplaying.
  */
 export default function Trailer({ video, title }: { video: Video; title: string }) {
+  const { t } = useTranslation()
   const [isPlaying, setIsPlaying] = useState(false)
 
   if (isPlaying) {
@@ -31,7 +33,7 @@ export default function Trailer({ video, title }: { video: Video; title: string 
       type="button"
       className={styles.frame}
       onClick={() => setIsPlaying(true)}
-      aria-label={`Play trailer: ${video.name}`}
+      aria-label={t('ui.playTrailer', { name: video.name })}
     >
       <img src={`https://i.ytimg.com/vi/${video.key}/hqdefault.jpg`} alt="" loading="lazy" />
       <span className={styles.play} aria-hidden="true">

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { useEffect } from 'react'
 import { useAppDispatch, useAppSelector } from '../../store/hooks'
 import { libraryNoticeDismissed, selectLibraryNotice } from '../../store/librarySlice'
@@ -10,6 +11,7 @@ const NOTICE_MS = 6000
  * after sign-in, or a Firestore write that failed. Lives in Layout.
  */
 export default function LibraryNotice() {
+  const { t } = useTranslation()
   const dispatch = useAppDispatch()
   const notice = useAppSelector(selectLibraryNotice)
 
@@ -23,7 +25,7 @@ export default function LibraryNotice() {
   return (
     <Toast
       icon={notice.tone === 'success' ? 'check' : 'alert'}
-      actionLabel="Dismiss"
+      actionLabel={t('actions.dismiss')}
       onAction={() => dispatch(libraryNoticeDismissed())}
     >
       {notice.text}

@@ -448,6 +448,7 @@ function ListView({ id }: { id: string }) {
         <Toast
           icon={toast.undo ? undefined : 'check'}
           actionLabel={toast.undo ? 'Undo' : undefined}
+          actionIcon="undo"
           onAction={() => {
             toast.undo?.()
             hideToast()

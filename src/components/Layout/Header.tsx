@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { lazy, Suspense } from 'react'
 import { Link, useLocation } from 'react-router'
 import { useAuth } from '../../hooks/useAuth'
@@ -16,6 +17,7 @@ const TonightChip = lazy(() => import('./TonightChip'))
 
 /** Desktop (≥1024): logo, main nav, search, theme, account. Below: compact bar, nav moves to the TabBar. */
 export default function Header() {
+  const { t } = useTranslation()
   const { pathname } = useLocation()
   const { theme, toggleTheme } = useTheme()
   const nextTheme = theme === 'dark' ? 'light' : 'dark'
@@ -26,7 +28,7 @@ export default function Header() {
       <div className={styles.headerInner}>
         <Logo />
 
-        <nav className={styles.nav} aria-label="Main">
+        <nav className={styles.nav} aria-label={t('nav.main')}>
           {MAIN_NAV.map((item) => (
             // aria-current="page" marks the current section; CSS styles that attribute.
             <Link
@@ -35,7 +37,7 @@ export default function Header() {
               aria-current={isNavItemActive(item, pathname) ? 'page' : undefined}
               className={styles.navLink}
             >
-              {item.label}
+              {t(item.label)}
             </Link>
           ))}
         </nav>
@@ -52,13 +54,13 @@ export default function Header() {
             to="/series"
             state={{ focusSearch: true }}
             className={buttonClass('ghost', 'md', { iconOnly: true, className: styles.mobileOnly })}
-            aria-label="Search"
+            aria-label={t('header.search')}
           >
             <Icon name="search" size={20} />
           </Link>
           <IconButton
             icon={theme === 'dark' ? 'sun' : 'moon'}
-            label={`Switch to ${nextTheme} theme`}
+            label={t(nextTheme === 'dark' ? 'header.toDark' : 'header.toLight')}
             onClick={toggleTheme}
           />
           <UserMenu />

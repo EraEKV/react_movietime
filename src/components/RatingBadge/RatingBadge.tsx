@@ -1,6 +1,7 @@
+import { useTranslation } from 'react-i18next'
 import { cx } from '../../utils/cx'
-import { formatNumber } from '../../utils/format'
-import { RATING_WORDS, ratingStep } from '../../utils/rating'
+import { formatRating } from '../../utils/format'
+import { ratingStep, ratingWord } from '../../utils/rating'
 import styles from './RatingBadge.module.css'
 
 interface RatingBadgeProps {
@@ -11,18 +12,20 @@ interface RatingBadgeProps {
 }
 
 export default function RatingBadge({ value, size = 'sm', votes }: RatingBadgeProps) {
+  const { t } = useTranslation()
   const step = ratingStep(value)
-  const word = RATING_WORDS[step]
-  const label = step === 0 || !value ? word : `Rated ${value.toFixed(1)} of 10, ${word}`
+  const word = ratingWord(step)
+  const label =
+    step === 0 || !value ? word : t('rating.label', { value: formatRating(value), word })
 
   return (
     <span
       className={cx(styles.badge, styles[`step${step}`], size === 'lg' && styles.lg)}
       role="img"
       aria-label={label}
-      title={votes ? `${word} · ${formatNumber(votes)} votes` : word}
+      title={votes ? t('rating.votes', { word, count: votes }) : word}
     >
-      {step === 0 || !value ? '—' : value.toFixed(1)}
+      {step === 0 || !value ? '—' : formatRating(value)}
     </span>
   )
 }

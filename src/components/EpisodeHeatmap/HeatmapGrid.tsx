@@ -1,6 +1,6 @@
 import type { Episode, Season } from '../../hooks/useEpisodeRatings'
 import { episodeCode } from '../../utils/format'
-import { RATING_WORDS, ratingStep } from '../../utils/rating'
+import { ratingStep, ratingWord } from '../../utils/rating'
 import styles from './EpisodeHeatmap.module.css'
 
 function average(episodes: Episode[]): number | null {
@@ -13,7 +13,7 @@ function cellLabel(episode: Episode, mark: string): string {
   const rating =
     episode.rating === null
       ? 'not rated'
-      : `rated ${episode.rating.toFixed(1)}, ${RATING_WORDS[ratingStep(episode.rating)]}`
+      : `rated ${episode.rating.toFixed(1)}, ${ratingWord(ratingStep(episode.rating))}`
   return `${episodeCode(episode.season, episode.number)}, ${episode.name}, ${rating}${mark}`
 }
 

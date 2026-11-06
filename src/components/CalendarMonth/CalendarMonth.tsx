@@ -1,8 +1,9 @@
+import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
 import type { PlanColor, SessionStatus } from '../../types/plan'
 import { formatDay, monthOf, WEEK_ORDER, weekdayShort, type MonthRef } from '../../utils/calendar'
 import { cx } from '../../utils/cx'
-import { pluralize } from '../../utils/format'
+
 import SessionChip from '../SessionChip/SessionChip'
 import styles from './CalendarMonth.module.css'
 
@@ -47,6 +48,7 @@ export default function CalendarMonth({
   size = 'md',
   label,
 }: CalendarMonthProps) {
+  const { t } = useTranslation()
   const [expanded, setExpanded] = useState<string | null>(null)
   // Grouped once per render: O(n) instead of filtering all items for each of 42 days.
   const byDay = new Map<string, CalendarItem[]>()
@@ -70,8 +72,8 @@ export default function CalendarMonth({
         const shown = open ? list : list.slice(0, maxPerDay)
         const name = [
           formatDay(day, { weekday: 'long', month: 'long', day: 'numeric' }),
-          day === today && 'today',
-          list.length > 0 && pluralize(list.length, 'session'),
+          day === today && t('calendar.today'),
+          list.length > 0 && t('count.sessions', { count: list.length }),
         ]
           .filter(Boolean)
           .join(', ')
@@ -105,7 +107,9 @@ export default function CalendarMonth({
                 aria-expanded={open}
                 onClick={() => setExpanded(open ? null : day)}
               >
-                {open ? 'Show less' : `+${list.length - maxPerDay} more`}
+                {open
+                  ? t('actions.showLess')
+                  : t('actions.more', { count: list.length - maxPerDay })}
               </button>
             )}
           </div>
