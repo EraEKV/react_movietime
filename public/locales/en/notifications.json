@@ -1,0 +1,28 @@
+{
+  "title": "Notifications",
+  "bell": "Notifications",
+  "bellUnread_one": "Notifications, {{count}} unread",
+  "bellUnread_other": "Notifications, {{count}} unread",
+  "markAll": "Mark all as read",
+  "empty": "No notifications yet",
+  "emptyHint": "You will see it here when someone shares a list or a plan with you.",
+  "shared": {
+    "lists": {
+      "editor": "{{name}} invited you to edit the list “{{title}}”",
+      "viewer": "{{name}} shared the list “{{title}}” with you to view"
+    },
+    "plans": {
+      "editor": "{{name}} invited you to edit the plan “{{title}}”",
+      "viewer": "{{name}} shared the plan “{{title}}” with you to view"
+    }
+  },
+  "open": "Open",
+  "markRead": "Mark as read",
+  "decline": "Decline",
+  "declineHint": "Decline removes your access to “{{title}}”.",
+  "unreadMark": "Unread",
+  "error": "Could not update. Check your connection and try again.",
+  "loadError": "Could not load notifications.",
+  "retry": "Try again",
+  "offline": "No connection."
+}
