@@ -5,6 +5,7 @@ import GuestRoute from './components/auth/GuestRoute'
 import ProtectedRoute from './components/auth/ProtectedRoute'
 import Layout from './components/Layout/Layout'
 import WatchlistProvider from './context/WatchlistProvider'
+import HomePage from './pages/HomePage'
 import LoginPage from './pages/LoginPage'
 import NotFoundPage from './pages/NotFoundPage'
 import SignupPage from './pages/SignupPage'
@@ -12,7 +13,8 @@ import VerifyEmailPage from './pages/VerifyEmailPage'
 
 // Each lazy() page becomes its own JS chunk, downloaded the first time its route renders.
 // The <Suspense> boundary that shows a skeleton meanwhile lives in Layout, around <Outlet>,
-// so the header and tab bar stay on screen. Auth screens and 404 are small and stay eager.
+// so the header and tab bar stay on screen. Home (the first screen most visitors see),
+// auth screens and 404 stay in the main bundle.
 const CatalogPage = lazy(() => import('./pages/CatalogPage'))
 const SeriesPage = lazy(() => import('./pages/SeriesPage'))
 const WatchlistPage = lazy(() => import('./pages/WatchlistPage'))
@@ -41,19 +43,30 @@ export default function App() {
         </Route>
 
         <Route element={<Layout />}>
-          {/* Temporary: the landing page replaces this redirect. */}
-          <Route index element={<Navigate to="/series" replace />} />
+          <Route index element={<HomePage />} />
 
-          <Route
-            path="movies"
-            element={
-              <ComingSoonPage
-                title="Movies"
-                icon="film"
-                body="Search and filter movies the same way as series, then save them to your library."
-              />
-            }
-          />
+          <Route path="movies">
+            <Route
+              index
+              element={
+                <ComingSoonPage
+                  title="Movies"
+                  icon="film"
+                  body="Search and filter movies the same way as series, then save them to your library."
+                />
+              }
+            />
+            <Route
+              path=":id"
+              element={
+                <ComingSoonPage
+                  title="Movie details"
+                  icon="film"
+                  body="Cast, director, budget, trailer and recommendations for every movie."
+                />
+              }
+            />
+          </Route>
           <Route path="series">
             <Route index element={<CatalogPage />} />
             <Route path=":id" element={<SeriesPage />} />
