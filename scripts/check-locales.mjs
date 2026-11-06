@@ -3,7 +3,7 @@
 import { readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
-const root = new URL('../src/i18n/locales/', import.meta.url).pathname
+const root = new URL('../public/locales/', import.meta.url).pathname
 const PLURAL = /_(zero|one|two|few|many|other)$/
 
 function keys(object, prefix = '') {

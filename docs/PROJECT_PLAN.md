@@ -413,3 +413,37 @@ Things to be ready to demonstrate and explain:
 - **PWA:** install the app, go offline, navigate cached pages, open the offline page, reconnect.
 - **Architecture:** why state lives where it does (Redux vs local vs URL), services vs hooks,
   why TypeScript (discriminated unions in `useFetch`, typed slices).
+
+## Idea: a layered structure (FSD-like), not scheduled
+
+Today `src/` is flat by kind (`components/`, `hooks/`, `utils/`, `services/`…): 70+ component
+folders and many shared pieces that "just lie around". Idea for a later `refactor/structure`
+branch, after the PWA and tests phases (a big move conflicts with every open branch):
+
+```
+src/
+├── app/        providers, router, store setup, global styles       (imports everything below)
+├── pages/      one file per route: composition only
+├── widgets/    big self-contained blocks: Header, TabBar, PlannerCalendar, ShareDialog…
+├── features/   one user action each: add-to-library, share-list, create-plan, change-language…
+├── entities/   what the app is about: media, library-entry, list, plan, user
+│               (types + service + small UI such as PosterCard, RoleBadge)
+└── shared/     no business meaning: ui/ (Button, Dialog, Menu…), lib/ (format, calendar,
+                cx), api/ (tmdb, firebase), i18n/, hooks/ (useMediaQuery, useRequest), config/
+```
+
+Rules: a layer imports only from layers below it; a slice (a folder in `features/`, `entities/`…)
+exposes a public `index.ts` and nobody reaches into its files; slices of one layer don't import
+each other. Not every slice needs every segment (`ui/`, `model/`, `api/`, `lib/`): add folders
+when there is a file for them, so there is no folder for the sake of a folder.
+
+Order of work, each step one PR that moves files and changes imports only:
+
+1. `shared/`: UI kit, generic hooks, `utils/` helpers without domain meaning, `api/tmdb`,
+   `i18n/`, styles. Biggest win, lowest risk.
+2. `entities/`: types, services and small views of media, library, list, plan, user.
+3. `features/` and `widgets/`: split the large pages (`PlanPage`, `ListPage`, `DashboardPage`).
+4. Enforce the direction of imports with an ESLint rule (`no-restricted-imports` per layer).
+
+Dictionaries stay in `public/locales/`; the namespace per feature already matches the future
+`features/` and `entities/` slices.

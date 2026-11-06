@@ -88,7 +88,7 @@ Legend: ✅ implemented, 🚧 in progress.
 - **TMDB API** for movies and series
 - **CSS Modules** on design tokens (`styles/tokens.css`), dark and light themes via `data-theme`
 - Plain `fetch` + custom hooks for TMDB, `onSnapshot` + custom hooks for Firestore
-- `i18next` + `react-i18next`: en / ru / kk, dictionaries split by feature and loaded on demand ✅
+- `i18next` + `react-i18next`: en / ru / kk, dictionaries are JSON files in `public/locales/`, split by feature and loaded on demand ✅
 - 🚧 **Service worker** written with Workbox (`vite-plugin-pwa`, `injectManifest` mode)
 - 🚧 **Vitest** + **React Testing Library**
 - **ESLint** (`typescript-eslint`) + **Prettier**

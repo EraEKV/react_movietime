@@ -4,27 +4,30 @@ import type { Language } from '../types/preferences'
 import { formatNumberWith } from './intl'
 
 /**
- * Dictionaries are split by feature: locales/<language>/<namespace>.json. Vite turns every
- * file into its own small chunk (hashed name → safe to cache), and nothing is bundled up front:
- * - the first load brings only `common` of the current language;
+ * Dictionaries are plain JSON files in `public/locales/<language>/<namespace>.json`, split by
+ * feature and fetched over HTTP, not bundled:
+ * - the first load fetches only `common` of the current language (plus the page's namespace);
  * - a page asks for its namespace (`useTranslation('planner')`) and suspends until it arrives,
  *   so the Suspense boundary in Layout shows the page skeleton meanwhile;
  * - changeLanguage() fetches the new language for every namespace already in use before it
  *   switches, so the whole screen changes at once.
+ * Files in `public/` keep their names, so the URL carries the build id: a new deploy changes it
+ * and nobody keeps an old dictionary from the browser cache.
  */
-const files = import.meta.glob<{ default: Record<string, unknown> }>('./locales/*/*.json')
-
-// A tiny i18next backend: "give me <namespace> in <language>" → dynamic import of that file.
 const lazyBackend: BackendModule = {
   type: 'backend',
   init() {},
   read(language, namespace, callback) {
-    const load = files[`./locales/${language}/${namespace}.json`]
-    if (!load) return callback(new Error(`No dictionary ${language}/${namespace}`), null)
-    load().then(
-      (module) => callback(null, module.default),
-      (error: unknown) => callback(error instanceof Error ? error : new Error(String(error)), null),
-    )
+    fetch(`/locales/${language}/${namespace}.json?v=${__BUILD_ID__}`)
+      .then((response) => {
+        if (!response.ok) throw new Error(`Dictionary ${language}/${namespace}: ${response.status}`)
+        return response.json() as Promise<Record<string, unknown>>
+      })
+      .then(
+        (resources) => callback(null, resources),
+        (error: unknown) =>
+          callback(error instanceof Error ? error : new Error(String(error)), null),
+      )
   },
 }
 
