@@ -50,7 +50,10 @@ export default function ListItems({ items, view, editable, onEditNote, onRemove 
                 <Menu
                   label={`Actions for ${item.title}`}
                   align="right"
-                  triggerClassName={buttonClass('ghost', 'sm', { iconOnly: true })}
+                  triggerClassName={buttonClass('ghost', 'sm', {
+                    iconOnly: true,
+                    className: styles.more,
+                  })}
                   trigger={<Icon name="more" size={18} />}
                   items={[
                     {

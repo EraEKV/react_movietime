@@ -36,7 +36,7 @@ export default function Checkbox({
       <span className={styles.box} aria-hidden="true">
         {checked && <Icon name="check" size={14} />}
       </span>
-      <span className={cx(hideLabel && 'sr-only')}>{label}</span>
+      <span className={cx(styles.label, hideLabel && 'sr-only')}>{label}</span>
     </label>
   )
 }

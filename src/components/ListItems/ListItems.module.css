@@ -121,3 +121,15 @@
     display: none;
   }
 }
+
+.more {
+  color: var(--text-muted);
+}
+
+/* 44px on touch screens; the 36px pointer size keeps the card footer compact. */
+@media (pointer: coarse) {
+  .more {
+    width: var(--touch-min);
+    min-height: var(--touch-min);
+  }
+}

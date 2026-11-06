@@ -41,3 +41,10 @@
   cursor: default;
   opacity: 0.5;
 }
+
+/* Lets long labels (rows with a title and a badge) shrink and truncate inside the row. */
+.label {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+}

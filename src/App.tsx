@@ -20,6 +20,9 @@ const MoviePage = lazy(() => import('./pages/MoviePage'))
 const SeriesPage = lazy(() => import('./pages/SeriesPage'))
 const LibraryPage = lazy(() => import('./pages/LibraryPage'))
 const LibraryEditPage = lazy(() => import('./pages/LibraryEditPage'))
+const ListsPage = lazy(() => import('./pages/ListsPage'))
+const ListPage = lazy(() => import('./pages/ListPage'))
+const ListFormPage = lazy(() => import('./pages/ListFormPage'))
 const ProfileLayout = lazy(() => import('./components/Layout/ProfileLayout'))
 const ProfilePage = lazy(() => import('./pages/ProfilePage'))
 const OfflinePage = lazy(() => import('./pages/OfflinePage'))
@@ -64,16 +67,14 @@ export default function App() {
         <Route path="watchlist/*" element={<Navigate to="/library" replace />} />
 
         <Route element={<ProtectedRoute />}>
-          <Route
-            path="lists"
-            element={
-              <ComingSoonPage
-                title="Lists"
-                icon="list"
-                body="Named collections of titles you can share with friends as editors or viewers."
-              />
-            }
-          />
+          {/* Lists need an account: they live in Firestore under the owner's uid.
+                Link visitors (read-only, signed out) arrive with sharing. */}
+          <Route path="lists">
+            <Route index element={<ListsPage />} />
+            <Route path="new" element={<ListFormPage />} />
+            <Route path=":id" element={<ListPage />} />
+            <Route path=":id/edit" element={<ListFormPage />} />
+          </Route>
           <Route
             path="planner"
             element={
