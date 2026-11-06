@@ -133,5 +133,20 @@
     "votes_other": "{{count, number}} votes",
     "noOverview": "No overview available.",
     "close": "Close episode"
+  },
+  "watch": {
+    "title": "Where to watch",
+    "region": "Country",
+    "kind": {
+      "flatrate": "Stream",
+      "free": "Free",
+      "ads": "Free with ads",
+      "rent": "Rent",
+      "buy": "Buy"
+    },
+    "none": "No streaming information for this title yet.",
+    "noneHere": "Not available from the services we know in this country. Try another country.",
+    "seeAll": "All options for this country",
+    "credit": "Streaming data by"
   }
 }
