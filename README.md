@@ -27,6 +27,10 @@ with an editor / viewer role.
   server-side search (debounced), five filters (genre, year, minimum rating, original language,
   plus runtime for movies or status for series), five sort orders, pagination and a page size of
   20 / 40 / 60. Everything lives in the URL, so links can be shared and back/forward works.
+- ✅ **Where to watch** on movie and series pages: official services by country (subscription,
+  free, with ads, rent, buy) from TMDB `/watch/providers`, credited to JustWatch as TMDB asks.
+  The country follows the interface language and the choice is remembered on the device. The
+  app only points to services and plays nothing itself.
 - ✅ **Series page**: overview, seasons, trailer, cast and recommendations.
 - ✅ **Episode ratings heatmap**: every episode of every season colored by its TMDB rating,
   with season averages, best and lowest episode, and an episode panel.
@@ -213,13 +217,13 @@ Full reference: **[docs/API.md](docs/API.md)** (service functions) and
 
 ### TMDB endpoints
 
-| Endpoint                                                                                | Used for           |
-| --------------------------------------------------------------------------------------- | ------------------ |
-| `GET /discover/tv`, `GET /discover/movie`                                               | Catalogs           |
-| `GET /search/tv`, `GET /search/movie`                                                   | Search             |
-| `GET /tv/{id}`, `GET /movie/{id}` + `append_to_response=credits,videos,recommendations` | Details            |
-| `GET /tv/{id}?append_to_response=season/1,…`                                            | Heatmap, planner   |
-| `GET /genre/{tv,movie}/list`, `GET /trending/{tv,movie}/week`                           | Filters, home page |
+| Endpoint                                                                                                | Used for                |
+| ------------------------------------------------------------------------------------------------------- | ----------------------- |
+| `GET /discover/tv`, `GET /discover/movie`                                                               | Catalogs                |
+| `GET /search/tv`, `GET /search/movie`                                                                   | Search                  |
+| `GET /tv/{id}`, `GET /movie/{id}` + `append_to_response=credits,videos,recommendations,watch/providers` | Details, where to watch |
+| `GET /tv/{id}?append_to_response=season/1,…`                                                            | Heatmap, planner        |
+| `GET /genre/{tv,movie}/list`, `GET /trending/{tv,movie}/week`                                           | Filters, home page      |
 
 ### App URL parameters (catalog)
 
