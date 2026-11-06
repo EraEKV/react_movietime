@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { useEffect, type FormEvent } from 'react'
-import { Link, useLocation } from 'react-router'
+import { Link, useLocation, useSearchParams } from 'react-router'
 import styles from '../components/auth/AuthLayout.module.css'
 import GoogleButton from '../components/auth/GoogleButton'
 import Banner from '../shared/ui/Banner/Banner'
@@ -23,13 +23,18 @@ type Field = 'displayName' | 'email' | 'password' | 'confirm'
 export default function SignupPage() {
   const { t } = useTranslation('auth')
   const { search } = useLocation()
+  // An invite link carries the invited address; the person can still change it.
+  const invitedEmail = useSearchParams()[0].get('email')?.trim().slice(0, 254) ?? ''
   const { signUp, pending, error, clearError } = useAuth()
-  const form = useForm<Field>({ displayName: '', email: '', password: '', confirm: '' }, (v) => ({
-    displayName: validateDisplayName(v.displayName),
-    email: validateEmail(v.email),
-    password: validateNewPassword(v.password),
-    confirm: validatePasswordConfirm(v.password, v.confirm),
-  }))
+  const form = useForm<Field>(
+    { displayName: '', email: invitedEmail, password: '', confirm: '' },
+    (v) => ({
+      displayName: validateDisplayName(v.displayName),
+      email: validateEmail(v.email),
+      password: validateNewPassword(v.password),
+      confirm: validatePasswordConfirm(v.password, v.confirm),
+    }),
+  )
 
   useEffect(() => clearError, [clearError])
 
