@@ -1,0 +1,37 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "lists",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "ownerUid", "order": "ASCENDING" },
+        { "fieldPath": "updatedAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "lists",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "memberEmails", "arrayConfig": "CONTAINS" },
+        { "fieldPath": "updatedAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "plans",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "ownerUid", "order": "ASCENDING" },
+        { "fieldPath": "nextDate", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "plans",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "memberEmails", "arrayConfig": "CONTAINS" },
+        { "fieldPath": "nextDate", "order": "ASCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

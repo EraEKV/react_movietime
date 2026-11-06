@@ -1,0 +1,78 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function uid() { return request.auth.uid; }
+    function email() { return request.auth.token.email.lower(); }
+    function verified() { return signedIn() && request.auth.token.email_verified == true; }
+
+    function isOwner(doc) { return signedIn() && doc.ownerUid == uid(); }
+    function isMember(doc) { return verified() && email() in doc.memberEmails; }
+    function isEditor(doc) { return verified() && doc.roles.get(email(), '') == 'editor'; }
+    function isPublic(doc) { return doc.visibility == 'link'; }
+    function canRead(doc) { return isOwner(doc) || isMember(doc) || isPublic(doc); }
+
+    function onlyChanges(keys) {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(keys);
+    }
+    // A member removes only themselves from roles and memberEmails.
+    function isLeaving() {
+      let me = [email()].toSet();
+      return isMember(resource.data)
+        && onlyChanges(['roles', 'memberEmails', 'updatedAt'])
+        && request.resource.data.memberEmails.toSet() == resource.data.memberEmails.toSet().difference(me)
+        && request.resource.data.roles.keys().toSet() == resource.data.roles.keys().toSet().difference(me);
+    }
+
+    // ---------- private user data ----------
+    match /users/{userId} {
+      allow read, write: if signedIn() && uid() == userId;
+
+      match /library/{mediaKey} {
+        allow read, write: if signedIn() && uid() == userId;
+      }
+      match /activity/{activityId} {
+        allow read, create: if signedIn() && uid() == userId;
+      }
+    }
+
+    // ---------- lists ----------
+    match /lists/{listId} {
+      allow read: if canRead(resource.data);
+      allow create: if isOwner(request.resource.data)
+        && request.resource.data.name is string
+        && request.resource.data.name.size() >= 1
+        && request.resource.data.name.size() <= 60;
+      allow update: if (isOwner(resource.data)
+                        && request.resource.data.ownerUid == resource.data.ownerUid)
+                    || (isEditor(resource.data) && onlyChanges(['itemCount', 'updatedAt']))
+                    || isLeaving();
+      allow delete: if isOwner(resource.data);
+
+      match /items/{mediaKey} {
+        function list() { return get(/databases/$(database)/documents/lists/$(listId)).data; }
+        allow read: if canRead(list());
+        allow write: if isOwner(list()) || isEditor(list());
+      }
+    }
+
+    // ---------- plans ----------
+    match /plans/{planId} {
+      allow read: if canRead(resource.data);
+      allow create: if isOwner(request.resource.data);
+      allow update: if (isOwner(resource.data)
+                        && request.resource.data.ownerUid == resource.data.ownerUid)
+                    || (isEditor(resource.data)
+                        && onlyChanges(['doneUnits', 'nextDate', 'endDate', 'status', 'updatedAt']))
+                    || isLeaving();
+      allow delete: if isOwner(resource.data);
+
+      match /sessions/{sessionId} {
+        function plan() { return get(/databases/$(database)/documents/plans/$(planId)).data; }
+        allow read: if canRead(plan());
+        allow write: if isOwner(plan()) || isEditor(plan());
+      }
+    }
+  }
+}

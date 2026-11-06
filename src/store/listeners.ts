@@ -1,5 +1,7 @@
 import { isAnyOf } from '@reduxjs/toolkit'
+import { onAuthChange, toAuthUser } from '../services/authService'
 import { savePreferences } from '../storage/preferencesStorage'
+import { authChanged } from './authSlice'
 import { startAppListening } from './listenerMiddleware'
 import {
   languageChanged,
@@ -7,7 +9,7 @@ import {
   systemThemeChanged,
   themeChanged,
 } from './preferencesSlice'
-import type { RootState } from './store'
+import type { AppDispatch, RootState } from './store'
 
 /** Puts preferences into the DOM: data-theme drives every colour token, lang drives fonts/a11y. */
 function applyToDocument(state: RootState) {
@@ -39,4 +41,15 @@ export function registerPreferenceListeners(getState: () => RootState) {
   })
 
   applyToDocument(getState())
+}
+
+/**
+ * Bridges Firebase Auth (an external system with its own event stream) into Redux.
+ * Subscribed once for the app's lifetime, so there is nothing to unsubscribe.
+ * Until the first callback, auth.status stays 'loading' and protected routes wait.
+ */
+export function startAuthSync(dispatch: AppDispatch) {
+  onAuthChange((user) => {
+    dispatch(authChanged(user ? toAuthUser(user) : null))
+  })
 }

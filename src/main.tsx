@@ -3,12 +3,13 @@ import { createRoot } from 'react-dom/client'
 import { Provider } from 'react-redux'
 import { BrowserRouter } from 'react-router'
 import App from './App'
-import { registerPreferenceListeners } from './store/listeners'
+import { registerPreferenceListeners, startAuthSync } from './store/listeners'
 import { store } from './store/store'
 import './styles/global.css'
 
 // Listeners are registered once, before the first render, and live as long as the store.
 registerPreferenceListeners(store.getState)
+startAuthSync(store.dispatch)
 
 const root = document.getElementById('root')
 if (!root) throw new Error('Missing #root element in index.html')

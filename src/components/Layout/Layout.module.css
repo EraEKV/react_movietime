@@ -131,6 +131,11 @@
   outline: none;
 }
 
+/* App-wide notices above the page (verify email); takes no space when there are none. */
+.notices:not(:empty) {
+  margin-bottom: var(--space-5);
+}
+
 @media (min-width: 1024px) {
   .main {
     padding-top: var(--space-10);

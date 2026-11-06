@@ -1,9 +1,11 @@
 import { configureStore } from '@reduxjs/toolkit'
+import authSlice from './authSlice'
 import { listenerMiddleware } from './listenerMiddleware'
 import preferencesSlice from './preferencesSlice'
 
 export const store = configureStore({
   reducer: {
+    [authSlice.name]: authSlice.reducer,
     [preferencesSlice.name]: preferencesSlice.reducer,
   },
   // The listener middleware goes first: its add/remove actions carry functions,

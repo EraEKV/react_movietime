@@ -36,7 +36,7 @@ Legend: ✅ implemented, 🚧 in progress.
 
 - ✅ **Watchlist** (midterm): add, edit, remove with undo, search, tabs, sort, pagination,
   saved in `localStorage` and synced across tabs.
-- 🚧 **Authentication**: email/password with validation and email verification, Google
+- ✅ **Authentication**: email/password with validation and email verification, Google
   sign-in, persistent session, protected routes.
 - 🚧 **Library**: your status, score, notes and episode progress for each title. Guests keep it
   locally, signed-in users in Firestore. The guest library is merged into your account on sign-in.
@@ -68,7 +68,7 @@ Legend: ✅ implemented, 🚧 in progress.
 ## Tech stack
 
 - **React 19** + **TypeScript** (strict) + **Vite**, **React Router** (declarative mode)
-- **Redux Toolkit**: global state; `preferences` with listener middleware ✅, `auth` and `library` 🚧
+- **Redux Toolkit**: global state; `preferences` with listener middleware ✅, `auth` ✅, `library` 🚧
 - **Firebase**: Authentication (email/password, Google), Cloud Firestore
 - **TMDB API** for movies and series
 - **CSS Modules** on design tokens (`styles/tokens.css`), dark and light themes via `data-theme`

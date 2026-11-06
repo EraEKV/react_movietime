@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { Outlet, useLocation } from 'react-router'
 import { useSystemThemeSync } from '../../hooks/useTheme'
+import VerifyEmailBanner from '../auth/VerifyEmailBanner'
 import Header from './Header'
 import styles from './Layout.module.css'
 import TabBar from './TabBar'
@@ -24,6 +25,9 @@ export default function Layout() {
 
       {/* tabIndex=-1 lets the skip link move focus here without adding a Tab stop. */}
       <main id="main" tabIndex={-1} className={styles.main}>
+        <div className={styles.notices}>
+          <VerifyEmailBanner />
+        </div>
         <Outlet />
       </main>
 

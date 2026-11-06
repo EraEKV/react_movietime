@@ -1,5 +1,6 @@
 import { Link, useLocation } from 'react-router'
 import { useTheme } from '../../hooks/useTheme'
+import UserMenu from '../auth/UserMenu'
 import { buttonClass } from '../Button/variants'
 import Icon from '../Icon/Icon'
 import IconButton from '../IconButton/IconButton'
@@ -8,7 +9,7 @@ import HeaderSearch from './HeaderSearch'
 import styles from './Layout.module.css'
 import { isNavItemActive, MAIN_NAV } from './navigation'
 
-/** Desktop (≥1024): logo, main nav, search, theme. Below: compact bar, nav moves to the TabBar. */
+/** Desktop (≥1024): logo, main nav, search, theme, account. Below: compact bar, nav moves to the TabBar. */
 export default function Header() {
   const { pathname } = useLocation()
   const { theme, toggleTheme } = useTheme()
@@ -49,6 +50,7 @@ export default function Header() {
             label={`Switch to ${nextTheme} theme`}
             onClick={toggleTheme}
           />
+          <UserMenu />
         </div>
       </div>
     </header>
