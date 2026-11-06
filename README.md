@@ -169,8 +169,7 @@ injects them for the real deployment. Steps, in order:
 7. `npm run build`
 
 The coverage report is uploaded as the `coverage` artifact of the run. `npm audit` reports
-high-severity advisories but does not fail the run. Dependabot opens weekly grouped updates
-for npm packages and GitHub Actions.
+high-severity advisories but does not fail the run. Dependencies are updated by hand.
 
 ### Local Firebase emulators (optional)
 

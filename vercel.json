@@ -11,8 +11,7 @@
       "ci/**": false,
       "build/**": false,
       "chore/**": false,
-      "perf/**": false,
-      "dependabot/**": false
+      "perf/**": false
     }
   }
 }

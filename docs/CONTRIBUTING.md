@@ -85,5 +85,5 @@ npm run typecheck && npm run lint && npx prettier --check --ignore-unknown $(git
   && npm run check:locales && npm test && npm run build
 ```
 
-Dependabot opens one grouped pull request per week for npm and one for GitHub Actions
-(`.github/dependabot.yml`). Vercel stays responsible for deployment.
+Dependencies are updated by hand; there is no Dependabot. Vercel stays responsible for
+deployment.
