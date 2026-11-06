@@ -7,7 +7,7 @@ How the app talks to its data sources. UI components never call `fetch`, Firesto
 pages / components
       │
       ▼
-hooks (useFetch, useLibrary, useLists, usePlanner, …)
+hooks (useFetch, useLibrary, useMyLists, usePlanner, …)
       │
       ├──► src/api/tmdb.ts          TMDB REST (read-only)
       ├──► src/services/*.ts        Firebase Auth + Firestore
@@ -15,8 +15,6 @@ hooks (useFetch, useLibrary, useLists, usePlanner, …)
                 │
 src/utils/*.ts  pure functions: normalization, filters, schedule, stats
 ```
-
-Status legend: ✅ exists (midterm), 🚧 planned for the end-term.
 
 Data shapes referenced here are defined in [DATA_MODEL.md](DATA_MODEL.md) and as TypeScript
 types in `src/types/`.
@@ -80,13 +78,13 @@ hard to use, and the names need no request.
 
 ## Firebase: `src/services/`
 
-### `firebase.ts` 🚧
+### `firebase.ts`
 
 Initializes the app from `VITE_FIREBASE_*` env variables and exports `app`, `auth`, `db`.
 Firestore uses `persistentLocalCache({ tabManager: persistentMultipleTabManager() })` for
 offline support.
 
-### `authService.ts` 🚧
+### `authService.ts`
 
 | Function                                            | Returns         | Notes                                                                          |
 | --------------------------------------------------- | --------------- | ------------------------------------------------------------------------------ |
@@ -265,7 +263,7 @@ Thunks call the services above; reducers stay pure. The store only holds seriali
 | `useEpisodeRatings(id, seasons)`                        |   ✅   | Episode ratings for the heatmap                                                               |
 | `useCatalogFilters(mediaType)`                          |   ✅   | Filters, sort, page, size from the URL, plus setters                                          |
 | `useGenres(mediaType)`                                  |   ✅   | Genre list, id → name map, request `status` and `reload`                                      |
-| `useAuth()`                                             |   🚧   | `{ user, status, error }` from the store + sign-in/out actions                                |
+| `useAuth()`                                             |   ✅   | `{ user, status, error }` from the store + sign-in/out actions                                |
 | `useSubscription(key, subscribe)`                       |   ✅   | `{ status, data, error, retry }` for any realtime `watch*` listener (async subscribe allowed) |
 | `useLibrary()` / `useLibraryEntry(key)`                 |   ✅   | Entries, status, `isGuest` + `add`, `update`, `remove`, `restore`; guest storage or Firestore |
 | `useLibraryFilters()`                                   |   ✅   | Library search, status, type, genre, sort, page, view from the URL                            |
@@ -280,4 +278,4 @@ Thunks call the services above; reducers stay pure. The store only holds seriali
 | `useDashboardStats(period)`                             |   ✅   | Library stats (selector), genres, plan stats per section with `status` and `retry`            |
 | `useTheme()`                                            |   ✅   | Current value + setter                                                                        |
 | `useTmdbLanguage()`                                     |   ✅   | TMDB code of the UI language (`ru-RU`), part of every request key                             |
-| `useOnlineStatus()`                                     |   🚧   | `true` / `false` from `online` / `offline` events                                             |
+| `useOnlineStatus()`                                     |   ✅   | `true` / `false` from `online` / `offline` events                                             |
