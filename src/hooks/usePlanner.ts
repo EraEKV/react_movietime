@@ -75,9 +75,10 @@ type SessionsByPlan = Record<string, PlanSession[]>
  * each plan), combined into one result once every plan has answered. The key holds only
  * the plan ids and the range, so a plan's counters changing doesn't reopen the listeners.
  */
-function useSessionsOf(plans: Plan[] | null, from: string, to: string) {
+function useSessionsOf(plans: Plan[] | null, range: PlannerService.DayRange | null) {
   const ids = plans?.filter((p) => p.status !== 'archived').map((p) => p.id) ?? null
-  const key = ids && `sessions:${ids.toSorted().join(',')}:${from}:${to}`
+  const span = range ? `${range.from}:${range.to}` : 'all'
+  const key = ids && `sessions:${ids.toSorted().join(',')}:${span}`
   const sessions = useSubscription<SessionsByPlan>(key, async (onData, onError) => {
     const service = await loadPlannerService()
     const found: SessionsByPlan = {}
@@ -88,7 +89,7 @@ function useSessionsOf(plans: Plan[] | null, from: string, to: string) {
     const unsubscribes = ids.map((id) =>
       service.watchSessions(
         id,
-        { from, to },
+        range,
         (list) => {
           found[id] = list
           if (Object.keys(found).length === ids.length) onData({ ...found })
@@ -116,7 +117,7 @@ function useSessionsOf(plans: Plan[] | null, from: string, to: string) {
 export function useUpcoming() {
   const plans = usePlans()
   const today = localToday()
-  const sessions = useSessionsOf(plans.plans, today, addDays(today, 1))
+  const sessions = useSessionsOf(plans.plans, { from: today, to: addDays(today, 1) })
   return { plans, today, ...sessions }
 }
 
@@ -128,9 +129,21 @@ export function usePlanner(month: MonthRef) {
   const plans = usePlans()
   const grid = monthGrid(month)
   const today = localToday()
-  const visible = useSessionsOf(plans.plans, grid[0] ?? today, grid.at(-1) ?? today)
-  const todays = useSessionsOf(plans.plans, today, today)
+  const visible = useSessionsOf(plans.plans, { from: grid[0] ?? today, to: grid.at(-1) ?? today })
+  const todays = useSessionsOf(plans.plans, { from: today, to: today })
   return { plans, grid, today, visible, todays }
+}
+
+/**
+ * The dashboard: plans and ALL their sessions (no date range), because the period filter,
+ * "this week" and "upcoming" are all cut from the same list on the client. Plans hold tens
+ * of sessions, so this stays small, and switching the period reopens no listeners.
+ * Guests have no plans: usePlans stays idle and so does this.
+ */
+export function useDashboardPlans() {
+  const plans = usePlans()
+  const sessions = useSessionsOf(plans.plans, null)
+  return { plans, ...sessions }
 }
 
 export type PlanState =
