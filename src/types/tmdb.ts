@@ -54,6 +54,13 @@ export interface CastMember {
   character: string
 }
 
+export interface CrewMember {
+  credit_id: string
+  name: string
+  job: string
+  department: string
+}
+
 export interface Video {
   key: string
   name: string
@@ -95,6 +102,32 @@ export interface SeriesDetails extends SeriesSummary {
   credits: { cast: CastMember[] }
   videos: { results: Video[] }
   recommendations: Paginated<SeriesListItem>
+}
+
+/** /movie/{id}?append_to_response=credits,videos,recommendations */
+export interface MovieDetails {
+  id: number
+  title: string
+  original_title: string
+  tagline: string
+  overview: string
+  poster_path: string | null
+  backdrop_path: string | null
+  release_date: string
+  /** Minutes; 0 when unknown. */
+  runtime: number | null
+  status: string
+  /** US dollars; 0 when TMDB doesn't know. */
+  budget: number
+  revenue: number
+  vote_average: number
+  vote_count: number
+  original_language: string
+  genres: Genre[]
+  production_countries: { iso_3166_1: string; name: string }[]
+  credits: { cast: CastMember[]; crew: CrewMember[] }
+  videos: { results: Video[] }
+  recommendations: Paginated<MovieListItem>
 }
 
 export interface RawEpisode {

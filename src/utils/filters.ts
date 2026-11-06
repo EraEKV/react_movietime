@@ -102,7 +102,7 @@ export function toDiscoverParams(filters: SeriesFilters, page: number): Discover
   return {
     page,
     sortBy: sort.sortBy,
-    airedBefore: sort.airedBefore,
+    releasedBefore: sort.airedBefore,
     minVotes: Math.max(sort.minVotes ?? 0, ratingVotes) || undefined,
     genre: filters.genre,
     year: filters.year,

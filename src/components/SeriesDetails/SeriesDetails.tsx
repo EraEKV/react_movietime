@@ -28,7 +28,7 @@ export default function SeriesDetails({ seriesId }: { seriesId: string }) {
     error,
     reload,
   } = useFetch<SeriesDetailsData>(endpoints.seriesDetails(seriesId))
-  const { genresById } = useGenres()
+  const { genresById } = useGenres('tv')
 
   if (status === 'idle' || status === 'loading') return <DetailsSkeleton />
 

@@ -30,7 +30,7 @@ function wantsSearchFocus(state: unknown): boolean {
 export default function CatalogPage() {
   const { filters, query, page, activeCount, setFilter, setQuery, setPage, resetFilters } =
     useSeriesFilters()
-  const { genres, genresById } = useGenres()
+  const { genres, genresById } = useGenres('tv')
   // The header's mobile search button navigates here with { focusSearch: true }.
   const location = useLocation()
   const focusSearch = wantsSearchFocus(location.state)
