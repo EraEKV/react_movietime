@@ -225,5 +225,12 @@
   "notice": {
     "synced_one": "{{count}} title from this device synced to your account",
     "synced_other": "{{count}} titles from this device synced to your account"
+  },
+  "pwa": {
+    "status": "Offline",
+    "statusLabel": "You’re offline. Saved content is still available.",
+    "updateReady": "A new version of Movietime is ready.",
+    "reload": "Reload",
+    "offlineReady": "Ready to work offline."
   }
 }

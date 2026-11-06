@@ -9,6 +9,7 @@ import Icon from '../Icon/Icon'
 import IconButton from '../IconButton/IconButton'
 import Logo from '../Logo/Logo'
 import HeaderSearch from './HeaderSearch'
+import OfflinePill from '../Pwa/OfflinePill'
 import LanguageMenu from './LanguageMenu'
 import styles from './Layout.module.css'
 import { isNavItemActive, MAIN_NAV } from './navigation'
@@ -44,6 +45,7 @@ export default function Header() {
         </nav>
 
         <div className={styles.tools}>
+          <OfflinePill />
           {user && (
             <Suspense fallback={null}>
               <TonightChip />
