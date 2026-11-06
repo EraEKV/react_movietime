@@ -1,9 +1,10 @@
-import { endpoints, tmdbGet } from '../api/tmdb'
+import { endpoints, tmdbGet, withLanguage } from '../api/tmdb'
 import type { MediaSummary } from '../types/media'
 import type { MovieListItem, Paginated, SeriesListItem } from '../types/tmdb'
 import { fromMovie, fromSeries } from '../utils/media'
 import { useDebouncedValue } from './useDebouncedValue'
 import { useRequest } from './useRequest'
+import { useTmdbLanguage } from './useTmdbLanguage'
 
 const MIN_LENGTH = 2
 
@@ -25,12 +26,24 @@ function interleave(a: MediaSummary[], b: MediaSummary[]): MediaSummary[] {
  */
 export function useTitleSearch(query: string) {
   const debounced = useDebouncedValue(query.trim(), 350)
-  const key = debounced.length >= MIN_LENGTH ? debounced : null
+  const language = useTmdbLanguage()
+  const key = debounced.length >= MIN_LENGTH ? `${language}|${debounced}` : null
 
-  const state = useRequest(key, async (q, signal) => {
+  const state = useRequest(key, async (currentKey, signal) => {
+    const q = currentKey.slice(language.length + 1)
     const [movies, series] = await Promise.all([
-      tmdbGet<Paginated<MovieListItem>>(endpoints.searchMovies({ query: q }), { signal }),
-      tmdbGet<Paginated<SeriesListItem>>(endpoints.searchSeries({ query: q }), { signal }),
+      tmdbGet<Paginated<MovieListItem>>(
+        withLanguage(endpoints.searchMovies({ query: q }), language),
+        {
+          signal,
+        },
+      ),
+      tmdbGet<Paginated<SeriesListItem>>(
+        withLanguage(endpoints.searchSeries({ query: q }), language),
+        {
+          signal,
+        },
+      ),
     ])
     return interleave(movies.results.map(fromMovie), series.results.map(fromSeries))
   })

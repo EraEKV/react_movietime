@@ -1,3 +1,4 @@
+import i18n from '../i18n'
 import type { IconName } from '../components/Icon/icons'
 import type { ActivityItem } from '../types/activity'
 import { statusLabel } from './library'
@@ -26,23 +27,27 @@ export function describeActivity(item: ActivityItem): ActivityText {
     case 'library.add':
       return {
         icon: 'plus',
-        before: 'Added',
+        before: i18n.t('profile:feed.added'),
         title,
-        after: meta?.status ? `to ${statusLabel(meta.status)}` : 'to your library',
+        after: meta?.status
+          ? i18n.t('profile:feed.toStatus', { status: statusLabel(meta.status) })
+          : i18n.t('profile:feed.toLibrary'),
         href: titleHref(item.mediaKey),
       }
     case 'library.status':
       return {
         icon: 'bookmark',
-        before: 'Moved',
+        before: i18n.t('profile:feed.moved'),
         title,
-        after: meta?.status ? `to ${statusLabel(meta.status)}` : '',
+        after: meta?.status
+          ? i18n.t('profile:feed.toStatus', { status: statusLabel(meta.status) })
+          : '',
         href: titleHref(item.mediaKey),
       }
     case 'list.create':
       return {
         icon: 'list',
-        before: 'Created the list',
+        before: i18n.t('profile:feed.createdList'),
         title,
         after: '',
         href: item.refId ? `/lists/${item.refId}` : null,
@@ -50,11 +55,9 @@ export function describeActivity(item: ActivityItem): ActivityText {
     case 'plan.create':
       return {
         icon: 'calendar',
-        before: 'Planned',
+        before: i18n.t('profile:feed.planned'),
         title,
-        after: meta?.sessions
-          ? `· ${meta.sessions} ${meta.sessions === 1 ? 'session' : 'sessions'}`
-          : '',
+        after: meta?.sessions ? `· ${i18n.t('count.sessions', { count: meta.sessions })}` : '',
         href: planHref(item.refId),
       }
     case 'session.done':
@@ -62,14 +65,16 @@ export function describeActivity(item: ActivityItem): ActivityText {
       return item.mediaKey
         ? {
             icon: 'check',
-            before: meta?.units ? `Watched ${meta.units} of` : 'Watched a session of',
+            before: meta?.units
+              ? i18n.t('profile:feed.watchedUnits', { units: meta.units })
+              : i18n.t('profile:feed.watchedSession'),
             title,
             after: '',
             href: planHref(item.refId),
           }
         : {
             icon: 'check',
-            before: 'Watched',
+            before: i18n.t('profile:feed.watched'),
             title,
             after: meta?.units ? `· ${meta.units}` : '',
             href: planHref(item.refId),
@@ -77,7 +82,7 @@ export function describeActivity(item: ActivityItem): ActivityText {
     case 'plan.done':
       return {
         icon: 'heat',
-        before: 'Finished the plan',
+        before: i18n.t('profile:feed.finished'),
         title,
         after: '',
         href: planHref(item.refId),

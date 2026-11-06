@@ -1,3 +1,5 @@
+import i18n from '../i18n'
+import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router'
 import { imageUrl } from '../api/tmdb'
@@ -26,7 +28,7 @@ import { useSharing } from '../hooks/useSharing'
 import { useTimedState } from '../hooks/useTimedState'
 import type { Plan, PlanRole, PlanSession } from '../types/plan'
 import { addDays, formatDay, localToday, weekStart } from '../utils/calendar'
-import { OFFLINE_MESSAGE } from '../utils/listErrors'
+import { offlineMessage } from '../utils/listErrors'
 import { noticeFromState } from '../utils/notice'
 import {
   canEditSessions,
@@ -37,7 +39,8 @@ import {
 } from '../utils/planner'
 import { loginPath } from '../utils/redirect'
 import { toIcs, unitsLabel } from '../utils/schedule'
-import { memberName, membersOf, ROLE_LABELS, shareUrl } from '../utils/sharing'
+import { memberName, membersOf, roleLabel, shareUrl } from '../utils/sharing'
+import type { MemberRole } from '../types/sharing'
 import NotFoundPage from './NotFoundPage'
 import styles from './PlanPage.module.css'
 
@@ -52,10 +55,10 @@ function weekLabel(monday: string, today: string): string {
   const sunday = addDays(monday, 6)
   const range = `${formatDay(monday, { month: 'short', day: 'numeric' })}–${formatDay(sunday, monday.slice(5, 7) === sunday.slice(5, 7) ? { day: 'numeric' } : { month: 'short', day: 'numeric' })}`
   const thisWeek = weekStart(today)
-  if (monday === thisWeek) return `This week · ${range}`
-  if (monday === addDays(thisWeek, 7)) return `Next week · ${range}`
-  if (monday === addDays(thisWeek, -7)) return `Last week · ${range}`
-  return `Week of ${range}`
+  if (monday === thisWeek) return i18n.t('planner:plan.thisWeek', { range })
+  if (monday === addDays(thisWeek, 7)) return i18n.t('planner:plan.nextWeek', { range })
+  if (monday === addDays(thisWeek, -7)) return i18n.t('planner:plan.lastWeek', { range })
+  return i18n.t('planner:plan.weekOf', { range })
 }
 
 function downloadIcs(plan: Plan, sessions: PlanSession[]) {
@@ -86,6 +89,7 @@ function downloadIcs(plan: Plan, sessions: PlanSession[]) {
 }
 
 function PlanView({ id }: { id: string }) {
+  const { t } = useTranslation(['planner', 'common', 'lists'])
   const location = useLocation()
   const navigate = useNavigate()
   const { user } = useAuth()
@@ -115,18 +119,18 @@ function PlanView({ id }: { id: string }) {
   }
   if (state.status === 'missing') {
     const hint = !user
-      ? ' If it was shared with you, sign in with the invited email.'
+      ? t('lists:page.hintGuest')
       : !user.emailVerified
-        ? ' If it was shared with you, confirm your email first: shared access needs a verified address.'
+        ? t('lists:page.hintUnverified')
         : ''
     return (
       <NotFoundPage
-        title="This plan doesn’t exist"
-        text={`It may have been deleted, or the link is wrong. Private plans open only for their owner and members.${hint}`}
+        title={t('plan.missingTitle')}
+        text={`${t('plan.missingBody')}${hint}`}
         secondary={
           user
-            ? { to: '/planner', label: 'Go to planner', icon: 'calendar' }
-            : { to: loginPath(location.pathname), label: 'Sign in', icon: 'user' }
+            ? { to: '/planner', label: t('plan.goPlanner'), icon: 'calendar' }
+            : { to: loginPath(location.pathname), label: t('plan.signIn'), icon: 'user' }
         }
       />
     )
@@ -134,11 +138,7 @@ function PlanView({ id }: { id: string }) {
   if (state.status === 'error') {
     return (
       <div className={styles.page}>
-        <ErrorState
-          title="We couldn’t load this plan"
-          body={state.error.message}
-          onRetry={state.retry}
-        />
+        <ErrorState title={t('plan.loadError')} body={state.error.message} onRetry={state.retry} />
       </div>
     )
   }
@@ -156,12 +156,15 @@ function PlanView({ id }: { id: string }) {
     )
 
   async function handleDelete() {
-    if (!navigator.onLine) return setDeleteError(OFFLINE_MESSAGE)
+    if (!navigator.onLine) return setDeleteError(offlineMessage())
     setDeleting(true)
     setDeleteError(null)
     try {
       await (await loadPlannerService()).deletePlan(plan.id)
-      navigate('/planner', { replace: true, state: { notice: `Deleted “${plan.title}”` } })
+      navigate('/planner', {
+        replace: true,
+        state: { notice: t('plan.deleted', { title: plan.title }) },
+      })
     } catch (error) {
       setDeleting(false)
       setDeleteError(planErrorMessage(error))
@@ -169,12 +172,15 @@ function PlanView({ id }: { id: string }) {
   }
 
   async function handleLeave() {
-    if (!navigator.onLine) return setLeaveError(OFFLINE_MESSAGE)
+    if (!navigator.onLine) return setLeaveError(offlineMessage())
     setLeaving(true)
     setLeaveError(null)
     try {
       await sharing.leave()
-      navigate('/planner', { replace: true, state: { notice: `You left “${plan.title}”` } })
+      navigate('/planner', {
+        replace: true,
+        state: { notice: t('plan.left', { title: plan.title }) },
+      })
     } catch (error) {
       setLeaving(false)
       setLeaveError(planErrorMessage(error))
@@ -203,18 +209,18 @@ function PlanView({ id }: { id: string }) {
     actionsBar = (
       <>
         <Button variant="primary" icon="share" onClick={() => setShareOpen(true)}>
-          Share
+          {t('plan.share')}
         </Button>
         <Button
           icon="download"
           disabled={!sessions}
           onClick={() => sessions && downloadIcs(plan, sessions)}
         >
-          Export .ics
+          {t('plan.export')}
         </Button>
         <IconButton
           icon="trash"
-          label="Delete plan"
+          label={t('plan.delete')}
           variant="secondary"
           onClick={() => setConfirmDelete(true)}
         />
@@ -228,17 +234,17 @@ function PlanView({ id }: { id: string }) {
           disabled={!sessions}
           onClick={() => sessions && downloadIcs(plan, sessions)}
         >
-          Export .ics
+          {t('plan.export')}
         </Button>
         {(role === 'editor' || role === 'viewer') && (
           <Menu
-            label="More plan actions"
+            label={t('plan.more')}
             align="right"
             triggerClassName={buttonClass('secondary', 'md', { iconOnly: true })}
             trigger={<Icon name="more" size={20} />}
             items={[
               {
-                label: 'Leave plan',
+                label: t('plan.leave'),
                 icon: 'logout',
                 danger: true,
                 onSelect: () => setConfirmLeave(true),
@@ -254,7 +260,7 @@ function PlanView({ id }: { id: string }) {
   if (state.sessionsError) {
     body = (
       <ErrorState
-        title="We couldn’t load the sessions"
+        title={t('plan.sessionsError')}
         body={state.sessionsError.message}
         onRetry={state.retry}
         headingLevel="h3"
@@ -282,11 +288,11 @@ function PlanView({ id }: { id: string }) {
                   canUndo={s.status === 'done' || pendingCopy(s)}
                   onComplete={act(
                     () => actions.complete(plan, s),
-                    `Marked ${unitsLabel(s.units)} as watched`,
+                    t('plan.marked', { units: unitsLabel(s.units) }),
                   )}
                   onSkip={act(
                     () => actions.skip(plan, s),
-                    `Skipped ${unitsLabel(s.units)}: moved to the end`,
+                    t('plan.skippedToast', { units: unitsLabel(s.units) }),
                     // Undo needs the skipped state, which the snapshot brings; the service
                     // re-reads sessions, so passing the old object with the new status is enough.
                     () => actions.undo(plan, { ...s, status: 'skipped' }),
@@ -304,27 +310,19 @@ function PlanView({ id }: { id: string }) {
 
   return (
     <article className={styles.page} aria-labelledby="plan-title">
-      <title>{`${plan.title} · Movietime`}</title>
+      <title>{t('common:ui.pageTitle', { title: plan.title })}</title>
       <ButtonLink
         to={user ? '/planner' : '/'}
         variant="ghost"
         icon="chevron-left"
         className={styles.back}
       >
-        {user ? 'Planner' : 'Home'}
+        {user ? t('plan.backPlanner') : t('plan.backHome')}
       </ButtonLink>
 
-      {role === 'viewer' && (
-        <Banner>
-          You can view this plan. Ask {plan.ownerName} for editor access to mark sessions.
-        </Banner>
-      )}
+      {role === 'viewer' && <Banner>{t('plan.viewerBanner', { owner: plan.ownerName })}</Banner>}
       {role === 'link' && (
-        <Banner>
-          {user
-            ? 'You’re viewing a shared plan. Only its members can mark sessions.'
-            : 'You’re viewing a shared plan. Sign in if it was shared with you.'}
-        </Banner>
+        <Banner>{user ? t('plan.linkBannerUser') : t('plan.linkBannerGuest')}</Banner>
       )}
 
       <header className={styles.header}>
@@ -343,7 +341,9 @@ function PlanView({ id }: { id: string }) {
               aria-hidden="true"
             />
             <span className={styles.kicker}>
-              Watch plan · {scheduleLabel(plan.options.weekdays, plan.options.time)}
+              {t('plan.kicker', {
+                schedule: scheduleLabel(plan.options.weekdays, plan.options.time),
+              })}
             </span>
           </span>
           <h1 id="plan-title" className={styles.title}>
@@ -352,12 +352,14 @@ function PlanView({ id }: { id: string }) {
           <div className={styles.progress}>
             <ProgressBar
               value={progress}
-              label="Plan progress"
-              caption={`${plan.doneUnits} of ${unitWord(plan, plan.totalUnits)} watched · ${
-                plan.status === 'done'
-                  ? 'finished'
-                  : `finishes ${plan.endDate ? formatDay(plan.endDate, { weekday: 'short', month: 'short', day: 'numeric' }) : '—'}`
-              }`}
+              label={t('plan.progress')}
+              caption={t(plan.status === 'done' ? 'plan.captionDone' : 'plan.captionOpen', {
+                done: plan.doneUnits,
+                total: unitWord(plan, plan.totalUnits),
+                date: plan.endDate
+                  ? formatDay(plan.endDate, { weekday: 'short', month: 'short', day: 'numeric' })
+                  : '—',
+              })}
             />
           </div>
           <div className={styles.meta}>
@@ -376,8 +378,8 @@ function PlanView({ id }: { id: string }) {
         <EmptyState
           icon="check"
           headingLevel="h2"
-          title="Plan finished"
-          body={`Every session is done${plan.kind === 'series' ? '. New episodes? Plan the next season.' : '.'}`}
+          title={t('plan.finishedTitle')}
+          body={t(plan.kind === 'series' ? 'plan.finishedSeries' : 'plan.finishedBody')}
           actions={
             role !== 'link' && plan.kind === 'series' && plan.media ? (
               <ButtonLink
@@ -385,7 +387,7 @@ function PlanView({ id }: { id: string }) {
                 variant="primary"
                 icon="plus"
               >
-                Plan next season
+                {t('plan.next')}
               </ButtonLink>
             ) : undefined
           }
@@ -404,7 +406,10 @@ function PlanView({ id }: { id: string }) {
             try {
               await actions.reschedule(plan, moving, date, shiftLater)
               showToast({
-                text: `Moved ${unitsLabel(moving.units)} to ${formatDay(date, { weekday: 'short', month: 'short', day: 'numeric' })}`,
+                text: t('plan.moved', {
+                  units: unitsLabel(moving.units),
+                  date: formatDay(date, { weekday: 'short', month: 'short', day: 'numeric' }),
+                }),
               })
             } catch (error) {
               throw new Error(planErrorMessage(error), { cause: error })
@@ -436,11 +441,11 @@ function PlanView({ id }: { id: string }) {
       <Dialog
         open={confirmDelete}
         onClose={() => !deleting && setConfirmDelete(false)}
-        title="Delete this plan?"
+        title={t('plan.deleteTitle')}
         footer={
           <>
             <Button variant="ghost" onClick={() => setConfirmDelete(false)} disabled={deleting}>
-              Keep plan
+              {t('plan.keep')}
             </Button>
             <Button
               variant="danger-solid"
@@ -448,17 +453,20 @@ function PlanView({ id }: { id: string }) {
               loading={deleting}
               onClick={() => void handleDelete()}
             >
-              Delete plan
+              {t('plan.delete')}
             </Button>
           </>
         }
       >
         <p>
-          All {sessions?.length ?? ''} sessions will be removed
           {plan.memberEmails.length > 0
-            ? ` for you and ${plan.memberEmails.length} other ${plan.memberEmails.length === 1 ? 'member' : 'members'}`
-            : ''}
-          . Library progress stays.
+            ? t('plan.deleteBodyShared', {
+                sessions: t('common:count.sessions', { count: sessions?.length ?? 0 }),
+                members: t('members', { count: plan.memberEmails.length }),
+              })
+            : t('plan.deleteBody', {
+                sessions: t('common:count.sessions', { count: sessions?.length ?? 0 }),
+              })}
         </p>
         {deleteError && (
           <Banner tone="warning" icon="alert">
@@ -470,11 +478,11 @@ function PlanView({ id }: { id: string }) {
       <Dialog
         open={confirmLeave}
         onClose={() => !leaving && setConfirmLeave(false)}
-        title={`Leave “${plan.title}”?`}
+        title={t('plan.leaveTitle', { title: plan.title })}
         footer={
           <>
             <Button variant="ghost" onClick={() => setConfirmLeave(false)} disabled={leaving}>
-              Cancel
+              {t('common:actions.cancel')}
             </Button>
             <Button
               variant="danger-solid"
@@ -482,15 +490,12 @@ function PlanView({ id }: { id: string }) {
               loading={leaving}
               onClick={() => void handleLeave()}
             >
-              Leave plan
+              {t('plan.leave')}
             </Button>
           </>
         }
       >
-        <p>
-          You’ll lose access to this plan. Your own library progress stays. To come back, ask{' '}
-          {plan.ownerName} to invite you again.
-        </p>
+        <p>{t('plan.leaveBody', { owner: plan.ownerName })}</p>
         {leaveError && (
           <Banner tone="warning" icon="alert">
             {leaveError}
@@ -501,7 +506,8 @@ function PlanView({ id }: { id: string }) {
       {toast && (
         <Toast
           icon={toast.undo ? undefined : toast.error ? 'alert' : 'check'}
-          actionLabel={toast.undo ? 'Undo' : undefined}
+          actionLabel={toast.undo ? t('common:actions.undo') : undefined}
+          actionIcon="undo"
           onAction={() => {
             toast.undo?.()
             hideToast()
@@ -521,20 +527,28 @@ function firstMoviePoster(sessions: PlanSession[] | null) {
 
 function peopleLine(
   ownerName: string,
-  members: { email: string; role: keyof typeof ROLE_LABELS }[],
+  members: { email: string; role: MemberRole }[],
   role: PlanRole,
 ): string {
-  if (role === 'link') return `by ${ownerName}`
-  const shown = members
-    .slice(0, 3)
-    .map((m) => `${memberName(m.email)} (${ROLE_LABELS[m.role].toLowerCase()})`)
+  if (role === 'link') return i18n.t('lists:page.byOwner', { owner: ownerName })
+  const shown = members.slice(0, 3).map((m) =>
+    i18n.t('lists:page.memberRole', {
+      name: memberName(m.email),
+      role: roleLabel(m.role).toLowerCase(),
+    }),
+  )
   const more = members.length - shown.length
-  return [`Owner: ${ownerName}`, ...shown, ...(more > 0 ? [`${more} more`] : [])].join(' · ')
+  return [
+    i18n.t('lists:page.owner', { owner: ownerName }),
+    ...shown,
+    ...(more > 0 ? [i18n.t('lists:page.more', { count: more })] : []),
+  ].join(' · ')
 }
 
 function WeeksSkeleton() {
+  const { t } = useTranslation('planner')
   return (
-    <div className={styles.weeks} aria-busy="true" aria-label="Loading sessions">
+    <div className={styles.weeks} aria-busy="true" aria-label={t('plan.loadingSessions')}>
       {[0, 1].map((w) => (
         <div key={w} className={styles.week}>
           <Skeleton width={160} height={16} />
@@ -548,8 +562,9 @@ function WeeksSkeleton() {
 }
 
 function PlanSkeleton() {
+  const { t } = useTranslation('planner')
   return (
-    <section className={styles.page} aria-busy="true" aria-label="Loading plan">
+    <section className={styles.page} aria-busy="true" aria-label={t('plan.loading')}>
       <div className={styles.header}>
         <Skeleton width={112} ratio="2 / 3" radius="sm" />
         <div className={styles.heading}>

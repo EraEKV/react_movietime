@@ -14,3 +14,6 @@ interface ImportMetaEnv {
 interface ImportMeta {
   readonly env: ImportMetaEnv
 }
+
+/** Set by vite.config.ts: changes on every build, used to bust the cache of /locales files. */
+declare const __BUILD_ID__: string

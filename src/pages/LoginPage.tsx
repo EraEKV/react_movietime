@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { useEffect, useState, type FormEvent } from 'react'
 import { Link, useLocation } from 'react-router'
 import styles from '../components/auth/AuthLayout.module.css'
@@ -12,6 +13,7 @@ import { errorField } from '../utils/firebaseErrors'
 import { validateEmail, validatePassword } from '../utils/validation'
 
 export default function LoginPage() {
+  const { t } = useTranslation('auth')
   const { search } = useLocation()
   const { signIn, pending, error, clearError } = useAuth()
   const [resetOpen, setResetOpen] = useState(false)
@@ -42,31 +44,31 @@ export default function LoginPage() {
 
   return (
     <>
-      <title>Sign in · Movietime</title>
+      <title>{t('login.pageTitle')}</title>
       <div className={styles.heading}>
-        <h1 className={styles.title}>Welcome back</h1>
-        <p className={styles.subtitle}>Sign in to sync your library and plans.</p>
+        <h1 className={styles.title}>{t('login.title')}</h1>
+        <p className={styles.subtitle}>{t('login.subtitle')}</p>
       </div>
 
       {error && !serverField && <Banner tone="warning">{error.message}</Banner>}
 
       <GoogleButton />
-      <div className={styles.divider}>or with email</div>
+      <div className={styles.divider}>{t('orEmail')}</div>
 
       <form className={styles.form} onSubmit={handleSubmit} noValidate>
         <TextField
-          label="Email"
+          label={t('email')}
           type="email"
           value={form.values.email}
           onChange={(value) => change('email', value)}
           onBlur={() => form.blur('email')}
           error={fieldError('email')}
           autoComplete="email"
-          placeholder="you@example.com"
+          placeholder={t('emailPlaceholder')}
         />
         <div className={styles.passwordGroup}>
           <TextField
-            label="Password"
+            label={t('password')}
             type="password"
             value={form.values.password}
             onChange={(value) => change('password', value)}
@@ -79,7 +81,7 @@ export default function LoginPage() {
             className={`${styles.link} ${styles.forgot}`}
             onClick={() => setResetOpen(true)}
           >
-            Forgot password?
+            {t('login.forgot')}
           </button>
         </div>
         <Button
@@ -90,15 +92,15 @@ export default function LoginPage() {
           loading={pending === 'email'}
           disabled={pending !== null}
         >
-          Sign in
+          {t('login.submit')}
         </Button>
       </form>
 
       <p className={styles.footer}>
-        New to Movietime?
+        {t('login.newHere')}
         {/* Keeps ?redirect= so signing up also returns the user where they were going. */}
         <Link to={`/signup${search}`} className={styles.link}>
-          Create an account
+          {t('login.create')}
         </Link>
       </p>
 

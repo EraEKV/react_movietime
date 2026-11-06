@@ -11,3 +11,10 @@
   white-space: nowrap;
   border-radius: var(--radius-sm);
 }
+
+/* Phones: the mark alone, so the header keeps room for search, theme, language and sign-in. */
+@media (max-width: 419px) {
+  .word {
+    display: none;
+  }
+}

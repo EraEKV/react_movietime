@@ -1,5 +1,6 @@
+import { useTranslation } from 'react-i18next'
 import { imageUrl } from '../../api/tmdb'
-import { episodeCode, formatDate, formatNumber } from '../../utils/format'
+import { episodeCode, formatDate, formatRuntime } from '../../utils/format'
 import type { Episode } from '../../hooks/useEpisodeRatings'
 import IconButton from '../IconButton/IconButton'
 import RatingBadge from '../RatingBadge/RatingBadge'
@@ -11,11 +12,12 @@ interface EpisodePanelProps {
 }
 
 export default function EpisodePanel({ episode, onClose }: EpisodePanelProps) {
+  const { t } = useTranslation('catalog')
   const still = imageUrl(episode.still, 'w300')
   const meta = [
     formatDate(episode.airDate),
-    episode.runtime && `${episode.runtime} min`,
-    episode.votes > 0 && `${formatNumber(episode.votes)} votes`,
+    formatRuntime(episode.runtime),
+    episode.votes > 0 && t('heatmap.votes', { count: episode.votes }),
   ].filter(Boolean)
 
   return (
@@ -28,9 +30,9 @@ export default function EpisodePanel({ episode, onClose }: EpisodePanelProps) {
           <RatingBadge value={episode.rating} />
           <span>{meta.join(' · ')}</span>
         </div>
-        <p className={styles.overview}>{episode.overview || 'No overview available.'}</p>
+        <p className={styles.overview}>{episode.overview || t('heatmap.noOverview')}</p>
       </div>
-      <IconButton icon="x" label="Close episode" className={styles.close} onClick={onClose} />
+      <IconButton icon="x" label={t('heatmap.close')} className={styles.close} onClick={onClose} />
     </div>
   )
 }

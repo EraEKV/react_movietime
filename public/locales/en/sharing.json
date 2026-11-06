@@ -1,0 +1,58 @@
+{
+  "share": {
+    "title": "Share “{{name}}”",
+    "done": "Done",
+    "linkSection": "Share link",
+    "linkSwitch": "Anyone with the link can view",
+    "linkHint": "Read-only. Visitors can copy it to their own lists after signing in.",
+    "copyManual": "Press Ctrl+C (⌘C on Mac) to copy.",
+    "copy": "Copy",
+    "copied": "Copied",
+    "linkCopied": "Link copied",
+    "inviteLabel": "Invite by email",
+    "invitePlaceholder": "friend@example.com",
+    "role": "Role",
+    "invite": "Invite",
+    "inviteNote": "Your friend gets access after signing in to Movietime with this exact email and confirming it.",
+    "offline": "You’re offline. Connect to send the invite.",
+    "people": "People with access",
+    "you": "{{name}} (you)",
+    "access": "Access for {{email}}: {{role}}",
+    "removeAccess": "Remove access",
+    "emptyLink": "No one is invited yet. Anyone with the link can view.",
+    "emptyPrivate": "Only you have access.",
+    "removed": "Removed access for {{email}}",
+    "errorOwner": "Only the owner can change who has access.",
+    "errorSave": "We couldn’t save that. Check your connection and try again."
+  },
+  "invite": {
+    "enterEmail": "Enter your friend’s email.",
+    "fullEmail": "Enter a full email address, like name@example.com.",
+    "ownEmail": "That’s your email — you’re the owner.",
+    "already": "They already have access. Change their role in the list below.",
+    "max_one": "You can share with up to {{count}} person.",
+    "max_other": "You can share with up to {{count}} people."
+  },
+  "add": {
+    "title": "Add titles to “{{name}}”",
+    "search": "Search movies and series",
+    "tooShort": "Type at least two letters to search movies and series.",
+    "searching": "Searching",
+    "failed": "Search failed: {{message}}",
+    "nothing": "Nothing found for “{{query}}”.",
+    "results": "Search results",
+    "already": "Already in list",
+    "submit": "Add titles",
+    "submitCount_one": "Add {{count}} title",
+    "submitCount_other": "Add {{count}} titles"
+  },
+  "addTo": {
+    "title": "Add “{{title}}” to a list",
+    "button": "Add to list",
+    "loadError": "We couldn’t load your lists. Check your connection and try again.",
+    "empty": "You don’t have any lists yet. Create one, then add “{{title}}” from here or from the list itself.",
+    "loading": "Loading lists",
+    "yourLists": "Your lists",
+    "new": "New list"
+  }
+}

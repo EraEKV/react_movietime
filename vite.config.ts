@@ -4,6 +4,8 @@ import { defineConfig } from 'vite'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+  // Dictionaries in public/locales keep their file names; this id goes into their URLs.
+  define: { __BUILD_ID__: JSON.stringify(Date.now().toString(36)) },
   build: {
     // The main chunk is ~420 kB (with the Redux library slice). The only chunk above Vite's default 500 kB is the Firestore SDK
     // (~535 kB), and it is not part of the first load: it comes with lazy pages and the sign-in

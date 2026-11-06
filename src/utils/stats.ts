@@ -1,3 +1,4 @@
+import i18n, { translatedOption } from '../i18n'
 // Dashboard numbers: pure functions over library entries and plan sessions.
 // No React, no Firestore — the page hands the data in, so every figure here can be
 // checked by hand (and in unit tests) from the same input.
@@ -11,9 +12,9 @@ import { LIBRARY_STATUSES } from './library'
 export type StatsPeriod = 'all' | '30d' | 'year'
 
 export const STATS_PERIODS: Option<StatsPeriod>[] = [
-  { value: 'all', label: 'All time' },
-  { value: '30d', label: '30 days' },
-  { value: 'year', label: 'This year' },
+  translatedOption('all', 'dashboard:periods.all'),
+  translatedOption('30d', 'dashboard:periods.30d'),
+  translatedOption('year', 'dashboard:periods.year'),
 ]
 
 /** Unknown values (an old link, a typo) fall back to all time. */
@@ -115,8 +116,8 @@ export function byStatus(entries: LibraryEntry[]): Bar<LibraryStatus>[] {
 export function byMediaType(entries: LibraryEntry[]): Bar<MediaType>[] {
   const series = entries.filter((e) => e.mediaType === 'tv').length
   return [
-    { value: 'tv', label: 'Series', count: series },
-    { value: 'movie', label: 'Movies', count: entries.length - series },
+    { value: 'tv', label: i18n.t('library:types.tv'), count: series },
+    { value: 'movie', label: i18n.t('library:types.movie'), count: entries.length - series },
   ]
 }
 
@@ -215,6 +216,8 @@ export function upcomingSessions(
 
 /** Minutes → "186" + "h", or "45" + "min" under an hour. */
 export function hoursValue(minutes: number): { value: string; unit: string } {
-  if (minutes > 0 && minutes < 60) return { value: String(minutes), unit: 'min' }
-  return { value: String(Math.round(minutes / 60)), unit: 'h' }
+  if (minutes > 0 && minutes < 60) {
+    return { value: String(minutes), unit: i18n.t('dashboard:units.min') }
+  }
+  return { value: String(Math.round(minutes / 60)), unit: i18n.t('dashboard:units.hour') }
 }

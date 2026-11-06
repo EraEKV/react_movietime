@@ -1,3 +1,5 @@
+import i18n from '../i18n'
+import { useTranslation } from 'react-i18next'
 import { useMemo, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router'
 import AddTitlesDialog from '../components/AddTitles/AddTitlesDialog'
@@ -25,11 +27,12 @@ import { loadListsService, useList, useListAuthor } from '../hooks/useLists'
 import { useSharing } from '../hooks/useSharing'
 import { useTimedState } from '../hooks/useTimedState'
 import type { ListItem, ListMedia, ListRole, TitleList } from '../types/list'
-import { listErrorMessage, OFFLINE_MESSAGE } from '../utils/listErrors'
+import { listErrorMessage, offlineMessage } from '../utils/listErrors'
 import { noticeFromState } from '../utils/notice'
 import { canEditItems, coversAfterAdd, coversOf, titlesCount } from '../utils/lists'
 import { loginPath } from '../utils/redirect'
-import { memberName, membersOf, ROLE_LABELS } from '../utils/sharing'
+import { memberName, membersOf, roleLabel } from '../utils/sharing'
+import type { MemberRole } from '../types/sharing'
 import NotFoundPage from './NotFoundPage'
 import styles from './ListPage.module.css'
 
@@ -48,6 +51,7 @@ export default function ListPage() {
 }
 
 function ListView({ id }: { id: string }) {
+  const { t } = useTranslation(['lists', 'common', 'library'])
   const location = useLocation()
   const navigate = useNavigate()
   const { user } = useAuth()
@@ -85,19 +89,15 @@ function ListView({ id }: { id: string }) {
   if (state.status === 'missing') {
     // The same page for "deleted", "wrong link" and "no access": a stranger can't tell them
     // apart. The hint covers the two cases where the visitor can fix it themselves.
-    const hint = !user
-      ? ' If it was shared with you, sign in with the invited email.'
-      : !user.emailVerified
-        ? ' If it was shared with you, confirm your email first: shared access needs a verified address.'
-        : ''
+    const hint = !user ? t('page.hintGuest') : !user.emailVerified ? t('page.hintUnverified') : ''
     return (
       <NotFoundPage
-        title="This list doesn’t exist"
-        text={`It may have been deleted, or the link is wrong. Private lists open only for their owner and members.${hint}`}
+        title={t('page.missingTitle')}
+        text={`${t('page.missingBody')}${hint}`}
         secondary={
           user
-            ? { to: '/lists', label: 'Go to lists', icon: 'list' }
-            : { to: loginPath(location.pathname), label: 'Sign in', icon: 'user' }
+            ? { to: '/lists', label: t('page.goLists'), icon: 'list' }
+            : { to: loginPath(location.pathname), label: t('page.signIn'), icon: 'user' }
         }
       />
     )
@@ -106,11 +106,7 @@ function ListView({ id }: { id: string }) {
   if (state.status === 'error') {
     return (
       <section className={styles.page}>
-        <ErrorState
-          title="We couldn’t load this list"
-          body={state.error.message}
-          onRetry={state.retry}
-        />
+        <ErrorState title={t('page.loadError')} body={state.error.message} onRetry={state.retry} />
       </section>
     )
   }
@@ -123,14 +119,14 @@ function ListView({ id }: { id: string }) {
 
   async function handleAdd(added: ListMedia[]) {
     if (!author) return
-    if (!navigator.onLine) throw new Error(OFFLINE_MESSAGE)
+    if (!navigator.onLine) throw new Error(offlineMessage())
     const service = await loadListsService()
     try {
       await service.addItems(list.id, added, author, coversAfterAdd(list.covers, added))
     } catch (error) {
       throw new Error(listErrorMessage(error), { cause: error })
     }
-    showToast({ text: `Added ${titlesCount(added.length)}` })
+    showToast({ text: t('page.added', { titles: titlesCount(added.length) }) })
   }
 
   function handleRemove(item: ListItem) {
@@ -138,7 +134,7 @@ function ListView({ id }: { id: string }) {
     void loadListsService().then((service) => {
       service.removeItem(list.id, item.key, coversOf(rest)).catch(reportFailure)
       showToast({
-        text: `Removed “${item.title}”`,
+        text: t('page.removed', { title: item.title }),
         undo: () =>
           void service.restoreItem(list.id, item, coversOf([...rest, item])).catch(reportFailure),
       })
@@ -150,18 +146,21 @@ function ListView({ id }: { id: string }) {
     void loadListsService().then((service) =>
       service
         .updateItemNote(list.id, item.key, note)
-        .then(() => showToast({ text: note ? 'Note saved' : 'Note removed' }))
+        .then(() => showToast({ text: t(note ? 'page.noteSaved' : 'page.noteRemoved') }))
         .catch(reportFailure),
     )
   }
 
   async function handleDelete() {
-    if (!navigator.onLine) return setDeleteError(OFFLINE_MESSAGE)
+    if (!navigator.onLine) return setDeleteError(offlineMessage())
     setDeleting(true)
     setDeleteError(null)
     try {
       await (await loadListsService()).deleteList(list.id)
-      navigate('/lists', { replace: true, state: { notice: `Deleted “${list.name}”` } })
+      navigate('/lists', {
+        replace: true,
+        state: { notice: t('page.deleted', { name: list.name }) },
+      })
     } catch (error) {
       setDeleting(false)
       setDeleteError(listErrorMessage(error))
@@ -169,12 +168,12 @@ function ListView({ id }: { id: string }) {
   }
 
   async function handleLeave() {
-    if (!navigator.onLine) return setLeaveError(OFFLINE_MESSAGE)
+    if (!navigator.onLine) return setLeaveError(offlineMessage())
     setLeaving(true)
     setLeaveError(null)
     try {
       await sharing.leave()
-      navigate('/lists', { replace: true, state: { notice: `You left “${list.name}”` } })
+      navigate('/lists', { replace: true, state: { notice: t('page.left', { name: list.name }) } })
     } catch (error) {
       setLeaving(false)
       setLeaveError(listErrorMessage(error))
@@ -183,11 +182,11 @@ function ListView({ id }: { id: string }) {
 
   async function handleCopy() {
     if (!author) return
-    if (!navigator.onLine) return showToast({ text: OFFLINE_MESSAGE })
+    if (!navigator.onLine) return showToast({ text: offlineMessage() })
     setCopying(true)
     try {
       const copyId = await (await loadListsService()).copyList(list, author)
-      navigate(`/lists/${copyId}`, { state: { notice: `Copied “${list.name}” to your lists` } })
+      navigate(`/lists/${copyId}`, { state: { notice: t('page.copied', { name: list.name }) } })
     } catch (error) {
       setCopying(false)
       showToast({ text: listErrorMessage(error) })
@@ -205,10 +204,10 @@ function ListView({ id }: { id: string }) {
     actions = (
       <>
         <Button variant="primary" icon="plus" onClick={() => setPicking(true)}>
-          Add titles
+          {t('page.addTitles')}
         </Button>
         <Button icon="share" onClick={() => setShareOpen(true)}>
-          Share
+          {t('page.share')}
         </Button>
         <OwnerMenu list={list} onDelete={() => setConfirmDelete(true)} />
       </>
@@ -218,7 +217,7 @@ function ListView({ id }: { id: string }) {
       <>
         {role === 'editor' && (
           <Button variant="primary" icon="plus" onClick={() => setPicking(true)}>
-            Add titles
+            {t('page.addTitles')}
           </Button>
         )}
         <MemberMenu onLeave={() => setConfirmLeave(true)} />
@@ -227,13 +226,13 @@ function ListView({ id }: { id: string }) {
   } else if (user) {
     actions = (
       <Button variant="primary" icon="copy" loading={copying} onClick={() => void handleCopy()}>
-        Copy to my lists
+        {t('page.copy')}
       </Button>
     )
   } else {
     actions = (
       <ButtonLink to={loginPath(location.pathname)} variant="primary" icon="copy">
-        Sign in to copy
+        {t('page.signInToCopy')}
       </ButtonLink>
     )
   }
@@ -242,32 +241,32 @@ function ListView({ id }: { id: string }) {
   if (state.itemsError) {
     body = (
       <ErrorState
-        title="We couldn’t load the titles"
+        title={t('page.itemsError')}
         body={state.itemsError.message}
         onRetry={state.retry}
         headingLevel="h3"
       />
     )
   } else if (!items) {
-    body = <SkeletonGrid count={6} label="Loading titles" />
+    body = <SkeletonGrid count={6} />
   } else if (items.length === 0) {
     body = editable ? (
       <EmptyState
         icon="plus"
-        title="Add the first title"
-        body="Search movies and series and pick as many as you like. Each can carry a short note."
+        title={t('page.emptyAddTitle')}
+        body={t('page.emptyAddBody')}
         headingLevel="h3"
         actions={
           <Button variant="primary" icon="plus" onClick={() => setPicking(true)}>
-            Add titles
+            {t('page.addTitles')}
           </Button>
         }
       />
     ) : (
       <EmptyState
         icon="list"
-        title="This list is empty"
-        body="Titles appear here when the owner or an editor adds them."
+        title={t('page.emptyTitle')}
+        body={t('page.emptyBody')}
         headingLevel="h3"
       />
     )
@@ -285,19 +284,11 @@ function ListView({ id }: { id: string }) {
 
   return (
     <article className={styles.page} aria-labelledby="list-title">
-      <title>{`${list.name} · Movietime`}</title>
+      <title>{t('page.pageTitle', { title: list.name })}</title>
 
-      {role === 'viewer' && (
-        <Banner>
-          You can view this list. Ask {list.ownerName} for editor access to add titles.
-        </Banner>
-      )}
+      {role === 'viewer' && <Banner>{t('page.viewerBanner', { owner: list.ownerName })}</Banner>}
       {role === 'link' && (
-        <Banner>
-          {user
-            ? 'You’re viewing a shared link. Copy it to your lists to make changes.'
-            : 'You’re viewing a shared link. Sign in to copy it to your lists.'}
-        </Banner>
+        <Banner>{user ? t('page.linkBannerUser') : t('page.linkBannerGuest')}</Banner>
       )}
 
       <header className={styles.header}>
@@ -333,12 +324,12 @@ function ListView({ id }: { id: string }) {
           </h2>
           {items && items.length > 0 && (
             <SegmentedControl
-              label="View"
+              label={t('page.view')}
               value={view}
               onChange={setView}
               options={[
-                { value: 'grid', label: 'Grid', icon: 'grid', hideLabel: true },
-                { value: 'rows', label: 'Rows', icon: 'rows', hideLabel: true },
+                { value: 'grid', label: t('page.grid'), icon: 'grid', hideLabel: true },
+                { value: 'rows', label: t('page.rows'), icon: 'rows', hideLabel: true },
               ]}
             />
           )}
@@ -366,11 +357,11 @@ function ListView({ id }: { id: string }) {
       <Dialog
         open={confirmDelete}
         onClose={() => !deleting && setConfirmDelete(false)}
-        title={`Delete “${list.name}”?`}
+        title={t('page.deleteTitle', { name: list.name })}
         footer={
           <>
             <Button variant="ghost" onClick={() => setConfirmDelete(false)} disabled={deleting}>
-              Cancel
+              {t('common:actions.cancel')}
             </Button>
             <Button
               variant="danger-solid"
@@ -378,15 +369,12 @@ function ListView({ id }: { id: string }) {
               loading={deleting}
               onClick={() => void handleDelete()}
             >
-              Delete list
+              {t('page.deleteConfirm')}
             </Button>
           </>
         }
       >
-        <p>
-          The list and its {titlesCount(list.itemCount)} will be deleted. Your library isn’t
-          affected.
-        </p>
+        <p>{t('page.deleteBody', { titles: titlesCount(list.itemCount) })}</p>
         {deleteError && (
           <Banner tone="warning" icon="alert">
             {deleteError}
@@ -417,11 +405,11 @@ function ListView({ id }: { id: string }) {
       <Dialog
         open={confirmLeave}
         onClose={() => !leaving && setConfirmLeave(false)}
-        title={`Leave “${list.name}”?`}
+        title={t('page.leaveTitle', { name: list.name })}
         footer={
           <>
             <Button variant="ghost" onClick={() => setConfirmLeave(false)} disabled={leaving}>
-              Cancel
+              {t('common:actions.cancel')}
             </Button>
             <Button
               variant="danger-solid"
@@ -429,14 +417,12 @@ function ListView({ id }: { id: string }) {
               loading={leaving}
               onClick={() => void handleLeave()}
             >
-              Leave list
+              {t('page.leaveConfirm')}
             </Button>
           </>
         }
       >
-        <p>
-          You’ll lose access to this list. To come back, ask {list.ownerName} to invite you again.
-        </p>
+        <p>{t('page.leaveBody', { owner: list.ownerName })}</p>
         {leaveError && (
           <Banner tone="warning" icon="alert">
             {leaveError}
@@ -447,7 +433,8 @@ function ListView({ id }: { id: string }) {
       {toast && (
         <Toast
           icon={toast.undo ? undefined : 'check'}
-          actionLabel={toast.undo ? 'Undo' : undefined}
+          actionLabel={toast.undo ? t('common:actions.undo') : undefined}
+          actionIcon="undo"
           onAction={() => {
             toast.undo?.()
             hideToast()
@@ -461,29 +448,31 @@ function ListView({ id }: { id: string }) {
 }
 
 function OwnerMenu({ list, onDelete }: { list: TitleList; onDelete: () => void }) {
+  const { t } = useTranslation('lists')
   return (
     <Menu
-      label="More list actions"
+      label={t('page.moreActions')}
       align="right"
       triggerClassName={buttonClass('secondary', 'md', { iconOnly: true })}
       trigger={<Icon name="more" size={20} />}
       items={[
-        { label: 'Edit list', icon: 'edit', to: `/lists/${list.id}/edit` },
+        { label: t('page.editList'), icon: 'edit', to: `/lists/${list.id}/edit` },
         { kind: 'divider' },
-        { label: 'Delete list', icon: 'trash', danger: true, onSelect: onDelete },
+        { label: t('page.deleteConfirm'), icon: 'trash', danger: true, onSelect: onDelete },
       ]}
     />
   )
 }
 
 function MemberMenu({ onLeave }: { onLeave: () => void }) {
+  const { t } = useTranslation('lists')
   return (
     <Menu
-      label="More list actions"
+      label={t('page.moreActions')}
       align="right"
       triggerClassName={buttonClass('secondary', 'md', { iconOnly: true })}
       trigger={<Icon name="more" size={20} />}
-      items={[{ label: 'Leave list', icon: 'logout', danger: true, onSelect: onLeave }]}
+      items={[{ label: t('page.leaveConfirm'), icon: 'logout', danger: true, onSelect: onLeave }]}
     />
   )
 }
@@ -491,20 +480,28 @@ function MemberMenu({ onLeave }: { onLeave: () => void }) {
 /** "Owner: Erasyl · dana (editor) · timur (viewer)", or just "by Erasyl" for a link visitor. */
 function peopleLine(
   ownerName: string,
-  members: { email: string; role: keyof typeof ROLE_LABELS }[],
+  members: { email: string; role: MemberRole }[],
   role: ListRole,
 ): string {
-  if (role === 'link') return `by ${ownerName}`
-  const shown = members
-    .slice(0, 3)
-    .map((m) => `${memberName(m.email)} (${ROLE_LABELS[m.role].toLowerCase()})`)
+  if (role === 'link') return i18n.t('lists:page.byOwner', { owner: ownerName })
+  const shown = members.slice(0, 3).map((m) =>
+    i18n.t('lists:page.memberRole', {
+      name: memberName(m.email),
+      role: roleLabel(m.role).toLowerCase(),
+    }),
+  )
   const more = members.length - shown.length
-  return [`Owner: ${ownerName}`, ...shown, ...(more > 0 ? [`${more} more`] : [])].join(' · ')
+  return [
+    i18n.t('lists:page.owner', { owner: ownerName }),
+    ...shown,
+    ...(more > 0 ? [i18n.t('lists:page.more', { count: more })] : []),
+  ].join(' · ')
 }
 
 function ListPageSkeleton() {
+  const { t } = useTranslation('lists')
   return (
-    <section className={styles.page} aria-busy="true" aria-label="Loading list">
+    <section className={styles.page} aria-busy="true" aria-label={t('page.loading')}>
       <div className={styles.header}>
         <Skeleton width={56} height={56} radius="md" />
         <div className={styles.heading}>

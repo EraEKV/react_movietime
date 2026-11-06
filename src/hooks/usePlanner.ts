@@ -7,7 +7,7 @@ import { normalizeEmail, roleOf } from '../utils/sharing'
 import { useAuth } from './useAuth'
 import { useListAuthor } from './useLists'
 import { useSubscription } from './useSubscription'
-import { OFFLINE_MESSAGE } from '../utils/listErrors'
+import { offlineMessage } from '../utils/listErrors'
 
 // Plans live in page hooks, not in Redux (like lists): only the planner pages, Home and the
 // header chip need them, and every Firestore listener closes with the component using it.
@@ -207,7 +207,7 @@ export function usePlan(id: string): PlanState {
 export function usePlanActions() {
   const author = useListAuthor()
   const run = async <T>(action: (service: typeof PlannerService) => Promise<T>) => {
-    if (!navigator.onLine) throw new Error(OFFLINE_MESSAGE)
+    if (!navigator.onLine) throw new Error(offlineMessage())
     return action(await loadPlannerService())
   }
   const by = () => {

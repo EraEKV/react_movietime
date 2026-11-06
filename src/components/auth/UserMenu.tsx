@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router'
 import { useAuth } from '../../hooks/useAuth'
 import { loginPath } from '../../utils/redirect'
@@ -8,6 +9,7 @@ import styles from './UserMenu.module.css'
 
 /** Header corner: avatar menu for a signed-in user, "Sign in" for a guest. */
 export default function UserMenu() {
+  const { t } = useTranslation()
   const { user, status, signOut } = useAuth()
   const { pathname, search } = useLocation()
   const navigate = useNavigate()
@@ -18,12 +20,12 @@ export default function UserMenu() {
   if (!user) {
     return (
       <ButtonLink to={loginPath(pathname + search)} variant="primary">
-        Sign in
+        {t('auth.signIn')}
       </ButtonLink>
     )
   }
 
-  const name = user.displayName || user.email || 'Account'
+  const name = user.displayName || user.email || t('auth.account')
 
   function handleSignOut() {
     // Leave first: on a protected page the guard would otherwise send us to /login.
@@ -33,7 +35,7 @@ export default function UserMenu() {
 
   return (
     <Menu
-      label={`Account: ${name}`}
+      label={t('auth.accountOf', { name })}
       triggerClassName={styles.trigger}
       trigger={<Avatar name={name} photoUrl={user.photoURL} size={32} />}
       align="right"
@@ -44,11 +46,11 @@ export default function UserMenu() {
         </>
       }
       items={[
-        { label: 'Profile', icon: 'user', to: '/profile' },
-        { label: 'Dashboard', icon: 'chart', to: '/dashboard' },
-        { label: 'Settings', icon: 'settings', to: '/profile/settings' },
+        { label: t('nav.profile'), icon: 'user', to: '/profile' },
+        { label: t('nav.dashboard'), icon: 'chart', to: '/dashboard' },
+        { label: t('nav.settings'), icon: 'settings', to: '/profile/settings' },
         { kind: 'divider' },
-        { label: 'Sign out', icon: 'logout', danger: true, onSelect: handleSignOut },
+        { label: t('auth.signOut'), icon: 'logout', danger: true, onSelect: handleSignOut },
       ]}
     />
   )

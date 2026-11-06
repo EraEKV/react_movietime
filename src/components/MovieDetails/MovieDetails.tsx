@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { ApiError, endpoints } from '../../api/tmdb'
 import { useFetch } from '../../hooks/useFetch'
 import { useGenres } from '../../hooks/useGenres'
@@ -5,7 +6,9 @@ import type { CrewMember, MovieDetails as MovieDetailsData } from '../../types/t
 import { formatDate, formatMoney, formatRuntime, getYear } from '../../utils/format'
 import { movieToLibraryMedia } from '../../utils/library'
 import { libraryToListMedia } from '../../utils/lists'
-import { fromMovie, pickTrailer } from '../../utils/media'
+import { useTmdbLanguage } from '../../hooks/useTmdbLanguage'
+import { languageName } from '../../utils/filters'
+import { fromMovie, overviewOf, pickTrailer, tmdbStatusLabel } from '../../utils/media'
 import AddToListButton from '../AddToList/AddToListButton'
 import BackButton from '../BackButton/BackButton'
 import ButtonLink from '../ButtonLink/ButtonLink'
@@ -22,8 +25,6 @@ import Trailer from '../Trailer/Trailer'
 const MAX_CAST = 12
 const MAX_RECOMMENDATIONS = 10
 
-const languageNames = new Intl.DisplayNames(['en'], { type: 'language' })
-
 /** Some movies have two directors (the Wachowskis), so join every "Director" credit. */
 function directorsOf(crew: CrewMember[]): string | null {
   const names = crew.filter((person) => person.job === 'Director').map((person) => person.name)
@@ -31,16 +32,19 @@ function directorsOf(crew: CrewMember[]): string | null {
 }
 
 export default function MovieDetails({ movieId }: { movieId: string }) {
+  const { t } = useTranslation('catalog')
   // One request: details + credits + videos + recommendations via append_to_response.
   const {
     status,
     data: movie,
     error,
     reload,
-  } = useFetch<MovieDetailsData>(endpoints.movieDetails(movieId))
+  } = useFetch<MovieDetailsData>(endpoints.movieDetails(movieId, useTmdbLanguage()))
   const { genresById } = useGenres('movie')
 
-  if (status === 'idle' || status === 'loading') return <DetailsSkeleton label="Loading movie" />
+  if (status === 'idle' || status === 'loading') {
+    return <DetailsSkeleton label={t('details.loadingMovie')} />
+  }
 
   if (status === 'error') {
     const notFound = error instanceof ApiError && error.status === 404
@@ -49,14 +53,12 @@ export default function MovieDetails({ movieId }: { movieId: string }) {
         <BackButton />
         <ErrorState
           icon={notFound ? 'film' : 'alert'}
-          title={notFound ? 'Movie not found' : 'We couldn’t load this movie'}
-          body={
-            notFound ? 'It may have been removed from TMDB, or the link is wrong.' : error.message
-          }
+          title={t(notFound ? 'details.movieNotFound' : 'details.movieError')}
+          body={notFound ? t('details.notFoundBody') : error.message}
           onRetry={notFound ? undefined : reload}
           secondary={
             <ButtonLink to="/movies" icon="compass">
-              Browse movies
+              {t('details.browseMovies')}
             </ButtonLink>
           }
         />
@@ -74,7 +76,7 @@ export default function MovieDetails({ movieId }: { movieId: string }) {
   return (
     <article>
       {/* React 19 hoists <title> into <head> — no document.title side effect needed. */}
-      <title>{`${movie.title} · Movietime`}</title>
+      <title>{t('details.pageTitle', { title: movie.title })}</title>
 
       <BackButton />
       <TitleHero
@@ -91,18 +93,16 @@ export default function MovieDetails({ movieId }: { movieId: string }) {
           getYear(movie.release_date),
           formatRuntime(movie.runtime),
           // "Released" is the normal case; only unusual statuses are worth a mention.
-          movie.status !== 'Released' && movie.status,
+          movie.status !== 'Released' && tmdbStatusLabel(movie.status),
         ]}
-        overview={movie.overview}
+        overview={overviewOf(movie)}
         facts={[
-          { label: 'Release date', value: formatDate(movie.release_date) ?? '' },
+          { label: t('details.releaseDate'), value: formatDate(movie.release_date) ?? '' },
           {
-            label: 'Original language',
-            value: movie.original_language
-              ? (languageNames.of(movie.original_language) ?? movie.original_language)
-              : '',
+            label: t('details.originalLanguage'),
+            value: movie.original_language ? languageName(movie.original_language) : '',
           },
-          { label: 'Country', value: countries },
+          { label: t('details.country'), value: countries },
         ].filter((fact) => fact.value)}
         actions={
           <>
@@ -113,33 +113,33 @@ export default function MovieDetails({ movieId }: { movieId: string }) {
       />
 
       <FactTiles
-        label="Key facts"
+        label={t('details.keyFacts')}
         facts={[
-          { label: 'Director', value: directorsOf(movie.credits.crew) },
-          { label: 'Budget', value: formatMoney(movie.budget) },
-          { label: 'Revenue', value: formatMoney(movie.revenue) },
-          { label: 'Runtime', value: formatRuntime(movie.runtime) },
+          { label: t('details.director'), value: directorsOf(movie.credits.crew) },
+          { label: t('details.budget'), value: formatMoney(movie.budget) },
+          { label: t('details.revenue'), value: formatMoney(movie.revenue) },
+          { label: t('details.runtime'), value: formatRuntime(movie.runtime) },
         ]}
       />
 
       {trailer && (
-        <Section title="Trailer">
+        <Section title={t('details.trailer')}>
           <Trailer video={trailer} title={movie.title} />
         </Section>
       )}
 
       {cast.length > 0 && (
-        <Section title="Cast">
+        <Section title={t('details.cast')}>
           <CastList cast={cast} />
         </Section>
       )}
 
       {recommendations.length > 0 && (
-        <Section title="You might also like">
+        <Section title={t('details.recommended')}>
           <MediaGrid
             items={recommendations}
             genresById={genresById}
-            label="Recommendations"
+            label={t('details.recommendations')}
             layout="row"
           />
         </Section>

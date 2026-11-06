@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { useState, type FormEvent } from 'react'
 import type { ListItem } from '../../types/list'
 import { LIST_NOTE_MAX } from '../../utils/lists'
@@ -13,6 +14,7 @@ interface NoteDialogProps {
 
 /** A short note on one item ("Perfect for Sunday night"). Mounted only while open. */
 export default function NoteDialog({ item, onSave, onClose }: NoteDialogProps) {
+  const { t } = useTranslation(['lists', 'common'])
   const [note, setNote] = useState(item.note)
   const tooLong = note.trim().length > LIST_NOTE_MAX
   const formId = `note-${item.key}`
@@ -28,27 +30,27 @@ export default function NoteDialog({ item, onSave, onClose }: NoteDialogProps) {
     <Dialog
       open
       onClose={onClose}
-      title={item.note ? 'Edit note' : 'Add note'}
+      title={t(item.note ? 'items.editNote' : 'items.addNote')}
       footer={
         <>
           <Button variant="ghost" onClick={onClose}>
-            Cancel
+            {t('common:actions.cancel')}
           </Button>
           <Button type="submit" form={formId} variant="primary" disabled={tooLong}>
-            Save note
+            {t('note.save')}
           </Button>
         </>
       }
     >
       <form id={formId} onSubmit={handleSubmit} noValidate>
         <Textarea
-          label={`Note for “${item.title}”`}
+          label={t('note.label', { title: item.title })}
           value={note}
           onChange={setNote}
           maxLength={LIST_NOTE_MAX}
-          error={tooLong ? `Keep the note under ${LIST_NOTE_MAX} characters.` : null}
+          error={tooLong ? t('note.tooLong', { max: LIST_NOTE_MAX }) : null}
           rows={3}
-          placeholder="Why is it on this list?"
+          placeholder={t('note.placeholder')}
           autoFocus
         />
       </form>

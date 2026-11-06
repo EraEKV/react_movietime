@@ -1,3 +1,6 @@
+import { currentLocale } from '../../i18n'
+import { formatDateWith } from '../../i18n/intl'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { useActivity } from '../../hooks/useActivity'
 import { describeActivity } from '../../utils/activity'
@@ -11,7 +14,8 @@ import SectionHeader from '../SectionHeader/SectionHeader'
 import Skeleton from '../Skeleton/Skeleton'
 import styles from './Profile.module.css'
 
-const fullDate = new Intl.DateTimeFormat('en-US', { dateStyle: 'medium', timeStyle: 'short' })
+const fullDate = (iso: string) =>
+  formatDateWith(new Date(iso), { dateStyle: 'medium', timeStyle: 'short' }, currentLocale())
 
 function FeedSkeleton() {
   return (
@@ -28,6 +32,7 @@ function FeedSkeleton() {
 
 /** The newest 20 things you did: added, moved, created, watched. Live from Firestore. */
 export default function ActivityFeed() {
+  const { t } = useTranslation('profile')
   const { status, data, error, retry } = useActivity()
   // One "now" per render, so every row is measured against the same moment.
   const now = new Date()
@@ -38,14 +43,14 @@ export default function ActivityFeed() {
       aria-labelledby="activity-title"
       aria-busy={status === 'loading'}
     >
-      <SectionHeader id="activity-title" title="Recent activity" />
+      <SectionHeader id="activity-title" title={t('activity.title')} />
 
       {(status === 'loading' || status === 'idle') && <FeedSkeleton />}
 
       {status === 'error' && (
         <ErrorState
           headingLevel="h3"
-          title="Couldn’t load your activity"
+          title={t('activity.error')}
           body={errorMessage(error)}
           onRetry={retry}
         />
@@ -55,11 +60,11 @@ export default function ActivityFeed() {
         <EmptyState
           headingLevel="h3"
           icon="clock"
-          title="No activity yet"
-          body="Titles you add, lists you create and sessions you watch will show up here."
+          title={t('activity.emptyTitle')}
+          body={t('activity.emptyBody')}
           actions={
             <ButtonLink to="/series" variant="primary" icon="compass">
-              Find something to watch
+              {t('activity.find')}
             </ButtonLink>
           }
         />
@@ -88,7 +93,7 @@ export default function ActivityFeed() {
                 <time
                   className={styles.rowTime}
                   dateTime={item.createdAt}
-                  title={fullDate.format(new Date(item.createdAt))}
+                  title={fullDate(item.createdAt)}
                 >
                   {relativeTime(item.createdAt, now)}
                 </time>

@@ -1,9 +1,10 @@
+import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
 import { useLibrary } from '../../hooks/useLibrary'
 import { useMyLists, useSharedLists } from '../../hooks/useLists'
 import { useTitleSearch } from '../../hooks/useTitleSearch'
 import type { SourcePick } from '../../hooks/usePlanSource'
-import { episodeCode, getYear, pluralize } from '../../utils/format'
+import { episodeCode, getYear } from '../../utils/format'
 import Banner from '../Banner/Banner'
 import ButtonLink from '../ButtonLink/ButtonLink'
 import ErrorState from '../EmptyState/ErrorState'
@@ -24,15 +25,16 @@ interface SourceStepProps {
 
 /** Step 1: a series (search or your library) or one of your lists. */
 export default function SourceStep({ kind, onKindChange, pick, onPick }: SourceStepProps) {
+  const { t } = useTranslation('planner')
   return (
     <div className={styles.stack}>
       <SegmentedControl
-        label="What to plan"
+        label={t('source.what')}
         value={kind}
         onChange={onKindChange}
         options={[
-          { value: 'series', label: 'A series', icon: 'tv' },
-          { value: 'list', label: 'A list of movies', icon: 'list' },
+          { value: 'series', label: t('source.series'), icon: 'tv' },
+          { value: 'list', label: t('source.list'), icon: 'list' },
         ]}
       />
       {kind === 'series' ? (
@@ -45,6 +47,7 @@ export default function SourceStep({ kind, onKindChange, pick, onPick }: SourceS
 }
 
 function SeriesPicker({ pick, onPick }: Pick<SourceStepProps, 'pick' | 'onPick'>) {
+  const { t } = useTranslation(['planner', 'common', 'library'])
   const [query, setQuery] = useState('')
   const search = useTitleSearch(query)
   const { entries } = useLibrary()
@@ -59,8 +62,9 @@ function SeriesPicker({ pick, onPick }: Pick<SourceStepProps, 'pick' | 'onPick'>
       pick: { kind: 'series', id: e.tmdbId, title: e.title, posterPath: e.posterPath } as const,
       description: [
         e.year,
-        'in your library',
-        e.progress && `last watched ${episodeCode(e.progress.season, e.progress.episode)}`,
+        t('source.inLibrary'),
+        e.progress &&
+          t('source.lastWatched', { code: episodeCode(e.progress.season, e.progress.episode) }),
       ]
         .filter(Boolean)
         .join(' · '),
@@ -74,18 +78,18 @@ function SeriesPicker({ pick, onPick }: Pick<SourceStepProps, 'pick' | 'onPick'>
           .slice(0, SHOWN)
           .map((m) => ({
             pick: { kind: 'series', id: m.id, title: m.title, posterPath: m.posterPath } as const,
-            description: getYear(m.date) ?? 'Series',
+            description: getYear(m.date) ?? t('library:series'),
           }))
       : []
   const choices = searching ? found : fromLibrary
   // The picked series stays visible even when it isn't in the current results.
   if (pick?.kind === 'series' && !choices.some((c) => c.pick.id === pick.id)) {
-    choices.unshift({ pick, description: 'Selected' })
+    choices.unshift({ pick, description: t('source.selected') })
   }
 
   const options: RadioCardOption<string>[] = choices.map((c) => ({
     value: String(c.pick.id),
-    label: c.pick.title || 'Selected series',
+    label: c.pick.title || t('source.selectedSeries'),
     description: c.description,
     icon: 'tv',
   }))
@@ -93,37 +97,35 @@ function SeriesPicker({ pick, onPick }: Pick<SourceStepProps, 'pick' | 'onPick'>
   return (
     <>
       <TextField
-        label="Search series"
+        label={t('source.search')}
         hideLabel
         icon="search"
         type="search"
-        placeholder="Search series by title"
+        placeholder={t('source.placeholder')}
         value={query}
         onChange={setQuery}
       />
       {searching && (search.status === 'loading' || search.pending) && (
-        <div className={styles.stack} aria-busy="true" aria-label="Searching">
+        <div className={styles.stack} aria-busy="true" aria-label={t('source.searching')}>
           <Skeleton height={64} radius="md" />
           <Skeleton height={64} radius="md" />
         </div>
       )}
       {searching && search.status === 'error' && (
         <ErrorState
-          title="Search isn’t working right now"
+          title={t('source.searchError')}
           body={search.error.message}
           onRetry={search.reload}
           headingLevel="h3"
         />
       )}
       {searching && search.status === 'success' && found.length === 0 && (
-        <p className={styles.muted}>No series match “{query.trim()}”.</p>
+        <p className={styles.muted}>{t('source.noMatch', { query: query.trim() })}</p>
       )}
-      {!searching && options.length === 0 && (
-        <p className={styles.muted}>Search for a series to plan, for example “Breaking Bad”.</p>
-      )}
+      {!searching && options.length === 0 && <p className={styles.muted}>{t('source.hint')}</p>}
       {options.length > 0 && (
         <RadioCards
-          legend={searching ? 'Search results' : 'From your library'}
+          legend={searching ? t('source.results') : t('source.fromLibrary')}
           options={options}
           value={pick?.kind === 'series' ? String(pick.id) : ''}
           onChange={(value) => {
@@ -137,13 +139,14 @@ function SeriesPicker({ pick, onPick }: Pick<SourceStepProps, 'pick' | 'onPick'>
 }
 
 function ListPicker({ pick, onPick }: Pick<SourceStepProps, 'pick' | 'onPick'>) {
+  const { t } = useTranslation(['planner', 'common', 'lists'])
   const mine = useMyLists()
   const shared = useSharedLists()
 
   if (mine.status === 'error') {
     return (
       <ErrorState
-        title="We couldn’t load your lists"
+        title={t('source.listsError')}
         body={mine.error.message}
         onRetry={mine.retry}
         headingLevel="h3"
@@ -152,7 +155,7 @@ function ListPicker({ pick, onPick }: Pick<SourceStepProps, 'pick' | 'onPick'>) 
   }
   if (mine.status !== 'success') {
     return (
-      <div className={styles.stack} aria-busy="true" aria-label="Loading lists">
+      <div className={styles.stack} aria-busy="true" aria-label={t('source.loadingLists')}>
         <Skeleton height={64} radius="md" />
         <Skeleton height={64} radius="md" />
       </div>
@@ -165,25 +168,28 @@ function ListPicker({ pick, onPick }: Pick<SourceStepProps, 'pick' | 'onPick'>) 
       <Banner
         action={
           <ButtonLink to="/lists/new" size="sm" icon="plus">
-            New list
+            {t('source.newList')}
           </ButtonLink>
         }
       >
-        You don’t have any lists yet. Make one with the movies for your marathon.
+        {t('source.noLists')}
       </Banner>
     )
   }
 
   return (
     <RadioCards
-      legend="Your lists"
+      legend={t('source.yourLists')}
       value={pick?.kind === 'list' ? pick.id : ''}
       options={lists.map((list) => ({
         value: list.id,
         label: `${list.emoji} ${list.name}`,
         description: mine.data.some((m) => m.id === list.id)
-          ? pluralize(list.itemCount, 'title')
-          : `${pluralize(list.itemCount, 'title')} · by ${list.ownerName}`,
+          ? t('common:count.titles', { count: list.itemCount })
+          : t('lists:items.byOwner', {
+              count: t('common:count.titles', { count: list.itemCount }),
+              owner: list.ownerName,
+            }),
       }))}
       onChange={(id) => {
         const list = lists.find((l) => l.id === id)

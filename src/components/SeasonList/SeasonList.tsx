@@ -1,10 +1,12 @@
+import { useTranslation } from 'react-i18next'
 import { imageUrl } from '../../api/tmdb'
-import { formatDate, pluralize } from '../../utils/format'
+import { formatDate } from '../../utils/format'
 import RatingBadge from '../RatingBadge/RatingBadge'
 import type { SeasonSummary } from '../../types/tmdb'
 import styles from './SeasonList.module.css'
 
 export default function SeasonList({ seasons }: { seasons: SeasonSummary[] }) {
+  const { t } = useTranslation()
   return (
     <ul className={styles.list}>
       {seasons.map((season) => {
@@ -21,7 +23,7 @@ export default function SeasonList({ seasons }: { seasons: SeasonSummary[] }) {
             <div className={styles.body}>
               <h3 className={styles.name}>{season.name}</h3>
               <p className={styles.meta}>
-                {[pluralize(season.episode_count, 'episode'), formatDate(season.air_date)]
+                {[t('count.episodes', { count: season.episode_count }), formatDate(season.air_date)]
                   .filter(Boolean)
                   .join(' · ')}
               </p>

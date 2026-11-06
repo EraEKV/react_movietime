@@ -1,0 +1,81 @@
+{
+  "pageTitle": "Profile · Movietime",
+  "loadError": "Couldn’t load your profile",
+  "creating": "Your profile is being created. Sign out and in again if this stays.",
+  "accountNav": "Account",
+  "movieFan": "Movie fan",
+  "verified": "Verified",
+  "notVerified": "Not verified",
+  "signedInWith": "Signed in with {{methods}}",
+  "and": " and ",
+  "memberSince": "Member since {{date}}",
+  "settingsLink": "Settings",
+  "counters": {
+    "label": "Your numbers",
+    "library": "Library",
+    "lists": "Lists",
+    "plans": "Plans",
+    "syncFailed": "Couldn’t sync",
+    "loadFailed": "Couldn’t load",
+    "plansDetail": "{{active}} active",
+    "plansShared": "{{active}} active · {{shared}} shared",
+    "titlesUnit_one": "title",
+    "titlesUnit_other": "titles",
+    "listsUnit_one": "list",
+    "listsUnit_other": "lists",
+    "plansUnit_one": "plan",
+    "plansUnit_other": "plans"
+  },
+  "activity": {
+    "title": "Recent activity",
+    "error": "Couldn’t load your activity",
+    "emptyTitle": "No activity yet",
+    "emptyBody": "Titles you add, lists you create and sessions you watch will show up here.",
+    "find": "Find something to watch"
+  },
+  "feed": {
+    "added": "Added",
+    "toStatus": "to {{status}}",
+    "toLibrary": "to your library",
+    "moved": "Moved",
+    "createdList": "Created the list",
+    "planned": "Planned",
+    "watchedUnits": "Watched {{units}} of",
+    "watchedSession": "Watched a session of",
+    "watched": "Watched",
+    "finished": "Finished the plan"
+  },
+  "settings": {
+    "pageTitle": "Settings · Movietime",
+    "title": "Settings",
+    "account": "Account",
+    "email": "Email",
+    "verifyNote": "Verify it to share lists and plans with friends.",
+    "resendVerification": "Resend verification",
+    "sent": "Sent. Check your inbox and the spam folder.",
+    "appearance": "Appearance",
+    "theme": "Theme",
+    "themeNote": "Saved to your account, so your other devices follow. System matches this device.",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System",
+    "language": "Language",
+    "languageNote": "Applies at once and is saved to your account.",
+    "footer": "Movietime · Data from TMDB",
+    "signOut": "Sign out"
+  },
+  "name": {
+    "label": "Display name",
+    "hint": "Friends see this on shared lists and plans. {{length}}/{{max}}",
+    "saving": "Saving…",
+    "save": "Save name",
+    "required": "Enter a name.",
+    "tooLong": "Use {{max}} characters or fewer.",
+    "saved": "Saved"
+  },
+  "resend": {
+    "label": "Resend email",
+    "sent": "Email sent",
+    "failed": "Couldn’t send the email."
+  }
+}

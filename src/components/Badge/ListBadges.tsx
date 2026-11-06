@@ -1,20 +1,24 @@
+import { useTranslation } from 'react-i18next'
 import type { ListRole, ListVisibility } from '../../types/list'
 import type { IconName } from '../Icon/icons'
 import Badge from './Badge'
 
-const ROLES: Record<ListRole, { icon: IconName; label: string }> = {
-  owner: { icon: 'user', label: 'Owner' },
-  editor: { icon: 'edit', label: 'Editor' },
-  viewer: { icon: 'eye', label: 'Viewer' },
-  link: { icon: 'link', label: 'Link visitor' },
+const ROLE_ICONS: Record<ListRole, IconName> = {
+  owner: 'user',
+  editor: 'edit',
+  viewer: 'eye',
+  link: 'link',
 }
 
 /** What you can do with a list; icon + word, never colour alone. */
 export function RoleBadge({ role }: { role: ListRole }) {
-  const { icon, label } = ROLES[role]
+  const { t } = useTranslation()
   return (
-    <Badge icon={icon} tone={role === 'owner' || role === 'editor' ? 'strong' : undefined}>
-      {label}
+    <Badge
+      icon={ROLE_ICONS[role]}
+      tone={role === 'owner' || role === 'editor' ? 'strong' : undefined}
+    >
+      {t(`role.${role}`)}
     </Badge>
   )
 }
@@ -27,10 +31,11 @@ export function VisibilityBadge({
   visibility: ListVisibility
   members?: number
 }) {
-  if (members > 0) return <Badge icon="users">{`Shared with ${members}`}</Badge>
+  const { t } = useTranslation()
+  if (members > 0) return <Badge icon="users">{t('visibility.shared', { count: members })}</Badge>
   return visibility === 'link' ? (
-    <Badge icon="link">Anyone with link</Badge>
+    <Badge icon="link">{t('visibility.link')}</Badge>
   ) : (
-    <Badge icon="eye-off">Private</Badge>
+    <Badge icon="eye-off">{t('visibility.private')}</Badge>
   )
 }

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import type { ReactNode } from 'react'
 import { useSearchParams } from 'react-router'
 import Banner from '../components/Banner/Banner'
@@ -20,15 +21,18 @@ import { relativeDay } from '../utils/calendar'
 import { sessionPoster } from '../utils/planner'
 import { unitsLabel } from '../utils/schedule'
 import { hoursValue, parsePeriod, STATS_PERIODS, type StatsPeriod } from '../utils/stats'
+import { formatRating } from '../utils/format'
+import { statusLabel } from '../utils/library'
+import { weekdayShort } from '../utils/calendar'
+import type { Weekday } from '../types/plan'
 import styles from './DashboardPage.module.css'
 
 const SIGN_IN = '/login?redirect=/dashboard'
 
-const plural = (count: number, word: string) => `${count} ${count === 1 ? word : `${word}s`}`
-
 function ChartSkeleton() {
+  const { t } = useTranslation('dashboard')
   return (
-    <div className={dash.skeletonRows} aria-busy="true" aria-label="Loading">
+    <div className={dash.skeletonRows} aria-busy="true" aria-label={t('loading')}>
       <Skeleton height={14} />
       <Skeleton height={14} width="80%" />
       <Skeleton height={14} width="60%" />
@@ -44,6 +48,7 @@ function ChartSkeleton() {
  * the library filtered the same way, upcoming sessions open their plan.
  */
 export default function DashboardPage() {
+  const { t } = useTranslation(['dashboard', 'common', 'library'])
   const [params, setParams] = useSearchParams()
   const period = parsePeriod(params.get('period'))
   const { today, todayWeekday, library, genres, plans } = useDashboardStats(period)
@@ -58,9 +63,9 @@ export default function DashboardPage() {
 
   const header = (
     <header className={styles.header}>
-      <h1 className={styles.title}>Dashboard</h1>
+      <h1 className={styles.title}>{t('title')}</h1>
       <SegmentedControl
-        label="Period"
+        label={t('period')}
         options={STATS_PERIODS}
         value={period}
         onChange={setPeriod}
@@ -74,14 +79,14 @@ export default function DashboardPage() {
   if (library.status === 'ready' && library.isEmpty && noPlans && !plans.upcoming?.length) {
     return (
       <div className={styles.page}>
-        <h1 className={styles.title}>Dashboard</h1>
+        <h1 className={styles.title}>{t('title')}</h1>
         <EmptyState
           icon="chart"
-          title="Your stats start with your first title"
-          body="Add a few movies or series to your library and Movietime will chart what you watch, when and how you rate it."
+          title={t('welcomeTitle')}
+          body={t('welcomeBody')}
           actions={
             <ButtonLink to="/series" variant="primary" icon="plus">
-              Add your first titles
+              {t('welcomeAction')}
             </ButtonLink>
           }
         />
@@ -101,14 +106,14 @@ export default function DashboardPage() {
       return (
         <ErrorState
           headingLevel="h3"
-          title="Couldn’t load your library"
-          body="Check your connection and try again."
+          title={t('libraryError')}
+          body={t('retryBody')}
           onRetry={library.retry}
         />
       )
     }
     if (library.entries.length === 0) {
-      return <p className={dash.note}>Nothing added or changed in this period.</p>
+      return <p className={dash.note}>{t('nothingInPeriod')}</p>
     }
     return chart
   }
@@ -117,14 +122,14 @@ export default function DashboardPage() {
     if (plans.status === 'loading') return <ChartSkeleton />
     // The banner above already offers to sign in; here a short line is enough.
     if (plans.status === 'guest') {
-      return <p className={dash.note}>Plans need an account: sign in to count sessions here.</p>
+      return <p className={dash.note}>{t('plansNeedAccount')}</p>
     }
     if (plans.status === 'error') {
       return (
         <ErrorState
           headingLevel="h3"
-          title="Couldn’t load your plans"
-          body="Check your connection and try again."
+          title={t('plansError')}
+          body={t('retryBody')}
           onRetry={plans.retry}
         />
       )
@@ -139,10 +144,12 @@ export default function DashboardPage() {
     value: () => { value: ReactNode; unit?: string; detail: string },
   ) => {
     if (plans.status === 'guest') {
-      return <StatTile label={label} icon={icon} value="—" detail="Sign in to plan" to={SIGN_IN} />
+      return (
+        <StatTile label={label} icon={icon} value="—" detail={t('signInToPlan')} to={SIGN_IN} />
+      )
     }
     if (plans.status === 'error') {
-      return <StatTile label={label} icon={icon} value="—" detail="Couldn’t load plans" />
+      return <StatTile label={label} icon={icon} value="—" detail={t('plansFailed')} />
     }
     const shown = plans.status === 'ready' ? value() : { value: null, detail: '' }
     return (
@@ -164,128 +171,139 @@ export default function DashboardPage() {
         <Banner
           action={
             <ButtonLink to={SIGN_IN} variant="primary" size="sm">
-              Sign in
+              {t('signIn')}
             </ButtonLink>
           }
         >
-          These stats come from the library saved on this device. Plans and sessions need an
-          account.
+          {t('guestBanner')}
         </Banner>
       )}
 
-      <section aria-label="Statistics" className={styles.tiles}>
+      <section aria-label={t('statistics')} className={styles.tiles}>
         <StatTile
-          label="Titles in library"
+          label={t('tiles.titles')}
           icon="bookmark"
           loading={libLoading}
           value={libError ? '—' : stats.titles}
           detail={
             libError
-              ? 'Couldn’t load the library'
-              : `${library.byType[0]?.count ?? 0} series · ${plural(library.byType[1]?.count ?? 0, 'movie')}`
+              ? t('tiles.libraryFailed')
+              : t('tiles.titlesDetail', {
+                  series: t('common:count.series', { count: library.byType[0]?.count ?? 0 }),
+                  movies: t('common:count.movies', { count: library.byType[1]?.count ?? 0 }),
+                })
           }
           to="/library"
         />
         <StatTile
-          label="Completed"
+          label={t('tiles.completed')}
           icon="check"
           loading={libLoading}
           value={libError ? '—' : stats.completed}
           detail={
-            stats.titles ? `${Math.round(stats.completedShare * 100)}% of these titles` : undefined
+            stats.titles
+              ? t('tiles.completedShare', { percent: Math.round(stats.completedShare * 100) })
+              : undefined
           }
           to="/library?status=completed"
         />
         <StatTile
-          label="Average score"
+          label={t('tiles.average')}
           icon="heat"
           loading={libLoading}
-          value={stats.averageScore === null ? '—' : stats.averageScore.toFixed(1)}
-          unit={stats.averageScore === null ? undefined : '/10'}
-          detail={
-            stats.scored
-              ? `From ${plural(stats.scored, 'scored title')}`
-              : 'Score titles in the library'
-          }
+          value={stats.averageScore === null ? '—' : formatRating(stats.averageScore)}
+          unit={stats.averageScore === null ? undefined : t('tiles.outOf')}
+          detail={stats.scored ? t('scored', { count: stats.scored }) : t('tiles.scoreHint')}
           to="/library?sort=score"
         />
         <StatTile
-          label="Hours watched"
+          label={t('tiles.hours')}
           icon="clock"
           loading={libLoading}
           value={libError ? '—' : hours.value}
           unit={libError ? undefined : hours.unit}
           detail={
             stats.noRuntime
-              ? `${plural(stats.noRuntime, 'title')} without runtime not counted`
+              ? t('noRuntime', { count: stats.noRuntime })
               : stats.minutes >= 1440
-                ? `≈ ${(stats.minutes / 1440).toFixed(1)} days`
-                : 'Completed movies and watched episodes'
+                ? t('tiles.days', { days: formatRating(stats.minutes / 1440) })
+                : t('tiles.hoursHint')
           }
           to="/library?status=completed"
         />
-        {plansTile('Sessions this week', 'calendar', () => ({
+        {plansTile(t('tiles.week'), 'calendar', () => ({
           value: week?.weekDone ?? 0,
-          unit: `of ${week?.weekPlanned ?? 0}`,
+          unit: t('tiles.weekOf', { count: week?.weekPlanned ?? 0 }),
           detail: week?.tonight
-            ? `${week.tonight} tonight`
+            ? t('tiles.tonight', { count: week.tonight })
             : week?.weekPlanned
-              ? 'Nothing left tonight'
-              : 'Nothing planned this week',
+              ? t('tiles.nothingTonight')
+              : t('tiles.nothingWeek'),
         }))}
-        {plansTile('Active plans', 'list', () => ({
+        {plansTile(t('tiles.active'), 'list', () => ({
           value: week?.activePlans ?? 0,
           detail: week?.sharedActive
-            ? `${week.sharedActive} shared with you`
+            ? t('tiles.shared', { count: week.sharedActive })
             : week?.activePlans
-              ? 'All yours'
-              : 'Create one in the planner',
+              ? t('tiles.allYours')
+              : t('tiles.createOne'),
         }))}
       </section>
 
-      {period !== 'all' && (
-        <p className={styles.periodNote}>
-          Library figures cover titles added or changed in this period; sessions count by their
-          date. “This week” and active plans are always current.
-        </p>
-      )}
+      {period !== 'all' && <p className={styles.periodNote}>{t('periodNote')}</p>}
 
       <div className={styles.charts}>
-        <DashboardCard title="Titles by status" hint="Bars open the library">
+        <DashboardCard title={t('cards.status')} hint={t('cards.statusHint')}>
           {libraryChart(
-            <BarList bars={library.byStatus} hrefOf={(status) => `/library?status=${status}`} />,
+            <BarList
+              bars={library.byStatus.map((bar) => ({ ...bar, label: statusLabel(bar.value) }))}
+              hrefOf={(status) => `/library?status=${status}`}
+            />,
           )}
         </DashboardCard>
 
-        <DashboardCard title="Top genres" hint="A title counts in each of its genres">
+        <DashboardCard title={t('cards.genres')} hint={t('cards.genresHint')}>
           {libraryChart(
             genres.status === 'loading' ? (
               <ChartSkeleton />
             ) : genres.status === 'error' ? (
               <ErrorState
                 headingLevel="h3"
-                title="Couldn’t load genre names"
-                body="TMDB didn’t answer. Try again in a moment."
+                title={t('cards.genresError')}
+                body={t('cards.genresErrorBody')}
                 onRetry={genres.retry}
               />
             ) : genres.bars.length === 0 ? (
-              <p className={dash.note}>No genres on these titles.</p>
+              <p className={dash.note}>{t('cards.noGenres')}</p>
             ) : (
               <BarList bars={genres.bars} hrefOf={(genre) => `/library?genre=${genre}`} />
             ),
           )}
         </DashboardCard>
 
-        <DashboardCard title="Movies vs series">
-          {libraryChart(<SplitBar parts={library.byType} />)}
+        <DashboardCard title={t('cards.split')}>
+          {libraryChart(
+            <SplitBar
+              parts={library.byType.map((part) => ({
+                ...part,
+                label: t(part.value === 'tv' ? 'library:types.tv' : 'library:types.movie'),
+              }))}
+            />,
+          )}
         </DashboardCard>
 
-        <DashboardCard title="Sessions by weekday" hint="Watched sessions">
+        <DashboardCard title={t('cards.weekday')} hint={t('cards.weekdayHint')}>
           {plansChart(() =>
             plans.weekdays?.some((d) => d.count > 0) ? (
-              <WeekdayColumns days={plans.weekdays} today={todayWeekday} />
+              <WeekdayColumns
+                days={plans.weekdays.map((day) => ({
+                  ...day,
+                  label: weekdayShort(Number(day.value) as Weekday),
+                }))}
+                today={todayWeekday}
+              />
             ) : (
-              <p className={dash.note}>No watched sessions in this period yet.</p>
+              <p className={dash.note}>{t('cards.noWatched')}</p>
             ),
           )}
         </DashboardCard>
@@ -295,8 +313,12 @@ export default function DashboardPage() {
         <section className={styles.upcoming} aria-labelledby="upcoming-title">
           <SectionHeader
             id="upcoming-title"
-            title="Upcoming sessions"
-            action={plans.status === 'ready' && <SectionLink to="/planner">Planner</SectionLink>}
+            title={t('upcoming.title')}
+            action={
+              plans.status === 'ready' && (
+                <SectionLink to="/planner">{t('upcoming.planner')}</SectionLink>
+              )
+            }
           />
           {plansChart(() =>
             plans.upcoming?.length ? (
@@ -318,11 +340,11 @@ export default function DashboardPage() {
               <EmptyState
                 headingLevel="h3"
                 icon="calendar"
-                title="Nothing planned"
-                body="Plan a series or a movie marathon and the next sessions show up here."
+                title={t('upcoming.emptyTitle')}
+                body={t('upcoming.emptyBody')}
                 actions={
                   <ButtonLink to="/planner/new" variant="secondary" size="sm" icon="plus">
-                    Create a plan
+                    {t('upcoming.create')}
                   </ButtonLink>
                 }
               />

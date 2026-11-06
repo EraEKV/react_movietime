@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import type { CSSProperties } from 'react'
 import { Link } from 'react-router'
 import type { MediaType } from '../../types/media'
@@ -15,6 +16,7 @@ const percent = (count: number, total: number) =>
  * itself is a picture of the same numbers (role="img" with the summary as its name).
  */
 export default function SplitBar({ parts }: { parts: Bar<MediaType>[] }) {
+  const { t } = useTranslation('dashboard')
   const total = parts.reduce((sum, p) => sum + p.count, 0)
   const summary = parts.map((p) => `${p.label} ${p.count} (${percent(p.count, total)})`).join(', ')
   return (
@@ -37,7 +39,11 @@ export default function SplitBar({ parts }: { parts: Bar<MediaType>[] }) {
               to={`/library?type=${p.value}`}
               className={styles.legendRow}
               style={{ '--swatch': COLOR[p.value] } as CSSProperties}
-              aria-label={`${p.label}: ${p.count}, ${percent(p.count, total)}. Open in library`}
+              aria-label={t('chart.part', {
+                label: p.label,
+                count: p.count,
+                percent: percent(p.count, total),
+              })}
             >
               <span className={styles.swatch} aria-hidden="true" />
               <span className={styles.legendLabel}>{p.label}</span>

@@ -1,3 +1,4 @@
+import { Trans, useTranslation } from 'react-i18next'
 import { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router'
 import styles from '../components/auth/AuthLayout.module.css'
@@ -9,6 +10,7 @@ import { safeRedirect } from '../utils/redirect'
 
 /** After email signup: "check your inbox", resend, "I've verified", or start over. */
 export default function VerifyEmailPage() {
+  const { t } = useTranslation('auth')
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const next = safeRedirect(searchParams.get('redirect'))
@@ -18,14 +20,14 @@ export default function VerifyEmailPage() {
   const verified = user?.emailVerified ?? false
 
   async function handleResend() {
-    if (await resendVerification()) setNotice('Sent again. It can take a minute — check spam too.')
+    if (await resendVerification()) setNotice(t('verify.resent'))
   }
 
   async function handleCheck() {
     // On success the new token updates the store, and this page re-renders as "verified".
     const fresh = await refreshUser()
     if (fresh && !fresh.emailVerified) {
-      setNotice('Not verified yet. Open the link from the email, then try again.')
+      setNotice(t('verify.notYet'))
     }
   }
 
@@ -40,16 +42,14 @@ export default function VerifyEmailPage() {
   if (verified) {
     return (
       <>
-        <title>Email verified · Movietime</title>
+        <title>{t('verified.pageTitle')}</title>
         <span className={styles.iconTile}>
           <Icon name="check" size={30} />
         </span>
-        <h1 className={styles.title}>Email verified</h1>
-        <p className={styles.subtitle}>
-          You’re all set: lists and plans shared with this email will show up for you.
-        </p>
+        <h1 className={styles.title}>{t('verified.title')}</h1>
+        <p className={styles.subtitle}>{t('verified.body')}</p>
         <Button variant="primary" size="lg" block onClick={() => navigate(next, { replace: true })}>
-          Continue to Movietime
+          {t('verify.continue')}
         </Button>
       </>
     )
@@ -57,14 +57,18 @@ export default function VerifyEmailPage() {
 
   return (
     <>
-      <title>Verify your email · Movietime</title>
+      <title>{t('verify.pageTitle')}</title>
       <span className={styles.iconTile}>
         <Icon name="mail" size={30} />
       </span>
-      <h1 className={styles.title}>Check your email to verify</h1>
+      <h1 className={styles.title}>{t('verify.title')}</h1>
       <p className={styles.subtitle}>
-        We sent a link to <strong className={styles.strong}>{user?.email}</strong>. Open it to
-        finish signing up. You can keep using Movietime meanwhile.
+        <Trans
+          t={t}
+          i18nKey="verify.body"
+          values={{ email: user?.email }}
+          components={{ strong: <strong className={styles.strong} /> }}
+        />
       </p>
 
       {error && <Banner tone="warning">{error.message}</Banner>}
@@ -75,25 +79,25 @@ export default function VerifyEmailPage() {
       )}
 
       <Button variant="primary" size="lg" block onClick={() => navigate(next, { replace: true })}>
-        Continue to Movietime
+        {t('verify.continue')}
       </Button>
       <Button size="lg" block loading={pending === 'verify'} onClick={() => void handleCheck()}>
-        I’ve verified my email
+        {t('verify.check')}
       </Button>
 
       <p className={styles.footer}>
-        Didn’t get it?
+        {t('verify.noEmail')}
         <button
           type="button"
           className={styles.link}
           disabled={pending !== null}
           onClick={() => void handleResend()}
         >
-          Resend email
+          {t('verify.resend')}
         </button>
         <span aria-hidden="true">·</span>
         <button type="button" className={styles.link} onClick={handleChangeEmail}>
-          Change email
+          {t('verify.change')}
         </button>
       </p>
     </>

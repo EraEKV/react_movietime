@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import type { FormEvent } from 'react'
 import { useForm } from '../../hooks/useForm'
 import type { ListDraft } from '../../types/list'
@@ -34,6 +35,7 @@ export default function ListForm({
   onSubmit,
   onCancel,
 }: ListFormProps) {
+  const { t } = useTranslation(['lists', 'common'])
   const form = useForm<keyof ListDraft>(initial, validateListDraft)
   const { values, errors } = form
 
@@ -51,19 +53,19 @@ export default function ListForm({
         onChange={(emoji) => form.setValue('emoji', emoji)}
       />
       <TextField
-        label="Name"
+        label={t('form.name')}
         value={values.name}
         onChange={(v) => form.setValue('name', v)}
         onBlur={() => form.blur('name')}
         error={errors.name}
-        placeholder="e.g. Weeknight comfort"
-        hint={`Up to ${LIST_NAME_MAX} characters.`}
+        placeholder={t('form.namePlaceholder')}
+        hint={t('form.nameHint', { max: LIST_NAME_MAX })}
         maxLength={LIST_NAME_MAX + 20}
         autoComplete="off"
         required
       />
       <Textarea
-        label="Description"
+        label={t('form.description')}
         optional
         value={values.description}
         onChange={(v) => form.setValue('description', v)}
@@ -71,7 +73,7 @@ export default function ListForm({
         error={errors.description}
         maxLength={LIST_DESCRIPTION_MAX}
         rows={3}
-        placeholder="What ties these titles together?"
+        placeholder={t('form.descriptionPlaceholder')}
       />
 
       {error && (
@@ -82,7 +84,7 @@ export default function ListForm({
 
       <div className={styles.actions}>
         <Button variant="ghost" onClick={onCancel}>
-          Cancel
+          {t('common:actions.cancel')}
         </Button>
         <Button type="submit" variant="primary" loading={saving}>
           {submitLabel}

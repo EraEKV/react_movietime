@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
 import { useLocation, useNavigate, useSearchParams } from 'react-router'
 import AddToListDialog from '../components/AddToList/AddToListDialog'
@@ -31,10 +32,7 @@ function wantsSearchFocus(state: unknown): boolean {
   )
 }
 
-const COPY = {
-  movie: { title: 'Movies', plural: 'movies', path: '/movies' },
-  tv: { title: 'Series', plural: 'series', path: '/series' },
-} as const
+const PATHS = { movie: '/movies', tv: '/series' } as const
 
 /**
  * Serves both /movies and /series; the route passes the media type.
@@ -42,6 +40,7 @@ const COPY = {
  * instead of carrying over local state (like the search input) from the other one.
  */
 export default function CatalogPage({ mediaType }: { mediaType: MediaType }) {
+  const { t } = useTranslation('catalog')
   const {
     filters,
     query,
@@ -60,7 +59,6 @@ export default function CatalogPage({ mediaType }: { mediaType: MediaType }) {
   // The header's mobile search button navigates here with { focusSearch: true }.
   const location = useLocation()
   const focusSearch = wantsSearchFocus(location.state)
-  const copy = COPY[mediaType]
   const { isAuthenticated } = useAuth()
   // One dialog for the whole grid: the card only says which title was picked.
   const [listFor, setListFor] = useState<MediaSummary | null>(null)
@@ -80,22 +78,22 @@ export default function CatalogPage({ mediaType }: { mediaType: MediaType }) {
   // Movies ⇄ Series keeps what makes sense on both sides (query, year, rating, language…).
   function switchCatalog(next: MediaType) {
     const search = sharedCatalogParams(searchParams).toString()
-    navigate({ pathname: COPY[next].path, search: search ? `?${search}` : '' })
+    navigate({ pathname: PATHS[next], search: search ? `?${search}` : '' })
   }
 
   return (
     <section className={styles.page} aria-labelledby="catalog-title">
       <header className={styles.header}>
         <h1 id="catalog-title" className={styles.title}>
-          {searchMode ? `Results for “${query}”` : copy.title}
+          {searchMode ? t('resultsFor', { query }) : t(`type.${mediaType}.title`)}
         </h1>
         <SegmentedControl
-          label="Catalog type"
+          label={t('catalogType')}
           value={mediaType}
           onChange={switchCatalog}
           options={[
-            { value: 'movie', label: 'Movies', icon: 'film' },
-            { value: 'tv', label: 'Series', icon: 'tv' },
+            { value: 'movie', label: t('type.movie.title'), icon: 'film' },
+            { value: 'tv', label: t('type.tv.title'), icon: 'tv' },
           ]}
         />
       </header>
@@ -103,8 +101,8 @@ export default function CatalogPage({ mediaType }: { mediaType: MediaType }) {
       <SearchBar
         query={query}
         onSearch={setQuery}
-        label={`Search ${copy.plural}`}
-        placeholder={`Search ${copy.plural} by title`}
+        label={t(`type.${mediaType}.search`)}
+        placeholder={t(`type.${mediaType}.placeholder`)}
         autoFocus={focusSearch}
       />
 
@@ -120,20 +118,20 @@ export default function CatalogPage({ mediaType }: { mediaType: MediaType }) {
       />
 
       {(status === 'idle' || status === 'loading') && (
-        <SkeletonGrid count={size} label={`Loading ${copy.plural}`} />
+        <SkeletonGrid count={size} label={t(`type.${mediaType}.loading`)} />
       )}
 
       {status === 'error' && (
         <ErrorState
-          title={`We couldn’t load ${copy.plural}`}
-          body={`${error.message} Your filters are kept.`}
+          title={t(`type.${mediaType}.error`)}
+          body={t('errorKept', { message: error.message })}
           onRetry={reload}
         />
       )}
 
       {status === 'success' && data.items.length === 0 && (
         <EmptyResults
-          plural={copy.plural}
+          mediaType={mediaType}
           searchMode={searchMode}
           query={query}
           hasFilters={activeCount > 0}
@@ -146,18 +144,18 @@ export default function CatalogPage({ mediaType }: { mediaType: MediaType }) {
 
       {status === 'success' && data.items.length > 0 && (
         <div>
-          <h2 className="sr-only">Results</h2>
+          <h2 className="sr-only">{t('results')}</h2>
           <MediaGrid
             items={data.items}
             genresById={genresById}
-            label={copy.title}
+            label={t(`type.${mediaType}.title`)}
             renderActions={
               // Lists need an account; guests use the title page's "Add to list" (→ sign in).
               isAuthenticated
                 ? (item) => (
                     <IconButton
                       icon="list"
-                      label={`Add ${item.title} to a list`}
+                      label={t('addToList', { title: item.title })}
                       variant="secondary"
                       size="sm"
                       onClick={() => setListFor(item)}
@@ -187,7 +185,7 @@ export default function CatalogPage({ mediaType }: { mediaType: MediaType }) {
 }
 
 interface EmptyResultsProps {
-  plural: string
+  mediaType: MediaType
   searchMode: boolean
   query: string
   hasFilters: boolean
@@ -199,7 +197,7 @@ interface EmptyResultsProps {
 
 /** Picks the most useful empty-state message and action for the current mode. */
 function EmptyResults({
-  plural,
+  mediaType,
   searchMode,
   query,
   hasFilters,
@@ -208,13 +206,14 @@ function EmptyResults({
   onResetFilters,
   onFirstPage,
 }: EmptyResultsProps) {
+  const { t } = useTranslation('catalog')
   if (searchMode) {
     return (
       <EmptyState
         icon="search"
-        title={`Nothing found for “${query}”`}
-        body="Check the spelling or try the original title."
-        actions={<Button onClick={onClearSearch}>Clear search</Button>}
+        title={t('empty.searchTitle', { query })}
+        body={t('empty.searchBody')}
+        actions={<Button onClick={onClearSearch}>{t('empty.clearSearch')}</Button>}
       />
     )
   }
@@ -223,11 +222,11 @@ function EmptyResults({
     return (
       <EmptyState
         icon="filter"
-        title={`No ${plural} match these filters`}
-        body="Try a different genre, year or language, or a lower rating."
+        title={t(`type.${mediaType}.noMatch`)}
+        body={t('empty.filtersBody')}
         actions={
           <Button variant="primary" onClick={onResetFilters}>
-            Clear all filters
+            {t('empty.clearFilters')}
           </Button>
         }
       />
@@ -236,9 +235,9 @@ function EmptyResults({
 
   return (
     <EmptyState
-      title={`No ${plural} on this page`}
-      body="Try another page."
-      actions={page > 1 && <Button onClick={onFirstPage}>Back to first page</Button>}
+      title={t(`type.${mediaType}.nonePage`)}
+      body={t('empty.pageBody')}
+      actions={page > 1 && <Button onClick={onFirstPage}>{t('empty.firstPage')}</Button>}
     />
   )
 }

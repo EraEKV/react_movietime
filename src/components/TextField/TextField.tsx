@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { useId, useState, type InputHTMLAttributes, type ReactNode, type Ref } from 'react'
 import Field from '../Field/Field'
 import { hintId } from '../Field/hintId'
@@ -40,6 +41,7 @@ export default function TextField({
   disabled,
   ...inputProps
 }: TextFieldProps) {
+  const { t } = useTranslation()
   const generatedId = useId()
   const id = idProp ?? generatedId
   const [revealed, setRevealed] = useState(false)
@@ -73,7 +75,7 @@ export default function TextField({
             type="button"
             className={styles.inlineButton}
             onClick={() => setRevealed((r) => !r)}
-            aria-label={revealed ? 'Hide password' : 'Show password'}
+            aria-label={t(revealed ? 'field.hidePassword' : 'field.showPassword')}
             aria-pressed={revealed}
           >
             <Icon name={revealed ? 'eye-off' : 'eye'} size={18} />

@@ -116,7 +116,25 @@
     gap: var(--space-6);
   }
 
-  .nav,
+  .nav {
+    display: flex;
+  }
+}
+
+/* 1024–1179px: tighter nav so the chip, language menu, theme and avatar still fit. */
+@media (min-width: 1024px) and (max-width: 1179px) {
+  .headerInner {
+    gap: var(--space-4);
+  }
+
+  .navLink {
+    padding: 0 var(--space-2);
+  }
+}
+
+/* The language menu and longer Russian/Kazakh labels leave no room for the search field
+   between 1024px and 1180px: the search icon (which opens the catalog search) stays. */
+@media (min-width: 1180px) {
   .search {
     display: flex;
   }
@@ -231,5 +249,16 @@
 
   .tabBar {
     display: none;
+  }
+}
+
+/* The language button shows only "RU" on phones: the chevron costs 20px the bar doesn't have. */
+.langChevron {
+  display: none;
+}
+
+@media (min-width: 480px) {
+  .langChevron {
+    display: block;
   }
 }

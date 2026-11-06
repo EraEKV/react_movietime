@@ -1,0 +1,229 @@
+{
+  "nav": {
+    "home": "Басты бет",
+    "movies": "Фильмдер",
+    "series": "Сериалдар",
+    "library": "Кітапхана",
+    "lists": "Тізімдер",
+    "planner": "Жоспарлар",
+    "discover": "Шолу",
+    "profile": "Профиль",
+    "dashboard": "Статистика",
+    "settings": "Баптаулар",
+    "main": "Негізгі мәзір"
+  },
+  "auth": {
+    "signIn": "Кіру",
+    "signOut": "Шығу",
+    "account": "Аккаунт",
+    "accountOf": "Аккаунт: {{name}}"
+  },
+  "layout": {
+    "skip": "Мазмұнға өту",
+    "about": "Movietime туралы",
+    "footer": "Фильмдер мен сериалдар туралы деректер — <tmdb>TMDB</tmdb>. Бұл өнім TMDB API-ын пайдаланады, бірақ TMDB оны мақұлдамаған және сертификаттамаған.",
+    "homeLink": "Movietime, басты бет"
+  },
+  "header": {
+    "search": "Іздеу",
+    "searchMovies": "Фильм іздеу",
+    "searchSeries": "Сериал іздеу",
+    "toLight": "Ашық тақырыпқа ауысу",
+    "toDark": "Қараңғы тақырыпқа ауысу",
+    "language": "Тіл: {{name}}",
+    "tonight": "Бүгін",
+    "tonightLabel": "Бүгін {{time}}: {{title}}, {{units}}. Жоспарларды ашу"
+  },
+  "verify": {
+    "text": "Ортақ тізімдер мен жоспарларды пайдалану үшін <strong>{{email}}</strong> поштасын растаңыз.",
+    "done": "Растадым",
+    "resend": "Хатты қайта жіберу",
+    "sent": "Жіберілді"
+  },
+  "actions": {
+    "close": "Жабу",
+    "back": "Артқа",
+    "tryAgain": "Қайталау",
+    "dismiss": "Жасыру",
+    "undo": "Болдырмау",
+    "cancel": "Бас тарту",
+    "save": "Сақтау",
+    "saving": "Сақталуда…",
+    "delete": "Жою",
+    "edit": "Өзгерту",
+    "showLess": "Жасыру",
+    "more_one": "тағы {{count}}",
+    "more_other": "тағы {{count}}"
+  },
+  "states": {
+    "loading": "Жүктелуде…",
+    "loadingTitles": "Фильмдер мен сериалдар жүктелуде",
+    "errorTitle": "Бірдеңе дұрыс болмады",
+    "errorBody": "Қазір жүктеу мүмкін болмады. Байланысты тексеріп, қайталап көріңіз.",
+    "unknown": "Белгісіз"
+  },
+  "pagination": {
+    "label": "Беттер",
+    "perPage": "Бетте",
+    "previous": "Алдыңғы бет",
+    "next": "Келесі бет",
+    "page": "{{page}}-бет"
+  },
+  "search": {
+    "clear": "Іздеуді тазалау",
+    "seriesLabel": "Сериал іздеу",
+    "seriesPlaceholder": "Сериал атауы"
+  },
+  "field": {
+    "showPassword": "Құпиясөзді көрсету",
+    "hidePassword": "Құпиясөзді жасыру"
+  },
+  "ui": {
+    "steps": "Қадамдар",
+    "progress": "Барысы",
+    "watched": "Көрілді",
+    "removeFilter": "Сүзгіні алып тастау: {{label}}",
+    "playTrailer": "Трейлерді көру: {{name}}",
+    "people": "{{people}}: {{names}}",
+    "done": " (орындалды)",
+    "pageTitle": "{{title}} · Movietime"
+  },
+  "title": {
+    "genres": "Жанрлар",
+    "votes_one": "TMDB-де {{count, number}} баға",
+    "votes_other": "TMDB-де {{count, number}} баға",
+    "noVotes": "Әзірге баға жоқ",
+    "noOverview": "Сипаттама әзірге жоқ.",
+    "poster": "{{title}} постері",
+    "withYear": "{{title}}, {{year}}"
+  },
+  "rating": {
+    "0": "Бағаланбаған",
+    "1": "Көрмей-ақ қойыңыз",
+    "2": "Әлсіз",
+    "3": "Орташа",
+    "4": "Жақсы",
+    "5": "Тамаша",
+    "label": "Бағасы 10-нан {{value}}, {{word}}",
+    "votes_one": "{{word}} · {{count, number}} баға",
+    "votes_other": "{{word}} · {{count, number}} баға"
+  },
+  "status": {
+    "plan": "Көремін",
+    "watching": "Көріп жүрмін",
+    "completed": "Көрілді",
+    "dropped": "Тасталды"
+  },
+  "score": {
+    "1": "Өте нашар",
+    "2": "Нашар",
+    "3": "Әлсіз",
+    "4": "Көңіл толмайды",
+    "5": "Қалыпты",
+    "6": "Жаман емес",
+    "7": "Жақсы",
+    "8": "Тамаша",
+    "9": "Керемет",
+    "10": "Жауһар",
+    "legend": "Сіздің бағаңыз",
+    "option": "{{score}}, {{label}}",
+    "hint": "{{value}} — {{word}}. Тазалау үшін қайта басыңыз.",
+    "none": "Әзірге бағаланбаған."
+  },
+  "role": {
+    "owner": "Иесі",
+    "editor": "Редактор",
+    "viewer": "Көрермен",
+    "link": "Сілтеме арқылы"
+  },
+  "visibility": {
+    "shared": "Қатысушылар: {{count}}",
+    "link": "Сілтемесі барлардың бәрі",
+    "private": "Жеке"
+  },
+  "session": {
+    "pending": "жоспарланған",
+    "done": "көрілді",
+    "skipped": "өткізілді",
+    "label": "{{title}}, {{range}}, {{status}}",
+    "labelAt": "{{title}}, {{range}}, {{time}}, {{status}}"
+  },
+  "calendar": {
+    "today": "бүгін",
+    "hasSession": "сеанс бар",
+    "previousMonth": "Алдыңғы ай",
+    "nextMonth": "Келесі ай"
+  },
+  "count": {
+    "titles_one": "{{count}} туынды",
+    "titles_other": "{{count}} туынды",
+    "movies_one": "{{count}} фильм",
+    "movies_other": "{{count}} фильм",
+    "series_one": "{{count}} сериал",
+    "series_other": "{{count}} сериал",
+    "seasons_one": "{{count}} маусым",
+    "seasons_other": "{{count}} маусым",
+    "episodes_one": "{{count}} серия",
+    "episodes_other": "{{count}} серия",
+    "sessions_one": "{{count}} сеанс",
+    "sessions_other": "{{count}} сеанс",
+    "people_one": "{{count}} адам",
+    "people_other": "{{count}} адам",
+    "characters_one": "{{count}} таңба",
+    "characters_other": "{{count}} таңба"
+  },
+  "errors": {
+    "network": "Желі қатесі. Байланысты тексеріп, қайталап көріңіз.",
+    "offline": "Желі жоқ. Өзгерістерді сақтау үшін интернетке қосылыңыз.",
+    "saveFailed": "Өзгерістерді сақтау мүмкін болмады. Байланысты тексеріп, қайталап көріңіз.",
+    "fallback": "Бірдеңе дұрыс болмады. Қайталап көріңіз.",
+    "wrongCredentials": "Пошта немесе құпиясөз қате. Тексеріп, қайталап көріңіз.",
+    "invalidEmail": "name@example.com түріндегі поштаны енгізіңіз.",
+    "emailInUse": "Бұл поштамен аккаунт бар. Кіріңіз немесе басқа поштаны пайдаланыңыз.",
+    "weakPassword": "Кемінде 8 таңба, оның ішінде сан мен арнайы таңба болсын.",
+    "userDisabled": "Бұл аккаунт өшірілген.",
+    "tooManyRequests": "Әрекет тым көп. Бірнеше минут күтіп, қайталап көріңіз.",
+    "noConnection": "Байланыс жоқ. Интернетті тексеріп, қайталап көріңіз.",
+    "popupClosed": "Google терезесі соңына дейін жетпей жабылды. Қайталаңыз немесе пошта арқылы кіріңіз.",
+    "popupBlocked": "Браузер Google терезесін бұғаттады. Қалқымалы терезелерге рұқсат беріп, қайталаңыз.",
+    "unauthorizedDomain": "Бұл сайт мекенжайы үшін кіру әзірге қосылмаған.",
+    "accountExists": "Бұл пошта басқа кіру тәсілімен тіркелген. Соны пайдаланыңыз.",
+    "recentLogin": "Жалғастыру үшін қайта кіріңіз.",
+    "permissionDenied": "Сізде бұған рұқсат жоқ.",
+    "unavailable": "Серверге қосылу мүмкін емес. Байланысты тексеріп, қайталап көріңіз."
+  },
+  "validation": {
+    "emailRequired": "Поштаңызды енгізіңіз.",
+    "passwordCreate": "Құпиясөз ойлап табыңыз.",
+    "passwordRequired": "Құпиясөзді енгізіңіз.",
+    "passwordRepeat": "Құпиясөзді қайталаңыз.",
+    "passwordMismatch": "Құпиясөздер сәйкес емес.",
+    "ruleLength": "Кемінде 8 таңба",
+    "ruleDigit": "Сан",
+    "ruleSpecial": "Арнайы таңба",
+    "passwordRules": "Құпиясөзге қойылатын талаптар",
+    "atLeast_one": "Кемінде {{count}} таңба.",
+    "atLeast_other": "Кемінде {{count}} таңба.",
+    "atMost_one": "Ең көбі {{count}} таңба.",
+    "atMost_other": "Ең көбі {{count}} таңба.",
+    "met": " — орындалды",
+    "notMet": " — орындалмады"
+  },
+  "notFound": {
+    "title": "Бұл таспа жоғалып кетті",
+    "text": "Іздеген бетіңіз жылжытылған, жойылған немесе мүлде болмаған. Сілтемені тексеріңіз немесе таныс жерге оралыңыз.",
+    "home": "Басты бетке",
+    "library": "Кітапханаға",
+    "pageTitle": "{{title}} · Movietime"
+  },
+  "offline": {
+    "pageTitle": "Желі жоқ · Movietime",
+    "title": "Проектор біраз уақытқа сөнді",
+    "text": "Желі жоқ. Осы құрылғыда сақталған кітапхана мен сеанстар жұмыс істейді — өзгерістер желі қалпына келгенде синхрондалады.",
+    "retry": "Қайталау"
+  },
+  "notice": {
+    "synced_one": "Осы құрылғыдан {{count}} туынды аккаунтқа көшірілді",
+    "synced_other": "Осы құрылғыдан {{count}} туынды аккаунтқа көшірілді"
+  }
+}

@@ -1,6 +1,8 @@
+import { useTranslation } from 'react-i18next'
 import type { Episode, Season } from '../../hooks/useEpisodeRatings'
-import { episodeCode } from '../../utils/format'
-import { RATING_WORDS, ratingStep } from '../../utils/rating'
+import i18n from '../../i18n'
+import { episodeCode, formatRating } from '../../utils/format'
+import { ratingStep, ratingWord } from '../../utils/rating'
 import styles from './EpisodeHeatmap.module.css'
 
 function average(episodes: Episode[]): number | null {
@@ -12,8 +14,11 @@ function average(episodes: Episode[]): number | null {
 function cellLabel(episode: Episode, mark: string): string {
   const rating =
     episode.rating === null
-      ? 'not rated'
-      : `rated ${episode.rating.toFixed(1)}, ${RATING_WORDS[ratingStep(episode.rating)]}`
+      ? i18n.t('catalog:heatmap.notRated')
+      : i18n.t('catalog:heatmap.ratedLabel', {
+          value: formatRating(episode.rating),
+          word: ratingWord(ratingStep(episode.rating)),
+        })
   return `${episodeCode(episode.season, episode.number)}, ${episode.name}, ${rating}${mark}`
 }
 
@@ -37,17 +42,18 @@ export default function HeatmapGrid({
   worstId,
   onSelect,
 }: HeatmapGridProps) {
+  const { t } = useTranslation('catalog')
   const maxEpisodes = Math.max(...seasons.map((s) => s.episodes.length))
   const rows = Array.from({ length: maxEpisodes }, (_, i) => i)
 
   return (
     <div className={styles.scroller}>
       <table className={styles.table}>
-        <caption className="sr-only">Episode ratings by season</caption>
+        <caption className="sr-only">{t('heatmap.caption')}</caption>
         <thead>
           <tr>
             <th scope="col" className={styles.corner}>
-              <span className="sr-only">Episode</span>
+              <span className="sr-only">{t('heatmap.episode')}</span>
             </th>
             {seasons.map((season) => (
               <th key={season.number} scope="col" title={season.name}>
@@ -68,7 +74,8 @@ export default function HeatmapGrid({
                 if (!episode) return <td key={season.number} />
 
                 const mark = episode.id === bestId ? '★' : episode.id === worstId ? '▼' : undefined
-                const markLabel = mark === '★' ? ', best episode' : mark ? ', lowest rated' : ''
+                const markLabel =
+                  mark === '★' ? t('heatmap.bestMark') : mark ? t('heatmap.lowestMark') : ''
                 return (
                   <td key={season.number}>
                     <button
@@ -81,7 +88,7 @@ export default function HeatmapGrid({
                       title={`${episodeCode(episode.season, episode.number)} · ${episode.name}`}
                       onClick={() => onSelect(episode.id)}
                     >
-                      {episode.rating === null ? '—' : episode.rating.toFixed(1)}
+                      {episode.rating === null ? '—' : formatRating(episode.rating)}
                     </button>
                   </td>
                 )
@@ -92,7 +99,7 @@ export default function HeatmapGrid({
         <tfoot>
           <tr>
             <th scope="row" className={styles.rowHead}>
-              Avg
+              {t('heatmap.avg')}
             </th>
             {seasons.map((season) => {
               const avg = average(season.episodes)

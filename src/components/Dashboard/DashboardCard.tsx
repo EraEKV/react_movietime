@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { useId, type ReactNode } from 'react'
 import Card from '../Card/Card'
 import styles from './Dashboard.module.css'
 
@@ -11,7 +11,8 @@ interface DashboardCardProps {
 
 /** One chart on the dashboard: a titled card section. */
 export default function DashboardCard({ title, hint, children }: DashboardCardProps) {
-  const id = `chart-${title.toLowerCase().replace(/\W+/g, '-')}`
+  // useId, not the title: Russian and Kazakh titles have no Latin letters to build an id from.
+  const id = useId()
   return (
     <Card as="section" className={styles.card}>
       <div className={styles.cardHeader}>

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { imageUrl } from '../../api/tmdb'
 import type { SeriesListItem } from '../../types/tmdb'
 import ButtonLink from '../ButtonLink/ButtonLink'
@@ -11,26 +12,24 @@ interface HomeHeroProps {
 
 /** Landing for guests: the pitch on the left, a fanned stack of real posters on the right. */
 export default function HomeHero({ series }: HomeHeroProps) {
+  const { t } = useTranslation('home')
   const posters = (series ?? []).filter((s) => s.poster_path).slice(0, 3)
   const featured = posters[0]
 
   return (
     <section className={styles.hero} aria-labelledby="hero-title">
       <div className={styles.pitch}>
-        <p className={styles.kicker}>Your evening programme</p>
+        <p className={styles.kicker}>{t('hero.kicker')}</p>
         <h1 id="hero-title" className={styles.heroTitle}>
-          Stop asking “what do we watch tonight?”
+          {t('hero.title')}
         </h1>
-        <p className={styles.heroText}>
-          Find a series, see which episodes are worth it, and turn it into a watch schedule you
-          share with friends.
-        </p>
+        <p className={styles.heroText}>{t('hero.text')}</p>
         <div className={styles.heroActions}>
           <ButtonLink to="/series" variant="primary" size="lg" icon="compass">
-            Explore titles
+            {t('hero.explore')}
           </ButtonLink>
           <ButtonLink to="/signup" size="lg" icon="calendar">
-            Start planning
+            {t('hero.plan')}
           </ButtonLink>
         </div>
       </div>
@@ -50,7 +49,7 @@ export default function HomeHero({ series }: HomeHeroProps) {
           <div className={styles.tonight}>
             <ProgressRing value={0.4} size={40} />
             <div>
-              <strong>Tonight 21:00</strong>
+              <strong>{t('hero.tonight')}</strong>
               <span>{featured.name} · S1E1–2</span>
             </div>
           </div>

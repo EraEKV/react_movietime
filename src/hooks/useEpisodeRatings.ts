@@ -1,5 +1,6 @@
+import { useTmdbLanguage } from './useTmdbLanguage'
 import { useCallback, useEffect, useState } from 'react'
-import { endpoints, isAbortError, MAX_APPEND, tmdbGet } from '../api/tmdb'
+import { endpoints, isAbortError, MAX_APPEND, tmdbGet, withLanguage } from '../api/tmdb'
 import type { RawSeason, SeasonsBatchResponse } from '../types/tmdb'
 
 export interface Episode {
@@ -78,20 +79,25 @@ export function useEpisodeRatings(
   const [result, setResult] = useState<StoredResult>({ key: null, seasons: null, error: null })
 
   const seasonsKey = seasonNumbers.join(',')
-  const key = `${seriesId}:${seasonsKey}#${attempt}`
+  // Episode names follow the interface language, so the language is part of the key.
+  const language = useTmdbLanguage()
+  const key = `${seriesId}:${seasonsKey}:${language}#${attempt}`
 
   useEffect(() => {
     if (!seasonsKey) return
 
     const numbers = seasonsKey.split(',').map(Number)
-    const requestKey = `${seriesId}:${seasonsKey}#${attempt}`
+    const requestKey = `${seriesId}:${seasonsKey}:${language}#${attempt}`
     const controller = new AbortController()
     let ignore = false
 
     const requests = chunk(numbers, MAX_APPEND).map((batch) =>
-      tmdbGet<SeasonsBatchResponse>(endpoints.seasonsBatch(seriesId, batch), {
-        signal: controller.signal,
-      }),
+      tmdbGet<SeasonsBatchResponse>(
+        withLanguage(endpoints.seasonsBatch(seriesId, batch), language),
+        {
+          signal: controller.signal,
+        },
+      ),
     )
 
     Promise.all(requests)
@@ -116,7 +122,7 @@ export function useEpisodeRatings(
       ignore = true
       controller.abort()
     }
-  }, [seriesId, seasonsKey, attempt])
+  }, [seriesId, seasonsKey, language, attempt])
 
   const reload = useCallback(() => setAttempt((n) => n + 1), [])
 

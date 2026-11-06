@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice, type PayloadAction } from '@reduxjs/toolkit'
 import type { User } from 'firebase/auth'
-import * as authService from '../services/authService'
 import type { AuthError, AuthStatus, AuthUser } from '../types/auth'
+import { loadAuthService } from '../services/loadAuthService'
 import { toAuthError } from '../utils/firebaseErrors'
 import type { RootState } from './store'
 
@@ -44,6 +44,7 @@ export const signIn = createAuthThunk(
   'auth/signIn',
   async (form: { email: string; password: string }, { getState, rejectWithValue }) => {
     try {
+      const authService = await loadAuthService()
       const user = await authService.signInWithEmail(form.email, form.password)
       await syncProfile(user, getState())
       return authService.toAuthUser(user)
@@ -60,6 +61,7 @@ export const signUp = createAuthThunk(
     { getState, rejectWithValue },
   ) => {
     try {
+      const authService = await loadAuthService()
       const user = await authService.signUpWithEmail(form.displayName, form.email, form.password)
       await syncProfile(user, getState())
       // updateProfile doesn't change the token, so the auth listener never sees the new
@@ -75,6 +77,7 @@ export const signInWithGoogle = createAuthThunk(
   'auth/google',
   async (_: void, { getState, rejectWithValue }) => {
     try {
+      const authService = await loadAuthService()
       const user = await authService.signInWithGoogle()
       await syncProfile(user, getState())
       return authService.toAuthUser(user)
@@ -86,6 +89,7 @@ export const signInWithGoogle = createAuthThunk(
 
 export const signOut = createAuthThunk('auth/signOut', async (_: void, { rejectWithValue }) => {
   try {
+    const authService = await loadAuthService()
     await authService.signOutUser()
   } catch (error) {
     return rejectWithValue(toAuthError(error))
@@ -96,6 +100,7 @@ export const resendVerification = createAuthThunk(
   'auth/resendVerification',
   async (_: void, { rejectWithValue }) => {
     try {
+      const authService = await loadAuthService()
       await authService.resendVerification()
     } catch (error) {
       return rejectWithValue(toAuthError(error))
@@ -114,6 +119,7 @@ export const updateDisplayName = createAuthThunk(
   async (name: string, { getState, rejectWithValue }) => {
     const uid = getState().auth.user?.uid
     try {
+      const authService = await loadAuthService()
       if (!uid) throw new Error('Not signed in')
       const { updateUserProfile } = await import('../services/profileService')
       await Promise.all([
@@ -132,6 +138,7 @@ export const refreshUser = createAuthThunk(
   'auth/refreshUser',
   async (_: void, { rejectWithValue }) => {
     try {
+      const authService = await loadAuthService()
       const user = await authService.refreshUser()
       return user ? authService.toAuthUser(user) : null
     } catch (error) {

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import type { Option } from '../../types/common'
 import Icon from '../Icon/Icon'
 import SelectField from '../SelectField/SelectField'
@@ -37,6 +38,7 @@ export default function Pagination<S extends string>({
   onPageChange,
   pageSize,
 }: PaginationProps<S>) {
+  const { t } = useTranslation()
   // The size select stays even with one page: switching back from 60 to 20 must be possible.
   if (totalPages <= 1 && !pageSize) return null
 
@@ -47,7 +49,7 @@ export default function Pagination<S extends string>({
       )}
       {pageSize && (
         <SelectField
-          label="Per page"
+          label={t('pagination.perPage')}
           className={styles.size}
           value={pageSize.value}
           options={pageSize.options}
@@ -63,8 +65,9 @@ function PageButtons({
   totalPages,
   onPageChange,
 }: Pick<PaginationProps<string>, 'page' | 'totalPages' | 'onPageChange'>) {
+  const { t } = useTranslation()
   return (
-    <nav aria-label="Pagination">
+    <nav aria-label={t('pagination.label')}>
       <ul className={styles.pages}>
         <li>
           <button
@@ -72,7 +75,7 @@ function PageButtons({
             className={styles.button}
             onClick={() => onPageChange(page - 1)}
             disabled={page === 1}
-            aria-label="Previous page"
+            aria-label={t('pagination.previous')}
           >
             <Icon name="chevron-left" size={18} />
           </button>
@@ -89,7 +92,7 @@ function PageButtons({
                 type="button"
                 className={styles.button}
                 aria-current={p === page ? 'page' : undefined}
-                aria-label={`Page ${p}`}
+                aria-label={t('pagination.page', { page: p })}
                 onClick={() => onPageChange(p)}
               >
                 {p}
@@ -103,7 +106,7 @@ function PageButtons({
             className={styles.button}
             onClick={() => onPageChange(page + 1)}
             disabled={page === totalPages}
-            aria-label="Next page"
+            aria-label={t('pagination.next')}
           >
             <Icon name="chevron-right" size={18} />
           </button>

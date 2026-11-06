@@ -1,3 +1,4 @@
+import { Trans, useTranslation } from 'react-i18next'
 import { Suspense, useEffect } from 'react'
 import { Link, Outlet, useLocation } from 'react-router'
 import { useSystemThemeSync } from '../../hooks/useTheme'
@@ -9,6 +10,7 @@ import styles from './Layout.module.css'
 import TabBar from './TabBar'
 
 export default function Layout() {
+  const { t } = useTranslation()
   const { pathname } = useLocation()
   useSystemThemeSync()
 
@@ -21,7 +23,7 @@ export default function Layout() {
   return (
     <div className={styles.shell}>
       <a href="#main" className={styles.skipLink}>
-        Skip to content
+        {t('layout.skip')}
       </a>
       <Header />
 
@@ -40,11 +42,14 @@ export default function Layout() {
 
       <footer className={styles.footer}>
         <p>
-          <Link to="/about">About Movietime</Link> · Movie and series data from{' '}
-          <a href="https://www.themoviedb.org/" target="_blank" rel="noreferrer">
-            TMDB
-          </a>
-          . This product uses the TMDB API but is not endorsed or certified by TMDB.
+          <Link to="/about">{t('layout.about')}</Link> ·{' '}
+          {/* Trans puts a real link inside a translated sentence: <tmdb>…</tmdb> in the text. */}
+          <Trans
+            i18nKey="layout.footer"
+            components={{
+              tmdb: <a href="https://www.themoviedb.org/" target="_blank" rel="noreferrer" />,
+            }}
+          />
         </p>
       </footer>
 

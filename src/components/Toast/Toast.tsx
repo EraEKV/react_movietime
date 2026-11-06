@@ -8,11 +8,13 @@ interface ToastProps {
   icon?: IconName
   /** e.g. "Undo". */
   actionLabel?: string
+  /** Icon before the action label, e.g. "undo". */
+  actionIcon?: IconName
   onAction?: () => void
 }
 
 /** role="status" + aria-live: screen readers announce it without moving focus. */
-export default function Toast({ children, icon, actionLabel, onAction }: ToastProps) {
+export default function Toast({ children, icon, actionLabel, actionIcon, onAction }: ToastProps) {
   return (
     <div className={styles.region}>
       <div className={styles.toast} role="status" aria-live="polite">
@@ -20,7 +22,7 @@ export default function Toast({ children, icon, actionLabel, onAction }: ToastPr
         <span className={styles.message}>{children}</span>
         {actionLabel && onAction && (
           <button type="button" className={styles.action} onClick={onAction}>
-            {actionLabel === 'Undo' && <Icon name="undo" size={16} />}
+            {actionIcon && <Icon name={actionIcon} size={16} />}
             {actionLabel}
           </button>
         )}

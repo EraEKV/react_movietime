@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { useLibrary } from '../../hooks/useLibrary'
 import { useMyLists } from '../../hooks/useLists'
 import { usePlans } from '../../hooks/usePlanner'
@@ -9,6 +10,7 @@ import styles from './Profile.module.css'
  * as its page, so a tile never disagrees with what you see after clicking it.
  */
 export default function ProfileCounters() {
+  const { t } = useTranslation(['profile', 'common'])
   const library = useLibrary()
   const titles = library.entries.length
   const lists = useMyLists()
@@ -18,35 +20,37 @@ export default function ProfileCounters() {
   const sharedPlans = plans.plans?.filter((p) => plans.sharedIds.has(p.id)).length ?? 0
 
   return (
-    <section className={styles.counters} aria-label="Your numbers">
+    <section className={styles.counters} aria-label={t('counters.label')}>
       <StatTile
-        label="Library"
+        label={t('counters.library')}
         icon="bookmark"
         value={titles}
-        unit={titles === 1 ? 'title' : 'titles'}
+        unit={t('counters.titlesUnit', { count: titles })}
         loading={library.status === 'loading'}
-        detail={library.status === 'error' ? 'Couldn’t sync' : undefined}
+        detail={library.status === 'error' ? t('counters.syncFailed') : undefined}
         to="/library"
       />
       <StatTile
-        label="Lists"
+        label={t('counters.lists')}
         icon="list"
         value={lists.data?.length ?? '—'}
-        unit={lists.data ? (lists.data.length === 1 ? 'list' : 'lists') : undefined}
+        unit={lists.data ? t('counters.listsUnit', { count: lists.data.length }) : undefined}
         loading={lists.status === 'loading' || lists.status === 'idle'}
-        detail={lists.status === 'error' ? 'Couldn’t load' : undefined}
+        detail={lists.status === 'error' ? t('counters.loadFailed') : undefined}
         to="/lists"
       />
       <StatTile
-        label="Plans"
+        label={t('counters.plans')}
         icon="calendar"
         value={plans.plans?.length ?? '—'}
-        unit={plans.plans ? (plans.plans.length === 1 ? 'plan' : 'plans') : undefined}
+        unit={plans.plans ? t('counters.plansUnit', { count: plans.plans.length }) : undefined}
         loading={plans.status === 'loading' || plans.status === 'idle'}
         detail={
           plans.status === 'error'
-            ? 'Couldn’t load'
-            : `${activePlans} active${sharedPlans ? ` · ${sharedPlans} shared` : ''}`
+            ? t('counters.loadFailed')
+            : sharedPlans
+              ? t('counters.plansShared', { active: activePlans, shared: sharedPlans })
+              : t('counters.plansDetail', { active: activePlans })
         }
         to="/planner"
       />

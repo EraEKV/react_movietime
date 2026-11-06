@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router'
 import { imageUrl } from '../api/tmdb'
@@ -14,6 +15,7 @@ import { mediaKey, parseMediaKey } from '../utils/media'
 import styles from './LibraryEditPage.module.css'
 
 export default function LibraryEditPage() {
+  const { t } = useTranslation(['library', 'common'])
   const { mediaKey: param = '' } = useParams()
   const navigate = useNavigate()
   const location = useLocation()
@@ -39,11 +41,11 @@ export default function LibraryEditPage() {
       <section className={styles.page}>
         <EmptyState
           icon="bookmark"
-          title="This title isn’t in your library"
-          body="It may have been removed, possibly on another device or in another tab."
+          title={t('edit.missingTitle')}
+          body={t('edit.missingBody')}
           actions={
             <ButtonLink to="/library" variant="primary" icon="bookmark">
-              Go to library
+              {t('edit.goLibrary')}
             </ButtonLink>
           }
         />
@@ -56,10 +58,10 @@ export default function LibraryEditPage() {
 
   return (
     <section className={styles.page} aria-labelledby="edit-title">
-      <title>{`Edit ${entry.title} · Movietime`}</title>
+      <title>{t('edit.pageTitle', { title: entry.title })}</title>
 
       <Button variant="ghost" icon="chevron-left" className={styles.back} onClick={goBack}>
-        Back
+        {t('common:actions.back')}
       </Button>
 
       <header className={styles.header}>
@@ -75,7 +77,7 @@ export default function LibraryEditPage() {
             {entry.title}
           </h1>
           <p className={styles.meta}>
-            {[entry.mediaType === 'movie' ? 'Movie' : 'Series', entry.year]
+            {[t(entry.mediaType === 'movie' ? 'movie' : 'series'), entry.year]
               .filter(Boolean)
               .join(' · ')}
           </p>
@@ -97,11 +99,11 @@ export default function LibraryEditPage() {
       <Dialog
         open={confirmOpen}
         onClose={() => setConfirmOpen(false)}
-        title={`Remove “${entry.title}”?`}
+        title={t('edit.confirmTitle', { title: entry.title })}
         footer={
           <>
             <Button variant="ghost" onClick={() => setConfirmOpen(false)}>
-              Cancel
+              {t('common:actions.cancel')}
             </Button>
             <Button
               variant="danger-solid"
@@ -111,12 +113,12 @@ export default function LibraryEditPage() {
                 navigate('/library', { replace: true })
               }}
             >
-              Remove
+              {t('edit.remove')}
             </Button>
           </>
         }
       >
-        <p>Your status, score, notes and progress for this title will be deleted.</p>
+        <p>{t('edit.confirmBody')}</p>
       </Dialog>
     </section>
   )

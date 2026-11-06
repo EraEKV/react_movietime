@@ -1,7 +1,8 @@
+import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
 import { useEpisodeRatings, type Episode } from '../../hooks/useEpisodeRatings'
 import { episodeCode } from '../../utils/format'
-import { RATING_WORDS, type RatingStep } from '../../utils/rating'
+import { ratingWord, type RatingStep } from '../../utils/rating'
 import EmptyState from '../EmptyState/EmptyState'
 import ErrorState from '../EmptyState/ErrorState'
 import RatingBadge from '../RatingBadge/RatingBadge'
@@ -24,6 +25,7 @@ interface EpisodeHeatmapProps {
 }
 
 export default function EpisodeHeatmap({ seriesId, seasonNumbers }: EpisodeHeatmapProps) {
+  const { t } = useTranslation('catalog')
   const { status, seasons, error, reload } = useEpisodeRatings(seriesId, seasonNumbers)
 
   // Store only the id; the episode object is derived from loaded data on each render,
@@ -32,7 +34,7 @@ export default function EpisodeHeatmap({ seriesId, seasonNumbers }: EpisodeHeatm
 
   if (status === 'idle' || status === 'loading') {
     return (
-      <div aria-busy="true" aria-label="Loading episode ratings">
+      <div aria-busy="true" aria-label={t('heatmap.loading')}>
         <Skeleton height={320} radius="md" />
       </div>
     )
@@ -42,7 +44,7 @@ export default function EpisodeHeatmap({ seriesId, seasonNumbers }: EpisodeHeatm
     return (
       <ErrorState
         headingLevel="h3"
-        title="We couldn’t load episode ratings"
+        title={t('heatmap.error')}
         body={error.message}
         onRetry={reload}
       />
@@ -57,8 +59,8 @@ export default function EpisodeHeatmap({ seriesId, seasonNumbers }: EpisodeHeatm
       <EmptyState
         icon="heat"
         headingLevel="h3"
-        title="No episode ratings yet"
-        body="Ratings appear after episodes air and TMDB users vote on them."
+        title={t('heatmap.emptyTitle')}
+        body={t('heatmap.emptyBody')}
       />
     )
   }
@@ -76,12 +78,12 @@ export default function EpisodeHeatmap({ seriesId, seasonNumbers }: EpisodeHeatm
   return (
     <div className={styles.heatmap}>
       <div className={styles.highlights}>
-        <HighlightButton label="★ Best" episode={best} onSelect={handleSelect} />
+        <HighlightButton label={t('heatmap.best')} episode={best} onSelect={handleSelect} />
         {worst.id !== best.id && (
-          <HighlightButton label="▼ Lowest" episode={worst} onSelect={handleSelect} />
+          <HighlightButton label={t('heatmap.lowest')} episode={worst} onSelect={handleSelect} />
         )}
         <p className={styles.stats}>
-          {rated.length} of {episodes.length} episodes rated
+          {t('heatmap.rated', { rated: rated.length, total: episodes.length })}
         </p>
       </div>
 
@@ -93,23 +95,23 @@ export default function EpisodeHeatmap({ seriesId, seasonNumbers }: EpisodeHeatm
         onSelect={handleSelect}
       />
 
-      <ul className={styles.legend} aria-label="Rating colours">
+      <ul className={styles.legend} aria-label={t('heatmap.legend')}>
         {LEGEND.map((item) => (
           <li key={item.step}>
             <span className={styles.swatch} data-step={item.step} />
-            {RATING_WORDS[item.step]} {item.range}
+            {ratingWord(item.step)} {item.range}
           </li>
         ))}
         <li>
           <span className={styles.swatch} data-step={0} />
-          Not aired
+          {t('heatmap.notAired')}
         </li>
       </ul>
 
       {selected ? (
         <EpisodePanel episode={selected} onClose={() => setSelectedId(null)} />
       ) : (
-        <p className={styles.hint}>Select an episode to see its details.</p>
+        <p className={styles.hint}>{t('heatmap.hint')}</p>
       )}
     </div>
   )

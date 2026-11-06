@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import Banner from '../components/Banner/Banner'
 import ErrorState from '../components/EmptyState/ErrorState'
 import ActivityFeed from '../components/Profile/ActivityFeed'
@@ -10,6 +11,7 @@ import styles from './ProfilePage.module.css'
 
 /** /profile — who you are, your numbers and what you did lately. Signed-in users only. */
 export default function ProfilePage() {
+  const { t } = useTranslation('profile')
   // ProtectedRoute guarantees a user here.
   const { user } = useAuth()
   const { status, profile, error } = useProfile(user?.uid ?? null)
@@ -18,20 +20,14 @@ export default function ProfilePage() {
 
   return (
     <section className={styles.page} aria-labelledby="profile-title">
-      <title>Profile · Movietime</title>
+      <title>{t('pageTitle')}</title>
 
       <ProfileHeader user={user} profile={profile} loading={status === 'loading'} />
 
       {status === 'error' && (
-        <ErrorState
-          headingLevel="h2"
-          title="Couldn’t load your profile"
-          body={errorMessage(error)}
-        />
+        <ErrorState headingLevel="h2" title={t('loadError')} body={errorMessage(error)} />
       )}
-      {status === 'success' && !profile && (
-        <Banner>Your profile is being created. Sign out and in again if this stays.</Banner>
-      )}
+      {status === 'success' && !profile && <Banner>{t('creating')}</Banner>}
 
       <ProfileCounters />
       <ActivityFeed />

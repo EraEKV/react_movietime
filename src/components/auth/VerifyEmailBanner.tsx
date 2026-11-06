@@ -1,3 +1,4 @@
+import { Trans, useTranslation } from 'react-i18next'
 import { useState } from 'react'
 import { useAuth } from '../../hooks/useAuth'
 import Banner from '../Banner/Banner'
@@ -8,6 +9,7 @@ import Button from '../Button/Button'
  * Firestore rules give access to shared lists and plans only to verified emails.
  */
 export default function VerifyEmailBanner() {
+  const { t } = useTranslation()
   const { user, pending, resendVerification, refreshUser } = useAuth()
   const [sent, setSent] = useState(false)
 
@@ -24,19 +26,23 @@ export default function VerifyEmailBanner() {
             loading={pending === 'verify'}
             onClick={() => void refreshUser()}
           >
-            I’ve verified
+            {t('verify.done')}
           </Button>
           <Button
             size="sm"
             disabled={sent || pending !== null}
             onClick={async () => setSent(await resendVerification())}
           >
-            {sent ? 'Sent' : 'Resend email'}
+            {t(sent ? 'verify.sent' : 'verify.resend')}
           </Button>
         </>
       }
     >
-      Verify <strong>{user.email}</strong> to use shared lists and plans.
+      <Trans
+        i18nKey="verify.text"
+        values={{ email: user.email }}
+        components={{ strong: <strong /> }}
+      />
     </Banner>
   )
 }

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { useEffect, type FormEvent } from 'react'
 import { Link, useLocation } from 'react-router'
 import styles from '../components/auth/AuthLayout.module.css'
@@ -20,6 +21,7 @@ import {
 type Field = 'displayName' | 'email' | 'password' | 'confirm'
 
 export default function SignupPage() {
+  const { t } = useTranslation('auth')
   const { search } = useLocation()
   const { signUp, pending, error, clearError } = useAuth()
   const form = useForm<Field>({ displayName: '', email: '', password: '', confirm: '' }, (v) => ({
@@ -49,41 +51,41 @@ export default function SignupPage() {
 
   return (
     <>
-      <title>Create account · Movietime</title>
+      <title>{t('signup.pageTitle')}</title>
       <div className={styles.heading}>
-        <h1 className={styles.title}>Create your account</h1>
-        <p className={styles.subtitle}>Your library, lists and plans — synced across devices.</p>
+        <h1 className={styles.title}>{t('signup.title')}</h1>
+        <p className={styles.subtitle}>{t('signup.subtitle')}</p>
       </div>
 
       {error && !serverField && <Banner tone="warning">{error.message}</Banner>}
 
       <GoogleButton />
-      <div className={styles.divider}>or with email</div>
+      <div className={styles.divider}>{t('orEmail')}</div>
 
       <form className={styles.form} onSubmit={handleSubmit} noValidate>
         <TextField
-          label="Display name"
+          label={t('signup.name')}
           value={form.values.displayName}
           onChange={(value) => change('displayName', value)}
           onBlur={() => form.blur('displayName')}
           error={fieldError('displayName')}
-          hint="How friends see you in shared lists and plans."
+          hint={t('signup.nameHint')}
           maxLength={DISPLAY_NAME_MAX}
           autoComplete="nickname"
         />
         <TextField
-          label="Email"
+          label={t('email')}
           type="email"
           value={form.values.email}
           onChange={(value) => change('email', value)}
           onBlur={() => form.blur('email')}
           error={fieldError('email')}
           autoComplete="email"
-          placeholder="you@example.com"
+          placeholder={t('emailPlaceholder')}
         />
         <div className={styles.passwordGroup}>
           <TextField
-            label="Password"
+            label={t('password')}
             type="password"
             value={form.values.password}
             onChange={(value) => change('password', value)}
@@ -94,7 +96,7 @@ export default function SignupPage() {
           <PasswordChecklist value={form.values.password} />
         </div>
         <TextField
-          label="Confirm password"
+          label={t('signup.confirm')}
           type="password"
           value={form.values.confirm}
           onChange={(value) => change('confirm', value)}
@@ -110,14 +112,14 @@ export default function SignupPage() {
           loading={pending === 'email'}
           disabled={pending !== null}
         >
-          Create account
+          {t('signup.submit')}
         </Button>
       </form>
 
       <p className={styles.footer}>
-        Already have an account?
+        {t('signup.haveAccount')}
         <Link to={`/login${search}`} className={styles.link}>
-          Sign in
+          {t('signup.signIn')}
         </Link>
       </p>
     </>

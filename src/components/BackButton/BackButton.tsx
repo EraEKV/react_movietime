@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router'
 import Button from '../Button/Button'
 import styles from './BackButton.module.css'
@@ -7,6 +8,7 @@ import styles from './BackButton.module.css'
  * or to the home page when the detail page was opened directly from a link.
  */
 export default function BackButton() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const location = useLocation()
   const hasHistory = location.key !== 'default'
@@ -18,7 +20,7 @@ export default function BackButton() {
       className={styles.back}
       onClick={() => (hasHistory ? navigate(-1) : navigate('/'))}
     >
-      Back
+      {t('actions.back')}
     </Button>
   )
 }

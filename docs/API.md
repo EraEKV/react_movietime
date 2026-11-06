@@ -52,8 +52,17 @@ types in `src/types/`.
 | `endpoints.trending(mediaType)`                 |   ✅   | `/trending/{movie,tv}/week`                                     |
 | `tmdbGetAll(paths, { signal })`                 |   ✅   | Several paths in parallel (`Promise.all`), one shared signal    |
 
-🚧 Every endpoint builder gets a `language` param from the current UI language, so a language
-switch changes the path string and `useFetch` refetches.
+✅ Every request carries `language=en-US | ru-RU | kk-KZ` for the current UI language
+(`tmdbGet` appends it unless the path already has one). The hooks (`useFetch`, `useCatalog`,
+`useTitleSearch`, `useEpisodeRatings`) put the language into their request key through
+`useTmdbLanguage()`, so a language switch changes the key and the data is fetched again.
+
+- Details endpoints append `translations` and `include_video_language=<lang>,en,null`:
+  `overviewOf()` shows the English overview when TMDB has none in the current language
+  (common for Kazakh), and trailers fall back to English ones.
+- Genres, episode names and recommendations come back in the UI language from the same call.
+- The planner's one-off requests (`seriesSummary`, `seasonsBatch`, `movieSummary`) also get the
+  language; stored plan data keeps the language it was created in.
 
 **Page size.** TMDB always returns 20 titles per page. For 40 or 60 per page, `useCatalog`
 loads 2 or 3 consecutive TMDB pages with `tmdbGetAll` (one `AbortController` for all of them)
@@ -269,5 +278,6 @@ Thunks call the services above; reducers stay pure. The store only holds seriali
 | `usePlanSource(pick)`                                   |   ✅   | Episodes of a series or movies of a list for the stepper (aborts on change)                   |
 | `useMediaQuery(query)`                                  |   ✅   | `matchMedia` via `useSyncExternalStore` (calendar / agenda switch)                            |
 | `useDashboardStats(period)`                             |   ✅   | Library stats (selector), genres, plan stats per section with `status` and `retry`            |
-| `useTheme()` / `useLanguage()`                          |   🚧   | Current value + setter                                                                        |
+| `useTheme()`                                            |   ✅   | Current value + setter                                                                        |
+| `useTmdbLanguage()`                                     |   ✅   | TMDB code of the UI language (`ru-RU`), part of every request key                             |
 | `useOnlineStatus()`                                     |   🚧   | `true` / `false` from `online` / `offline` events                                             |

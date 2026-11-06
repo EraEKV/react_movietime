@@ -1,8 +1,10 @@
+import i18n from '../../i18n'
+import { useTranslation } from 'react-i18next'
 import { useRef, useState, type FormEvent } from 'react'
 import { useAuth } from '../../hooks/useAuth'
 import { useForm } from '../../hooks/useForm'
 import { useTimedState } from '../../hooks/useTimedState'
-import { OFFLINE_MESSAGE } from '../../utils/listErrors'
+import { offlineMessage } from '../../utils/listErrors'
 import Button from '../Button/Button'
 import Icon from '../Icon/Icon'
 import TextField from '../TextField/TextField'
@@ -13,8 +15,8 @@ const MAX_NAME = 40
 
 function validateName(value: string): string | null {
   const name = value.trim()
-  if (name.length === 0) return 'Enter a name.'
-  if (name.length > MAX_NAME) return `Use ${MAX_NAME} characters or fewer.`
+  if (name.length === 0) return i18n.t('profile:name.required')
+  if (name.length > MAX_NAME) return i18n.t('profile:name.tooLong', { max: MAX_NAME })
   return null
 }
 
@@ -30,6 +32,7 @@ interface DisplayNameFormProps {
  * field, Saving… on the button, an error under the field, and a short "Saved" after.
  */
 export default function DisplayNameForm({ initialName }: DisplayNameFormProps) {
+  const { t } = useTranslation('profile')
   const { updateDisplayName } = useAuth()
   const form = useForm({ name: initialName }, (v) => ({ name: validateName(v.name) }))
   const [save, setSave] = useState<SaveState>({ kind: 'idle' })
@@ -50,7 +53,7 @@ export default function DisplayNameForm({ initialName }: DisplayNameFormProps) {
     }
     if (unchanged) return
     if (!navigator.onLine) {
-      setSave({ kind: 'error', message: OFFLINE_MESSAGE })
+      setSave({ kind: 'error', message: offlineMessage() })
       inputRef.current?.focus()
       return
     }
@@ -74,7 +77,7 @@ export default function DisplayNameForm({ initialName }: DisplayNameFormProps) {
     <form className={styles.nameForm} onSubmit={(e) => void handleSubmit(e)} noValidate>
       <TextField
         ref={inputRef}
-        label="Display name"
+        label={t('name.label')}
         value={form.values.name}
         onChange={(value) => {
           form.setValue('name', value)
@@ -82,7 +85,7 @@ export default function DisplayNameForm({ initialName }: DisplayNameFormProps) {
         }}
         onBlur={() => form.blur('name')}
         error={fieldError}
-        hint={`Friends see this on shared lists and plans. ${name.length}/${MAX_NAME}`}
+        hint={t('name.hint', { length: name.length, max: MAX_NAME })}
         autoComplete="nickname"
         maxLength={MAX_NAME + 10}
         disabled={save.kind === 'saving'}
@@ -94,12 +97,12 @@ export default function DisplayNameForm({ initialName }: DisplayNameFormProps) {
           loading={save.kind === 'saving'}
           disabled={unchanged && save.kind !== 'saving'}
         >
-          {save.kind === 'saving' ? 'Saving…' : 'Save name'}
+          {save.kind === 'saving' ? t('name.saving') : t('name.save')}
         </Button>
         <span className={styles.saved} role="status">
           {saved && (
             <>
-              <Icon name="check" size={16} /> Saved
+              <Icon name="check" size={16} /> {t('name.saved')}
             </>
           )}
         </span>

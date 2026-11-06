@@ -1,5 +1,6 @@
 import { isAnyOf, TaskAbortError } from '@reduxjs/toolkit'
-import { onAuthChange, toAuthUser } from '../services/authService'
+import { loadAuthService } from '../services/loadAuthService'
+import { setLanguage } from '../i18n'
 import { savePreferences } from '../storage/preferencesStorage'
 import { authChanged } from './authSlice'
 import { startAppListening } from './listenerMiddleware'
@@ -12,12 +13,11 @@ import {
 } from './preferencesSlice'
 import type { AppDispatch, RootState } from './store'
 
-/** Puts preferences into the DOM: data-theme drives every colour token, lang drives fonts/a11y. */
+/** Puts the theme into the DOM: data-theme drives every colour token. (<html lang> is set by i18n.) */
 function applyToDocument(state: RootState) {
   const root = document.documentElement
   const theme = selectResolvedTheme(state)
   root.dataset.theme = theme
-  root.lang = state.preferences.language
   // The browser UI (mobile address bar) follows the page background.
   const bg = getComputedStyle(root).getPropertyValue('--bg').trim()
   document.querySelector('meta[name="theme-color"]')?.setAttribute('content', bg)
@@ -39,6 +39,12 @@ export function registerPreferenceListeners(getState: () => RootState) {
       const { theme, language } = api.getState().preferences
       savePreferences({ theme, language })
     },
+  })
+
+  // The interface language follows the store; i18next loads the dictionaries it needs.
+  startAppListening({
+    matcher: isAnyOf(languageChanged, preferencesSynced),
+    effect: (_action, api) => setLanguage(api.getState().preferences.language),
   })
 
   startAppListening({
@@ -111,7 +117,8 @@ export function registerPreferenceListeners(getState: () => RootState) {
  * Subscribed once for the app's lifetime, so there is nothing to unsubscribe.
  * Until the first callback, auth.status stays 'loading' and protected routes wait.
  */
-export function startAuthSync(dispatch: AppDispatch) {
+export async function startAuthSync(dispatch: AppDispatch) {
+  const { onAuthChange, toAuthUser } = await loadAuthService()
   onAuthChange((user) => {
     dispatch(authChanged(user ? toAuthUser(user) : null))
   })

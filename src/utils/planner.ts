@@ -1,3 +1,4 @@
+import i18n from '../i18n'
 // Pure planner helpers: TMDB episodes → plan units, colours, labels, roles. No React.
 import type { LibraryMedia, SeriesProgress } from '../types/library'
 import type { Plan, PlanColor, PlanRole, PlanUnit, Weekday } from '../types/plan'
@@ -76,8 +77,9 @@ export const isPlanColor = (value: unknown): value is PlanColor =>
 /** "Mon, Wed, Fri at 21:00" — weekdays in display order (Monday first). */
 export function scheduleLabel(weekdays: Weekday[], time: string): string {
   const days = WEEK_ORDER.filter((d) => weekdays.includes(d))
-  const text = days.length === 7 ? 'Every day' : days.map(weekdayShort).join(', ')
-  return `${text} at ${time}`
+  const text =
+    days.length === 7 ? i18n.t('planner:everyDay') : days.map((day) => weekdayShort(day)).join(', ')
+  return i18n.t('planner:scheduleAt', { days: text, time })
 }
 
 /** 0…1 for the progress ring and bar. */
@@ -89,7 +91,7 @@ export const canEditSessions = (role: PlanRole) => role === 'owner' || role === 
 
 /** "episode"/"movie" by plan kind. */
 export const unitWord = (plan: Pick<Plan, 'kind'>, count: number) =>
-  `${count} ${plan.kind === 'series' ? 'episode' : 'movie'}${count === 1 ? '' : 's'}`
+  i18n.t(plan.kind === 'series' ? 'count.episodes' : 'count.movies', { count })
 
 /** Poster of a session: the movie's own, or the series'. */
 export const sessionPoster = (plan: Pick<Plan, 'media'>, units: PlanUnit[]) =>
@@ -98,10 +100,10 @@ export const sessionPoster = (plan: Pick<Plan, 'media'>, units: PlanUnit[]) =>
 /** A Firestore write error → a sentence for the user. */
 export function planErrorMessage(error: unknown): string {
   const code = typeof error === 'object' && error !== null && 'code' in error ? error.code : null
-  if (code === 'permission-denied') return 'You don’t have permission to change this plan.'
-  if (code === 'not-found') return 'This plan no longer exists.'
+  if (code === 'permission-denied') return i18n.t('planner:errors.permission')
+  if (code === 'not-found') return i18n.t('planner:errors.notFound')
   if (error instanceof Error && error.name === 'PlanError') return error.message
-  return 'We couldn’t save your changes. Check your connection and try again.'
+  return i18n.t('errors.saveFailed')
 }
 
 /** An error whose message is meant for the user (no episodes left, empty list…). */
@@ -138,8 +140,10 @@ export function defaultPlanTitle(
   name: string,
   first: PlanUnit | undefined,
 ): string {
-  if (kind === 'list') return `${name} marathon`.slice(0, 120)
+  if (kind === 'list') return i18n.t('planner:defaultTitle.marathon', { name }).slice(0, 120)
   if (!first || first.season === null || first.episode === null) return name.slice(0, 120)
   if (first.season === 1 && first.episode === 1) return name.slice(0, 120)
-  return `${name} — from S${first.season}E${first.episode}`.slice(0, 120)
+  return i18n
+    .t('planner:defaultTitle.from', { name, code: `S${first.season}E${first.episode}` })
+    .slice(0, 120)
 }

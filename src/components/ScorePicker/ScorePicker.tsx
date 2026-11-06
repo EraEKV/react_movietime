@@ -1,5 +1,6 @@
+import { useTranslation } from 'react-i18next'
 import { useId } from 'react'
-import { SCORE_WORDS } from '../../utils/library'
+import { SCORES, scoreWord, type Score } from '../../utils/library'
 import { buttonClass } from '../Button/variants'
 import styles from './ScorePicker.module.css'
 
@@ -13,14 +14,14 @@ interface ScorePickerProps {
  * so "not scored" is reachable without a separate control.
  */
 export default function ScorePicker({ value, onChange }: ScorePickerProps) {
+  const { t } = useTranslation()
   const hintId = useId()
-  const word = value ? SCORE_WORDS[value - 1] : null
+  const word = value ? scoreWord(value as Score) : null
   return (
     <fieldset className={styles.group} aria-describedby={hintId}>
-      <legend className={styles.legend}>Your score</legend>
+      <legend className={styles.legend}>{t('score.legend')}</legend>
       <div className={styles.buttons}>
-        {SCORE_WORDS.map((label, i) => {
-          const score = i + 1
+        {SCORES.map((score) => {
           const pressed = score === value
           return (
             <button
@@ -30,7 +31,7 @@ export default function ScorePicker({ value, onChange }: ScorePickerProps) {
                 className: styles.button,
               })}
               aria-pressed={pressed}
-              aria-label={`${score}, ${label}`}
+              aria-label={t('score.option', { score, label: scoreWord(score) })}
               onClick={() => onChange(pressed ? null : score)}
             >
               {score}
@@ -39,7 +40,7 @@ export default function ScorePicker({ value, onChange }: ScorePickerProps) {
         })}
       </div>
       <p id={hintId} className={styles.hint} aria-live="polite">
-        {word ? `${value} — ${word}. Press it again to clear.` : 'Not scored yet.'}
+        {word ? t('score.hint', { value, word }) : t('score.none')}
       </p>
     </fieldset>
   )

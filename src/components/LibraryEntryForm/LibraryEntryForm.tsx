@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { useState, type FormEvent } from 'react'
 import { endpoints } from '../../api/tmdb'
 import { useFetch } from '../../hooks/useFetch'
@@ -36,6 +37,7 @@ export default function LibraryEntryForm({
   onCancel,
   onRemove,
 }: LibraryEntryFormProps) {
+  const { t } = useTranslation(['library', 'common'])
   const [status, setStatus] = useState<LibraryStatus>(entry.status)
   const [score, setScore] = useState<number | null>(entry.score)
   const [notes, setNotes] = useState(entry.notes)
@@ -43,7 +45,7 @@ export default function LibraryEntryForm({
   const [submitted, setSubmitted] = useState(false)
 
   // Validation is derived from the values, never stored.
-  const notesError = notes.length > NOTES_MAX ? `Keep notes under ${NOTES_MAX} characters.` : null
+  const notesError = notes.length > NOTES_MAX ? t('form.notesTooLong', { max: NOTES_MAX }) : null
   const showNotesError = submitted || notes.length > NOTES_MAX
 
   function handleSubmit(event: FormEvent) {
@@ -56,7 +58,7 @@ export default function LibraryEntryForm({
   return (
     <form className={styles.form} onSubmit={handleSubmit} noValidate>
       <RadioCards
-        legend="Status"
+        legend={t('form.status')}
         value={status}
         onChange={setStatus}
         options={LIBRARY_STATUSES.map((s) => ({ ...s, icon: STATUS_ICON[s.value] }))}
@@ -74,25 +76,25 @@ export default function LibraryEntryForm({
       )}
 
       <Textarea
-        label="Notes"
+        label={t('form.notes')}
         optional
         value={notes}
         onChange={setNotes}
         maxLength={NOTES_MAX}
         error={showNotesError ? notesError : null}
-        placeholder="Anything to remember: who recommended it, where you stopped…"
+        placeholder={t('form.notesPlaceholder')}
       />
 
       <div className={styles.actions}>
         <Button variant="danger" icon="trash" onClick={onRemove}>
-          Remove from library
+          {t('button.remove')}
         </Button>
         <div className={styles.end}>
           <Button variant="ghost" onClick={onCancel}>
-            Cancel
+            {t('common:actions.cancel')}
           </Button>
           <Button type="submit" variant="primary">
-            Save changes
+            {t('form.saveChanges')}
           </Button>
         </div>
       </div>
@@ -109,6 +111,7 @@ interface SeriesProgressProps {
 
 /** Season + last watched episode. Season sizes come from TMDB (/tv/{id}). */
 function SeriesProgressFields({ tmdbId, totalEpisodes, value, onChange }: SeriesProgressProps) {
+  const { t } = useTranslation('library')
   const { status, data } = useFetch<{ seasons: SeasonSummary[]; number_of_episodes: number }>(
     endpoints.seriesSummary(tmdbId),
   )
@@ -116,9 +119,7 @@ function SeriesProgressFields({ tmdbId, totalEpisodes, value, onChange }: Series
   if (status !== 'success') {
     return (
       <p className={styles.muted} aria-live="polite">
-        {status === 'error'
-          ? 'Couldn’t load the seasons, so progress can’t be changed right now.'
-          : 'Loading seasons…'}
+        {status === 'error' ? t('form.seasonsError') : t('form.seasonsLoading')}
       </p>
     )
   }
@@ -133,13 +134,16 @@ function SeriesProgressFields({ tmdbId, totalEpisodes, value, onChange }: Series
   }
 
   const seasonOptions = [
-    { value: '0', label: 'Not started' },
-    ...seasons.map((s) => ({ value: String(s.season_number), label: `Season ${s.season_number}` })),
+    { value: '0', label: t('form.notStarted') },
+    ...seasons.map((s) => ({
+      value: String(s.season_number),
+      label: t('form.seasonN', { n: s.season_number }),
+    })),
   ]
   const episodeOptions = current
     ? Array.from({ length: current.episode_count }, (_, i) => ({
         value: String(i + 1),
-        label: `Episode ${i + 1}`,
+        label: t('form.episodeN', { n: i + 1 }),
       }))
     : [{ value: '0', label: '—' }]
 
@@ -149,14 +153,14 @@ function SeriesProgressFields({ tmdbId, totalEpisodes, value, onChange }: Series
     <div className={styles.progress}>
       <div className={styles.row}>
         <SelectField
-          label="Season"
+          label={t('form.season')}
           value={String(value?.season ?? 0)}
           options={seasonOptions}
           // A new season starts from its first episode.
           onChange={(season) => select(Number(season), 1)}
         />
         <SelectField
-          label="Last watched episode"
+          label={t('form.lastEpisode')}
           disabled={!current}
           value={String(value?.episode ?? 0)}
           options={episodeOptions}
@@ -165,11 +169,11 @@ function SeriesProgressFields({ tmdbId, totalEpisodes, value, onChange }: Series
       </div>
       <ProgressBar
         value={ratio}
-        label="Series progress"
+        label={t('form.progress')}
         caption={
           value
-            ? `${episodeCode(value.season, value.episode)} · ${value.watchedEpisodes} of ${total} episodes`
-            : `0 of ${total} episodes`
+            ? `${episodeCode(value.season, value.episode)} · ${t('form.progressCaption', { done: value.watchedEpisodes, count: total })}`
+            : t('form.progressCaption', { done: 0, count: total })
         }
       />
     </div>

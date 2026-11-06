@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { useId, useState, type FormEvent } from 'react'
 import { createSearchParams, useLocation, useNavigate } from 'react-router'
 import fieldStyles from '../Field/Field.module.css'
@@ -9,6 +10,7 @@ import styles from './Layout.module.css'
  * On movie pages it searches movies, everywhere else series (the app's main focus).
  */
 export default function HeaderSearch() {
+  const { t } = useTranslation()
   const id = useId()
   const navigate = useNavigate()
   const { pathname } = useLocation()
@@ -26,7 +28,7 @@ export default function HeaderSearch() {
   return (
     <form role="search" className={styles.search} onSubmit={handleSubmit}>
       <label htmlFor={id} className="sr-only">
-        {catalog === '/movies' ? 'Search movies' : 'Search series'}
+        {t(catalog === '/movies' ? 'header.searchMovies' : 'header.searchSeries')}
       </label>
       <div className={fieldStyles.control}>
         <Icon name="search" size={18} className={fieldStyles.leading} />
@@ -35,7 +37,7 @@ export default function HeaderSearch() {
           type="search"
           value={text}
           onChange={(e) => setText(e.target.value)}
-          placeholder="Search"
+          placeholder={t('header.search')}
           autoComplete="off"
         />
       </div>

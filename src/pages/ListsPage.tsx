@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router'
 import Banner from '../components/Banner/Banner'
 import ButtonLink from '../components/ButtonLink/ButtonLink'
@@ -17,6 +18,7 @@ import styles from './ListsPage.module.css'
 const SKELETONS = 3
 
 export default function ListsPage() {
+  const { t } = useTranslation(['lists', 'common'])
   const lists = useMyLists()
   const shared = useSharedLists()
   const location = useLocation()
@@ -27,7 +29,7 @@ export default function ListsPage() {
   if (lists.status === 'error') {
     body = (
       <ErrorState
-        title="We couldn’t load your lists"
+        title={t('loadError')}
         body={lists.error.message}
         onRetry={lists.retry}
         headingLevel="h3"
@@ -35,7 +37,7 @@ export default function ListsPage() {
     )
   } else if (lists.status !== 'success') {
     body = (
-      <div aria-busy="true" aria-label="Loading lists">
+      <div aria-busy="true" aria-label={t('loadingLists')}>
         <ListGrid>
           {Array.from({ length: SKELETONS }, (_, i) => (
             <li key={i}>
@@ -49,19 +51,19 @@ export default function ListsPage() {
     body = (
       <EmptyState
         icon="list"
-        title="No lists yet"
-        body="Collect titles for a mood, a marathon or a friend. You can share any list later."
+        title={t('emptyTitle')}
+        body={t('emptyBody')}
         headingLevel="h3"
         actions={
           <ButtonLink to="/lists/new" variant="primary" icon="plus">
-            Create your first list
+            {t('createFirst')}
           </ButtonLink>
         }
       />
     )
   } else {
     body = (
-      <ListGrid label="My lists">
+      <ListGrid label={t('myLists')}>
         {lists.data.map((list) => (
           <li key={list.id}>
             <ListCard list={list} />
@@ -76,30 +78,28 @@ export default function ListsPage() {
 
   return (
     <section className={styles.page} aria-labelledby="lists-title">
-      <title>Lists · Movietime</title>
+      <title>{t('pageTitle')}</title>
 
       <header className={styles.header}>
         <div>
           <h1 id="lists-title" className={styles.title}>
-            Lists
+            {t('title')}
           </h1>
           <p className={styles.subtitle}>
-            {total === null
-              ? ' '
-              : `${total} ${total === 1 ? 'list' : 'lists'} · ${titlesCount(items)}`}
+            {total === null ? ' ' : `${t('listsCount', { count: total })} · ${titlesCount(items)}`}
           </p>
         </div>
         <ButtonLink to="/lists/new" variant="primary" icon="plus">
-          New list
+          {t('new')}
         </ButtonLink>
       </header>
 
       <section aria-labelledby="my-lists">
-        <SectionHeader id="my-lists" title="My lists" />
+        <SectionHeader id="my-lists" title={t('myLists')} />
         {body}
       </section>
       <section aria-labelledby="shared-lists">
-        <SectionHeader id="shared-lists" title="Shared with me" />
+        <SectionHeader id="shared-lists" title={t('sharedWithMe')} />
         <SharedLists shared={shared} />
       </section>
 
@@ -109,6 +109,7 @@ export default function ListsPage() {
 }
 
 function SharedLists({ shared }: { shared: ReturnType<typeof useSharedLists> }) {
+  const { t } = useTranslation('lists')
   // Rules give member access only to verified emails, so there is nothing to query yet.
   if (shared.needsVerification) {
     return (
@@ -116,18 +117,18 @@ function SharedLists({ shared }: { shared: ReturnType<typeof useSharedLists> }) 
         tone="warning"
         action={
           <ButtonLink to="/verify-email" size="sm">
-            Verify email
+            {t('verifyEmail')}
           </ButtonLink>
         }
       >
-        Confirm your email to see lists friends share with you.
+        {t('verifyBanner')}
       </Banner>
     )
   }
   if (shared.status === 'error') {
     return (
       <ErrorState
-        title="We couldn’t load shared lists"
+        title={t('sharedError')}
         body={shared.error.message}
         onRetry={shared.retry}
         headingLevel="h3"
@@ -136,7 +137,7 @@ function SharedLists({ shared }: { shared: ReturnType<typeof useSharedLists> }) 
   }
   if (shared.status !== 'success') {
     return (
-      <div aria-busy="true" aria-label="Loading shared lists">
+      <div aria-busy="true" aria-label={t('loadingShared')}>
         <ListGrid>
           <li>
             <ListCardSkeleton />
@@ -146,15 +147,11 @@ function SharedLists({ shared }: { shared: ReturnType<typeof useSharedLists> }) 
     )
   }
   if (shared.data.length === 0) {
-    return (
-      <p className={styles.sharedEmpty}>
-        When a friend shares a list with {shared.email}, it shows up here.
-      </p>
-    )
+    return <p className={styles.sharedEmpty}>{t('sharedEmpty', { email: shared.email })}</p>
   }
   const email = shared.email ?? ''
   return (
-    <ListGrid label="Shared with me">
+    <ListGrid label={t('sharedWithMe')}>
       {shared.data.map((list) => (
         <li key={list.id}>
           <ListCard list={list} role={list.roles[email] ?? 'viewer'} />

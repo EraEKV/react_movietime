@@ -1,6 +1,6 @@
+import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
 import type { PlanSession } from '../../types/plan'
-import { pluralize } from '../../utils/format'
 import { bySchedule, unitsLabel } from '../../utils/schedule'
 import Banner from '../Banner/Banner'
 import Button from '../Button/Button'
@@ -24,6 +24,7 @@ export default function RescheduleDialog({
   onMove,
   onClose,
 }: RescheduleDialogProps) {
+  const { t } = useTranslation(['planner', 'common'])
   const [date, setDate] = useState(session.date < today ? today : session.date)
   const [shiftLater, setShiftLater] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -51,11 +52,11 @@ export default function RescheduleDialog({
     <Dialog
       open
       onClose={() => !saving && onClose()}
-      title={`Reschedule ${unitsLabel(session.units)}`}
+      title={t('move.title', { units: unitsLabel(session.units) })}
       footer={
         <>
           <Button variant="ghost" onClick={onClose} disabled={saving}>
-            Cancel
+            {t('common:actions.cancel')}
           </Button>
           <Button
             variant="primary"
@@ -63,13 +64,13 @@ export default function RescheduleDialog({
             disabled={date === session.date}
             onClick={() => void move()}
           >
-            Move session
+            {t('move.submit')}
           </Button>
         </>
       }
     >
       <DatePicker
-        label="New date"
+        label={t('move.date')}
         value={date}
         onChange={setDate}
         today={today}
@@ -78,7 +79,7 @@ export default function RescheduleDialog({
       />
       {later > 0 && (
         <Checkbox
-          label={`Shift all later sessions by the same amount (${pluralize(later, 'session')})`}
+          label={t('move.shift', { sessions: t('common:count.sessions', { count: later }) })}
           checked={shiftLater}
           onChange={setShiftLater}
         />

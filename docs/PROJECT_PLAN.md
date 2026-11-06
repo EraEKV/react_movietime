@@ -203,17 +203,17 @@ user's real library and plans:
 | Theme bonus, synced with the account  | `users/{uid}.settings` + listener; account wins on sign-in, live on other devices                  |
 | Form states                           | Display name 1–40: inline error, focus on it, `aria-invalid` + `aria-describedby`, Saving… / Saved |
 | Activity                              | `users/{uid}/activity`, validated by rules, newest 20 live; skeleton / empty / retry               |
-| Language                              | EN / RU / KZ saved now; translations arrive with i18n (phase 11)                                   |
+| Language                              | EN / RU / KZ; applies at once, saved in the account (phase 11 translated the UI)                   |
 
 ### 3.10 Bonus features
 
-| Bonus    | Plan                                                                                                                                                                                         |
-| -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Theme    | Light / dark / system. CSS custom properties under `[data-theme]`. Guests: `localStorage`, users: `users/{uid}.settings.theme`.                                                              |
-| i18n     | `react-i18next` with **en / ru / kk**. The language is also sent to TMDB (`language=ru-RU`), so overviews and titles are translated; it's part of every request key, so switching refetches. |
-| Sharing  | Link sharing + roles (3.6).                                                                                                                                                                  |
-| Planner  | Calendar planner (3.7), `.ics` export.                                                                                                                                                       |
-| Firebase | Auth, Firestore, security rules, offline persistence.                                                                                                                                        |
+| Bonus    | Plan                                                                                                                                                                                                                                                                                                                                                                    |
+| -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Theme    | Light / dark / system. CSS custom properties under `[data-theme]`. Guests: `localStorage`, users: `users/{uid}.settings.theme`.                                                                                                                                                                                                                                         |
+| i18n     | `react-i18next` with **en / ru / kk**. The language is also sent to TMDB (`language=ru-RU`), so overviews and titles are translated; it's part of every request key, so switching refetches. ✅ Dictionaries are split by feature and loaded on demand; plurals for ru; `Intl` for dates and numbers; English overview when TMDB has none; language menu in the header. |
+| Sharing  | Link sharing + roles (3.6).                                                                                                                                                                                                                                                                                                                                             |
+| Planner  | Calendar planner (3.7), `.ics` export.                                                                                                                                                                                                                                                                                                                                  |
+| Firebase | Auth, Firestore, security rules, offline persistence.                                                                                                                                                                                                                                                                                                                   |
 
 **Out of scope: push notifications (FCM).** Real reminders need a server (Cloud Functions) to
 send messages at the planned time, and Cloud Functions require the paid Blaze plan. Instead the
@@ -294,7 +294,7 @@ Small fixes between phases go straight to `main`.
 | 8   | `feat/planner` ✅         | Schedule generation, calendar, complete / reschedule / skip, `.ics` export, plan sharing                                                                              |
 | 9   | `feat/dashboard` ✅       | Stats, breakdowns, filters and navigation                                                                                                                             |
 | 10  | `feat/profile` ✅         | Profile page, settings (theme, language, display name)                                                                                                                |
-| 11  | `feat/i18n`               | en / ru / kk, TMDB language                                                                                                                                           |
+| 11  | `feat/i18n` ✅            | en / ru / kk, lazy dictionaries per feature, plurals, `Intl` formats, TMDB language, header language menu                                                             |
 | 12  | `feat/pwa`                | Manifest, service worker, caching, offline page, status indicator                                                                                                     |
 | 13  | `test/unit-and-component` | Vitest + Testing Library: logic, slices, hooks, components (see 3.12)                                                                                                 |
 | 14  | `docs/final`              | Final README, screenshots, defense notes                                                                                                                              |
@@ -413,3 +413,37 @@ Things to be ready to demonstrate and explain:
 - **PWA:** install the app, go offline, navigate cached pages, open the offline page, reconnect.
 - **Architecture:** why state lives where it does (Redux vs local vs URL), services vs hooks,
   why TypeScript (discriminated unions in `useFetch`, typed slices).
+
+## Idea: a layered structure (FSD-like), not scheduled
+
+Today `src/` is flat by kind (`components/`, `hooks/`, `utils/`, `services/`…): 70+ component
+folders and many shared pieces that "just lie around". Idea for a later `refactor/structure`
+branch, after the PWA and tests phases (a big move conflicts with every open branch):
+
+```
+src/
+├── app/        providers, router, store setup, global styles       (imports everything below)
+├── pages/      one file per route: composition only
+├── widgets/    big self-contained blocks: Header, TabBar, PlannerCalendar, ShareDialog…
+├── features/   one user action each: add-to-library, share-list, create-plan, change-language…
+├── entities/   what the app is about: media, library-entry, list, plan, user
+│               (types + service + small UI such as PosterCard, RoleBadge)
+└── shared/     no business meaning: ui/ (Button, Dialog, Menu…), lib/ (format, calendar,
+                cx), api/ (tmdb, firebase), i18n/, hooks/ (useMediaQuery, useRequest), config/
+```
+
+Rules: a layer imports only from layers below it; a slice (a folder in `features/`, `entities/`…)
+exposes a public `index.ts` and nobody reaches into its files; slices of one layer don't import
+each other. Not every slice needs every segment (`ui/`, `model/`, `api/`, `lib/`): add folders
+when there is a file for them, so there is no folder for the sake of a folder.
+
+Order of work, each step one PR that moves files and changes imports only:
+
+1. `shared/`: UI kit, generic hooks, `utils/` helpers without domain meaning, `api/tmdb`,
+   `i18n/`, styles. Biggest win, lowest risk.
+2. `entities/`: types, services and small views of media, library, list, plan, user.
+3. `features/` and `widgets/`: split the large pages (`PlanPage`, `ListPage`, `DashboardPage`).
+4. Enforce the direction of imports with an ESLint rule (`no-restricted-imports` per layer).
+
+Dictionaries stay in `public/locales/`; the namespace per feature already matches the future
+`features/` and `entities/` slices.

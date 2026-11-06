@@ -1,8 +1,9 @@
+import i18n from '../i18n'
 // Pure helpers for lists: limits, validation, snapshots and the cover collage.
 import type { LibraryMedia } from '../types/library'
 import type { ListDraft, ListItem, ListMedia, ListRole } from '../types/list'
 import type { MediaSummary } from '../types/media'
-import { getYear, pluralize } from './format'
+import { getYear } from './format'
 
 export const LIST_NAME_MAX = 60
 export const LIST_DESCRIPTION_MAX = 300
@@ -35,13 +36,13 @@ export function validateListDraft(draft: Record<keyof ListDraft, string>) {
   const name = draft.name.trim()
   return {
     name: !name
-      ? 'Give your list a name.'
+      ? i18n.t('lists:validation.nameRequired')
       : name.length > LIST_NAME_MAX
-        ? `Keep the name under ${LIST_NAME_MAX} characters.`
+        ? i18n.t('lists:validation.nameTooLong', { max: LIST_NAME_MAX })
         : null,
     description:
       draft.description.trim().length > LIST_DESCRIPTION_MAX
-        ? `Keep the description under ${LIST_DESCRIPTION_MAX} characters.`
+        ? i18n.t('lists:validation.descriptionTooLong', { max: LIST_DESCRIPTION_MAX })
         : null,
     emoji: null,
   }
@@ -100,4 +101,4 @@ export function coversAfterAdd(current: string[], added: ListMedia[]): string[] 
 
 export const canEditItems = (role: ListRole | null) => role === 'owner' || role === 'editor'
 
-export const titlesCount = (n: number) => pluralize(n, 'title')
+export const titlesCount = (n: number) => i18n.t('count.titles', { count: n })

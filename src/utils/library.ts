@@ -1,4 +1,5 @@
 // Pure helpers for library entries: options, labels, building and changing entries.
+import i18n, { translatedOption } from '../i18n'
 import type { Option } from '../types/common'
 import type { LibraryChanges, LibraryEntry, LibraryMedia, LibraryStatus } from '../types/library'
 import type { MovieBase, SeriesBase } from '../types/tmdb'
@@ -7,31 +8,22 @@ import { mediaKey } from './media'
 import type { MediaType } from '../types/media'
 
 export const LIBRARY_STATUSES: Option<LibraryStatus>[] = [
-  { value: 'plan', label: 'Plan to watch' },
-  { value: 'watching', label: 'Watching' },
-  { value: 'completed', label: 'Completed' },
-  { value: 'dropped', label: 'Dropped' },
+  translatedOption('plan', 'status.plan'),
+  translatedOption('watching', 'status.watching'),
+  translatedOption('completed', 'status.completed'),
+  translatedOption('dropped', 'status.dropped'),
 ]
 
 export const isLibraryStatus = (value: unknown): value is LibraryStatus =>
   LIBRARY_STATUSES.some((s) => s.value === value)
 
-export const statusLabel = (value: LibraryStatus): string =>
-  LIBRARY_STATUSES.find((s) => s.value === value)?.label ?? value
+export const statusLabel = (value: LibraryStatus): string => i18n.t(`status.${value}`)
 
-/** Words for the 1–10 score buttons. */
-export const SCORE_WORDS = [
-  'Awful',
-  'Bad',
-  'Poor',
-  'Meh',
-  'Okay',
-  'Decent',
-  'Good',
-  'Great',
-  'Excellent',
-  'Masterpiece',
-] as const
+export const SCORES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] as const
+export type Score = (typeof SCORES)[number]
+
+/** Word for a 1–10 score button: "Awful" … "Masterpiece". */
+export const scoreWord = (score: Score): string => i18n.t(`score.${score}`)
 
 export const NOTES_MAX = 500
 
@@ -105,19 +97,19 @@ export function progressRatio(entry: LibraryEntry): number | null {
 export type LibrarySort = 'updated' | 'score' | 'title' | 'year' | 'rating'
 
 export const LIBRARY_SORTS: Option<LibrarySort>[] = [
-  { value: 'updated', label: 'Recently updated' },
-  { value: 'score', label: 'Your score' },
-  { value: 'title', label: 'Title A–Z' },
-  { value: 'year', label: 'Year' },
-  { value: 'rating', label: 'TMDB rating' },
+  translatedOption('updated', 'library:sort.updated'),
+  translatedOption('score', 'library:sort.score'),
+  translatedOption('title', 'library:sort.title'),
+  translatedOption('year', 'library:sort.year'),
+  translatedOption('rating', 'library:sort.rating'),
 ]
 
 export type LibraryTypeFilter = 'all' | MediaType
 
 export const LIBRARY_TYPES: Option<LibraryTypeFilter>[] = [
-  { value: 'all', label: 'Movies & series' },
-  { value: 'movie', label: 'Movies' },
-  { value: 'tv', label: 'Series' },
+  translatedOption('all', 'library:types.all'),
+  translatedOption('movie', 'library:types.movie'),
+  translatedOption('tv', 'library:types.tv'),
 ]
 
 export type StatusFilter = LibraryStatus | 'all'

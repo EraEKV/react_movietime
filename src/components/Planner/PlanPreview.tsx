@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { imageUrl } from '../../api/tmdb'
 import type { PlanColor, ScheduledSession } from '../../types/plan'
 import { formatDay, monthGrid, monthOf } from '../../utils/calendar'
@@ -14,32 +15,33 @@ const finishLabel = (day: string | null) =>
 
 /** The four numbers of a plan: sessions, time, nights a week, finish date. */
 function SummaryTiles({ summary, size }: { summary: PlanSummary; size: 'md' | 'sm' }) {
+  const { t } = useTranslation('planner')
   const hours = totalHours(summary.minutes)
   return (
     <div className={size === 'md' ? styles.tiles : styles.tilesSmall}>
       <StatTile
         size={size}
-        label="Sessions"
+        label={t('preview.sessions')}
         value={summary.sessions}
         icon={size === 'md' ? 'calendar' : undefined}
       />
       <StatTile
         size={size}
-        label="Total time"
+        label={t('preview.total')}
         value={hours.value}
         unit={hours.unit}
         icon={size === 'md' ? 'clock' : undefined}
       />
       <StatTile
         size={size}
-        label="Per week"
+        label={t('preview.perWeek')}
         value={summary.perWeek}
-        unit={summary.perWeek === 1 ? 'night' : 'nights'}
+        unit={t('nights', { count: summary.perWeek }).replace(/^\d+\s*/, '')}
         icon={size === 'md' ? 'list' : undefined}
       />
       <StatTile
         size={size}
-        label="Finishes"
+        label={t('preview.finishes')}
         value={finishLabel(summary.finishDate)}
         icon={size === 'md' ? 'check' : undefined}
       />
@@ -69,21 +71,22 @@ export function PreviewStep({
   color,
   today,
 }: PreviewStepProps) {
+  const { t } = useTranslation('planner')
   const month = monthOf(summary.firstDate ?? today)
   return (
     <div className={styles.stack}>
       <TextField
-        label="Plan name"
+        label={t('preview.name')}
         value={title}
         onChange={onTitleChange}
         maxLength={120}
         error={titleError}
       />
       <SummaryTiles summary={summary} size="md" />
-      <section className={styles.previewCalendar} aria-label="First weeks">
-        <h3 className={styles.panelTitle}>First weeks</h3>
+      <section className={styles.previewCalendar} aria-label={t('preview.firstWeeks')}>
+        <h3 className={styles.panelTitle}>{t('preview.firstWeeks')}</h3>
         <CalendarMonth
-          label="First weeks of the plan"
+          label={t('preview.firstWeeksLabel')}
           month={month}
           days={monthGrid(month)}
           today={today}
@@ -100,9 +103,7 @@ export function PreviewStep({
           }))}
         />
       </section>
-      <Banner>
-        You can reschedule or skip any session later. Moving one can shift all later ones.
-      </Banner>
+      <Banner>{t('preview.banner')}</Banner>
     </div>
   )
 }
@@ -116,23 +117,24 @@ interface LivePreviewProps {
 
 /** Desktop side card that follows every change in the stepper. */
 export function LivePreview({ name, posterPath, range, summary }: LivePreviewProps) {
+  const { t } = useTranslation('planner')
   const poster = imageUrl(posterPath, 'w154')
   return (
-    <aside className={styles.live} aria-label="Live preview">
-      <span className={styles.kicker}>Live preview</span>
+    <aside className={styles.live} aria-label={t('preview.live')}>
+      <span className={styles.kicker}>{t('preview.live')}</span>
       <div className={styles.liveTitle}>
         <span className={styles.livePoster} aria-hidden="true">
           {poster && <img src={poster} alt="" />}
         </span>
         <span className={styles.liveText}>
-          <strong>{name || 'Pick a series or a list'}</strong>
+          <strong>{name || t('preview.pickFirst')}</strong>
           {range && <span className={styles.muted}>{range}</span>}
         </span>
       </div>
       {summary && summary.sessions > 0 ? (
         <SummaryTiles summary={summary} size="sm" />
       ) : (
-        <p className={styles.muted}>The numbers appear as soon as there is something to plan.</p>
+        <p className={styles.muted}>{t('preview.numbers')}</p>
       )}
     </aside>
   )

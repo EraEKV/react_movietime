@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import type { ReactNode } from 'react'
 import PosterSkeleton from '../Skeleton/PosterSkeleton'
 import styles from './PosterRow.module.css'
@@ -18,8 +19,9 @@ export default function PosterRow({ children, label }: PosterRowProps) {
 }
 
 export function PosterRowSkeleton({ count = 8 }: { count?: number }) {
+  const { t } = useTranslation()
   return (
-    <div className={styles.row} role="status" aria-label="Loading">
+    <div className={styles.row} role="status" aria-label={t('states.loading')}>
       {Array.from({ length: count }, (_, i) => (
         <PosterSkeleton key={i} />
       ))}

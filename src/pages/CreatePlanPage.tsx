@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router'
 import Banner from '../components/Banner/Banner'
@@ -16,7 +17,7 @@ import { loadPlannerService, usePlans } from '../hooks/usePlanner'
 import { usePlanSource, type SourcePick } from '../hooks/usePlanSource'
 import type { ScheduleOptions, Weekday } from '../types/plan'
 import { localToday, weekdayOf } from '../utils/calendar'
-import { OFFLINE_MESSAGE } from '../utils/listErrors'
+import { offlineMessage } from '../utils/listErrors'
 import { mediaKey } from '../utils/media'
 import {
   defaultPlanTitle,
@@ -28,7 +29,7 @@ import {
 import { buildSchedule, planSummary, scheduleProblem, unitsLabel } from '../utils/schedule'
 import styles from '../components/Planner/Planner.module.css'
 
-const STEPS = ['Pick a title', 'Start from', 'Schedule', 'Preview']
+const STEP_KEYS = ['steps.pick', 'steps.start', 'steps.schedule', 'steps.preview'] as const
 
 /** ?series=1396 or ?list=abc from the entry points ("Plan watching", "Plan a marathon"). */
 function pickFromUrl(params: URLSearchParams): SourcePick | null {
@@ -44,6 +45,7 @@ function pickFromUrl(params: URLSearchParams): SourcePick | null {
 const DEFAULT_DAYS: Weekday[] = [1, 3, 5]
 
 export default function CreatePlanPage() {
+  const { t } = useTranslation(['planner', 'common'])
   const [params] = useSearchParams()
   const navigate = useNavigate()
   const author = useListAuthor()
@@ -110,7 +112,7 @@ export default function CreatePlanPage() {
 
   async function handleCreate() {
     if (!author || !loaded) return
-    if (!navigator.onLine) return setSaveError(OFFLINE_MESSAGE)
+    if (!navigator.onLine) return setSaveError(offlineMessage())
     setSaving(true)
     setSaveError(null)
     try {
@@ -135,7 +137,11 @@ export default function CreatePlanPage() {
       )
       navigate(`/planner/${id}`, {
         replace: true,
-        state: { notice: `Plan created · ${sessions.length} sessions` },
+        state: {
+          notice: t('new.created', {
+            sessions: t('common:count.sessions', { count: sessions.length }),
+          }),
+        },
       })
     } catch (error) {
       setSaving(false)
@@ -143,6 +149,7 @@ export default function CreatePlanPage() {
     }
   }
 
+  const steps = STEP_KEYS.map((key) => t(key))
   let body
   if (step === 0) {
     body = (
@@ -156,16 +163,16 @@ export default function CreatePlanPage() {
   } else if (source.status === 'error') {
     body = (
       <ErrorState
-        title={isList ? 'We couldn’t load this list' : 'We couldn’t load the episodes'}
+        title={t(isList ? 'new.listError' : 'new.episodesError')}
         body={source.error.message}
         onRetry={source.reload}
         headingLevel="h3"
-        secondary={<Button onClick={() => setStep(0)}>Pick another</Button>}
+        secondary={<Button onClick={() => setStep(0)}>{t('new.pickAnother')}</Button>}
       />
     )
   } else if (!loaded) {
     body = (
-      <div className={styles.stack} aria-busy="true" aria-label="Loading episodes">
+      <div className={styles.stack} aria-busy="true" aria-label={t('new.loadingEpisodes')}>
         <Skeleton height={72} radius="md" />
         <Skeleton height={72} radius="md" />
         <Skeleton height={72} radius="md" />
@@ -174,9 +181,7 @@ export default function CreatePlanPage() {
   } else if (loaded.units.length === 0) {
     body = (
       <Banner tone="warning" icon="alert">
-        {isList
-          ? 'This list has no movies yet. Add some to the list, or pick a series instead.'
-          : 'This series has no aired episodes yet, so there’s nothing to plan.'}
+        {t(isList ? 'new.emptyList' : 'new.emptySeries')}
       </Banner>
     )
   } else if (step === 1) {
@@ -204,7 +209,7 @@ export default function CreatePlanPage() {
       <PreviewStep
         title={customTitle ?? title}
         onTitleChange={setCustomTitle}
-        titleError={title.length === 0 ? 'Give the plan a name.' : null}
+        titleError={title.length === 0 ? t('new.nameRequired') : null}
         summary={summary}
         sessions={sessions}
         name={name}
@@ -216,17 +221,17 @@ export default function CreatePlanPage() {
 
   return (
     <div className={styles.create}>
-      <title>New watch plan · Movietime</title>
+      <title>{t('new.pageTitle')}</title>
       <ButtonLink to="/planner" variant="ghost" icon="chevron-left" className={styles.back}>
-        Planner
+        {t('title')}
       </ButtonLink>
-      <h1 className={styles.pageTitle}>New watch plan</h1>
-      <Stepper steps={STEPS} current={step} />
+      <h1 className={styles.pageTitle}>{t('new.heading')}</h1>
+      <Stepper steps={steps} current={step} />
 
       <div className={styles.createGrid}>
         <section className={styles.stepCard} aria-labelledby="step-title">
           <h2 id="step-title" className={styles.stepTitle}>
-            {STEPS[step]}
+            {steps[step]}
           </h2>
           {body}
         </section>
@@ -251,16 +256,16 @@ export default function CreatePlanPage() {
           disabled={step === 0 || saving}
           onClick={() => setStep(step - 1)}
         >
-          Back
+          {t('new.back')}
         </Button>
-        {step < STEPS.length - 1 ? (
+        {step < steps.length - 1 ? (
           <Button
             variant="primary"
             iconRight="arrow-right"
             disabled={!canContinue}
             onClick={() => setStep(step + 1)}
           >
-            Continue
+            {t('new.continue')}
           </Button>
         ) : (
           <Button
@@ -270,7 +275,7 @@ export default function CreatePlanPage() {
             loading={saving}
             onClick={() => void handleCreate()}
           >
-            Create plan · {sessions.length} sessions
+            {t('new.submit', { sessions: t('common:count.sessions', { count: sessions.length }) })}
           </Button>
         )}
       </div>

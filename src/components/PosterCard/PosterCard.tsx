@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import type { ReactNode } from 'react'
 import { Link } from 'react-router'
 import Icon from '../Icon/Icon'
@@ -35,6 +36,7 @@ export default function PosterCard({
   actions,
   placeholderIcon = 'film',
 }: PosterCardProps) {
+  const { t } = useTranslation()
   const metaLine = [year, meta].filter(Boolean).join(' · ')
 
   return (
@@ -56,7 +58,7 @@ export default function PosterCard({
           <div
             className={styles.progress}
             role="progressbar"
-            aria-label="Watched"
+            aria-label={t('ui.watched')}
             aria-valuenow={Math.round(progress * 100)}
             aria-valuemin={0}
             aria-valuemax={100}
@@ -68,7 +70,11 @@ export default function PosterCard({
       </div>
       <h3 className={styles.title}>{title}</h3>
       {metaLine && <p className={styles.meta}>{metaLine}</p>}
-      <Link to={href} className={styles.link} aria-label={year ? `${title}, ${year}` : title} />
+      <Link
+        to={href}
+        className={styles.link}
+        aria-label={year ? t('title.withYear', { title, year }) : title}
+      />
     </div>
   )
 }

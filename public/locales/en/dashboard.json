@@ -1,0 +1,78 @@
+{
+  "title": "Dashboard",
+  "period": "Period",
+  "periods": {
+    "all": "All time",
+    "30d": "30 days",
+    "year": "This year"
+  },
+  "loading": "Loading",
+  "welcomeTitle": "Your stats start with your first title",
+  "welcomeBody": "Add a few movies or series to your library and Movietime will chart what you watch, when and how you rate it.",
+  "welcomeAction": "Add your first titles",
+  "libraryError": "Couldn’t load your library",
+  "retryBody": "Check your connection and try again.",
+  "nothingInPeriod": "Nothing added or changed in this period.",
+  "plansNeedAccount": "Plans need an account: sign in to count sessions here.",
+  "plansError": "Couldn’t load your plans",
+  "signInToPlan": "Sign in to plan",
+  "plansFailed": "Couldn’t load plans",
+  "signIn": "Sign in",
+  "guestBanner": "These stats come from the library saved on this device. Plans and sessions need an account.",
+  "statistics": "Statistics",
+  "tiles": {
+    "titles": "Titles in library",
+    "libraryFailed": "Couldn’t load the library",
+    "titlesDetail": "{{series}} · {{movies}}",
+    "completed": "Completed",
+    "completedShare": "{{percent}}% of these titles",
+    "average": "Average score",
+    "outOf": "/10",
+    "scoreHint": "Score titles in the library",
+    "hours": "Hours watched",
+    "days": "≈ {{days}} days",
+    "hoursHint": "Completed movies and watched episodes",
+    "week": "Sessions this week",
+    "weekOf": "of {{count}}",
+    "tonight": "{{count}} tonight",
+    "nothingTonight": "Nothing left tonight",
+    "nothingWeek": "Nothing planned this week",
+    "active": "Active plans",
+    "shared": "{{count}} shared with you",
+    "allYours": "All yours",
+    "createOne": "Create one in the planner"
+  },
+  "periodNote": "Library figures cover titles added or changed in this period; sessions count by their date. “This week” and active plans are always current.",
+  "cards": {
+    "status": "Titles by status",
+    "statusHint": "Bars open the library",
+    "genres": "Top genres",
+    "genresHint": "A title counts in each of its genres",
+    "genresError": "Couldn’t load genre names",
+    "genresErrorBody": "TMDB didn’t answer. Try again in a moment.",
+    "noGenres": "No genres on these titles.",
+    "split": "Movies vs series",
+    "weekday": "Sessions by weekday",
+    "weekdayHint": "Watched sessions",
+    "noWatched": "No watched sessions in this period yet."
+  },
+  "upcoming": {
+    "title": "Upcoming sessions",
+    "planner": "Planner",
+    "emptyTitle": "Nothing planned",
+    "emptyBody": "Plan a series or a movie marathon and the next sessions show up here.",
+    "create": "Create a plan"
+  },
+  "units": {
+    "min": "min",
+    "hour": "h"
+  },
+  "chart": {
+    "bar": "{{label}}: {{count}}. Open in library",
+    "part": "{{label}}: {{count}}, {{percent}}. Open in library"
+  },
+  "scored_one": "From {{count}} scored title",
+  "scored_other": "From {{count}} scored titles",
+  "noRuntime_one": "{{count}} title without runtime not counted",
+  "noRuntime_other": "{{count}} titles without runtime not counted"
+}
