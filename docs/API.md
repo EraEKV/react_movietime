@@ -111,21 +111,27 @@ offline support.
 | `removeEntry(uid, key)`                     | `Promise<void>`               |                                                                   |
 | `mergeGuestLibrary(uid, entries)`           | `Promise<{ added, skipped }>` | Batches of 400; entries already in the account win                |
 
-### `listsService.ts` 🚧
+### `listsService.ts` ✅
 
-| Function                                               | Returns                | Notes                                 |
-| ------------------------------------------------------ | ---------------------- | ------------------------------------- |
-| `watchMyLists(uid, callback)`                          | `unsubscribe`          | `ownerUid == uid`                     |
-| `watchSharedLists(email, callback)`                    | `unsubscribe`          | `memberEmails array-contains email`   |
-| `watchList(listId, callback)`                          | `unsubscribe`          | Single doc (owner, member or link)    |
-| `watchListItems(listId, callback)`                     | `unsubscribe`          | Ordered by `position`                 |
-| `createList(user, { name, description, emoji })`       | `Promise<string>` (id) |                                       |
-| `updateList(listId, changes)`                          | `Promise<void>`        | Owner only                            |
-| `deleteList(listId)`                                   | `Promise<void>`        | Deletes items and the list in batches |
-| `addListItem(listId, media, user)`                     | `Promise<void>`        | Batch: item + `itemCount` increment   |
-| `updateListItem(listId, mediaKey, { note, position })` | `Promise<void>`        |                                       |
-| `removeListItem(listId, mediaKey)`                     | `Promise<void>`        | Batch: delete + `itemCount` decrement |
-| `copyList(listId, user)`                               | `Promise<string>`      | New private list owned by `user`      |
+Loaded with `import()` (`loadListsService` in `hooks/useLists.ts`), so the Firestore SDK stays
+out of the main chunk. Timestamps are converted to ISO strings; pending server timestamps are
+read as estimates.
+
+| Function                                           | Returns                | Notes                                                      |
+| -------------------------------------------------- | ---------------------- | ---------------------------------------------------------- |
+| `watchMyLists(uid, onData, onError)`               | `unsubscribe`          | `ownerUid == uid`, `updatedAt` desc (composite index)      |
+| `watchList(listId, onData, onError)`               | `unsubscribe`          | Single doc; `null` when it doesn't exist                   |
+| `watchListItems(listId, onData, onError)`          | `unsubscribe`          | Ordered by `position`                                      |
+| `createList(author, { name, description, emoji })` | `Promise<string>` (id) | Private, empty; resolves when the server accepted it       |
+| `updateList(listId, draft)`                        | `Promise<void>`        | Owner only (rules)                                         |
+| `deleteList(listId)`                               | `Promise<void>`        | Items in batches of 400, the list itself in the last batch |
+| `addItems(listId, media[], author, covers)`        | `Promise<void>`        | One batch: items + `itemCount: increment(n)` + `covers`    |
+| `removeItem(listId, mediaKey, covers)`             | `Promise<void>`        | One batch: delete + `increment(-1)` + `covers`             |
+| `restoreItem(listId, item, covers)`                | `Promise<void>`        | "Undo": same note, position, author and `addedAt`          |
+| `updateItemNote(listId, mediaKey, note)`           | `Promise<void>`        | ≤ 200 characters                                           |
+| `listsContaining(listIds, mediaKey)`               | `Promise<Set<string>>` | One `getDoc` per list, for the "Add to list" checkboxes    |
+
+`watchSharedLists` and `copyList` come with sharing (phase 7).
 
 ### `sharingService.ts` 🚧
 
@@ -200,11 +206,12 @@ Thunks call the services above; reducers stay pure. The store only holds seriali
 | `useCatalogFilters(mediaType)`                          |   ✅   | Filters, sort, page, size from the URL, plus setters                                          |
 | `useGenres(mediaType)`                                  |   ✅   | Genre list and id → name map                                                                  |
 | `useAuth()`                                             |   🚧   | `{ user, status, error }` from the store + sign-in/out actions                                |
-| `useFirestoreQuery(subscribe, deps)`                    |   🚧   | `{ status, data, error }` for any `watch*` function                                           |
+| `useSubscription(key, subscribe)`                       |   ✅   | `{ status, data, error, retry }` for any realtime `watch*` listener (async subscribe allowed) |
 | `useLibrary()` / `useLibraryEntry(key)`                 |   ✅   | Entries, status, `isGuest` + `add`, `update`, `remove`, `restore`; guest storage or Firestore |
 | `useLibraryFilters()`                                   |   ✅   | Library search, status, type, genre, sort, page, view from the URL                            |
-| `useTimedState(ms)`                                     |   ✅   | A value that clears itself (undo toasts)                                                      |
-| `useLists()` / `useList(id)`                            |   🚧   | Lists, list + items + current role, CRUD actions                                              |
+| `useTimedState(ms, initial?)`                           |   ✅   | A value that clears itself (undo toasts)                                                      |
+| `useMyLists()` / `useList(id)`                          |   ✅   | My lists; one list + items + current role (`missing` for no access)                           |
+| `useTitleSearch(query)`                                 |   ✅   | Debounced movie + series search for the "Add titles" picker                                   |
 | `usePlanner()` / `usePlan(id)`                          |   🚧   | Plans, sessions in range, actions                                                             |
 | `useDashboardStats(period)`                             |   🚧   | Memoized statistics and breakdowns                                                            |
 | `useTheme()` / `useLanguage()`                          |   🚧   | Current value + setter                                                                        |

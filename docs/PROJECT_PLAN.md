@@ -277,7 +277,7 @@ Small fixes between phases go straight to `main`.
 | 1   | `feat/ui-foundation` ✅   | Design tokens (both themes), fonts, base UI components, header + mobile tab bar, Redux store with the `preferences` slice and theme listener, existing pages restyled |
 | 2   | `feat/firebase-auth` ✅   | `auth` slice, Firebase init, auth service, Login/Signup (email + Google), verification, protected/guest routes, user in header, profile document                      |
 | 3   | `feat/routing` ✅         | Home landing, About, catalog moved to `/series`, nested routes, lazy pages                                                                                            |
-| 4   | `feat/movies`             | Movie catalog and details, shared media helpers, 5th filter, language filter, page size                                                                               |
+| 4   | `feat/movies` ✅          | Movie catalog and details, shared media helpers, 5th filter, language filter, page size                                                                               |
 | 5   | `feat/library`            | Watchlist → Library, Firestore sync, guest merge on sign-in                                                                                                           |
 | 6   | `feat/lists`              | Lists CRUD and list items                                                                                                                                             |
 | 7   | `feat/sharing`            | Link visibility, members and roles, "Shared with me", copy list, Firestore rules                                                                                      |

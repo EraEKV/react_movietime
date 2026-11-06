@@ -41,7 +41,9 @@ Legend: ✅ implemented, 🚧 in progress.
   the URL, rows or poster grid, undo for changes and removals. Guests keep it in `localStorage`
   (synced across tabs), signed-in users in Firestore in real time. On sign-in the guest library
   is merged into the account, and the midterm watchlist is moved into it once.
-- 🚧 **Lists**: named collections of titles with full CRUD.
+- ✅ **Lists**: named collections of movies and series with an emoji cover and a poster
+  collage; create, rename, delete with confirm; add titles from a search picker, from a title
+  page or a catalog card; per-title notes; remove with undo. Stored in Firestore, live.
 - 🚧 **Sharing**: share a list or a plan by link (read-only) or add friends by email as
   **editor** or **viewer**. Access is enforced by Firestore security rules.
 - 🚧 **Watch Planner**: generate a schedule of viewing sessions from a series' episodes or a

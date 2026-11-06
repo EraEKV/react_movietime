@@ -21,7 +21,7 @@ src/
 ├── store/          store.ts, hooks.ts (typed useAppDispatch / useAppSelector),
 │                   authSlice, librarySlice, preferencesSlice, listeners.ts
 ├── types/          TMDB responses, Firestore documents, shared types
-├── hooks/          useFetch, useFirestoreQuery, useAuth, useLibrary, useLists, usePlanner,
+├── hooks/          useFetch, useSubscription, useAuth, useLibrary, useLists, usePlanner,
 │                   useDashboardStats, useDebouncedValue, useOnlineStatus, …
 ├── components/     reusable UI, one folder per component + CSS Module
 │   ├── auth/       ProtectedRoute, GuestRoute, UserMenu, GoogleButton
@@ -86,7 +86,8 @@ React.**
 - Until Firebase reports the first auth state, `auth.status` is `"loading"` and protected
   routes render a loader instead of redirecting.
 - Lists and plans are **not** in the store: each page subscribes to what it shows through
-  `useList` / `usePlan`.
+  `useMyLists` / `useList` / `usePlan`, built on `useSubscription` (cleanup unsubscribes, a
+  listener that resolves after unmount is closed at once, "loading" is derived from the key).
 
 ### Routing
 
@@ -103,11 +104,11 @@ React.**
   library                       LibraryPage          (lazy)
   library/:mediaKey/edit        LibraryEditPage      (lazy)
   watchlist/*                   → redirect to /library (midterm links)
-  lists/:listId                 ListPage             (owner / member / link)
   planner/:planId               PlanPage             (owner / member / link)
   <Route element={<ProtectedRoute />}>
     lists                       ListsPage            (lazy)
-    lists/new, lists/:listId/edit  ListFormPage
+    lists/new, lists/:id/edit   ListFormPage         (lazy, edit = owner only)
+    lists/:id                   ListPage             (lazy; link visitors arrive with sharing)
     planner                     PlannerPage          (lazy)
     planner/new                 PlanCreatePage
     dashboard                   DashboardPage        (lazy)
@@ -124,17 +125,20 @@ the first load a page switch keeps the old page on screen until the new chunk is
 
 | Chunk                   | Size (min) | Loaded                                                                  |
 | ----------------------- | ---------- | ----------------------------------------------------------------------- |
-| `index` (main)          | ~420 kB    | Always: React, Redux (incl. library slice), Firebase Auth, layout, Home |
+| `index` (main)          | ~385 kB    | Always: React, Redux (incl. library slice), Firebase Auth, layout, Home |
+| shared vendor chunk     | ~40 kB     | Always (preloaded); code that lazy pages share with main (react-redux…) |
 | `router`                | ~47 kB     | Always; own group in `vite.config.ts`, cached across deploys            |
 | One chunk per lazy page | 1–15 kB    | First visit to that route                                               |
-| Firestore SDK           | ~535 kB    | Lazy pages that read data, and the profile sync after sign-in           |
+| Firestore SDK           | ~545 kB    | Lazy pages that read data, and the profile sync after sign-in           |
 
 Firebase Auth is needed on every page (header, route guards), Firestore is not. So
 `services/firebase.ts` creates only the app and `auth`, `services/firestore.ts` creates `db`,
 and the sign-in thunks load the profile service with `await import(...)`. Before this split the
 whole app was one 1 019 kB chunk. `build.chunkSizeWarningLimit` is 600 because the only chunk
 above 500 kB is the lazily loaded Firestore SDK: cutting it with Rolldown `codeSplitting` groups
-builds, but breaks the SDK's module init order at runtime.
+builds, but breaks the SDK's module init order at runtime. First-load JS (main + preloaded
+chunks) is ~478 kB; the bundler names the shared chunk after one of its modules, so its file name
+(`firebaseErrors-*.js`) says little about its content.
 
 ### State map
 

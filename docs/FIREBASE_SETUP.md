@@ -80,6 +80,21 @@ firebase deploy --only firestore       # rules + indexes
 Test the rules in **Firestore → Rules → Rules Playground** before publishing: for example,
 try reading `/lists/<id>` as another user and as a guest.
 
+### Local emulators (development only)
+
+The Auth and Firestore emulators run the same `firestore.rules` locally, with throwaway data:
+
+```bash
+# Java 21+ must be installed (the Firestore emulator is a Java program)
+npm run emulators                       # Auth :9099, Firestore :8180, project demo-movietime
+VITE_USE_EMULATORS=true npm run dev     # the dev app talks to the emulators, not to Firebase
+```
+
+`VITE_USE_EMULATORS` works only in `npm run dev` (`import.meta.env.DEV`); production builds drop
+the emulator code. Rule changes reload in the emulator without a restart. The emulator doesn't
+require composite indexes, so `firebase deploy --only firestore:indexes` is still needed for
+the real project.
+
 ## 6. Vercel
 
 **Project → Settings → Environment Variables:** add every `VITE_FIREBASE_*` variable and
