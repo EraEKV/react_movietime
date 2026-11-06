@@ -33,7 +33,6 @@
 .charts {
   display: grid;
   gap: var(--space-4);
-  align-items: start;
 }
 
 .upcoming {
