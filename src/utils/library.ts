@@ -4,6 +4,7 @@ import type { LibraryChanges, LibraryEntry, LibraryMedia, LibraryStatus } from '
 import type { MovieDetails, SeriesDetails } from '../types/tmdb'
 import { getYear } from './format'
 import { mediaKey } from './media'
+import type { MediaType } from '../types/media'
 
 export const LIBRARY_STATUSES: Option<LibraryStatus>[] = [
   { value: 'plan', label: 'Plan to watch' },
@@ -97,4 +98,59 @@ export function applyChanges(
 export function progressRatio(entry: LibraryEntry): number | null {
   if (!entry.progress || !entry.totalEpisodes) return null
   return Math.min(1, entry.progress.watchedEpisodes / entry.totalEpisodes)
+}
+
+/* ---------- Search, filters, sort (pure, used by the memoized selector) ---------- */
+
+export type LibrarySort = 'updated' | 'score' | 'title' | 'year' | 'rating'
+
+export const LIBRARY_SORTS: Option<LibrarySort>[] = [
+  { value: 'updated', label: 'Recently updated' },
+  { value: 'score', label: 'Your score' },
+  { value: 'title', label: 'Title A–Z' },
+  { value: 'year', label: 'Year' },
+  { value: 'rating', label: 'TMDB rating' },
+]
+
+export type LibraryTypeFilter = 'all' | MediaType
+
+export const LIBRARY_TYPES: Option<LibraryTypeFilter>[] = [
+  { value: 'all', label: 'Movies & series' },
+  { value: 'movie', label: 'Movies' },
+  { value: 'tv', label: 'Series' },
+]
+
+export type StatusFilter = LibraryStatus | 'all'
+
+export interface LibraryQuery {
+  search: string
+  status: StatusFilter
+  type: LibraryTypeFilter
+  /** TMDB genre id as a string, '' for any. */
+  genre: string
+  sort: LibrarySort
+}
+
+const byTitle = (a: LibraryEntry, b: LibraryEntry) => a.title.localeCompare(b.title)
+const nullableDesc = (a: number | string | null, b: number | string | null) =>
+  a === b ? 0 : a === null ? 1 : b === null ? -1 : a < b ? 1 : -1
+
+const SORTERS: Record<LibrarySort, (a: LibraryEntry, b: LibraryEntry) => number> = {
+  updated: (a, b) => b.updatedAt.localeCompare(a.updatedAt),
+  score: (a, b) => nullableDesc(a.score, b.score) || byTitle(a, b),
+  title: byTitle,
+  year: (a, b) => nullableDesc(a.year, b.year) || byTitle(a, b),
+  rating: (a, b) => nullableDesc(a.tmdbRating, b.tmdbRating) || byTitle(a, b),
+}
+
+/** Returns a new array; `entries` is never mutated (toSorted, not sort). */
+export function filterLibrary(entries: LibraryEntry[], query: LibraryQuery): LibraryEntry[] {
+  const term = query.search.trim().toLowerCase()
+  const genre = query.genre ? Number(query.genre) : null
+  return entries
+    .filter((e) => query.status === 'all' || e.status === query.status)
+    .filter((e) => query.type === 'all' || e.mediaType === query.type)
+    .filter((e) => genre === null || e.genreIds.includes(genre))
+    .filter((e) => !term || e.title.toLowerCase().includes(term))
+    .toSorted(SORTERS[query.sort])
 }
