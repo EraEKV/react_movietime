@@ -71,3 +71,9 @@
 .apply {
   flex: 1;
 }
+
+@media (pointer: coarse) {
+  .clear {
+    min-height: var(--touch-min);
+  }
+}

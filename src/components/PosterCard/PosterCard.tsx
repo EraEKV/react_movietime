@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { Link } from 'react-router'
 import Icon from '../Icon/Icon'
+import type { IconName } from '../Icon/icons'
 import RatingBadge from '../RatingBadge/RatingBadge'
 import styles from './PosterCard.module.css'
 
@@ -18,6 +19,8 @@ interface PosterCardProps {
   progress?: number
   /** Hover actions (Add, Plan) — buttons layered above the link. */
   actions?: ReactNode
+  /** Icon shown when there is no poster: film for movies, tv for series. */
+  placeholderIcon?: IconName
 }
 
 export default function PosterCard({
@@ -30,6 +33,7 @@ export default function PosterCard({
   badge,
   progress,
   actions,
+  placeholderIcon = 'film',
 }: PosterCardProps) {
   const metaLine = [year, meta].filter(Boolean).join(' · ')
 
@@ -40,7 +44,7 @@ export default function PosterCard({
           <img src={posterUrl} alt="" loading="lazy" />
         ) : (
           <div className={styles.placeholder}>
-            <Icon name="film" size={28} />
+            <Icon name={placeholderIcon} size={28} />
             <span>{title}</span>
           </div>
         )}

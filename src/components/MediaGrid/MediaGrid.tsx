@@ -29,6 +29,7 @@ export default function MediaGrid({ items, genresById, label }: MediaGridProps) 
               .slice(0, 2)
               .join(', ')}
             rating={item.rating}
+            placeholderIcon={item.mediaType === 'movie' ? 'film' : 'tv'}
           />
         </li>
       ))}

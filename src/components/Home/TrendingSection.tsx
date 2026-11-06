@@ -67,6 +67,7 @@ export default function TrendingSection({ series }: TrendingSectionProps) {
                 year={getYear(item.date)}
                 meta={item.mediaType === 'movie' ? 'Movie' : 'Series'}
                 rating={item.rating}
+                placeholderIcon={item.mediaType === 'movie' ? 'film' : 'tv'}
               />
             </li>
           ))}
