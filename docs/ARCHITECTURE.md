@@ -122,12 +122,12 @@ the first load a page switch keeps the old page on screen until the new chunk is
 
 ### Code splitting
 
-| Chunk                   | Size (min) | Loaded                                                        |
-| ----------------------- | ---------- | ------------------------------------------------------------- |
-| `index` (main)          | ~410 kB    | Always: React, Redux, Firebase Auth, layout, Home             |
-| `router`                | ~47 kB     | Always; own group in `vite.config.ts`, cached across deploys  |
-| One chunk per lazy page | 1–15 kB    | First visit to that route                                     |
-| Firestore SDK           | ~535 kB    | Lazy pages that read data, and the profile sync after sign-in |
+| Chunk                   | Size (min) | Loaded                                                                  |
+| ----------------------- | ---------- | ----------------------------------------------------------------------- |
+| `index` (main)          | ~420 kB    | Always: React, Redux (incl. library slice), Firebase Auth, layout, Home |
+| `router`                | ~47 kB     | Always; own group in `vite.config.ts`, cached across deploys            |
+| One chunk per lazy page | 1–15 kB    | First visit to that route                                               |
+| Firestore SDK           | ~535 kB    | Lazy pages that read data, and the profile sync after sign-in           |
 
 Firebase Auth is needed on every page (header, route guards), Firestore is not. So
 `services/firebase.ts` creates only the app and `auth`, `services/firestore.ts` creates `db`,
