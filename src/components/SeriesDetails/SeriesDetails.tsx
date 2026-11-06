@@ -21,6 +21,7 @@ import SeasonList from '../SeasonList/SeasonList'
 import Section from '../../shared/ui/Section/Section'
 import TitleHero from '../TitleHero/TitleHero'
 import Trailer from '../Trailer/Trailer'
+import WhereToWatch from '../WhereToWatch/WhereToWatch'
 import LibraryButton from '../LibraryButton/LibraryButton'
 import PlanWatchingButton from '../Planner/PlanWatchingButton'
 import DetailsSkeleton from '../DetailsSkeleton/DetailsSkeleton'
@@ -123,6 +124,10 @@ export default function SeriesDetails({ seriesId }: { seriesId: string }) {
           <SeasonList seasons={seasons} />
         </Section>
       )}
+
+      <Section title={t('watch.title')}>
+        <WhereToWatch providers={series['watch/providers']} />
+      </Section>
 
       {trailer && (
         <Section title={t('details.trailer')}>
