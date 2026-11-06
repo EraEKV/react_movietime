@@ -11,7 +11,7 @@ import {
 } from 'firebase/firestore'
 import type { UserProfile } from '../types/auth'
 import type { Preferences } from '../types/preferences'
-import { db } from './firebase'
+import { db } from './firestore'
 
 const profileRef = (uid: string) => doc(db, 'users', uid)
 

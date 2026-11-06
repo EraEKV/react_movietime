@@ -16,7 +16,7 @@ export default function SeriesPage() {
           title="This link doesn’t point to a series"
           body={`“${id}” is not a valid series id. Check the link, or find the series in the catalog.`}
           secondary={
-            <ButtonLink to="/" variant="primary" icon="compass">
+            <ButtonLink to="/series" variant="primary" icon="compass">
               Browse series
             </ButtonLink>
           }

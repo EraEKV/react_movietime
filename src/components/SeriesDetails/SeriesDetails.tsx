@@ -44,7 +44,7 @@ export default function SeriesDetails({ seriesId }: { seriesId: string }) {
           }
           onRetry={notFound ? undefined : reload}
           secondary={
-            <ButtonLink to="/" icon="compass">
+            <ButtonLink to="/series" icon="compass">
               Browse series
             </ButtonLink>
           }

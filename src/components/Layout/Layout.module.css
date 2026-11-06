@@ -92,11 +92,19 @@
 
 .search {
   display: none;
-  width: 240px;
+  /* Six nav items leave little room at 1024px: the field grows to full width from 1280px. */
+  width: 180px;
 }
 
 .search > div {
+  flex: 1;
+  min-width: 0;
   min-height: 40px;
+}
+
+/* An input has an intrinsic width (~20 characters); without this it overflows the form. */
+.search input {
+  min-width: 0;
 }
 
 @media (min-width: 1024px) {
@@ -115,6 +123,12 @@
 
   .mobileOnly {
     display: none;
+  }
+}
+
+@media (min-width: 1280px) {
+  .search {
+    width: 240px;
   }
 }
 

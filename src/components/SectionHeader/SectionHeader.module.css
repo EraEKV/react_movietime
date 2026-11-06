@@ -15,3 +15,19 @@
 .title {
   composes: titleL from '../../styles/typography.module.css';
 }
+
+/* Accent = interactive. Padding gives the text link a 44px touch target. */
+.link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: var(--touch-min);
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.link:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}

@@ -88,7 +88,7 @@ Full schemas: [DATA_MODEL.md](DATA_MODEL.md).
   app shows a loader instead of flashing the login page.
 - `ProtectedRoute` redirects guests to `/login?redirect=<original path>`.
   `GuestRoute` redirects signed-in users away from `/login` and `/signup`.
-- The header shows the avatar and a menu (Profile, Library, Sign out; Dashboard joins in phase 9).
+- The header shows the avatar and a menu (Profile, Dashboard, Settings, Sign out).
   Unverified email accounts see a banner with "Resend email" and "I've verified".
 
 ### 3.4 Library (personalized data)
@@ -244,11 +244,11 @@ Vitest + React Testing Library + jsdom, `npm test`:
 | `/about`              | `AboutPage`           | public    | ✓    | About                       |
 | `/login`              | `LoginPage`           | guest     |      | Login                       |
 | `/signup`             | `SignupPage`          | guest     |      | Signup                      |
-| `/movies`, `/series`  | `CatalogPage`         | public    |      | Items List                  |
+| `/movies`, `/series`  | `CatalogPage`         | public    | ✓    | Items List                  |
 | `/movies/:id`         | `MoviePage`           | public    | ✓    | Item Details                |
 | `/series/:id`         | `SeriesPage`          | public    | ✓    | Item Details                |
-| `/library`            | `LibraryPage`         | public    |      | Favorites (guest + user)    |
-| `/library/:key/edit`  | `LibraryEditPage`     | public    |      |                             |
+| `/library`            | `LibraryPage`         | public    | ✓    | Favorites (guest + user)    |
+| `/library/:key/edit`  | `LibraryEditPage`     | public    | ✓    |                             |
 | `/lists`              | `ListsPage`           | protected | ✓    | Secondary Entity Management |
 | `/lists/new`          | `ListFormPage`        | protected |      |                             |
 | `/lists/:listId`      | `ListPage`            | role/link |      | dynamic route               |
@@ -258,8 +258,8 @@ Vitest + React Testing Library + jsdom, `npm test`:
 | `/planner/:planId`    | `PlanPage`            | role/link |      | dynamic route               |
 | `/dashboard`          | `DashboardPage`       | protected | ✓    | Dashboard                   |
 | `/profile`            | `ProfilePage`         | protected | ✓    | Profile                     |
-| `/profile/settings`   | `ProfileSettingsPage` | protected |      | nested route                |
-| `/offline`            | `OfflinePage`         | public    |      | PWA                         |
+| `/profile/settings`   | `ProfileSettingsPage` | protected | ✓    | nested route                |
+| `/offline`            | `OfflinePage`         | public    | ✓    | PWA                         |
 | `*`                   | `NotFoundPage`        | public    |      | 404                         |
 
 "role/link" pages are public routes: the page decides between owner, editor, viewer, and
@@ -275,8 +275,8 @@ Small fixes between phases go straight to `main`.
 | 0   | `main` ✅                 | These docs and the README                                                                                                                                             |
 | 0.5 | `refactor/typescript` ✅  | Codebase migrated to TypeScript (strict), typed TMDB responses, `typescript-eslint`                                                                                   |
 | 1   | `feat/ui-foundation` ✅   | Design tokens (both themes), fonts, base UI components, header + mobile tab bar, Redux store with the `preferences` slice and theme listener, existing pages restyled |
-| 2   | `feat/firebase-auth`      | `auth` slice, Firebase init, auth service, Login/Signup (email + Google), verification, protected/guest routes, user in header, profile document                      |
-| 3   | `feat/routing`            | Home landing, About, catalog moved to `/series`, nested routes, lazy pages                                                                                            |
+| 2   | `feat/firebase-auth` ✅   | `auth` slice, Firebase init, auth service, Login/Signup (email + Google), verification, protected/guest routes, user in header, profile document                      |
+| 3   | `feat/routing` ✅         | Home landing, About, catalog moved to `/series`, nested routes, lazy pages                                                                                            |
 | 4   | `feat/movies`             | Movie catalog and details, shared media helpers, 5th filter, language filter, page size                                                                               |
 | 5   | `feat/library`            | Watchlist → Library, Firestore sync, guest merge on sign-in                                                                                                           |
 | 6   | `feat/lists`              | Lists CRUD and list items                                                                                                                                             |
@@ -299,7 +299,7 @@ Small fixes between phases go straight to `main`.
 | Everything works on the deployed version | Firebase is a hosted backend; Vercel domain in Auth authorized domains    |
 | Nested routes, shared layout             | `Layout` → `Outlet`; `/lists/*`, `/planner/*`, `/profile/*`, `/library/*` |
 | Dynamic routes                           | `/movies/:id`, `/series/:id`, `/lists/:listId`, `/planner/:planId`        |
-| Lazy loading ≥ 3 pages                   | About, Movie, Series, Lists, Planner, Dashboard, Profile                  |
+| Lazy loading ≥ 3 pages                   | Every page except Home, auth and 404 (`React.lazy` in `App.tsx`)          |
 | Custom 404                               | `NotFoundPage` (exists)                                                   |
 | ≥ 1 authenticated-only page              | Dashboard, Profile, Lists, Planner                                        |
 

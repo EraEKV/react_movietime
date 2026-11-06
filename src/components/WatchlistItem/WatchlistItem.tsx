@@ -66,7 +66,7 @@ export default function WatchlistItem({ entry, onStatusChange, onRemove }: Watch
             onChange={(value) => onStatusChange(entry.id, value)}
           />
           <ButtonLink
-            to={`/watchlist/${entry.id}/edit`}
+            to={`/library/${entry.id}/edit`}
             variant="ghost"
             size="sm"
             icon="edit"

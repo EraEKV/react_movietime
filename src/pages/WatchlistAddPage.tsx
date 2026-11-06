@@ -25,7 +25,7 @@ export default function WatchlistAddPage() {
 
   function handleSubmit(data: NewWatchlistEntry) {
     addEntry(data)
-    navigate('/watchlist')
+    navigate('/library')
   }
 
   let content

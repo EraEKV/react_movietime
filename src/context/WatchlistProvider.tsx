@@ -4,7 +4,7 @@ import type { NewWatchlistEntry, WatchlistChanges, WatchlistEntry } from '../typ
 import { WatchlistContext } from './watchlistContext'
 
 /**
- * The watchlist is needed by two routes (series details and /watchlist), so its state
+ * The watchlist is needed by two routes (series details and /library), so its state
  * lives here, above the router outlet, instead of in either page. Every update is
  * immutable: add → spread into a new array, update → map, remove → filter.
  */

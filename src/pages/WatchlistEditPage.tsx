@@ -22,7 +22,7 @@ export default function WatchlistEditPage() {
           title="This entry isn’t in your library"
           body="It may have been removed, possibly in another tab."
           actions={
-            <ButtonLink to="/watchlist" variant="primary" icon="bookmark">
+            <ButtonLink to="/library" variant="primary" icon="bookmark">
               Go to library
             </ButtonLink>
           }
@@ -36,7 +36,7 @@ export default function WatchlistEditPage() {
 
   function handleSubmit({ status, score, notes }: NewWatchlistEntry) {
     updateEntry(entryId, { status, score, notes })
-    navigate('/watchlist')
+    navigate('/library')
   }
 
   return (

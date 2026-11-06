@@ -1,0 +1,31 @@
+.ring {
+  position: relative;
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+}
+
+/* SVG circles start at 3 o'clock; rotating the svg starts the progress at 12. */
+.ring svg {
+  transform: rotate(-90deg);
+}
+
+.track,
+.fill {
+  fill: none;
+}
+
+.track {
+  stroke: var(--surface-sunken);
+}
+
+.fill {
+  stroke-linecap: round;
+  transition: stroke-dashoffset var(--dur-slow) var(--ease-out);
+}
+
+.value {
+  position: absolute;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}

@@ -45,7 +45,8 @@ export default function UserMenu() {
       }
       items={[
         { label: 'Profile', icon: 'user', to: '/profile' },
-        { label: 'Library', icon: 'bookmark', to: '/watchlist' },
+        { label: 'Dashboard', icon: 'chart', to: '/dashboard' },
+        { label: 'Settings', icon: 'settings', to: '/profile/settings' },
         { kind: 'divider' },
         { label: 'Sign out', icon: 'logout', danger: true, onSelect: handleSignOut },
       ]}

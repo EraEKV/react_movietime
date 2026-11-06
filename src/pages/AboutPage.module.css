@@ -1,0 +1,92 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-10);
+}
+
+.intro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-width: 720px;
+}
+
+.kicker {
+  composes: overline from '../styles/typography.module.css';
+}
+
+.title {
+  composes: displayL from '../styles/typography.module.css';
+  text-wrap: balance;
+}
+
+.lead {
+  composes: bodyL from '../styles/typography.module.css';
+  color: var(--text-muted);
+}
+
+.muted {
+  color: var(--text-muted);
+}
+
+.features {
+  display: grid;
+  gap: var(--space-4);
+  list-style: none;
+}
+
+.feature {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.featureIcon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  /* Neutral on purpose: accent marks interactive things, and these icons are not. */
+  background: var(--surface-sunken);
+  color: var(--text);
+}
+
+.featureTitle {
+  composes: titleM from '../styles/typography.module.css';
+}
+
+.credit {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.credit a {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.credit a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.creditIcon {
+  flex: none;
+}
+
+@media (min-width: 768px) {
+  .features {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .page {
+    gap: var(--space-16);
+  }
+}

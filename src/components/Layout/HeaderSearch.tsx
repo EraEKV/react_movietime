@@ -14,7 +14,7 @@ export default function HeaderSearch() {
     event.preventDefault()
     const query = text.trim()
     if (!query) return
-    navigate({ pathname: '/', search: `?${createSearchParams({ q: query })}` })
+    navigate({ pathname: '/series', search: `?${createSearchParams({ q: query })}` })
     setText('')
   }
 

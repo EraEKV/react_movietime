@@ -99,7 +99,7 @@ export default function WatchlistPage() {
           <h1 className={styles.title}>Library</h1>
           <p className={styles.subtitle}>Saved on this device · {entries.length} series</p>
         </div>
-        <ButtonLink to="/watchlist/new" variant="primary" icon="plus">
+        <ButtonLink to="/library/new" variant="primary" icon="plus">
           Add series
         </ButtonLink>
       </header>
@@ -110,7 +110,7 @@ export default function WatchlistPage() {
           title="Your library is empty"
           body="Series you add appear here with your status, score and notes."
           actions={
-            <ButtonLink to="/" variant="primary" icon="compass">
+            <ButtonLink to="/series" variant="primary" icon="compass">
               Discover series
             </ButtonLink>
           }

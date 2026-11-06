@@ -2,7 +2,8 @@ import Skeleton from '../Skeleton/Skeleton'
 import styles from './PageLoader.module.css'
 
 /**
- * Shown while the first auth state is unknown (usually a few hundred ms on reload).
+ * Shown while the first auth state is unknown (usually a few hundred ms on reload)
+ * and while a lazy page's chunk is downloading.
  * A neutral page-shaped skeleton, not a spinner: the layout doesn't jump when content arrives.
  */
 export default function PageLoader() {

@@ -95,6 +95,9 @@ export interface DiscoverSeriesParams {
 export const endpoints = {
   genres: () => buildPath('/genre/tv/list'),
 
+  /** The 20 most popular titles of the week; TMDB updates the list daily. */
+  trending: (mediaType: 'tv' | 'movie') => buildPath(`/trending/${mediaType}/week`),
+
   discoverSeries: ({
     page = 1,
     sortBy,

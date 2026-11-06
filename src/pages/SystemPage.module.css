@@ -50,3 +50,34 @@
     line-height: 44px;
   }
 }
+
+/* Offline: three empty, dashed posters; the middle one carries the wifi-off icon. */
+.posters {
+  position: relative;
+  width: 220px;
+  height: 156px;
+}
+
+.poster {
+  position: absolute;
+  top: 0;
+  display: grid;
+  place-items: center;
+  width: 100px;
+  height: 140px;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface-raised);
+  color: var(--text-subtle);
+}
+
+.poster:nth-child(2) {
+  top: var(--space-4);
+  left: 60px;
+  /* Above its right neighbour, so the icon isn't covered. */
+  z-index: 1;
+}
+
+.poster:nth-child(3) {
+  left: 120px;
+}

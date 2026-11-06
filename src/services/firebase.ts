@@ -1,10 +1,5 @@
 import { initializeApp, type FirebaseOptions } from 'firebase/app'
 import { getAuth } from 'firebase/auth'
-import {
-  initializeFirestore,
-  persistentLocalCache,
-  persistentMultipleTabManager,
-} from 'firebase/firestore'
 
 const env = import.meta.env
 
@@ -35,10 +30,6 @@ const config: FirebaseOptions = { ...required, measurementId: env.VITE_FIREBASE_
 
 export const app = initializeApp(config)
 
+// Auth is needed on every page (header, guards), so it is part of the main bundle.
+// Firestore lives in ./firestore and loads with the first module that reads data.
 export const auth = getAuth(app)
-
-// Persistent cache (IndexedDB): data read once stays available offline, writes made offline
-// are queued and sent on reconnect. The multi-tab manager lets several tabs share one cache.
-export const db = initializeFirestore(app, {
-  localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }),
-})

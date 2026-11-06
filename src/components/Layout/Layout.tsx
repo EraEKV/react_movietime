@@ -1,7 +1,8 @@
-import { useEffect } from 'react'
-import { Outlet, useLocation } from 'react-router'
+import { Suspense, useEffect } from 'react'
+import { Link, Outlet, useLocation } from 'react-router'
 import { useSystemThemeSync } from '../../hooks/useTheme'
 import VerifyEmailBanner from '../auth/VerifyEmailBanner'
+import PageLoader from '../PageLoader/PageLoader'
 import Header from './Header'
 import styles from './Layout.module.css'
 import TabBar from './TabBar'
@@ -28,12 +29,17 @@ export default function Layout() {
         <div className={styles.notices}>
           <VerifyEmailBanner />
         </div>
-        <Outlet />
+        {/* Lazy pages suspend while their chunk downloads. The boundary is here, not around
+            <Routes>, so only the page area shows the skeleton. Router navigations run in a
+            transition, so later page switches keep the old page until the new one is ready. */}
+        <Suspense fallback={<PageLoader />}>
+          <Outlet />
+        </Suspense>
       </main>
 
       <footer className={styles.footer}>
         <p>
-          Movie and series data from{' '}
+          <Link to="/about">About Movietime</Link> · Movie and series data from{' '}
           <a href="https://www.themoviedb.org/" target="_blank" rel="noreferrer">
             TMDB
           </a>

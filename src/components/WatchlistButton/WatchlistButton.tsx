@@ -8,14 +8,14 @@ export default function WatchlistButton({ seriesId }: { seriesId: number }) {
 
   if (entry) {
     return (
-      <ButtonLink to={`/watchlist/${entry.id}/edit`} icon="check">
+      <ButtonLink to={`/library/${entry.id}/edit`} icon="check">
         In library · {statusLabel(entry.status)}
       </ButtonLink>
     )
   }
 
   return (
-    <ButtonLink to={`/watchlist/new?series=${seriesId}`} variant="primary" icon="plus">
+    <ButtonLink to={`/library/new?series=${seriesId}`} variant="primary" icon="plus">
       Add to library
     </ButtonLink>
   )

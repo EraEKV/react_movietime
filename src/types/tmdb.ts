@@ -27,6 +27,16 @@ export interface SeriesListItem {
   genre_ids: number[]
 }
 
+/** A movie as returned by /trending/movie, /discover/movie and /search/movie. */
+export interface MovieListItem {
+  id: number
+  title: string
+  poster_path: string | null
+  release_date: string
+  vote_average: number
+  genre_ids: number[]
+}
+
 export interface SeasonSummary {
   id: number
   name: string
