@@ -5,6 +5,7 @@ import { languageChanged, selectLanguage } from '../../store/preferencesSlice'
 import { buttonClass } from '../Button/variants'
 import Icon from '../Icon/Icon'
 import Menu from '../Menu/Menu'
+import styles from './Layout.module.css'
 
 /**
  * Header language switcher: "EN ▾" opens English / Русский / Қазақша. The choice goes
@@ -24,7 +25,7 @@ export default function LanguageMenu() {
       trigger={
         <>
           {current.short}
-          <Icon name="chevron-down" size={16} />
+          <Icon name="chevron-down" size={16} className={styles.langChevron} />
         </>
       }
       items={LANGUAGES.map((item) => ({

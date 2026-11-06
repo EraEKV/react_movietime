@@ -34,7 +34,7 @@ export default function Logo({ compact = false }: { compact?: boolean }) {
   return (
     <Link to="/" className={styles.logo} aria-label={t('layout.homeLink')}>
       <LogoMark />
-      {!compact && <span>movietime</span>}
+      {!compact && <span className={styles.word}>movietime</span>}
     </Link>
   )
 }
