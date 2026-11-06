@@ -29,7 +29,14 @@ export function fromSeries(series: SeriesListItem): MediaSummary {
 }
 
 export function mediaKey(mediaType: MediaType, id: number): MediaKey {
-  return `${mediaType}:${id}`
+  return `${mediaType}_${id}`
+}
+
+/** Reads a key from a URL or storage; null for anything that isn't a valid key. */
+export function parseMediaKey(value: string): { mediaType: MediaType; id: number } | null {
+  const match = /^(movie|tv)_(\d+)$/.exec(value)
+  if (!match) return null
+  return { mediaType: match[1] === 'movie' ? 'movie' : 'tv', id: Number(match[2]) }
 }
 
 /** App route of a title: /movies/603 or /series/1396. */
