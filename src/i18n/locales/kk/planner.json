@@ -203,5 +203,9 @@
   "nights_one": "{{count}} кеш",
   "nights_other": "{{count}} кеш",
   "members_one": "{{count}} қатысушы",
-  "members_other": "{{count}} қатысушы"
+  "members_other": "{{count}} қатысушы",
+  "defaultTitle": {
+    "marathon": "«{{name}}» марафоны",
+    "from": "{{name}} — {{code}}-ден"
+  }
 }

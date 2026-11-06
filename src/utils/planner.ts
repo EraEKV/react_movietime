@@ -140,8 +140,10 @@ export function defaultPlanTitle(
   name: string,
   first: PlanUnit | undefined,
 ): string {
-  if (kind === 'list') return `${name} marathon`.slice(0, 120)
+  if (kind === 'list') return i18n.t('planner:defaultTitle.marathon', { name }).slice(0, 120)
   if (!first || first.season === null || first.episode === null) return name.slice(0, 120)
   if (first.season === 1 && first.episode === 1) return name.slice(0, 120)
-  return `${name} — from S${first.season}E${first.episode}`.slice(0, 120)
+  return i18n
+    .t('planner:defaultTitle.from', { name, code: `S${first.season}E${first.episode}` })
+    .slice(0, 120)
 }

@@ -119,7 +119,7 @@ function EditList({ id }: { id: string }) {
 
   const { list } = state
   return (
-    <FormShell title="Edit list" onBack={goBack}>
+    <FormShell title={t('form.editTitle')} onBack={goBack}>
       <ListForm
         // A fresh form per list; later snapshots of the same list don't reset what you typed.
         key={list.id}

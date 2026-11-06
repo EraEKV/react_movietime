@@ -203,5 +203,9 @@
   "nights_one": "{{count}} night",
   "nights_other": "{{count}} nights",
   "members_one": "{{count}} other member",
-  "members_other": "{{count}} other members"
+  "members_other": "{{count}} other members",
+  "defaultTitle": {
+    "marathon": "{{name}} marathon",
+    "from": "{{name}} — from {{code}}"
+  }
 }
