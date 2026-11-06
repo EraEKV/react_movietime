@@ -1,4 +1,4 @@
-import { useId, useState, type InputHTMLAttributes, type ReactNode } from 'react'
+import { useId, useState, type InputHTMLAttributes, type ReactNode, type Ref } from 'react'
 import Field from '../Field/Field'
 import { hintId } from '../Field/hintId'
 import styles from '../Field/Field.module.css'
@@ -17,6 +17,8 @@ interface TextFieldProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'on
   hideLabel?: boolean
   /** Extra element at the right edge of the control. */
   trailing?: ReactNode
+  /** React 19 passes ref as a normal prop; it goes to the <input>. */
+  ref?: Ref<HTMLInputElement>
 }
 
 /**

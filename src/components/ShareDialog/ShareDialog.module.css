@@ -1,0 +1,138 @@
+/* Link block: a quiet card, so the switch reads as one setting with its URL. */
+.link {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+
+.copyRow {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.copyRow > :first-child {
+  flex: 1;
+  min-width: 0;
+}
+
+.invite {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.inviteRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--space-2) var(--space-3);
+}
+
+.email {
+  flex: 1 1 220px;
+  min-width: 0;
+}
+
+.role {
+  flex: 0 0 128px;
+}
+
+/* Lines the button up with the inputs, under their 20px label + 6px gap. */
+.inviteButton {
+  margin-top: 26px;
+}
+
+.note {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.note > svg {
+  flex: none;
+  margin-top: 2px;
+}
+
+.peopleTitle {
+  margin-bottom: var(--space-1);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+}
+
+.people {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.person {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 56px;
+  padding: var(--space-2) 0;
+}
+
+.person + .person {
+  border-top: 1px solid var(--border);
+}
+
+.who {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.name,
+.address {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.name {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.address {
+  color: var(--text-subtle);
+  font-size: 13px;
+}
+
+/* 36px on desktop like other small buttons; full 44px touch target on touch screens. */
+@media (pointer: coarse) {
+  .person .roleTrigger {
+    min-height: var(--touch-min);
+  }
+}
+
+.empty {
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+@media (max-width: 479px) {
+  /* Phones: email on its own row, role and Invite share the next one. */
+  .email {
+    flex-basis: 100%;
+  }
+
+  .role {
+    flex: 1 1 0;
+  }
+
+  .inviteButton {
+    flex: 1 1 0;
+  }
+}
