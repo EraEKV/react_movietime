@@ -103,11 +103,23 @@ export interface SeriesBase extends SeriesSummary {
   seasons: SeasonSummary[]
 }
 
-/** /tv/{id}?append_to_response=credits,videos,recommendations */
+/** One language version of a title (append_to_response=translations). */
+export interface Translation {
+  iso_639_1: string
+  iso_3166_1: string
+  data: { overview?: string }
+}
+
+export interface Translations {
+  translations: Translation[]
+}
+
+/** /tv/{id}?append_to_response=credits,videos,recommendations,translations */
 export interface SeriesDetails extends SeriesBase {
   credits: { cast: CastMember[] }
   videos: { results: Video[] }
   recommendations: Paginated<SeriesListItem>
+  translations?: Translations
 }
 
 /** /movie/{id} without appended responses. */
@@ -133,11 +145,12 @@ export interface MovieBase {
   production_countries: { iso_3166_1: string; name: string }[]
 }
 
-/** /movie/{id}?append_to_response=credits,videos,recommendations */
+/** /movie/{id}?append_to_response=credits,videos,recommendations,translations */
 export interface MovieDetails extends MovieBase {
   credits: { cast: CastMember[]; crew: CrewMember[] }
   videos: { results: Video[] }
   recommendations: Paginated<MovieListItem>
+  translations?: Translations
 }
 
 export interface RawEpisode {

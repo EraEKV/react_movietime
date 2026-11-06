@@ -1,5 +1,5 @@
 import type { MediaKey, MediaSummary, MediaType } from '../types/media'
-import type { MovieListItem, SeriesListItem, Video } from '../types/tmdb'
+import type { MovieListItem, SeriesListItem, Translations, Video } from '../types/tmdb'
 
 // TMDB names the same fields differently for movies (title, release_date)
 // and series (name, first_air_date). These functions hide that difference.
@@ -58,7 +58,20 @@ export function uniqueById<T extends { id: number }>(items: T[]): T[] {
   })
 }
 
-/** Best YouTube trailer: official trailer → any trailer → teaser. */
+/**
+ * The overview in the current language, or the English one when TMDB has no translation
+ * (common for Kazakh). Comes from the same request: details append `translations`.
+ */
+export function overviewOf(title: { overview: string; translations?: Translations }): string {
+  if (title.overview.trim()) return title.overview
+  const english = title.translations?.translations.find((item) => item.iso_639_1 === 'en')
+  return english?.data.overview?.trim() ?? ''
+}
+
+/**
+ * Best YouTube trailer: official trailer → any trailer → teaser. Videos come in the
+ * interface language and English (include_video_language), so the first match wins.
+ */
 export function pickTrailer(videos: Video[] = []): Video | null {
   const youtube = videos.filter((v) => v.site === 'YouTube')
   return (

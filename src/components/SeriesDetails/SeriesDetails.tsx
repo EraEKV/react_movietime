@@ -2,7 +2,8 @@ import { ApiError, endpoints } from '../../api/tmdb'
 import { useFetch } from '../../hooks/useFetch'
 import { useGenres } from '../../hooks/useGenres'
 import type { SeriesDetails as SeriesDetailsData } from '../../types/tmdb'
-import { fromSeries, pickTrailer } from '../../utils/media'
+import { useTmdbLanguage } from '../../hooks/useTmdbLanguage'
+import { fromSeries, overviewOf, pickTrailer } from '../../utils/media'
 import { formatYearRange, pluralize } from '../../utils/format'
 import { seriesToLibraryMedia } from '../../utils/library'
 import { libraryToListMedia } from '../../utils/lists'
@@ -32,7 +33,7 @@ export default function SeriesDetails({ seriesId }: { seriesId: string }) {
     data: series,
     error,
     reload,
-  } = useFetch<SeriesDetailsData>(endpoints.seriesDetails(seriesId))
+  } = useFetch<SeriesDetailsData>(endpoints.seriesDetails(seriesId, useTmdbLanguage()))
   const { genresById } = useGenres('tv')
 
   if (status === 'idle' || status === 'loading') return <DetailsSkeleton label="Loading series" />
@@ -92,7 +93,7 @@ export default function SeriesDetails({ seriesId }: { seriesId: string }) {
           series.number_of_episodes > 0 && pluralize(series.number_of_episodes, 'episode'),
           series.status,
         ]}
-        overview={series.overview}
+        overview={overviewOf(series)}
         facts={[
           { label: 'Created by', value: series.created_by.map((p) => p.name).join(', ') },
           { label: 'Network', value: series.networks.map((n) => n.name).join(', ') },

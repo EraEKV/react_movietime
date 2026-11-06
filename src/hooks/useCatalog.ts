@@ -1,4 +1,4 @@
-import { tmdbGetAll } from '../api/tmdb'
+import { tmdbGetAll, withLanguage } from '../api/tmdb'
 import type { MediaType } from '../types/media'
 import type { MovieListItem, Paginated, SeriesListItem } from '../types/tmdb'
 import {
@@ -10,6 +10,7 @@ import {
 import { catalogPath, type CatalogFilters } from '../utils/filters'
 import { fromMovie, fromSeries } from '../utils/media'
 import { useRequest, type FetchState } from './useRequest'
+import { useTmdbLanguage } from './useTmdbLanguage'
 
 interface CatalogRequest {
   mediaType: MediaType
@@ -34,8 +35,9 @@ export function useCatalog({
   page,
   size,
 }: CatalogRequest): FetchState<CatalogResult> {
+  const language = useTmdbLanguage()
   const paths = tmdbPagesFor(page, size).map((tmdbPage) =>
-    catalogPath(mediaType, filters, query, tmdbPage),
+    withLanguage(catalogPath(mediaType, filters, query, tmdbPage), language),
   )
 
   return useRequest(paths.join('\n'), async (_key, signal) => {

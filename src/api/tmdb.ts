@@ -1,3 +1,7 @@
+import i18n from '../i18n'
+import { languageInfo } from '../i18n/languages'
+import type { Language } from '../types/preferences'
+
 const BASE_URL = 'https://api.themoviedb.org/3'
 const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p'
 const TOKEN = import.meta.env.VITE_TMDB_TOKEN
@@ -41,21 +45,31 @@ export function buildPath(path: string, params: Record<string, QueryValue> = {})
 export const isAbortError = (error: unknown): boolean =>
   error instanceof Error && error.name === 'AbortError'
 
+/** TMDB's code for the current interface language: titles, overviews and genres follow it. */
+export const tmdbLanguage = () => languageInfo(i18n.language as Language).tmdb
+
+/** Adds `language=` to a path; hooks use the result as their request key. */
+export function withLanguage(path: string, language = tmdbLanguage()): string {
+  return `${path}${path.includes('?') ? '&' : '?'}language=${language}`
+}
+
 /**
  * GET request to TMDB. The response type is declared by the caller:
- * `tmdbGet<SeriesDetails>(endpoints.seriesDetails(id))`.
+ * `tmdbGet<SeriesDetails>(endpoints.seriesDetails(id))`. Every request carries the
+ * interface language (`language=ru-RU`), unless the path already names one.
  */
 export async function tmdbGet<T>(
   path: string,
   { signal }: { signal?: AbortSignal } = {},
 ): Promise<T> {
+  const url = `${BASE_URL}${/[?&]language=/.test(path) ? path : withLanguage(path)}`
   if (!TOKEN) {
     throw new ApiError('TMDB token is missing. Set VITE_TMDB_TOKEN in .env.local.', 401)
   }
 
   let response: Response
   try {
-    response = await fetch(`${BASE_URL}${path}`, {
+    response = await fetch(url, {
       headers: { Authorization: `Bearer ${TOKEN}`, Accept: 'application/json' },
       signal,
     })
@@ -88,6 +102,10 @@ export function imageUrl(path: string | null | undefined, size = 'w342'): string
 }
 
 type Id = number | string
+
+/** "ru-RU" → "ru,en,null": videos in the interface language, English, or without one. */
+const videoLanguages = (language: string) =>
+  [...new Set([language.slice(0, 2), 'en']), 'null'].join(',')
 type MediaType = 'movie' | 'tv'
 
 /** Filters both /discover endpoints understand; each builder maps them to its own names. */
@@ -160,14 +178,22 @@ export const endpoints = {
 
   seriesSummary: (id: Id) => buildPath(`/tv/${id}`),
 
-  seriesDetails: (id: Id) =>
-    buildPath(`/tv/${id}`, { append_to_response: 'credits,videos,recommendations' }),
+  // translations: the English overview, shown when TMDB has none in the current language.
+  // Videos are filtered by `language` too, so English (and language-less) trailers are added.
+  seriesDetails: (id: Id, language: string) =>
+    buildPath(`/tv/${id}`, {
+      append_to_response: 'credits,videos,recommendations,translations',
+      include_video_language: videoLanguages(language),
+    }),
 
   /** Just the movie (runtime, genres): the planner needs one per list item. */
   movieSummary: (id: Id) => buildPath(`/movie/${id}`),
 
-  movieDetails: (id: Id) =>
-    buildPath(`/movie/${id}`, { append_to_response: 'credits,videos,recommendations' }),
+  movieDetails: (id: Id, language: string) =>
+    buildPath(`/movie/${id}`, {
+      append_to_response: 'credits,videos,recommendations,translations',
+      include_video_language: videoLanguages(language),
+    }),
 
   season: (id: Id, seasonNumber: number) => buildPath(`/tv/${id}/season/${seasonNumber}`),
 

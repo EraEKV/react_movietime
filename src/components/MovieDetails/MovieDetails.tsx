@@ -5,7 +5,8 @@ import type { CrewMember, MovieDetails as MovieDetailsData } from '../../types/t
 import { formatDate, formatMoney, formatRuntime, getYear } from '../../utils/format'
 import { movieToLibraryMedia } from '../../utils/library'
 import { libraryToListMedia } from '../../utils/lists'
-import { fromMovie, pickTrailer } from '../../utils/media'
+import { useTmdbLanguage } from '../../hooks/useTmdbLanguage'
+import { fromMovie, overviewOf, pickTrailer } from '../../utils/media'
 import AddToListButton from '../AddToList/AddToListButton'
 import BackButton from '../BackButton/BackButton'
 import ButtonLink from '../ButtonLink/ButtonLink'
@@ -37,7 +38,7 @@ export default function MovieDetails({ movieId }: { movieId: string }) {
     data: movie,
     error,
     reload,
-  } = useFetch<MovieDetailsData>(endpoints.movieDetails(movieId))
+  } = useFetch<MovieDetailsData>(endpoints.movieDetails(movieId, useTmdbLanguage()))
   const { genresById } = useGenres('movie')
 
   if (status === 'idle' || status === 'loading') return <DetailsSkeleton label="Loading movie" />
@@ -93,7 +94,7 @@ export default function MovieDetails({ movieId }: { movieId: string }) {
           // "Released" is the normal case; only unusual statuses are worth a mention.
           movie.status !== 'Released' && movie.status,
         ]}
-        overview={movie.overview}
+        overview={overviewOf(movie)}
         facts={[
           { label: 'Release date', value: formatDate(movie.release_date) ?? '' },
           {
