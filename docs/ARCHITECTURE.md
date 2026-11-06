@@ -28,7 +28,7 @@ src/
 │   ├── form/       TextField, PasswordField, SelectField, FormError
 │   └── …
 ├── pages/          one file per route
-├── i18n/           i18next setup + en / ru / kk resources
+├── i18n/           i18next setup, languages list, Intl helpers, locales/<lang>/<namespace>.json
 ├── styles/         global.css, design tokens, themes
 ├── sw.ts           service worker (Workbox)
 └── utils/          pure functions: media, filters, schedule, stats, validation, firebaseErrors
@@ -181,6 +181,32 @@ navigating to a fresh copy starts with fresh state. `ShareDialog` only talks thr
   toast. Skip has no confirm dialog because it can be undone (toast and row).
 - Home "Up next" and the header "Tonight" chip are lazy components (`useUpcoming`), so the
   planner hooks and Firestore never load for guests.
+
+### Internationalization
+
+- `src/i18n/index.ts` initialises i18next **before the first render** (`main.tsx`) with only the
+  current language and the `common` namespace (plus `home` on `/`). A small backend module turns
+  `locales/<lang>/<namespace>.json` into one `import()` each (`import.meta.glob`), so Vite emits one
+  hashed chunk per file. The first load carries 10 kB of dictionary instead of ~120 kB; the rest
+  arrives on demand.
+- Namespaces follow features, not pages: `common`, `auth`, `home`, `catalog`, `library`, `lists`,
+  `sharing`, `planner`, `dashboard`, `profile`. A component names what it needs
+  (`useTranslation('planner')`); a missing namespace suspends into the Suspense boundary in
+  `Layout`, so a page appears once its texts are there.
+- The language lives in the `preferences` slice. A listener calls `setLanguage()`, i18next loads the
+  dictionaries of the namespaces in use and only then switches — the screen changes once, with no
+  flash of keys and no reload. `<html lang>` follows from i18next's `languageChanged`.
+- Types: `i18next.d.ts` is generated from the English JSON, so `t('nav.hme')` fails the build.
+  `npm run check:locales` checks that ru and kk have exactly the keys of en (no fallback language is
+  loaded, to keep the first load small).
+- Plurals use i18next's `_one/_few/_many/_other` keys; Russian has all four, English two, Kazakh
+  nouns stay singular after numbers.
+- Dates, numbers, relative time and language names go through `Intl` with the current locale
+  (`utils/format`, `calendar`, `relativeTime`). Chrome ships no Kazakh data, so `i18n/intl.ts`
+  falls back to Kazakh month/weekday tables and Russian number rules there.
+- Option lists that live in constants (`SORT_OPTIONS`, statuses) use `translatedOption()`: the label
+  is a getter, looked up on each render.
+- `.ics` export stays as is.
 
 ### Code splitting
 

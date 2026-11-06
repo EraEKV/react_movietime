@@ -61,7 +61,8 @@ Legend: ✅ implemented, 🚧 in progress.
   by weekday) for all time, 30 days or this year (`?period=`). Tiles and bars open the library
   with the same filter; upcoming sessions open their plan. Works for guests from the local
   library.
-- ✅ **Profile**: account info, counters, activity feed; settings for name, theme and language
+- ✅ **Profile**: account info, counters, activity feed; settings for name, theme and language ✅
+- ✅ **Languages**: English, Русский, Қазақша from the header menu or settings; the choice is saved in the account, applies without a reload and is sent to TMDB (`language=ru-RU`)
   (synced with the account).
 
 ### App
@@ -87,7 +88,7 @@ Legend: ✅ implemented, 🚧 in progress.
 - **TMDB API** for movies and series
 - **CSS Modules** on design tokens (`styles/tokens.css`), dark and light themes via `data-theme`
 - Plain `fetch` + custom hooks for TMDB, `onSnapshot` + custom hooks for Firestore
-- 🚧 `react-i18next`
+- `i18next` + `react-i18next`: en / ru / kk, dictionaries split by feature and loaded on demand ✅
 - 🚧 **Service worker** written with Workbox (`vite-plugin-pwa`, `injectManifest` mode)
 - 🚧 **Vitest** + **React Testing Library**
 - **ESLint** (`typescript-eslint`) + **Prettier**
