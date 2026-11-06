@@ -1,0 +1,95 @@
+.hint {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-4) 0;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.results {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.skeletonRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 64px;
+  padding: 0 var(--space-3);
+}
+
+/* The whole row is the checkbox label: one big touch target. */
+.row {
+  display: flex;
+  width: 100%;
+  min-height: 64px;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  transition:
+    border-color var(--dur-fast),
+    background var(--dur-fast);
+}
+
+.row:hover {
+  background: var(--surface-hover);
+}
+
+.row:has(input:checked:not(:disabled)) {
+  border-color: var(--accent);
+  background: var(--surface-selected);
+}
+
+.rowBody {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.poster {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 32px;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  border-radius: var(--radius-xs);
+  background: var(--surface-sunken);
+  color: var(--text-subtle);
+}
+
+.poster img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.text strong {
+  overflow: hidden;
+  font-size: 14px;
+  line-height: 20px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.text span {
+  color: var(--text-subtle);
+  font-size: 13px;
+  line-height: 18px;
+}

@@ -7,13 +7,13 @@ import styles from './Badge.module.css'
 interface BadgeProps {
   children: ReactNode
   icon?: IconName
-  /** Success is always paired with an icon (✓), never colour alone. */
-  tone?: 'success'
+  /** Success is always paired with an icon (✓), never colour alone. 'strong' = full text colour. */
+  tone?: 'success' | 'strong'
 }
 
 export default function Badge({ children, icon, tone }: BadgeProps) {
   return (
-    <span className={cx(styles.badge, tone === 'success' && styles.success)}>
+    <span className={cx(styles.badge, tone && styles[tone])}>
       {icon && <Icon name={icon} size={14} />}
       {children}
     </span>
