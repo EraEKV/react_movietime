@@ -281,7 +281,7 @@ Small fixes between phases go straight to `main`.
 | 5   | `feat/library` ✅         | Watchlist → Library, Firestore sync, guest merge on sign-in                                                                                                           |
 | 6   | `feat/lists` ✅           | Lists CRUD and list items                                                                                                                                             |
 | 7   | `feat/sharing` ✅         | Link visibility, members and roles, "Shared with me", copy list, Firestore rules                                                                                      |
-| 8   | `feat/planner`            | Schedule generation, calendar, complete / reschedule / skip, `.ics` export, plan sharing                                                                              |
+| 8   | `feat/planner` ✅          | Schedule generation, calendar, complete / reschedule / skip, `.ics` export, plan sharing                                                                              |
 | 9   | `feat/dashboard`          | Stats, breakdowns, filters and navigation                                                                                                                             |
 | 10  | `feat/profile`            | Profile page, settings (theme, language, display name)                                                                                                                |
 | 11  | `feat/i18n`               | en / ru / kk, TMDB language                                                                                                                                           |
