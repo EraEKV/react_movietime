@@ -260,7 +260,13 @@ The owner's access comes from `ownerUid`. Members are stored on the shared docum
 ## Security rules
 
 Stored in the repo as `firestore.rules` with `firestore.indexes.json` and `firebase.json`
-(added in phase 2). Deploy them with `firebase deploy --only firestore`.
+(added in phase 2). Deploy them with `firebase deploy --only firestore:rules` and
+`firebase deploy --only firestore:indexes` (or `--only firestore` for both).
+
+The block below is an **excerpt**: the helper functions and the structure of the access checks.
+The field validators (`validLibraryEntry`, `validList`, `validListItem`, `validProfile`,
+`validActivity`, `validPlan`, `validSession`, `validDoneBy`) and the profile and activity rules
+are only in [`firestore.rules`](../firestore.rules), which is the source of truth.
 
 ```
 rules_version = '2';

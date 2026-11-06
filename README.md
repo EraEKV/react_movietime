@@ -11,14 +11,12 @@ with an editor / viewer role.
 **Live demo:** https://react-movietime.vercel.app
 
 > React end-term project (KBTU), built on top of the midterm version.
-> **Status:** midterm features are done. End-term features are in progress; see the
-> [roadmap](docs/PROJECT_PLAN.md#5-roadmap).
+> **Status:** all planned features are implemented, deployed and covered by tests; see the
+> [roadmap](docs/PROJECT_PLAN.md#5-roadmap). Push notifications are out of scope.
 
-![Discover page with filters](docs/screenshots/discover.jpg)
+![Discover page with filters](docs/screenshots/discover-dark.jpg)
 
 ## Features
-
-Legend: ✅ implemented, 🚧 in progress.
 
 ### Catalog
 
@@ -61,36 +59,49 @@ Legend: ✅ implemented, 🚧 in progress.
   by weekday) for all time, 30 days or this year (`?period=`). Tiles and bars open the library
   with the same filter; upcoming sessions open their plan. Works for guests from the local
   library.
-- ✅ **Profile**: account info, counters, activity feed; settings for name, theme and language ✅
-- ✅ **Languages**: English, Русский, Қазақша from the header menu or settings; the choice is saved in the account, applies without a reload and is sent to TMDB (`language=ru-RU`)
-  (synced with the account).
+- ✅ **Profile**: account info, counters and an activity feed; settings for display name, theme
+  and language.
+- ✅ **Languages**: English, Русский, Қазақша from the header menu or the settings. The choice is
+  saved in the account, applies without a reload and is sent to TMDB (`language=ru-RU`), so
+  titles and overviews are translated too.
 
 ### App
 
 - ✅ Loading skeletons, error states with retry, empty states, responsive layout.
 - ✅ Light / dark theme that follows the system by default, with a toggle in the header.
-- 🚧 English / Russian / Kazakh (also for TMDB content).
-- 🚧 Installable PWA with offline support.
+- ✅ **Installable PWA with offline support**: own Workbox service worker, precached app shell,
+  cached TMDB responses and images, an offline pill and an update prompt (see
+  [PWA notes](#pwa-notes)).
+- ✅ **Tests**: 74 unit and component tests with Vitest and React Testing Library.
 
-| Series page                                     | Episode ratings                                  |
-| ----------------------------------------------- | ------------------------------------------------ |
-| ![Series details](docs/screenshots/details.jpg) | ![Episode heatmap](docs/screenshots/heatmap.jpg) |
+## Screenshots
 
-| Watchlist                                    | Mobile                                        |
-| -------------------------------------------- | --------------------------------------------- |
-| ![Watchlist](docs/screenshots/watchlist.jpg) | ![Mobile layout](docs/screenshots/mobile.jpg) |
+Both themes follow the system setting and can be switched in the header.
+
+| Dark                                                   | Light                                                    |
+| ------------------------------------------------------ | -------------------------------------------------------- |
+| ![Discover, dark](docs/screenshots/discover-dark.jpg)  | ![Discover, light](docs/screenshots/discover-light.jpg)  |
+| ![Series page, dark](docs/screenshots/series-dark.jpg) | ![Series page, light](docs/screenshots/series-light.jpg) |
+
+| Episode ratings                                  | Library                                  | Dashboard                                    |
+| ------------------------------------------------ | ---------------------------------------- | -------------------------------------------- |
+| ![Episode heatmap](docs/screenshots/heatmap.jpg) | ![Library](docs/screenshots/library.jpg) | ![Dashboard](docs/screenshots/dashboard.jpg) |
+
+| Mobile, dark                                                                | Mobile, light                                                                 |
+| --------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| <img src="docs/screenshots/mobile-dark.jpg" width="260" alt="Mobile, dark"> | <img src="docs/screenshots/mobile-light.jpg" width="260" alt="Mobile, light"> |
 
 ## Tech stack
 
 - **React 19** + **TypeScript** (strict) + **Vite**, **React Router** (declarative mode)
-- **Redux Toolkit**: global state; `preferences` with listener middleware ✅, `auth` ✅, `library` ✅
+- **Redux Toolkit**: global state (`preferences`, `auth`, `library`) with listener middleware
 - **Firebase**: Authentication (email/password, Google), Cloud Firestore
 - **TMDB API** for movies and series
 - **CSS Modules** on design tokens (`styles/tokens.css`), dark and light themes via `data-theme`
 - Plain `fetch` + custom hooks for TMDB, `onSnapshot` + custom hooks for Firestore
-- `i18next` + `react-i18next`: en / ru / kk, dictionaries are JSON files in `public/locales/`, split by feature and loaded on demand ✅
-- 🚧 **Service worker** written with Workbox (`vite-plugin-pwa`, `injectManifest` mode)
-- 🚧 **Vitest** + **React Testing Library**
+- `i18next` + `react-i18next`: en / ru / kk, dictionaries are JSON files in `public/locales/`, split by feature and loaded on demand
+- **Service worker** written with Workbox (`vite-plugin-pwa`, `injectManifest` mode)
+- **Vitest** + **React Testing Library**
 - **ESLint** (`typescript-eslint`) + **Prettier**
 
 ## Getting started
@@ -107,15 +118,38 @@ cp .env.example .env.local   # fill in the values, see below
 npm run dev
 ```
 
-| Script                 | Description                                  |
-| ---------------------- | -------------------------------------------- |
-| `npm run dev`          | Start the dev server                         |
-| `npm run build`        | Type-check, then production build to `dist/` |
-| `npm run typecheck`    | Type-check with `tsc -b`                     |
-| `npm run preview`      | Serve the production build                   |
-| `npm run lint`         | Lint with ESLint                             |
-| `npm run format`       | Format with Prettier                         |
-| `npm run format:check` | Check formatting                             |
+| Script                  | Description                                  |
+| ----------------------- | -------------------------------------------- |
+| `npm run dev`           | Start the dev server                         |
+| `npm run build`         | Type-check, then production build to `dist/` |
+| `npm run typecheck`     | Type-check with `tsc -b`                     |
+| `npm run preview`       | Serve the production build                   |
+| `npm run lint`          | Lint with ESLint                             |
+| `npm run format`        | Format with Prettier                         |
+| `npm run format:check`  | Check formatting                             |
+| `npm test`              | Run all tests once (Vitest)                  |
+| `npm run test:watch`    | Run tests in watch mode                      |
+| `npm run check:locales` | Check that en / ru / kk dictionaries match   |
+| `npm run emulators`     | Local Firebase emulators (needs Java 21)     |
+
+### Tests
+
+```bash
+npm test             # run once, as in CI
+npm run test:watch   # re-run on change
+```
+
+74 tests in 10 files: pure logic (schedule, stats, filters, validation, catalog paging),
+Redux slices, hooks (`useFetch`, `useDebouncedValue`) and components (pagination, signup
+validation, protected routes, and others). Vitest runs in `jsdom`; `src/test/setup.ts` loads the
+real English dictionaries from `public/locales` and stubs `matchMedia`. Tests need no network,
+no Firebase and no environment variables.
+
+### Local Firebase emulators (optional)
+
+`npm run emulators` starts the Auth and Firestore emulators (Firestore on port 8180, needs
+Java 21). With `VITE_USE_EMULATORS=true npm run dev` the app talks to them instead of the real
+project, which is handy for trying security rules without touching production data.
 
 ### Environment variables
 
@@ -129,6 +163,7 @@ npm run dev
 | `VITE_FIREBASE_MESSAGING_SENDER_ID` |   yes    |                                                |
 | `VITE_FIREBASE_APP_ID`              |   yes    |                                                |
 | `VITE_FIREBASE_MEASUREMENT_ID`      |    no    | Only for Google Analytics, not used by the app |
+| `VITE_USE_EMULATORS`                |    no    | `true` connects to the local emulators (dev)   |
 
 `.env.local` is git-ignored. All of these values end up in the client bundle, which is
 expected: the TMDB read token is read-only and rate-limited, and the Firebase web config only
@@ -165,6 +200,20 @@ Full reference: **[docs/API.md](docs/API.md)** (service functions) and
 `runtime` (movies), `sort`, `page` and `size`. Invalid values fall back to defaults. Details:
 [DATA_MODEL.md → Catalog query parameters](docs/DATA_MODEL.md#catalog-query-parameters-app-url--tmdb).
 
+## PWA notes
+
+- **Install:** open the deployed site in Chrome or Edge and use the install icon in the address
+  bar, or "Add to Home Screen" on Android and iOS. The manifest has 192/512 and maskable icons.
+- **Offline:** the app shell, all JS/CSS chunks and the dictionaries are precached, so the app
+  opens and routes without a network. TMDB responses use network-first (the last response is
+  shown offline), poster images use cache-first, and Firestore keeps user data in its persistent
+  cache and queues writes. An "Offline" pill appears in the header; `/offline` is the fallback
+  page for a navigation that nothing can serve.
+- **Updates:** a new build installs in the background; the user sees the toast "A new version
+  of Movietime is ready" and the app reloads on "Reload". Until then the old version keeps working.
+- The service worker is plain Workbox code in [`src/sw.ts`](src/sw.ts); `vite-plugin-pwa` only
+  injects the precache manifest (`injectManifest`). It is registered in production builds only.
+
 ## Routes
 
 | Route                                     | Page             | Access                    |
@@ -193,6 +242,9 @@ src/
 ├── storage/      localStorage modules
 ├── store/        Redux store, slices, typed hooks
 ├── hooks/        custom hooks
+├── i18n/         i18next setup, typed keys, Intl helpers
+├── sw.ts         service worker (Workbox)
+├── test/         Vitest setup (tests live next to the code as *.test.ts[x])
 ├── types/        TypeScript types for TMDB responses and app data
 ├── components/   reusable UI, one folder per component + CSS Module
 ├── pages/        one file per route

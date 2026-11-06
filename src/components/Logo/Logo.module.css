@@ -13,7 +13,7 @@
 }
 
 /* Phones: the mark alone, so the header keeps room for search, theme, language and sign-in. */
-@media (max-width: 419px) {
+@media (max-width: 599px) {
   .word {
     display: none;
   }
