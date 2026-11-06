@@ -90,15 +90,29 @@ offline support.
 | `onAuthChange(callback)`                            | `unsubscribe`   | Wraps `onIdTokenChanged`, so `email_verified` updates after verification       |
 | `reloadUser()`                                      | `Promise<User>` | Refreshes the token after the user verifies                                    |
 
-### `profileService.ts` 🚧
+`authService.updateDisplayName(name)` → `Promise<void>`: Firebase Auth `updateProfile`. The
+`auth/updateDisplayName` thunk runs it together with `updateUserProfile`, then puts the name into
+the store (updateProfile doesn't refresh the token, so `authChanged` wouldn't bring it).
 
-| Function                                  | Returns                                                    |
-| ----------------------------------------- | ---------------------------------------------------------- |
-| `ensureProfile(user)`                     | `Promise<Profile>`: creates `users/{uid}` on first sign-in |
-| `watchProfile(uid, callback)`             | `unsubscribe`                                              |
-| `updateProfile(uid, changes)`             | `Promise<void>`: name, settings                            |
-| `watchActivity(uid, { limit }, callback)` | `unsubscribe`                                              |
-| `logActivity(uid, activity)`              | `Promise<void>` (usually added to a batch instead)         |
+### `profileService.ts` ✅
+
+| Function                             | Returns                                                                                                 |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------- |
+| `ensureProfile(user, settings)`      | `Promise<void>`: creates `users/{uid}` on first sign-in; writes `settings` only if the account has none |
+| `watchProfile(uid, onData, onError)` | `unsubscribe`; `settings` is `null` when missing or invalid                                             |
+| `updateUserProfile(uid, changes)`    | `Promise<void>`: `displayName` and/or `settings`, plus `updatedAt`                                      |
+
+### `activityService.ts` ✅
+
+| Function                                     | Returns                                                                                |
+| -------------------------------------------- | -------------------------------------------------------------------------------------- |
+| `logActivity(uid, draft)`                    | `void`: fire-and-forget `setDoc`; a failure is logged, never thrown (library, lists)   |
+| `addActivity(batch, uid, draft)`             | `void`: the record goes into the caller's batch (planner: same commit as the change)   |
+| `watchActivity(uid, count, onData, onError)` | `unsubscribe`: `orderBy('createdAt', 'desc')` + `limit(count)`; single field, no index |
+
+Recorded: `library.add` (addEntry), `library.status` (updateEntry when the status changes; score,
+notes and progress don't count), `list.create` (createList, so copies too), `plan.create`,
+`session.done`, `plan.done`. Guests record nothing.
 
 ### `libraryService.ts` ✅
 
