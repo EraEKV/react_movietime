@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { imageUrl } from '../../api/tmdb'
 import type { MediaSummary } from '../../types/media'
 import { getYear } from '../../utils/format'
@@ -12,10 +13,18 @@ interface MediaGridProps {
   label: string
   /** "grid" wraps (catalogs); "row" scrolls sideways (recommendations under a title). */
   layout?: 'grid' | 'row'
+  /** Hover actions per card (e.g. "Add to list"); the page owns what they open. */
+  renderActions?: (item: MediaSummary) => ReactNode
 }
 
 /** Posters for movies and series alike: catalogs and recommendations. */
-export default function MediaGrid({ items, genresById, label, layout = 'grid' }: MediaGridProps) {
+export default function MediaGrid({
+  items,
+  genresById,
+  label,
+  layout = 'grid',
+  renderActions,
+}: MediaGridProps) {
   const List = layout === 'row' ? PosterRow : PosterGrid
   return (
     <List label={label}>
@@ -34,6 +43,7 @@ export default function MediaGrid({ items, genresById, label, layout = 'grid' }:
               .join(', ')}
             rating={item.rating}
             placeholderIcon={item.mediaType === 'movie' ? 'film' : 'tv'}
+            actions={renderActions?.(item)}
           />
         </li>
       ))}

@@ -1,19 +1,24 @@
+import { useState } from 'react'
 import { useLocation, useNavigate, useSearchParams } from 'react-router'
+import AddToListDialog from '../components/AddToList/AddToListDialog'
 import Button from '../components/Button/Button'
 import EmptyState from '../components/EmptyState/EmptyState'
 import ErrorState from '../components/EmptyState/ErrorState'
 import FilterBar from '../components/FilterBar/FilterBar'
+import IconButton from '../components/IconButton/IconButton'
 import MediaGrid from '../components/MediaGrid/MediaGrid'
 import Pagination from '../components/Pagination/Pagination'
 import SearchBar from '../components/SearchBar/SearchBar'
 import SegmentedControl from '../components/SegmentedControl/SegmentedControl'
 import SkeletonGrid from '../components/Skeleton/SkeletonGrid'
+import { useAuth } from '../hooks/useAuth'
 import { useCatalog } from '../hooks/useCatalog'
 import { useCatalogFilters } from '../hooks/useCatalogFilters'
 import { useGenres } from '../hooks/useGenres'
-import type { MediaType } from '../types/media'
+import type { MediaSummary, MediaType } from '../types/media'
 import { PAGE_SIZE_OPTIONS, parsePageSize } from '../utils/catalog'
 import { sharedCatalogParams } from '../utils/filters'
+import { summaryToListMedia } from '../utils/lists'
 import styles from './CatalogPage.module.css'
 
 /** Router state is untyped (any page can push anything), so check its shape before trusting it. */
@@ -56,6 +61,9 @@ export default function CatalogPage({ mediaType }: { mediaType: MediaType }) {
   const location = useLocation()
   const focusSearch = wantsSearchFocus(location.state)
   const copy = COPY[mediaType]
+  const { isAuthenticated } = useAuth()
+  // One dialog for the whole grid: the card only says which title was picked.
+  const [listFor, setListFor] = useState<MediaSummary | null>(null)
 
   // TMDB can't combine text search with discover filters, so a query switches the endpoint.
   const searchMode = query !== ''
@@ -139,7 +147,25 @@ export default function CatalogPage({ mediaType }: { mediaType: MediaType }) {
       {status === 'success' && data.items.length > 0 && (
         <div>
           <h2 className="sr-only">Results</h2>
-          <MediaGrid items={data.items} genresById={genresById} label={copy.title} />
+          <MediaGrid
+            items={data.items}
+            genresById={genresById}
+            label={copy.title}
+            renderActions={
+              // Lists need an account; guests use the title page's "Add to list" (→ sign in).
+              isAuthenticated
+                ? (item) => (
+                    <IconButton
+                      icon="list"
+                      label={`Add ${item.title} to a list`}
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => setListFor(item)}
+                    />
+                  )
+                : undefined
+            }
+          />
           <Pagination
             page={page}
             totalPages={data.totalPages}
@@ -151,6 +177,10 @@ export default function CatalogPage({ mediaType }: { mediaType: MediaType }) {
             }}
           />
         </div>
+      )}
+
+      {listFor && (
+        <AddToListDialog media={summaryToListMedia(listFor)} onClose={() => setListFor(null)} />
       )}
     </section>
   )
