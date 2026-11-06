@@ -1,6 +1,7 @@
-import i18n, { type BackendModule, type ParseKeys } from 'i18next'
+import i18n, { type BackendModule, type CustomTypeOptions, type ParseKeys } from 'i18next'
 import { initReactI18next } from 'react-i18next'
 import type { Language } from '../types/preferences'
+import { formatNumberWith } from './intl'
 
 /**
  * Dictionaries are split by feature: locales/<language>/<namespace>.json. Vite turns every
@@ -36,8 +37,8 @@ i18n.on('languageChanged', (language) => {
  * `preload` adds the namespace of the page being opened (Home: 'home'), so it arrives in
  * parallel with `common` instead of after the first render suspends on it.
  */
-export function initI18n(language: Language, preload: string[] = []) {
-  return i18n
+export async function initI18n(language: Language, preload: string[] = []) {
+  await i18n
     .use(lazyBackend)
     .use(initReactI18next)
     .init({
@@ -49,6 +50,10 @@ export function initI18n(language: Language, preload: string[] = []) {
       fallbackLng: false,
       interpolation: { escapeValue: false }, // React escapes already.
     })
+  // `{{count, number}}` in dictionaries: same Kazakh safety net as the app's own formatters.
+  i18n.services.formatter?.add('number', (value: number, lng, options) =>
+    formatNumberWith(value, lng ?? 'en', options as Intl.NumberFormatOptions),
+  )
 }
 
 /**
@@ -60,7 +65,9 @@ export function setLanguage(language: Language) {
 }
 
 /** A key of the common dictionary ('nav.home') or of another one with its prefix ('library:sort.title'). */
-export type TranslationKey = ParseKeys<'common'>
+type Resources = CustomTypeOptions['resources']
+type PrefixedKey = { [N in keyof Resources]: `${N}:${ParseKeys<N>}` }[keyof Resources]
+export type TranslationKey = ParseKeys<'common'> | PrefixedKey
 
 /**
  * A select option whose label is looked up when it is read, not when the module loads:

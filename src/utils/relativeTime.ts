@@ -1,4 +1,5 @@
 import { currentLocale } from '../i18n'
+import { formatDateWith, formatRelativeWith } from '../i18n/intl'
 
 const UNITS: [Intl.RelativeTimeFormatUnit, number][] = [
   ['minute', 60],
@@ -22,21 +23,22 @@ export function relativeTime(
   // A server timestamp can be a moment ahead of this device's clock: treat it as "now".
   const seconds = Math.max(0, Math.round((now.getTime() - date.getTime()) / 1000))
   if (seconds < 60) {
-    return new Intl.RelativeTimeFormat(locale, { numeric: 'auto' }).format(0, 'second')
+    return formatRelativeWith(0, 'second', locale)
   }
 
   if (seconds < WEEK) {
     // The biggest unit that fits: 90 minutes → "1 hour ago", 26 hours → "yesterday".
     const [unit, size] = UNITS.findLast(([, s]) => seconds >= s) ?? ['minute', 60]
-    return new Intl.RelativeTimeFormat(locale, { numeric: 'auto' }).format(
-      -Math.floor(seconds / size),
-      unit,
-    )
+    return formatRelativeWith(-Math.floor(seconds / size), unit, locale)
   }
 
-  return new Intl.DateTimeFormat(locale, {
-    month: 'short',
-    day: 'numeric',
-    ...(date.getFullYear() !== now.getFullYear() && { year: 'numeric' }),
-  }).format(date)
+  return formatDateWith(
+    date,
+    {
+      month: 'short',
+      day: 'numeric',
+      ...(date.getFullYear() !== now.getFullYear() && { year: 'numeric' }),
+    },
+    locale,
+  )
 }

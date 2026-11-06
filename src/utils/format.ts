@@ -1,4 +1,5 @@
 import { currentLocale } from '../i18n'
+import { formatDateWith, formatNumberWith, formatUnitWith } from '../i18n/intl'
 
 // Every formatter takes the locale as its last parameter (tests pass one); by default it is
 // the interface language, so components get "12 345" in Russian and "12,345" in English.
@@ -9,14 +10,12 @@ export function getYear(date: string | null | undefined): string | null {
 
 export function formatRating(vote: number | null | undefined, locale = currentLocale()): string {
   return vote
-    ? new Intl.NumberFormat(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(
-        vote,
-      )
+    ? formatNumberWith(vote, locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 })
     : '—'
 }
 
 export function formatNumber(value: number, locale = currentLocale()): string {
-  return new Intl.NumberFormat(locale).format(value)
+  return formatNumberWith(value, locale)
 }
 
 /** Parses a positive integer from a URL param, falling back when invalid. */
@@ -44,7 +43,7 @@ export function formatDate(
   locale = currentLocale(),
 ): string | null {
   if (!date) return null
-  return new Intl.DateTimeFormat(locale, { dateStyle: 'medium' }).format(new Date(date))
+  return formatDateWith(new Date(date), { dateStyle: 'medium' }, locale)
 }
 
 /** S2E5 — the short episode code used across the design. */
@@ -53,7 +52,7 @@ export function episodeCode(season: number, episode: number): string {
 }
 
 const unit = (locale: string, name: 'hour' | 'minute', value: number) =>
-  new Intl.NumberFormat(locale, { style: 'unit', unit: name, unitDisplay: 'narrow' }).format(value)
+  formatUnitWith(value, name, locale)
 
 /** 136 → "2h 16m" / "2 ч 16 мин" / "2 сағ 16 мин"; null for unknown (TMDB sends 0 or null). */
 export function formatRuntime(
@@ -72,10 +71,10 @@ export function formatRuntime(
 /** 63000000 → "$63M" / "63 млн $"; null when TMDB doesn't know (it sends 0). */
 export function formatMoney(amount: number, locale = currentLocale()): string | null {
   if (amount <= 0) return null
-  return new Intl.NumberFormat(locale, {
+  return formatNumberWith(amount, locale, {
     style: 'currency',
     currency: 'USD',
     notation: 'compact',
     maximumFractionDigits: 1,
-  }).format(amount)
+  })
 }

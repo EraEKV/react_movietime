@@ -1,4 +1,5 @@
 import { currentLocale } from '../../i18n'
+import { formatDateWith } from '../../i18n/intl'
 import { useTranslation } from 'react-i18next'
 import { lazy, Suspense } from 'react'
 import Section from '../Section/Section'
@@ -11,11 +12,7 @@ import styles from './Home.module.css'
 const UpNextList = lazy(() => import('./UpNextList'))
 
 const todayLabel = () =>
-  new Intl.DateTimeFormat(currentLocale(), {
-    weekday: 'long',
-    month: 'long',
-    day: 'numeric',
-  }).format(new Date())
+  formatDateWith(new Date(), { weekday: 'long', month: 'long', day: 'numeric' }, currentLocale())
 
 /** Today's and tomorrow's sessions with "Mark watched", or the way to make a first plan. */
 export default function UpNextSection() {

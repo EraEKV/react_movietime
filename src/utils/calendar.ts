@@ -6,6 +6,7 @@
 // by whole days with setUTCDate never sees DST, because UTC has none.
 
 import { currentLocale } from '../i18n'
+import { formatDateWith, formatRelativeWith } from '../i18n/intl'
 import type { Weekday } from '../types/plan'
 
 const DAY_RE = /^(\d{4})-(\d{2})-(\d{2})$/
@@ -125,7 +126,7 @@ export function formatDay(
   options: Intl.DateTimeFormatOptions,
   locale = currentLocale(),
 ): string {
-  return new Intl.DateTimeFormat(locale, { ...options, timeZone: UTC }).format(mustParse(day))
+  return formatDateWith(mustParse(day), { ...options, timeZone: UTC }, locale)
 }
 
 const capitalize = (text: string, locale: string) =>
@@ -134,8 +135,10 @@ const capitalize = (text: string, locale: string) =>
 /** "November 2026" / "Ноябрь 2026 г." — capitalised, since it is used as a heading. */
 export const formatMonth = (ref: MonthRef, locale = currentLocale()) =>
   capitalize(
-    new Intl.DateTimeFormat(locale, { month: 'long', year: 'numeric', timeZone: UTC }).format(
+    formatDateWith(
       new Date(Date.UTC(ref.year, ref.month, 1)),
+      { month: 'long', year: 'numeric', timeZone: UTC },
+      locale,
     ),
     locale,
   )
@@ -145,7 +148,7 @@ export function relativeDay(day: string, today: string, locale = currentLocale()
   const diff = daysBetween(today, day)
   if (Math.abs(diff) <= 1) {
     // "today" / "сегодня" / "бүгін": Intl knows the word, the UI wants it capitalised.
-    const word = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' }).format(diff, 'day')
+    const word = formatRelativeWith(diff, 'day', locale)
     return capitalize(word, locale)
   }
   return formatDay(day, { weekday: 'short', month: 'short', day: 'numeric' }, locale)
