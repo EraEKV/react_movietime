@@ -34,3 +34,10 @@
   color: var(--text);
   box-shadow: var(--shadow-1);
 }
+
+/* Fingers need 44px; a mouse keeps the compact 38px control. */
+@media (pointer: coarse) {
+  .option {
+    min-height: var(--touch-min);
+  }
+}
