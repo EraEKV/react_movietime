@@ -1,29 +1,37 @@
 import { useSearchParams, type NavigateOptions } from 'react-router'
-import { MAX_PAGE } from '../api/tmdb'
+import type { MediaType } from '../types/media'
 import {
+  maxCatalogPage,
+  pageAfterResize,
+  parsePageSize,
+  DEFAULT_PAGE_SIZE,
+  type PageSize,
+} from '../utils/catalog'
+import {
+  countActiveFilters,
   DEFAULT_SORT,
-  FILTER_KEYS,
+  filterKeys,
   parseFilters,
+  type CatalogFilters,
   type FilterKey,
-  type SeriesFilters,
 } from '../utils/filters'
 import { parsePage } from '../utils/format'
 
 type ParamValue = string | number | null
 
 /**
- * Filters, sort and page live in the URL instead of useState:
+ * Filters, sort, page and page size live in the URL instead of useState:
  * links are shareable, refresh keeps them, and back/forward walks through them.
  * Every update creates a new URLSearchParams — the previous one is never mutated.
  */
-export function useSeriesFilters() {
+export function useCatalogFilters(mediaType: MediaType) {
   const [searchParams, setSearchParams] = useSearchParams()
 
-  const filters: SeriesFilters = parseFilters(searchParams)
+  const filters: CatalogFilters = parseFilters(searchParams, mediaType)
   const query = (searchParams.get('q') ?? '').trim()
-  const page = parsePage(searchParams.get('page'), MAX_PAGE)
-  const activeCount =
-    FILTER_KEYS.filter((key) => filters[key] !== '').length + Number(filters.sort !== DEFAULT_SORT)
+  const size = parsePageSize(searchParams.get('size'))
+  const page = parsePage(searchParams.get('page'), maxCatalogPage(size))
+  const activeCount = countActiveFilters(filters, mediaType)
 
   function update(changes: Record<string, ParamValue>, options?: NavigateOptions) {
     setSearchParams((prev) => {
@@ -45,16 +53,37 @@ export function useSeriesFilters() {
     update({ page: nextPage === 1 ? '' : nextPage })
   }
 
+  // A new page size keeps the first visible title on screen instead of jumping to page 1.
+  function setSize(nextSize: PageSize) {
+    const nextPage = pageAfterResize(page, size, nextSize)
+    update({
+      size: nextSize === DEFAULT_PAGE_SIZE ? '' : nextSize,
+      page: nextPage === 1 ? '' : nextPage,
+    })
+  }
+
   // Starting a search adds one history entry (Back returns to browsing);
   // refining it replaces that entry instead of adding one per debounced query.
   function setQuery(nextQuery: string) {
     update({ q: nextQuery, page: '' }, { replace: query !== '' })
   }
 
-  // Clears filters and sort but keeps the search query: they are separate controls.
+  // Clears filters and sort but keeps the search query and page size: they are separate controls.
   function resetFilters() {
-    update({ ...Object.fromEntries(FILTER_KEYS.map((key) => [key, ''])), sort: '', page: '' })
+    const cleared = Object.fromEntries(filterKeys(mediaType).map((key) => [key, '']))
+    update({ ...cleared, sort: '', page: '' })
   }
 
-  return { filters, query, page, activeCount, setFilter, setQuery, setPage, resetFilters }
+  return {
+    filters,
+    query,
+    page,
+    size,
+    activeCount,
+    setFilter,
+    setQuery,
+    setPage,
+    setSize,
+    resetFilters,
+  }
 }

@@ -1,7 +1,23 @@
 .pagination {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
+  align-items: center;
+  gap: var(--space-4) var(--space-8);
   margin-top: var(--space-10);
+}
+
+/* "Per page" label and select on one line. */
+.size {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.size label {
+  color: var(--text-muted);
+  font-weight: 500;
+  white-space: nowrap;
 }
 
 .pages {
