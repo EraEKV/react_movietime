@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "typecheck": "tsc -b"
+    "typecheck": "tsc -b",
+    "emulators": "npx -y firebase-tools@15 emulators:start --only auth,firestore --project demo-movietime"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.14.0",

@@ -1,5 +1,5 @@
 import { initializeApp, type FirebaseOptions } from 'firebase/app'
-import { getAuth } from 'firebase/auth'
+import { connectAuthEmulator, getAuth } from 'firebase/auth'
 
 const env = import.meta.env
 
@@ -26,10 +26,23 @@ if (missing.length > 0) {
   )
 }
 
-const config: FirebaseOptions = { ...required, measurementId: env.VITE_FIREBASE_MEASUREMENT_ID }
+/**
+ * Local Firebase Emulator Suite (`npm run emulators`), for development only: `import.meta.env.DEV`
+ * is false in production builds, so this branch and the emulator calls are removed there.
+ * A "demo-" project id never reaches a real project, even if an emulator isn't running.
+ */
+export const useEmulators = env.DEV && env.VITE_USE_EMULATORS === 'true'
+
+const config: FirebaseOptions = {
+  ...required,
+  measurementId: env.VITE_FIREBASE_MEASUREMENT_ID,
+  ...(useEmulators && { projectId: 'demo-movietime' }),
+}
 
 export const app = initializeApp(config)
 
 // Auth is needed on every page (header, guards), so it is part of the main bundle.
 // Firestore lives in ./firestore and loads with the first module that reads data.
 export const auth = getAuth(app)
+
+if (useEmulators) connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true })
