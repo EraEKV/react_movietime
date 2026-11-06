@@ -1,6 +1,7 @@
 import { useUpcoming } from '../../hooks/usePlanner'
 import { unitsLabel } from '../../utils/schedule'
 import Chip from '../Chip/Chip'
+import styles from './TonightChip.module.css'
 
 /**
  * "Tonight 21:00" in the header when one of your plans has a session today that isn't
@@ -18,7 +19,9 @@ export default function TonightChip() {
       to="/planner"
       aria-label={`Tonight at ${next.session.time}: ${title}, ${unitsLabel(next.session.units)}. Open planner`}
     >
-      Tonight {next.session.time}
+      {/* Phones: just the time, so the header keeps room for search, theme and avatar. */}
+      <span className={styles.word}>Tonight </span>
+      {next.session.time}
     </Chip>
   )
 }

@@ -1,0 +1,7 @@
+/* The word goes where the header is tight: phones, and desktop up to 1279px where six nav
+   items, search, theme and avatar already fill the bar. The time and icon stay. */
+@media (max-width: 479px), (min-width: 1024px) and (max-width: 1279px) {
+  .word {
+    display: none;
+  }
+}
