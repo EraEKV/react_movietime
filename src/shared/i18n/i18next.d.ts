@@ -6,6 +6,7 @@ import type dashboard from '../../../public/locales/en/dashboard.json'
 import type home from '../../../public/locales/en/home.json'
 import type library from '../../../public/locales/en/library.json'
 import type lists from '../../../public/locales/en/lists.json'
+import type notifications from '../../../public/locales/en/notifications.json'
 import type planner from '../../../public/locales/en/planner.json'
 import type profile from '../../../public/locales/en/profile.json'
 import type sharing from '../../../public/locales/en/sharing.json'
@@ -22,6 +23,7 @@ declare module 'i18next' {
       home: typeof home
       library: typeof library
       lists: typeof lists
+      notifications: typeof notifications
       planner: typeof planner
       profile: typeof profile
       sharing: typeof sharing

@@ -18,14 +18,21 @@ import SignupPage from './SignupPage'
 
 const field = (name: RegExp | string) => screen.getByLabelText(name)
 
-function setup() {
+function setup(path = '/') {
   render(
-    <MemoryRouter>
+    <MemoryRouter initialEntries={[path]}>
       <SignupPage />
     </MemoryRouter>,
   )
   return userEvent.setup()
 }
+
+describe('SignupPage invite link', () => {
+  it('prefills the invited email', () => {
+    setup('/signup?invite=lists/abc&email=dan%40example.com')
+    expect(field('Email')).toHaveValue('dan@example.com')
+  })
+})
 
 describe('SignupPage validation', () => {
   beforeEach(() => {

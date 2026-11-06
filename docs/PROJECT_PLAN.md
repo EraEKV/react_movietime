@@ -2,7 +2,8 @@
 
 This document describes the Movietime end-term project: the scope, the features, the order of
 work, how every grading requirement is covered, and notes for the defense (section 7). All
-planned phases are done; push notifications are out of scope.
+planned phases are done; web push is out of scope, in-app notifications and invite links
+(phase 13) are in.
 
 Related docs:
 
@@ -130,6 +131,13 @@ Lists and plans can be shared in two ways at the same time:
    | **editor** | add / remove / annotate titles       | complete and reschedule sessions     |
    | **viewer** | read                                 | read                                 |
 
+- **Notification and invite link.** Adding a member writes an in-app notification in the same
+  batch (bell in the header, unread counter, _Open_ / _Mark as read_ / _Decline_). The app does
+  not check whether the email has an account (that would let anyone probe which emails are
+  registered), so the notification waits for the verified email. For people outside the app the
+  share dialog offers an invite link (`/signup?invite=…&email=…`; copy, Web Share, mailto) that
+  leads through sign-up and email verification to the list or plan. Automatic email is not
+  sent: it needs a domain or a mail server, which the project does not have.
 - The friend sees the shared item under **"Shared with me"** as soon as they sign in with that
   email. No invitation backend is needed.
 - Roles are stored on the document (`roles: { "friend@gmail.com": "editor" }` plus a
@@ -195,7 +203,7 @@ user's real library and plans:
   counts (library / lists / plans), **recent activity** (added titles, completed sessions,
   created lists).
 - `/profile/settings`: edit display name, theme, language, send verification email again,
-  sign out. Notification switches from the design wait for push notifications (phase 13).
+  sign out. Notification switches from the design stay out: there is no push.
 
 | Profile requirement                   | How                                                                                                |
 | ------------------------------------- | -------------------------------------------------------------------------------------------------- |
@@ -216,11 +224,12 @@ user's real library and plans:
 | Planner  | Calendar planner (3.7), `.ics` export.                                                                                                                                                                                                                                                                                                                                  |
 | Firebase | Auth, Firestore, security rules, offline persistence.                                                                                                                                                                                                                                                                                                                   |
 
-**Out of scope: push notifications (FCM).** Real reminders need a server to send messages at
+**Out of scope: web push (FCM).** What exists instead is in-app notifications for sharing
+(3.6). Real reminders need a server to send messages at
 the planned time (Cloud Functions need the paid Blaze plan; Vercel Functions with Cron would
 work, but only once a day on the free plan). Instead the app shows "Tonight" in the header and
-"Up next" on Home and the dashboard. If push notifications are added later, this section and
-the phase table change.
+"Up next" on Home and the dashboard. If web push is added later, this section and the phase
+table change.
 
 ### 3.11 PWA and offline (mandatory)
 
@@ -247,7 +256,7 @@ Vitest + React Testing Library + jsdom, `npm test`:
 - **Hooks:** `useDebouncedValue` with fake timers, `useFetch` race condition (a slow old
   response must not overwrite a newer one) with a mocked `fetch`.
 - **Components:** signup form validation messages, `ProtectedRoute` redirect, `Pagination`.
-- 74 tests in 10 files. Firestore security rules were checked by hand-written scripts against
+- 109 tests in 13 files. Firestore security rules were checked by hand-written scripts against
   the emulator (owner, editor, viewer, unverified member, stranger, guest), not by `npm test`.
 
 ## 4. Pages and routes
@@ -300,7 +309,7 @@ Small fixes between phases go straight to `main`.
 | 10  | `feat/profile` ✅            | Profile page, settings (theme, language, display name)                                                                                                                |
 | 11  | `feat/i18n` ✅               | en / ru / kk, lazy dictionaries per feature, plurals, `Intl` formats, TMDB language, header language menu                                                             |
 | 12  | `feat/pwa` ✅                | Manifest, service worker, caching, offline page, status indicator, update prompt                                                                                      |
-| 13  | `feat/push-notifications`    | Optional, not planned: web push (see the note in 3.10)                                                                                                                |
+| 13  | `feat/notifications` ✅      | In-app notifications (bell, realtime), invite link (copy, Web Share, mailto), rules and index; web push stays out (see 3.10)                                          |
 | 14  | `test/unit-and-component` ✅ | Vitest + Testing Library: logic, slices, hooks, components (see 3.12)                                                                                                 |
 | 15  | `docs/final` ✅              | Final README, screenshots, docs sync, defense notes                                                                                                                   |
 
@@ -472,21 +481,24 @@ with verified emails, in two browser profiles or one normal and one private wind
 
 ### 7.4 Likely questions
 
-| Question                                     | Short answer                                                                                                                                                                                                                                                                 |
-| -------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Why Redux Toolkit and not only Context?      | Auth, library and preferences are read on many routes and change from listeners (Firestore snapshots, other tabs). Slices, selectors and listener middleware give one place for that logic and easy tests. Context would re-render consumers and mix data with side effects. |
-| Why are lists and plans not in the store?    | Only the page that shows them needs them, and `onSnapshot` already keeps them live. A copy in Redux would be a second source of truth.                                                                                                                                       |
-| How do you avoid race conditions?            | Each request effect aborts the previous request in its cleanup (`AbortController`) and ignores late results with a flag; search is also debounced (400 ms). `useFetch` has a test for exactly this.                                                                          |
-| Why a custom `useFetch` and not React Query? | The requirements ask for custom data-fetching hooks. The cost is no shared cache between components, which the service worker (network-first) and the small number of requests make acceptable.                                                                              |
-| Where is the access control?                 | In `firestore.rules`: `canRead`, `isOwner`, `isEditor`, `isMember` helpers per document, plus field validators. The UI only hides buttons; calling the API directly still gets `permission-denied`.                                                                          |
-| Can anyone list public lists?                | No. A link visitor can read one document by id; `list` queries need ownership or membership.                                                                                                                                                                                 |
-| What happens to a guest's data on sign-in?   | The local library is merged into the account in one batch (account entries win), then local storage is cleared.                                                                                                                                                              |
-| How does the planner build a schedule?       | `buildSchedule(episodes, options)` is a pure function: it drops specials and unaired episodes, groups episodes into sessions by pace and puts each on the next chosen weekday. It has unit tests under two time zones.                                                       |
-| Why `injectManifest` and not `generateSW`?   | Every caching rule is visible in our own `src/sw.ts`; the plugin only injects the precache list and the manifest.                                                                                                                                                            |
-| What works offline?                          | The shell, visited and lazy pages, cached TMDB responses and posters, the library and lists from the Firestore cache. New TMDB searches don't work offline and show an error with a retry button.                                                                            |
-| Why TypeScript 6 and not 7?                  | `typescript-eslint` 8 doesn't support TS 7 yet.                                                                                                                                                                                                                              |
-| What is not done?                            | Push notifications (out of scope), UI check of the update prompt. Stored data keeps the language it was created in; Kazakh TMDB overviews often fall back to English.                                                                                                        |
-| How do you test?                             | `npm test`: 74 unit and component tests (logic, slices, hooks, components). Rules and UI flows were verified against the emulator and a mocked TMDB with scripts that aren't part of the repo.                                                                               |
+| Question                                               | Short answer                                                                                                                                                                                                                                                                 |
+| ------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Why Redux Toolkit and not only Context?                | Auth, library and preferences are read on many routes and change from listeners (Firestore snapshots, other tabs). Slices, selectors and listener middleware give one place for that logic and easy tests. Context would re-render consumers and mix data with side effects. |
+| Why are lists and plans not in the store?              | Only the page that shows them needs them, and `onSnapshot` already keeps them live. A copy in Redux would be a second source of truth.                                                                                                                                       |
+| How do you avoid race conditions?                      | Each request effect aborts the previous request in its cleanup (`AbortController`) and ignores late results with a flag; search is also debounced (400 ms). `useFetch` has a test for exactly this.                                                                          |
+| Why a custom `useFetch` and not React Query?           | The requirements ask for custom data-fetching hooks. The cost is no shared cache between components, which the service worker (network-first) and the small number of requests make acceptable.                                                                              |
+| Where is the access control?                           | In `firestore.rules`: `canRead`, `isOwner`, `isEditor`, `isMember` helpers per document, plus field validators. The UI only hides buttons; calling the API directly still gets `permission-denied`.                                                                          |
+| Can anyone list public lists?                          | No. A link visitor can read one document by id; `list` queries need ownership or membership.                                                                                                                                                                                 |
+| What happens to a guest's data on sign-in?             | The local library is merged into the account in one batch (account entries win), then local storage is cleared.                                                                                                                                                              |
+| How does the planner build a schedule?                 | `buildSchedule(episodes, options)` is a pure function: it drops specials and unaired episodes, groups episodes into sessions by pace and puts each on the next chosen weekday. It has unit tests under two time zones.                                                       |
+| Why `injectManifest` and not `generateSW`?             | Every caching rule is visible in our own `src/sw.ts`; the plugin only injects the precache list and the manifest.                                                                                                                                                            |
+| What works offline?                                    | The shell, visited and lazy pages, cached TMDB responses and posters, the library and lists from the Firestore cache. New TMDB searches don't work offline and show an error with a retry button.                                                                            |
+| Why TypeScript 6 and not 7?                            | `typescript-eslint` 8 doesn't support TS 7 yet.                                                                                                                                                                                                                              |
+| What is not done?                                      | Web push (out of scope; sharing has in-app notifications), UI check of the update prompt. Stored data keeps the language it was created in; Kazakh TMDB overviews often fall back to English.                                                                                |
+| Why not send the invitation by email?                  | A transactional email service needs a verified domain, and the project has none. Instead the owner gets a link to copy, share or send through their own mail app, and people who already use Movietime get an in-app notification.                                           |
+| Why doesn't the app check if the email has an account? | Answering "this email is registered" is an email-enumeration leak, and profiles are private. The notification is keyed by email and waits; the rules show it only to the verified owner of that email.                                                                       |
+| How can an owner not spam strangers?                   | The rules accept a notification only in the same batch that adds that email as a member of the owner's own list or plan, at most 20 members, and never twice for the same member.                                                                                            |
+| How do you test?                                       | `npm test`: 109 unit and component tests (logic, slices, hooks, components). Rules and UI flows were verified against the emulator and a mocked TMDB with scripts that aren't part of the repo.                                                                              |
 
 ## Layered structure (FSD-like): `shared/` done, the rest is an idea
 

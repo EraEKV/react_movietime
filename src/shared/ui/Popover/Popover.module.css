@@ -1,0 +1,43 @@
+/* On phones the wrapper is not the positioning parent, so the panel spans the page
+   under the (sticky, positioned) header instead of being cut off at the screen edge. */
+.wrap {
+  display: inline-flex;
+}
+
+.trigger {
+  position: relative;
+}
+
+.panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: var(--page-gutter);
+  right: var(--page-gutter);
+  z-index: var(--z-menu);
+  max-height: min(70vh, 520px);
+  overflow-y: auto;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-2);
+  animation: pop var(--dur-fast) var(--ease-out);
+}
+
+@media (min-width: 640px) {
+  .wrap {
+    position: relative;
+  }
+
+  .panel {
+    left: auto;
+    right: 0;
+    width: 380px;
+  }
+}
+
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}

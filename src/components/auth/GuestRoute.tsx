@@ -1,5 +1,6 @@
 import { Navigate, Outlet, useSearchParams } from 'react-router'
 import { useAuth } from '../../hooks/useAuth'
+import { invitePath } from '../../utils/invite'
 import { safeRedirect } from '../../shared/lib/redirect'
 import PageLoader from '../../shared/ui/PageLoader/PageLoader'
 
@@ -12,7 +13,10 @@ interface GuestRouteProps {
 export default function GuestRoute({ unverifiedTo }: GuestRouteProps) {
   const { status, user, pending } = useAuth()
   const [searchParams] = useSearchParams()
-  const redirect = safeRedirect(searchParams.get('redirect'))
+  // An invite link (?invite=lists/<id>) leads to that list or plan after sign-in.
+  const redirect = safeRedirect(
+    searchParams.get('redirect') ?? invitePath(searchParams.get('invite')),
+  )
 
   if (status === 'loading') return <PageLoader />
 

@@ -57,7 +57,11 @@ function ListView({ id }: { id: string }) {
   const { user } = useAuth()
   const state = useList(id)
   const author = useListAuthor()
-  const sharing = useSharing('lists', state.status === 'ready' ? state.list : null)
+  const sharing = useSharing(
+    'lists',
+    state.status === 'ready' ? state.list : null,
+    state.status === 'ready' ? state.list.name : '',
+  )
 
   const [view, setView] = useState<'grid' | 'rows'>('grid')
   const [picking, setPicking] = useState(false)
@@ -388,6 +392,7 @@ function ListView({ id }: { id: string }) {
           onClose={() => setShareOpen(false)}
           name={list.name}
           url={sharing.url}
+          inviteLink={sharing.inviteLink}
           owner={{
             name: author?.name ?? list.ownerName,
             email: user?.email ?? null,

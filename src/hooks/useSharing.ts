@@ -1,5 +1,6 @@
 import type * as SharingService from '../services/sharingService'
 import type { MemberRole, Shareable, SharedCollection, Visibility } from '../types/sharing'
+import { inviteUrl } from '../utils/invite'
 import { shareUrl } from '../utils/sharing'
 import { useAuth } from './useAuth'
 
@@ -12,7 +13,7 @@ const loadSharingService = (): Promise<typeof SharingService> =>
  * collections; only lists have a UI so far. Each action resolves when the server accepts
  * the write and rejects with the Firestore error (permission-denied, offline…).
  */
-export function useSharing(collection: SharedCollection, shared: Shareable | null) {
+export function useSharing(collection: SharedCollection, shared: Shareable | null, title: string) {
   const { user } = useAuth()
   const ownEmail = user?.email ?? null
   // `null` while the page is still loading: hooks can't be called after an early return.
@@ -21,10 +22,16 @@ export function useSharing(collection: SharedCollection, shared: Shareable | nul
 
   return {
     url: shareUrl(collection, id),
+    inviteLink: (email: string) => inviteUrl(collection, id, email),
     setVisibility: async (visibility: Visibility) =>
       (await loadSharingService()).setVisibility(collection, id, visibility),
     invite: async (email: string, role: MemberRole) =>
-      (await loadSharingService()).addMember(collection, id, roles, email, role, ownEmail),
+      (await loadSharingService()).addMember(collection, id, roles, email, role, {
+        ownEmail,
+        ownerUid: shared?.ownerUid ?? '',
+        ownerName: shared?.ownerName ?? '',
+        title,
+      }),
     changeRole: async (email: string, role: MemberRole) =>
       (await loadSharingService()).changeRole(collection, id, email, role),
     remove: async (email: string) =>

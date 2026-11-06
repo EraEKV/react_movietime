@@ -16,6 +16,7 @@ import { isNavItemActive, MAIN_NAV } from './navigation'
 
 // Separate chunk: the planner hooks and Firestore aren't part of the first paint.
 const TonightChip = lazy(() => import('./TonightChip'))
+const NotificationBell = lazy(() => import('../Notifications/NotificationBell'))
 
 /** Desktop (≥1024): logo, main nav, search, theme, account. Below: compact bar, nav moves to the TabBar. */
 export default function Header() {
@@ -67,6 +68,12 @@ export default function Header() {
             onClick={toggleTheme}
           />
           <LanguageMenu />
+          {/* Unverified emails get nothing: the rules answer them with permission-denied. */}
+          {user?.emailVerified && (
+            <Suspense fallback={null}>
+              <NotificationBell />
+            </Suspense>
+          )}
           <UserMenu />
         </div>
       </div>

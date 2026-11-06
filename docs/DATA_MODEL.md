@@ -208,6 +208,30 @@ The first chunk holds the plan, the library entries, the activity record and the
 sessions; session rules check the plan with `getAfter()`, which sees it as it will be after the
 batch, so the plan and its sessions can be created together.
 
+### `notifications/{notificationId}`: in-app notification
+
+Written by the owner in the same batch as the sharing change; read by the person whose
+verified email equals `toEmail`. No account lookup: if nobody has that email yet, the document
+waits.
+
+| Field         | Type              | Notes                                          |
+| ------------- | ----------------- | ---------------------------------------------- |
+| `toEmail`     | string            | lowercase                                      |
+| `type`        | string            | `shared` (only type so far)                    |
+| `collection`  | string            | `lists` or `plans`                             |
+| `targetId`    | string            | list or plan id                                |
+| `targetTitle` | string            | 1–120, the name when the invite was sent       |
+| `role`        | string            | `editor` or `viewer`                           |
+| `fromUid`     | string            | must equal the writer                          |
+| `fromName`    | string            | ≤ 80                                           |
+| `createdAt`   | Timestamp         | `request.time`                                 |
+| `readAt`      | Timestamp \| null | `null` on create; set once when marked as read |
+
+Rules (`validNotification`): create only if the batch really adds `toEmail` with this `role`
+to the target (`getAfter`), the writer owns the target, and `toEmail` was not a member before;
+known fields only. Read and delete: verified email equals `toEmail`. Update: only `readAt`,
+from `null` to `request.time`. Query: `where toEmail == me orderBy createdAt desc limit 30`.
+
 ## Business operations
 
 | Operation          | Writes (one batch)                                                                                                                                                                                                                                |
@@ -233,6 +257,8 @@ The owner's access comes from `ownerUid`. Members are stored on the shared docum
 }
 ```
 
+- **Notifications:** adding a member also writes a `notifications` document (see above); the
+  person is told in the app, and the invite link covers people without an account.
 - **"Shared with me"** query: `where("memberEmails", "array-contains", myEmail)`.
 - **Rules** read the signed-in user's email from the ID token (`request.auth.token.email`),
   so no invitation server is needed.
@@ -265,7 +291,8 @@ Stored in the repo as `firestore.rules` with `firestore.indexes.json` and `fireb
 
 The block below is an **excerpt**: the helper functions and the structure of the access checks.
 The field validators (`validLibraryEntry`, `validList`, `validListItem`, `validProfile`,
-`validActivity`, `validPlan`, `validSession`, `validDoneBy`) and the profile and activity rules
+`validActivity`, `validNotification`, `validPlan`, `validSession`, `validDoneBy`) and the
+profile, activity and notification rules
 are only in [`firestore.rules`](../firestore.rules), which is the source of truth.
 
 ```
@@ -431,12 +458,13 @@ Notes:
 
 Stored in `firestore.indexes.json`.
 
-| Collection | Fields                                          | Query                |
-| ---------- | ----------------------------------------------- | -------------------- |
-| `lists`    | `ownerUid` ASC, `updatedAt` DESC                | My lists             |
-| `lists`    | `memberEmails` ARRAY_CONTAINS, `updatedAt` DESC | Lists shared with me |
-| `plans`    | `ownerUid` ASC, `nextDate` ASC                  | My plans             |
-| `plans`    | `memberEmails` ARRAY_CONTAINS, `nextDate` ASC   | Plans shared with me |
+| Collection      | Fields                                          | Query                |
+| --------------- | ----------------------------------------------- | -------------------- |
+| `lists`         | `ownerUid` ASC, `updatedAt` DESC                | My lists             |
+| `lists`         | `memberEmails` ARRAY_CONTAINS, `updatedAt` DESC | Lists shared with me |
+| `plans`         | `ownerUid` ASC, `nextDate` ASC                  | My plans             |
+| `plans`         | `memberEmails` ARRAY_CONTAINS, `nextDate` ASC   | Plans shared with me |
+| `notifications` | `toEmail` ASC, `createdAt` DESC                 | My notifications     |
 
 Sessions are queried inside one plan by `date` (single-field index, created automatically).
 
