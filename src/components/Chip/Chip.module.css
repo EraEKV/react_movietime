@@ -19,6 +19,18 @@ button.chip {
   cursor: pointer;
 }
 
+a.link {
+  min-height: 36px;
+  text-decoration: none;
+}
+
+@media (pointer: coarse) {
+  a.link {
+    min-height: 44px;
+  }
+}
+
+a.link:hover,
 button.chip:hover {
   background: var(--surface-hover);
   color: var(--text);
