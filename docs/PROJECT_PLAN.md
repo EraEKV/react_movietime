@@ -88,7 +88,8 @@ Full schemas: [DATA_MODEL.md](DATA_MODEL.md).
   app shows a loader instead of flashing the login page.
 - `ProtectedRoute` redirects guests to `/login?redirect=<original path>`.
   `GuestRoute` redirects signed-in users away from `/login` and `/signup`.
-- The header shows the avatar, name and a menu (Profile, Dashboard, Sign out).
+- The header shows the avatar and a menu (Profile, Library, Sign out; Dashboard joins in phase 9).
+  Unverified email accounts see a banner with "Resend email" and "I've verified".
 
 ### 3.4 Library (personalized data)
 

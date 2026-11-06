@@ -91,10 +91,12 @@ React.**
 ### Routing
 
 ```
+<Route element={<AuthLayout />}>      split screen without the app header
+  <Route element={<GuestRoute />}>      login, signup (signup → verify-email for new accounts)
+  <Route element={<ProtectedRoute />}>  verify-email
 <Route element={<Layout />}>
   index                         HomePage
   about                         AboutPage            (lazy)
-  <Route element={<GuestRoute />}>      login, signup
   movies, series                CatalogPage
   movies/:id                    MoviePage            (lazy)
   series/:id                    SeriesPage           (lazy)

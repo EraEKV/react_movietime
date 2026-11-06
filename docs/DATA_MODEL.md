@@ -236,7 +236,8 @@ The owner's access comes from `ownerUid`. Members are stored on the shared docum
 
 ## Security rules
 
-Stored in the repo as `firestore.rules` (added in phase 1, extended in phase 6).
+Stored in the repo as `firestore.rules` with `firestore.indexes.json` and `firebase.json`
+(added in phase 2). Deploy them with `firebase deploy --only firestore`.
 
 ```
 rules_version = '2';
