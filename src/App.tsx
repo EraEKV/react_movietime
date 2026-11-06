@@ -66,13 +66,16 @@ export default function App() {
         {/* Old links from the midterm version keep working. */}
         <Route path="watchlist/*" element={<Navigate to="/library" replace />} />
 
+        {/* Public on purpose: a shared link opens for guests too (read-only). What each
+              visitor may see and do is decided by Firestore rules; the page only follows. */}
+        <Route path="lists/:id" element={<ListPage />} />
+
         <Route element={<ProtectedRoute />}>
-          {/* Lists need an account: they live in Firestore under the owner's uid.
-                Link visitors (read-only, signed out) arrive with sharing. */}
+          {/* Your lists, creating and editing need an account. "new" is a static segment,
+                so it wins over the dynamic ":id" above regardless of order. */}
           <Route path="lists">
             <Route index element={<ListsPage />} />
             <Route path="new" element={<ListFormPage />} />
-            <Route path=":id" element={<ListPage />} />
             <Route path=":id/edit" element={<ListFormPage />} />
           </Route>
           <Route
