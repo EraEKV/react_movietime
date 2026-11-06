@@ -105,12 +105,12 @@ React.**
   library/:mediaKey/edit        LibraryEditPage      (lazy)
   watchlist/*                   → redirect to /library (midterm links)
   lists/:id                     ListPage             (lazy; public: owner / editor / viewer / link visitor)
-  planner/:planId               PlanPage             (owner / member / link)
+  planner/:id                   PlanPage             (lazy; public: owner / editor / viewer / link visitor)
   <Route element={<ProtectedRoute />}>
     lists                       ListsPage            (lazy; My lists + Shared with me)
     lists/new, lists/:id/edit   ListFormPage         (lazy, edit = owner only)
     planner                     PlannerPage          (lazy)
-    planner/new                 PlanCreatePage
+    planner/new                 CreatePlanPage       (lazy; ?series=ID or ?list=ID preselects)
     dashboard                   DashboardPage        (lazy)
     profile                     ProfileLayout        (lazy) → index: ProfilePage, settings: ProfileSettingsPage
   offline                       OfflinePage          (lazy)
@@ -139,7 +139,22 @@ for a missing list (plus a hint to sign in or verify the email). When the read s
 so a member never sees a false "not found" while auth loads, and the listener reopens with new
 credentials after sign-in or email verification. `ListPage` renders `<ListView key={id}>`, so
 navigating to a fresh copy starts with fresh state. `ShareDialog` only talks through callbacks
-(`useSharing`), so the same dialog will serve plans.
+(`useSharing`), and `PlanPage` reuses it for plans.
+
+### Planner
+
+- `usePlans` merges two listeners (my plans, plans shared with my verified email).
+  `usePlanner(month)` adds one sessions listener per plan for the visible month grid and one for
+  today; the key holds only plan ids and the range, so a counter change doesn't reopen them, and
+  sessions are joined with the latest plan objects in `useMemo`.
+- The stepper keeps all choices in state and derives everything else on render
+  (`buildSchedule` → `planSummary`), so the live preview can't go stale.
+- The calendar switches with `useMediaQuery`: month grid with posters ≥ 1024 px, dot chips
+  768–1023 px, an agenda by day below. Month and filter live in the URL (`?month=2026-11&show=mine`).
+- Session actions are awaited batches; the snapshot updates the page, failures come back as a
+  toast. Skip has no confirm dialog because it can be undone (toast and row).
+- Home "Up next" and the header "Tonight" chip are lazy components (`useUpcoming`), so the
+  planner hooks and Firestore never load for guests.
 
 ### Code splitting
 
@@ -157,7 +172,8 @@ and the sign-in thunks load the profile service with `await import(...)`. Before
 whole app was one 1 019 kB chunk. `build.chunkSizeWarningLimit` is 600 because the only chunk
 above 500 kB is the lazily loaded Firestore SDK: cutting it with Rolldown `codeSplitting` groups
 builds, but breaks the SDK's module init order at runtime. First-load JS (main + preloaded
-chunks) is ~479 kB (Home's "Shared with you" section is its own lazy chunk); the bundler names the shared chunk after one of its modules, so its file name
+chunks) is ~481 kB (Home's "Shared with you", "Up next" list and the header "Tonight" chip are
+their own lazy chunks; the planner service is ~9 kB lazy); the bundler names the shared chunk after one of its modules, so its file name
 (`firebaseErrors-*.js`) says little about its content.
 
 ### State map
@@ -196,8 +212,8 @@ confirms later. A failed write (for example `permission-denied`) is shown as an 
 
 ## Current implementation
 
-Phases 0–5 are in place. Lists, planner, dashboard and settings routes exist and show a
-"Coming soon" placeholder until their phase lands, so the navigation never leads to a 404.
+Phases 0–8 are in place (library, lists, sharing, planner). Dashboard and settings routes exist
+and show a "Coming soon" placeholder until their phase lands, so the navigation never leads to a 404.
 
 ### Routes and render tree
 
