@@ -56,8 +56,11 @@ Legend: ✅ implemented, 🚧 in progress.
   sessions) / skip / undo, `.ics` export, sharing with editors and viewers. Marking a session
   moves your library progress and completes the title on the last one. "Up next" on Home and a
   "Tonight" chip in the header.
-- 🚧 **Dashboard**: statistics and breakdowns of your library and plans, with filters and
-  links to the matching records.
+- ✅ **Dashboard**: six statistics (titles, completed, average score, hours watched, sessions
+  this week, active plans) and four breakdowns (status, top genres, movies vs series, sessions
+  by weekday) for all time, 30 days or this year (`?period=`). Tiles and bars open the library
+  with the same filter; upcoming sessions open their plan. Works for guests from the local
+  library.
 - 🚧 **Profile**: account info, activity, settings.
 
 ### App
@@ -174,7 +177,7 @@ Full reference: **[docs/API.md](docs/API.md)** (service functions) and
 | `/lists/:id`                              | List             | owner, members, link      |
 | `/planner`, `/planner/new`                | Planner          | signed in                 |
 | `/planner/:id`                            | Plan             | owner, members, link      |
-| `/dashboard`                              | Dashboard        | signed in                 |
+| `/dashboard`                              | Dashboard        | public (local for guests) |
 | `/profile`, `/profile/settings`           | Profile          | signed in                 |
 | `/offline`                                | Offline          | public                    |
 | `*`                                       | Not found        | public                    |
