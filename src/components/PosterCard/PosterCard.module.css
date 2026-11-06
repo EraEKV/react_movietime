@@ -8,6 +8,11 @@
 
 .art {
   position: relative;
+  /* The hover transform makes .art its own stacking context, so the action buttons inside
+     can't rise above the card link. Instead the whole poster sits above the link and lets
+     clicks through (pointer-events: none) — only the actions take them. */
+  z-index: 2;
+  pointer-events: none;
   aspect-ratio: 2 / 3;
   overflow: hidden;
   border-radius: var(--radius-sm);
@@ -76,6 +81,7 @@
   position: absolute;
   inset: auto var(--space-2) var(--space-2);
   z-index: 3;
+  pointer-events: auto;
   display: flex;
   gap: var(--space-1);
   opacity: 0;
