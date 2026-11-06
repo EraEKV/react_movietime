@@ -176,7 +176,8 @@ library, the profile activity and the dashboard.
 
 ### 3.8 Dashboard
 
-`/dashboard` (protected), computed from the user's real library and plans:
+`/dashboard` (public: guests see their local library, plans need an account), computed from the
+user's real library and plans:
 
 - **Statistics:** titles in library, completed titles, average score, hours watched,
   sessions planned this week, active plans.
@@ -256,7 +257,7 @@ Vitest + React Testing Library + jsdom, `npm test`:
 | `/planner`            | `PlannerPage`         | protected | ✓    | Business feature            |
 | `/planner/new`        | `PlanCreatePage`      | protected |      |                             |
 | `/planner/:planId`    | `PlanPage`            | role/link |      | dynamic route               |
-| `/dashboard`          | `DashboardPage`       | protected | ✓    | Dashboard                   |
+| `/dashboard`          | `DashboardPage`       | public    | ✓    | Dashboard                   |
 | `/profile`            | `ProfilePage`         | protected | ✓    | Profile                     |
 | `/profile/settings`   | `ProfileSettingsPage` | protected | ✓    | nested route                |
 | `/offline`            | `OfflinePage`         | public    | ✓    | PWA                         |
@@ -281,8 +282,8 @@ Small fixes between phases go straight to `main`.
 | 5   | `feat/library` ✅         | Watchlist → Library, Firestore sync, guest merge on sign-in                                                                                                           |
 | 6   | `feat/lists` ✅           | Lists CRUD and list items                                                                                                                                             |
 | 7   | `feat/sharing` ✅         | Link visibility, members and roles, "Shared with me", copy list, Firestore rules                                                                                      |
-| 8   | `feat/planner`            | Schedule generation, calendar, complete / reschedule / skip, `.ics` export, plan sharing                                                                              |
-| 9   | `feat/dashboard`          | Stats, breakdowns, filters and navigation                                                                                                                             |
+| 8   | `feat/planner` ✅         | Schedule generation, calendar, complete / reschedule / skip, `.ics` export, plan sharing                                                                              |
+| 9   | `feat/dashboard` ✅       | Stats, breakdowns, filters and navigation                                                                                                                             |
 | 10  | `feat/profile`            | Profile page, settings (theme, language, display name)                                                                                                                |
 | 11  | `feat/i18n`               | en / ru / kk, TMDB language                                                                                                                                           |
 | 12  | `feat/pwa`                | Manifest, service worker, caching, offline page, status indicator                                                                                                     |
@@ -301,7 +302,7 @@ Small fixes between phases go straight to `main`.
 | Dynamic routes                           | `/movies/:id`, `/series/:id`, `/lists/:listId`, `/planner/:planId`        |
 | Lazy loading ≥ 3 pages                   | Every page except Home, auth and 404 (`React.lazy` in `App.tsx`)          |
 | Custom 404                               | `NotFoundPage` (exists)                                                   |
-| ≥ 1 authenticated-only page              | Dashboard, Profile, Lists, Planner                                        |
+| ≥ 1 authenticated-only page              | Profile, Lists, Planner                                                   |
 
 ### Architecture (0.5)
 
@@ -377,6 +378,15 @@ See 3.11.
 Responsive layout (exists), shared components (Button, cards, forms, skeletons, EmptyState/ErrorState,
 Toast), accessible forms (labels, `aria-invalid`, error text linked with `aria-describedby`),
 dashboard from 3.8.
+
+| Dashboard requirement                    | How                                                                                            |
+| ---------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| ≥ 4 calculated statistics from real data | 6 tiles: titles, completed (%), average score, hours watched, sessions this week, active plans |
+| ≥ 2 data breakdowns                      | 4: titles by status, top genres, movies vs series, sessions by weekday                         |
+| Interactive filtering                    | Period All time / 30 days / This year in `?period=`, re-derived without refetching             |
+| Navigation to records                    | Tiles and bars → `/library?status=` / `?genre=` / `?type=`; upcoming sessions → `/planner/:id` |
+| States                                   | Skeleton tiles, empty state for new users, error + retry per card, guest banner                |
+| Memoization                              | `createSelector` (library half) + `useMemo` (genres, plan figures) in `useDashboardStats`      |
 
 ## 7. Defense preparation
 

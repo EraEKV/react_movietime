@@ -22,6 +22,23 @@
   --skeleton-shine: rgba(127, 127, 127, 0.12);
 }
 
+/*
+ * Dashboard chart colours (not in tokens.json). One hue for ranked bars (--chart-1) and a
+ * second for the movies/series split. Checked for colour-blind separation, lightness and
+ * ≥3:1 contrast against --surface in each theme; the dark pair is a step darker than
+ * --accent, which is too light for a large filled mark on the dark surface.
+ */
+:root,
+[data-theme='dark'] {
+  --chart-1: #1fa3cc;
+  --chart-2: #c9813f;
+}
+
+[data-theme='light'] {
+  --chart-1: #00739a;
+  --chart-2: #ad6420;
+}
+
 @media (min-width: 1024px) {
   :root {
     --page-gutter: var(--space-8);

@@ -192,6 +192,21 @@ Days are `"YYYY-MM-DD"` in local time; day math runs on UTC dates, so DST never 
 | `toIcs(name, events, now)`                                        | iCalendar text (RFC 5545: escaping, 75-octet folding, CRLF); times converted to UTC per day      |
 | `monthGrid(month)`, `addDays`, `weekdayOf`, `localToday`          | Calendar-day helpers (`utils/calendar.ts`)                                                       |
 
+## Statistics: `src/utils/stats.ts` ✅
+
+Pure functions for the dashboard; inputs are library entries and `PlannedSession`s.
+
+| Function                                       | Returns                                                                                    |
+| ---------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| `parsePeriod(value)`, `periodStart(p, today)`  | `'all' \| '30d' \| 'year'` (unknown → `all`); first day of the period or `null`            |
+| `entriesInPeriod(entries, start)`              | Entries added or changed since `start` (`updatedAt`)                                       |
+| `minutesWatched(entry)`                        | Completed movie runtime or watched episodes × runtime; `null` when the runtime is unknown  |
+| `libraryStats(entries)`                        | titles, completed (+ share), average score (1 decimal, `null` if none), minutes, noRuntime |
+| `byStatus`, `byMediaType`, `topGenres`         | Bars `{ value, label, count }`; `value` is the library filter the bar opens                |
+| `planStats(plans, sessions, sharedIds, today)` | Done / planned (not skipped) this week Mon–Sun, pending tonight, active and shared plans   |
+| `sessionsByWeekday(sessions, start, today)`    | Watched sessions per weekday, Monday first                                                 |
+| `upcomingSessions(sessions, today, limit)`     | Next pending sessions of active plans                                                      |
+
 ## localStorage: `src/storage/`
 
 | Module                  | Status | Functions                                                                                            |
@@ -211,6 +226,7 @@ All of them catch storage errors (private mode, quota) and fall back to defaults
 | `librarySlice.ts`     | Entities by media key (`createEntityAdapter`); `addToLibrary`, `updateLibraryEntry`, `removeFromLibrary`, `restoreLibraryEntry` thunks; `selectLibraryCounts`, `selectFilteredLibrary` |
 | `preferencesSlice.ts` | `themeChanged`, `languageChanged`; `selectResolvedTheme`                                                                                                                               |
 | `listeners.ts`        | Auth subscription, preferences persistence                                                                                                                                             |
+| `statsSelectors.ts`   | `selectLibraryDashboard(state, start)`: entries in the period, stats, status and type breakdowns (memoized)                                                                            |
 | `libraryListeners.ts` | Per-user Firestore subscription (cancelled on sign-out), guest merge on sign-in, guest persistence, cross-tab sync                                                                     |
 
 Thunks call the services above; reducers stay pure. The store only holds serializable data.
@@ -225,7 +241,7 @@ Thunks call the services above; reducers stay pure. The store only holds seriali
 | `useDebouncedValue(value, ms)`                          |   ✅   | Debounced value                                                                               |
 | `useEpisodeRatings(id, seasons)`                        |   ✅   | Episode ratings for the heatmap                                                               |
 | `useCatalogFilters(mediaType)`                          |   ✅   | Filters, sort, page, size from the URL, plus setters                                          |
-| `useGenres(mediaType)`                                  |   ✅   | Genre list and id → name map                                                                  |
+| `useGenres(mediaType)`                                  |   ✅   | Genre list, id → name map, request `status` and `reload`                                      |
 | `useAuth()`                                             |   🚧   | `{ user, status, error }` from the store + sign-in/out actions                                |
 | `useSubscription(key, subscribe)`                       |   ✅   | `{ status, data, error, retry }` for any realtime `watch*` listener (async subscribe allowed) |
 | `useLibrary()` / `useLibraryEntry(key)`                 |   ✅   | Entries, status, `isGuest` + `add`, `update`, `remove`, `restore`; guest storage or Firestore |
@@ -234,9 +250,10 @@ Thunks call the services above; reducers stay pure. The store only holds seriali
 | `useMyLists()` / `useList(id)`                          |   ✅   | My lists; one list + items + current role (`missing` for no access)                           |
 | `useTitleSearch(query)`                                 |   ✅   | Debounced movie + series search for the "Add titles" picker                                   |
 | `usePlans()` / `usePlanner(month)` / `useUpcoming()`    |   ✅   | Mine + shared plans; sessions of the month grid and today; today + tomorrow for Home/header   |
+| `useDashboardPlans()`                                   |   ✅   | Plans + all their sessions (one listener per plan, no range) for the dashboard                |
 | `usePlan(id)` / `usePlanActions()`                      |   ✅   | One plan + sessions + role (`missing` for no access); complete, skip, undo, reschedule        |
 | `usePlanSource(pick)`                                   |   ✅   | Episodes of a series or movies of a list for the stepper (aborts on change)                   |
 | `useMediaQuery(query)`                                  |   ✅   | `matchMedia` via `useSyncExternalStore` (calendar / agenda switch)                            |
-| `useDashboardStats(period)`                             |   🚧   | Memoized statistics and breakdowns                                                            |
+| `useDashboardStats(period)`                             |   ✅   | Library stats (selector), genres, plan stats per section with `status` and `retry`            |
 | `useTheme()` / `useLanguage()`                          |   🚧   | Current value + setter                                                                        |
 | `useOnlineStatus()`                                     |   🚧   | `true` / `false` from `online` / `offline` events                                             |

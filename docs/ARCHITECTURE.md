@@ -106,12 +106,12 @@ React.**
   watchlist/*                   → redirect to /library (midterm links)
   lists/:id                     ListPage             (lazy; public: owner / editor / viewer / link visitor)
   planner/:id                   PlanPage             (lazy; public: owner / editor / viewer / link visitor)
+  dashboard                     DashboardPage        (lazy; public: guests see their local library)
   <Route element={<ProtectedRoute />}>
     lists                       ListsPage            (lazy; My lists + Shared with me)
     lists/new, lists/:id/edit   ListFormPage         (lazy, edit = owner only)
     planner                     PlannerPage          (lazy)
     planner/new                 CreatePlanPage       (lazy; ?series=ID or ?list=ID preselects)
-    dashboard                   DashboardPage        (lazy)
     profile                     ProfileLayout        (lazy) → index: ProfilePage, settings: ProfileSettingsPage
   offline                       OfflinePage          (lazy)
   *                             NotFoundPage
@@ -120,6 +120,30 @@ React.**
 Lazy pages are wrapped in one `<Suspense fallback={<PageLoader />}>` inside `Layout`, so the
 header stays visible while a chunk loads. React Router runs navigations in a transition, so after
 the first load a page switch keeps the old page on screen until the new chunk is ready.
+
+### Dashboard
+
+- Numbers are pure functions in `utils/stats.ts` (no React, no Firestore), so each can be
+  checked by hand: `libraryStats`, `byStatus`, `byMediaType`, `topGenres`, `planStats`,
+  `sessionsByWeekday`, `upcomingSessions`, plus `parsePeriod` / `periodStart`.
+- The library half is a `createSelector` (`store/statsSelectors.ts`, `selectLibraryDashboard`)
+  keyed by the entries array and the period start day: `useAppSelector` runs after every
+  dispatch, and the memoized selector returns the same object until one of those changes.
+  Genres (TMDB names from `useGenres` for movie + tv) and plan figures (live sessions) live in
+  hooks, so `useDashboardStats` derives them with `useMemo`.
+- Plans come from `useDashboardPlans()`: `usePlans` + one listener per plan for all its sessions
+  (no range, no collection group, no new index). Period, "this week" and "upcoming" are cut
+  from that one list on the client, so switching the period reopens nothing.
+- The period lives in the URL (`?period=30d|year`, anything else = all time). It scopes library
+  entries by `updatedAt` (added or changed in the period) and sessions by their date;
+  "Sessions this week" and "Active plans" are always current.
+- Each section has its own state: skeleton tiles while the library loads, an error with retry
+  per card (library sync, TMDB genres, plans), an empty state for a new user, and for guests a
+  banner plus "Plans need an account" in the plan sections.
+- Charts are CSS, not a library: ranked bars and legend rows are links with the value as text
+  (`aria-label` = "Drama: 3 titles. Open in library"), weekday columns are a list with a
+  screen-reader sentence per day. Two chart colours (`--chart-1`, `--chart-2` in `global.css`)
+  were checked for colour-blind separation and ≥ 3:1 contrast in both themes.
 
 ### Sharing and roles in the UI
 
@@ -212,8 +236,8 @@ confirms later. A failed write (for example `permission-denied`) is shown as an 
 
 ## Current implementation
 
-Phases 0–8 are in place (library, lists, sharing, planner). Dashboard and settings routes exist
-and show a "Coming soon" placeholder until their phase lands, so the navigation never leads to a 404.
+Phases 0–9 are in place (library, lists, sharing, planner, dashboard). The settings route exists
+and shows a "Coming soon" placeholder until its phase lands, so the navigation never leads to a 404.
 
 ### Routes and render tree
 
@@ -268,7 +292,7 @@ and show a "Coming soon" placeholder until their phase lands, so the navigation 
 | Text typed in the search box             | `useState` in `SearchBar`                            | Changes on every keystroke; only the debounced value is committed to the URL       |
 | API responses + request status           | `useState` inside `useRequest` / `useEpisodeRatings` | Each component that needs data owns its request                                    |
 | Library entries                          | Redux `library` slice (normalized by media key)      | Title pages, library pages and Home all read it; guest or Firestore behind one API |
-| Library search, tab, type, genre, sort   | URL search params (`useLibraryFilters`)              | Refresh and links keep them; the dashboard will link to a filtered library         |
+| Library search, tab, type, genre, sort   | URL search params (`useLibraryFilters`)              | Refresh and links keep them; the dashboard links to a filtered library             |
 | Edit form values, "submitted" flag       | `useState` in `LibraryEntryForm`                     | Local to the form until Save                                                       |
 | Undo toast                               | `useTimedState` in the page / `LibraryButton`        | Pure UI state that clears itself                                                   |
 | Selected episode in the heatmap          | `useState` in `EpisodeHeatmap` (id only)             | The episode object is derived from loaded data, so it can't go stale               |

@@ -26,6 +26,7 @@ const ListFormPage = lazy(() => import('./pages/ListFormPage'))
 const PlannerPage = lazy(() => import('./pages/PlannerPage'))
 const CreatePlanPage = lazy(() => import('./pages/CreatePlanPage'))
 const PlanPage = lazy(() => import('./pages/PlanPage'))
+const DashboardPage = lazy(() => import('./pages/DashboardPage'))
 const ProfileLayout = lazy(() => import('./components/Layout/ProfileLayout'))
 const ProfilePage = lazy(() => import('./pages/ProfilePage'))
 const OfflinePage = lazy(() => import('./pages/OfflinePage'))
@@ -73,6 +74,9 @@ export default function App() {
               visitor may see and do is decided by Firestore rules; the page only follows. */}
         <Route path="lists/:id" element={<ListPage />} />
         <Route path="planner/:id" element={<PlanPage />} />
+        {/* Guests have a library too (localStorage), so their stats work without an
+              account; the plan sections ask them to sign in instead. */}
+        <Route path="dashboard" element={<DashboardPage />} />
 
         <Route element={<ProtectedRoute />}>
           {/* Your lists, creating and editing need an account. "new" is a static segment,
@@ -87,16 +91,6 @@ export default function App() {
             <Route index element={<PlannerPage />} />
             <Route path="new" element={<CreatePlanPage />} />
           </Route>
-          <Route
-            path="dashboard"
-            element={
-              <ComingSoonPage
-                title="Dashboard"
-                icon="chart"
-                body="Statistics from your library and plans: what you watch, how much and when."
-              />
-            }
-          />
           <Route path="profile" element={<ProfileLayout />}>
             <Route index element={<ProfilePage />} />
             <Route
