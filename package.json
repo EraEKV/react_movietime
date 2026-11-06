@@ -14,7 +14,8 @@
     "emulators": "npx -y firebase-tools@15 emulators:start --only auth,firestore --project demo-movietime",
     "check:locales": "node scripts/check-locales.mjs",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.14.0",
@@ -35,6 +36,7 @@
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.7",
     "@vitejs/plugin-react": "^6.1.1",
+    "@vitest/coverage-v8": "^5.1.0",
     "eslint": "^10.12.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-react-hooks": "^7.1.1",
@@ -53,5 +55,8 @@
     "workbox-routing": "^7.4.1",
     "workbox-strategies": "^7.4.1",
     "workbox-window": "^7.4.1"
+  },
+  "engines": {
+    "node": ">=22"
   }
 }
