@@ -111,3 +111,35 @@ export class PlanError extends Error {
     this.name = 'PlanError'
   }
 }
+
+/** Where a plan starts (stepper step 2). */
+export type StartChoice =
+  | { mode: 'continue' }
+  | { mode: 'beginning' }
+  | { mode: 'episode'; season: number; episode: number }
+  | { mode: 'movie'; index: number }
+
+/** Index of the first unit the plan includes for a start choice. */
+export function startIndexOf(
+  units: PlanUnit[],
+  progress: SeriesProgress | null,
+  choice: StartChoice,
+): number {
+  if (choice.mode === 'beginning') return 0
+  if (choice.mode === 'continue') return continueIndex(units, progress)
+  if (choice.mode === 'movie') return Math.min(Math.max(choice.index, 0), units.length)
+  const index = units.findIndex((u) => u.season === choice.season && u.episode === choice.episode)
+  return index === -1 ? 0 : index
+}
+
+/** Default plan name: "Breaking Bad", "Breaking Bad — from S2E7", "Comfort movies marathon". */
+export function defaultPlanTitle(
+  kind: 'series' | 'list',
+  name: string,
+  first: PlanUnit | undefined,
+): string {
+  if (kind === 'list') return `${name} marathon`.slice(0, 120)
+  if (!first || first.season === null || first.episode === null) return name.slice(0, 120)
+  if (first.season === 1 && first.episode === 1) return name.slice(0, 120)
+  return `${name} — from S${first.season}E${first.episode}`.slice(0, 120)
+}
