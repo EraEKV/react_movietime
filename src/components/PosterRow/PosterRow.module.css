@@ -1,0 +1,28 @@
+/* Bleeds to the screen edge on phones, so a cut-off poster hints that the row scrolls. */
+.row {
+  display: grid;
+  grid-auto-columns: 128px;
+  grid-auto-flow: column;
+  gap: var(--space-3);
+  margin: 0 calc(var(--page-gutter) * -1);
+  padding: var(--space-1) var(--page-gutter) var(--space-2);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: var(--page-gutter);
+  scrollbar-width: thin;
+  list-style: none;
+}
+
+.row > * {
+  scroll-snap-align: start;
+}
+
+@media (min-width: 1024px) {
+  .row {
+    grid-auto-columns: 168px;
+    gap: var(--space-4);
+    margin: 0;
+    padding-inline: 0;
+    scroll-padding-inline: 0;
+  }
+}
