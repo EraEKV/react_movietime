@@ -1,15 +1,4 @@
-import type { SeasonSummary, Video } from '../types/tmdb'
-
-/** Best YouTube trailer: official trailer → any trailer → teaser. */
-export function pickTrailer(videos: Video[] = []): Video | null {
-  const youtube = videos.filter((v) => v.site === 'YouTube')
-  return (
-    youtube.find((v) => v.type === 'Trailer' && v.official) ??
-    youtube.find((v) => v.type === 'Trailer') ??
-    youtube.find((v) => v.type === 'Teaser') ??
-    null
-  )
-}
+import type { SeasonSummary } from '../types/tmdb'
 
 /** Regular seasons first; "Specials" (season 0) last, and empty announced seasons dropped. */
 export function sortSeasons(seasons: SeasonSummary[] = []): SeasonSummary[] {

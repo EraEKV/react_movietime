@@ -57,9 +57,19 @@ button.chip:hover {
   background: none;
   color: var(--text-muted);
   cursor: pointer;
+  position: relative;
 }
 
 .remove:hover {
   background: var(--surface-hover);
   color: var(--text);
+}
+
+/* On touch screens the 28px button gets an invisible 44px hit area (HIG default target). */
+@media (pointer: coarse) {
+  .remove::after {
+    content: '';
+    position: absolute;
+    inset: -8px;
+  }
 }

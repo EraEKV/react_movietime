@@ -1,19 +1,19 @@
-import { useLocation } from 'react-router'
-import { endpoints, MAX_PAGE } from '../api/tmdb'
+import { useLocation, useNavigate, useSearchParams } from 'react-router'
 import Button from '../components/Button/Button'
 import EmptyState from '../components/EmptyState/EmptyState'
 import ErrorState from '../components/EmptyState/ErrorState'
 import FilterBar from '../components/FilterBar/FilterBar'
+import MediaGrid from '../components/MediaGrid/MediaGrid'
 import Pagination from '../components/Pagination/Pagination'
 import SearchBar from '../components/SearchBar/SearchBar'
-import SeriesGrid from '../components/SeriesGrid/SeriesGrid'
+import SegmentedControl from '../components/SegmentedControl/SegmentedControl'
 import SkeletonGrid from '../components/Skeleton/SkeletonGrid'
-import { useFetch } from '../hooks/useFetch'
+import { useCatalog } from '../hooks/useCatalog'
+import { useCatalogFilters } from '../hooks/useCatalogFilters'
 import { useGenres } from '../hooks/useGenres'
-import { useSeriesFilters } from '../hooks/useSeriesFilters'
-import type { Paginated, SeriesListItem } from '../types/tmdb'
-import { toDiscoverParams } from '../utils/filters'
-import { formatNumber } from '../utils/format'
+import type { MediaType } from '../types/media'
+import { PAGE_SIZE_OPTIONS, parsePageSize } from '../utils/catalog'
+import { sharedCatalogParams } from '../utils/filters'
 import styles from './CatalogPage.module.css'
 
 /** Router state is untyped (any page can push anything), so check its shape before trusting it. */
@@ -26,64 +26,106 @@ function wantsSearchFocus(state: unknown): boolean {
   )
 }
 
-export default function CatalogPage() {
-  const { filters, query, page, activeCount, setFilter, setQuery, setPage, resetFilters } =
-    useSeriesFilters()
-  const { genres, genresById } = useGenres()
+const COPY = {
+  movie: { title: 'Movies', plural: 'movies', path: '/movies' },
+  tv: { title: 'Series', plural: 'series', path: '/series' },
+} as const
+
+/**
+ * Serves both /movies and /series; the route passes the media type.
+ * App renders it with key={mediaType}, so switching catalogs mounts a fresh page
+ * instead of carrying over local state (like the search input) from the other one.
+ */
+export default function CatalogPage({ mediaType }: { mediaType: MediaType }) {
+  const {
+    filters,
+    query,
+    page,
+    size,
+    activeCount,
+    setFilter,
+    setQuery,
+    setPage,
+    setSize,
+    resetFilters,
+  } = useCatalogFilters(mediaType)
+  const { genres, genresById } = useGenres(mediaType)
+  const [searchParams] = useSearchParams()
+  const navigate = useNavigate()
   // The header's mobile search button navigates here with { focusSearch: true }.
   const location = useLocation()
   const focusSearch = wantsSearchFocus(location.state)
+  const copy = COPY[mediaType]
 
   // TMDB can't combine text search with discover filters, so a query switches the endpoint.
   const searchMode = query !== ''
-  const path = searchMode
-    ? endpoints.searchSeries({ query, page, year: filters.year })
-    : endpoints.discoverSeries(toDiscoverParams(filters, page))
 
-  // The path string changes whenever query, filters or page change → useFetch re-runs its
-  // effect, and its cleanup aborts the previous request so older results can't win the race.
-  const { status, data, error, reload } = useFetch<Paginated<SeriesListItem>>(path)
-
-  const totalPages = data ? Math.min(data.total_pages, MAX_PAGE) : 0
+  // The request key changes whenever query, filters, page or size change → the hook
+  // re-runs its effect, and its cleanup aborts the previous request so older results can't win.
+  const { status, data, error, reload } = useCatalog({ mediaType, filters, query, page, size })
 
   function handlePageChange(nextPage: number) {
     setPage(nextPage)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
+  // Movies ⇄ Series keeps what makes sense on both sides (query, year, rating, language…).
+  function switchCatalog(next: MediaType) {
+    const search = sharedCatalogParams(searchParams).toString()
+    navigate({ pathname: COPY[next].path, search: search ? `?${search}` : '' })
+  }
+
   return (
     <section className={styles.page} aria-labelledby="catalog-title">
       <header className={styles.header}>
         <h1 id="catalog-title" className={styles.title}>
-          {searchMode ? `Results for “${query}”` : 'Series'}
+          {searchMode ? `Results for “${query}”` : copy.title}
         </h1>
-        {/* aria-live: the count is announced when results change after typing or filtering. */}
-        <p className={styles.count} aria-live="polite">
-          {status === 'success' && data.total_results > 0
-            ? `${formatNumber(data.total_results)} series · page ${page} of ${formatNumber(totalPages)}`
-            : '\u00a0'}
-        </p>
+        <SegmentedControl
+          label="Catalog type"
+          value={mediaType}
+          onChange={switchCatalog}
+          options={[
+            { value: 'movie', label: 'Movies', icon: 'film' },
+            { value: 'tv', label: 'Series', icon: 'tv' },
+          ]}
+        />
       </header>
 
-      <SearchBar query={query} onSearch={setQuery} autoFocus={focusSearch} />
+      <SearchBar
+        query={query}
+        onSearch={setQuery}
+        label={`Search ${copy.plural}`}
+        placeholder={`Search ${copy.plural} by title`}
+        autoFocus={focusSearch}
+      />
 
       <FilterBar
+        mediaType={mediaType}
         filters={filters}
         genres={genres}
         activeCount={activeCount}
+        resultCount={status === 'success' ? data.totalResults : null}
         searchMode={searchMode}
         onFilterChange={setFilter}
         onReset={resetFilters}
       />
 
-      {(status === 'idle' || status === 'loading') && <SkeletonGrid />}
-
-      {status === 'error' && (
-        <ErrorState title="We couldn’t load series" body={error.message} onRetry={reload} />
+      {(status === 'idle' || status === 'loading') && (
+        <SkeletonGrid count={size} label={`Loading ${copy.plural}`} />
       )}
 
-      {status === 'success' && data.results.length === 0 && (
+      {status === 'error' && (
+        <ErrorState
+          title={`We couldn’t load ${copy.plural}`}
+          body={`${error.message} Your filters are kept.`}
+          onRetry={reload}
+        />
+      )}
+
+      {status === 'success' && data.items.length === 0 && (
         <EmptyResults
+          plural={copy.plural}
           searchMode={searchMode}
           query={query}
           hasFilters={activeCount > 0}
@@ -94,11 +136,20 @@ export default function CatalogPage() {
         />
       )}
 
-      {status === 'success' && data.results.length > 0 && (
+      {status === 'success' && data.items.length > 0 && (
         <div>
           <h2 className="sr-only">Results</h2>
-          <SeriesGrid items={data.results} genresById={genresById} label="Series" />
-          <Pagination page={page} totalPages={totalPages} onPageChange={handlePageChange} />
+          <MediaGrid items={data.items} genresById={genresById} label={copy.title} />
+          <Pagination
+            page={page}
+            totalPages={data.totalPages}
+            onPageChange={handlePageChange}
+            pageSize={{
+              value: `${size}`,
+              options: PAGE_SIZE_OPTIONS,
+              onChange: (value) => setSize(parsePageSize(value)),
+            }}
+          />
         </div>
       )}
     </section>
@@ -106,6 +157,7 @@ export default function CatalogPage() {
 }
 
 interface EmptyResultsProps {
+  plural: string
   searchMode: boolean
   query: string
   hasFilters: boolean
@@ -117,6 +169,7 @@ interface EmptyResultsProps {
 
 /** Picks the most useful empty-state message and action for the current mode. */
 function EmptyResults({
+  plural,
   searchMode,
   query,
   hasFilters,
@@ -140,16 +193,20 @@ function EmptyResults({
     return (
       <EmptyState
         icon="filter"
-        title="No series match these filters"
-        body="Try a different genre, year or a lower rating."
-        actions={<Button onClick={onResetFilters}>Clear all filters</Button>}
+        title={`No ${plural} match these filters`}
+        body="Try a different genre, year or language, or a lower rating."
+        actions={
+          <Button variant="primary" onClick={onResetFilters}>
+            Clear all filters
+          </Button>
+        }
       />
     )
   }
 
   return (
     <EmptyState
-      title="No series on this page"
+      title={`No ${plural} on this page`}
       body="Try another page."
       actions={page > 1 && <Button onClick={onFirstPage}>Back to first page</Button>}
     />

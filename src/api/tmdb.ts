@@ -75,57 +75,96 @@ export async function tmdbGet<T>(
   return body as T
 }
 
+/**
+ * Several GET requests in parallel. Promise.all keeps the order of `paths` and rejects
+ * as soon as one fails; the shared signal cancels all of them together.
+ */
+export function tmdbGetAll<T>(paths: string[], { signal }: { signal?: AbortSignal } = {}) {
+  return Promise.all(paths.map((path) => tmdbGet<T>(path, { signal })))
+}
+
 export function imageUrl(path: string | null | undefined, size = 'w342'): string | null {
   return path ? `${IMAGE_BASE_URL}/${size}${path}` : null
 }
 
 type Id = number | string
+type MediaType = 'movie' | 'tv'
 
-export interface DiscoverSeriesParams {
+/** Filters both /discover endpoints understand; each builder maps them to its own names. */
+interface DiscoverParams {
   page?: number
   sortBy?: string
   genre?: string
   year?: string
   minRating?: string
   minVotes?: number
+  /** ISO 639-1 code of the original language: "en", "ko"… */
+  originalLanguage?: string
+  /** Hides titles dated after this day (TMDB lists announced ones years ahead). */
+  releasedBefore?: string
+}
+
+export interface DiscoverSeriesParams extends DiscoverParams {
   status?: string
-  airedBefore?: string
+}
+
+export interface DiscoverMoviesParams extends DiscoverParams {
+  /** Minutes. */
+  maxRuntime?: string
+}
+
+export interface SearchParams {
+  query: string
+  page?: number
+  year?: string
 }
 
 export const endpoints = {
-  genres: () => buildPath('/genre/tv/list'),
+  genres: (mediaType: MediaType) => buildPath(`/genre/${mediaType}/list`),
 
   /** The 20 most popular titles of the week; TMDB updates the list daily. */
-  trending: (mediaType: 'tv' | 'movie') => buildPath(`/trending/${mediaType}/week`),
+  trending: (mediaType: MediaType) => buildPath(`/trending/${mediaType}/week`),
 
-  discoverSeries: ({
-    page = 1,
-    sortBy,
-    genre,
-    year,
-    minRating,
-    minVotes,
-    status,
-    airedBefore,
-  }: DiscoverSeriesParams = {}) =>
+  discoverSeries: ({ page = 1, status, ...params }: DiscoverSeriesParams = {}) =>
     buildPath('/discover/tv', {
       page,
-      sort_by: sortBy,
-      with_genres: genre,
-      first_air_date_year: year,
-      'vote_average.gte': minRating,
-      'vote_count.gte': minVotes,
+      sort_by: params.sortBy,
+      with_genres: params.genre,
+      first_air_date_year: params.year,
+      'vote_average.gte': params.minRating,
+      'vote_count.gte': params.minVotes,
+      with_original_language: params.originalLanguage,
       with_status: status,
-      'first_air_date.lte': airedBefore,
+      'first_air_date.lte': params.releasedBefore,
     }),
 
-  searchSeries: ({ query, page = 1, year }: { query: string; page?: number; year?: string }) =>
+  // Same filters, but movies have a "primary release" date instead of a first air date.
+  discoverMovies: ({ page = 1, maxRuntime, ...params }: DiscoverMoviesParams = {}) =>
+    buildPath('/discover/movie', {
+      page,
+      sort_by: params.sortBy,
+      with_genres: params.genre,
+      primary_release_year: params.year,
+      'vote_average.gte': params.minRating,
+      'vote_count.gte': params.minVotes,
+      with_original_language: params.originalLanguage,
+      'with_runtime.lte': maxRuntime,
+      'primary_release_date.lte': params.releasedBefore,
+    }),
+
+  searchSeries: ({ query, page = 1, year }: SearchParams) =>
     buildPath('/search/tv', { query, page, first_air_date_year: year }),
+
+  searchMovies: ({ query, page = 1, year }: SearchParams) =>
+    buildPath('/search/movie', { query, page, primary_release_year: year }),
 
   seriesSummary: (id: Id) => buildPath(`/tv/${id}`),
 
   seriesDetails: (id: Id) =>
     buildPath(`/tv/${id}`, { append_to_response: 'credits,videos,recommendations' }),
+
+  movieDetails: (id: Id) =>
+    buildPath(`/movie/${id}`, { append_to_response: 'credits,videos,recommendations' }),
 
   season: (id: Id, seasonNumber: number) => buildPath(`/tv/${id}/season/${seasonNumber}`),
 

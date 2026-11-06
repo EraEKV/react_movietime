@@ -314,15 +314,15 @@ Small fixes between phases go straight to `main`.
 
 ### API & data (0.5)
 
-| Requirement                                                | How                                                                  |
-| ---------------------------------------------------------- | -------------------------------------------------------------------- |
-| ≥ 3 related resources                                      | Titles (TMDB) → Library/Lists (Firestore) → Plans/Sessions           |
-| ≥ 100 items                                                | TMDB: hundreds of thousands of movies and series                     |
-| List with search, 5 filters, sort, paging via query params | `/discover/*`, `/search/*`                                           |
-| Separate details endpoint, ≥ 7 fields                      | `/movie/:id`, `/tv/:id` (12+ fields)                                 |
-| Documented data models                                     | [DATA_MODEL.md](DATA_MODEL.md), TS types in `src/types`              |
-| Loading / error / empty / invalid id                       | Skeletons, `StatusMessage` with retry, empty states, not-found state |
-| Stale responses                                            | `AbortController` + ignore flag in `useFetch`                        |
+| Requirement                                                | How                                                               |
+| ---------------------------------------------------------- | ----------------------------------------------------------------- |
+| ≥ 3 related resources                                      | Titles (TMDB) → Library/Lists (Firestore) → Plans/Sessions        |
+| ≥ 100 items                                                | TMDB: hundreds of thousands of movies and series                  |
+| List with search, 5 filters, sort, paging via query params | `/discover/*`, `/search/*`                                        |
+| Separate details endpoint, ≥ 7 fields                      | `/movie/:id`, `/tv/:id` (12+ fields)                              |
+| Documented data models                                     | [DATA_MODEL.md](DATA_MODEL.md), TS types in `src/types`           |
+| Loading / error / empty / invalid id                       | Skeletons, `ErrorState` with retry, empty states, not-found state |
+| Stale responses                                            | `AbortController` + ignore flag in `useFetch`                     |
 
 ### Search & filtering (0.5)
 
@@ -374,7 +374,7 @@ See 3.11.
 
 ### UI/UX & dashboard (1)
 
-Responsive layout (exists), shared components (Button, cards, forms, skeletons, StatusMessage,
+Responsive layout (exists), shared components (Button, cards, forms, skeletons, EmptyState/ErrorState,
 Toast), accessible forms (labels, `aria-invalid`, error text linked with `aria-describedby`),
 dashboard from 3.8.
 

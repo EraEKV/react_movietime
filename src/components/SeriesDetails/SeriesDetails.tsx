@@ -2,19 +2,21 @@ import { ApiError, endpoints } from '../../api/tmdb'
 import { useFetch } from '../../hooks/useFetch'
 import { useGenres } from '../../hooks/useGenres'
 import type { SeriesDetails as SeriesDetailsData } from '../../types/tmdb'
-import { pickTrailer, sortSeasons } from '../../utils/series'
+import { fromSeries, pickTrailer } from '../../utils/media'
+import { formatYearRange, pluralize } from '../../utils/format'
+import { sortSeasons } from '../../utils/series'
 import BackButton from '../BackButton/BackButton'
 import ButtonLink from '../ButtonLink/ButtonLink'
 import CastList from '../CastList/CastList'
 import ErrorState from '../EmptyState/ErrorState'
+import MediaGrid from '../MediaGrid/MediaGrid'
 import EpisodeHeatmap from '../EpisodeHeatmap/EpisodeHeatmap'
 import SeasonList from '../SeasonList/SeasonList'
 import Section from '../Section/Section'
-import SeriesGrid from '../SeriesGrid/SeriesGrid'
-import SeriesHero from '../SeriesHero/SeriesHero'
+import TitleHero from '../TitleHero/TitleHero'
 import Trailer from '../Trailer/Trailer'
 import WatchlistButton from '../WatchlistButton/WatchlistButton'
-import DetailsSkeleton from './DetailsSkeleton'
+import DetailsSkeleton from '../DetailsSkeleton/DetailsSkeleton'
 
 const MAX_CAST = 12
 const MAX_RECOMMENDATIONS = 10
@@ -27,9 +29,9 @@ export default function SeriesDetails({ seriesId }: { seriesId: string }) {
     error,
     reload,
   } = useFetch<SeriesDetailsData>(endpoints.seriesDetails(seriesId))
-  const { genresById } = useGenres()
+  const { genresById } = useGenres('tv')
 
-  if (status === 'idle' || status === 'loading') return <DetailsSkeleton />
+  if (status === 'idle' || status === 'loading') return <DetailsSkeleton label="Loading series" />
 
   if (status === 'error') {
     const notFound = error instanceof ApiError && error.status === 404
@@ -58,7 +60,9 @@ export default function SeriesDetails({ seriesId }: { seriesId: string }) {
   const seasons = sortSeasons(series.seasons)
   // Specials (season 0) are left out of the heatmap: they aren't part of the story arc.
   const regularSeasons = seasons.filter((s) => s.season_number > 0).map((s) => s.season_number)
-  const recommendations = series.recommendations.results.slice(0, MAX_RECOMMENDATIONS)
+  const recommendations = series.recommendations.results
+    .slice(0, MAX_RECOMMENDATIONS)
+    .map(fromSeries)
 
   return (
     <article>
@@ -66,7 +70,29 @@ export default function SeriesDetails({ seriesId }: { seriesId: string }) {
       <title>{`${series.name} · Movietime`}</title>
 
       <BackButton />
-      <SeriesHero series={series} actions={<WatchlistButton seriesId={series.id} />} />
+      <TitleHero
+        title={series.name}
+        originalTitle={series.original_name}
+        tagline={series.tagline}
+        posterPath={series.poster_path}
+        backdropPath={series.backdrop_path}
+        fallbackIcon="tv"
+        genres={series.genres}
+        rating={series.vote_average}
+        votes={series.vote_count}
+        meta={[
+          formatYearRange(series.first_air_date, series.last_air_date, series.in_production),
+          series.number_of_seasons > 0 && pluralize(series.number_of_seasons, 'season'),
+          series.number_of_episodes > 0 && pluralize(series.number_of_episodes, 'episode'),
+          series.status,
+        ]}
+        overview={series.overview}
+        facts={[
+          { label: 'Created by', value: series.created_by.map((p) => p.name).join(', ') },
+          { label: 'Network', value: series.networks.map((n) => n.name).join(', ') },
+        ].filter((fact) => fact.value)}
+        actions={<WatchlistButton seriesId={series.id} />}
+      />
 
       {regularSeasons.length > 0 && (
         <Section title="Episode ratings">
@@ -94,7 +120,12 @@ export default function SeriesDetails({ seriesId }: { seriesId: string }) {
 
       {recommendations.length > 0 && (
         <Section title="You might also like">
-          <SeriesGrid items={recommendations} genresById={genresById} label="Recommendations" />
+          <MediaGrid
+            items={recommendations}
+            genresById={genresById}
+            label="Recommendations"
+            layout="row"
+          />
         </Section>
       )}
     </article>

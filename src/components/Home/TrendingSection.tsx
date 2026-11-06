@@ -4,6 +4,7 @@ import type { FetchState } from '../../hooks/useFetch'
 import { useFetch } from '../../hooks/useFetch'
 import type { MovieListItem, Paginated, SeriesListItem } from '../../types/tmdb'
 import { getYear } from '../../utils/format'
+import { fromMovie, fromSeries, mediaHref, mediaKey } from '../../utils/media'
 import ErrorState from '../EmptyState/ErrorState'
 import PosterCard from '../PosterCard/PosterCard'
 import PosterRow, { PosterRowSkeleton } from '../PosterRow/PosterRow'
@@ -11,37 +12,6 @@ import Section from '../Section/Section'
 import SegmentedControl from '../SegmentedControl/SegmentedControl'
 
 type Tab = 'series' | 'movies'
-
-interface Item {
-  id: number
-  title: string
-  href: string
-  posterPath: string | null
-  date: string
-  rating: number
-  kind: string
-}
-
-// TMDB names the same fields differently for series and movies; one shape for the row.
-const fromSeries = (s: SeriesListItem): Item => ({
-  id: s.id,
-  title: s.name,
-  href: `/series/${s.id}`,
-  posterPath: s.poster_path,
-  date: s.first_air_date,
-  rating: s.vote_average,
-  kind: 'Series',
-})
-
-const fromMovie = (m: MovieListItem): Item => ({
-  id: m.id,
-  title: m.title,
-  href: `/movies/${m.id}`,
-  posterPath: m.poster_path,
-  date: m.release_date,
-  rating: m.vote_average,
-  kind: 'Movie',
-})
 
 interface TrendingSectionProps {
   /** Loaded by HomePage, because the guest hero uses the same response. */
@@ -89,14 +59,15 @@ export default function TrendingSection({ series }: TrendingSectionProps) {
       {state.status === 'success' && (
         <PosterRow label={`Trending ${tab}`}>
           {items.map((item) => (
-            <li key={item.id}>
+            <li key={mediaKey(item.mediaType, item.id)}>
               <PosterCard
                 title={item.title}
-                href={item.href}
+                href={mediaHref(item.mediaType, item.id)}
                 posterUrl={imageUrl(item.posterPath, 'w342')}
                 year={getYear(item.date)}
-                meta={item.kind}
+                meta={item.mediaType === 'movie' ? 'Movie' : 'Series'}
                 rating={item.rating}
+                placeholderIcon={item.mediaType === 'movie' ? 'film' : 'tv'}
               />
             </li>
           ))}

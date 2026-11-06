@@ -22,15 +22,15 @@ Legend: ✅ implemented, 🚧 in progress.
 
 ### Catalog
 
-- ✅ **Series catalog** with server-side search (debounced), filters (genre, year, minimum
-  rating, status), five sort orders and pagination. Everything lives in the URL, so links can be
-  shared and back/forward works.
-- 🚧 **Movies catalog** with the same UI, a 5th filter on both catalogs (original language;
-  runtime for movies) and a configurable page size (20 / 40 / 60).
+- ✅ **Movies and series catalogs** (one page, switched by a Movies/Series control) with
+  server-side search (debounced), five filters (genre, year, minimum rating, original language,
+  plus runtime for movies or status for series), five sort orders, pagination and a page size of
+  20 / 40 / 60. Everything lives in the URL, so links can be shared and back/forward works.
 - ✅ **Series page**: overview, seasons, trailer, cast and recommendations.
 - ✅ **Episode ratings heatmap**: every episode of every season colored by its TMDB rating,
   with season averages, best and lowest episode, and an episode panel.
-- 🚧 **Movie page**: details, cast, trailer, recommendations.
+- ✅ **Movie page**: overview, director, budget, revenue, runtime, release date, trailer, cast
+  and recommendations.
 
 ### Personal data
 

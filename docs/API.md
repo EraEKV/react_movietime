@@ -36,28 +36,35 @@ types in `src/types/`.
 
 ## TMDB: `src/api/tmdb.ts`
 
-| Function / endpoint builder                     |    Status     | Request                                                         |
-| ----------------------------------------------- | :-----------: | --------------------------------------------------------------- |
-| `tmdbGet(path, { signal })`                     |      ✅       | `GET https://api.themoviedb.org/3{path}` with Bearer token      |
-| `buildPath(path, params)`                       |      ✅       | Builds a path + query string, skips empty values                |
-| `imageUrl(path, size)`                          |      ✅       | `https://image.tmdb.org/t/p/{size}{path}`                       |
-| `endpoints.genres(mediaType)`                   | ✅ / 🚧 movie | `/genre/{movie,tv}/list`                                        |
-| `endpoints.discoverSeries(params)`              |      ✅       | `/discover/tv`                                                  |
-| `endpoints.discoverMovies(params)`              |      🚧       | `/discover/movie`                                               |
-| `endpoints.searchSeries({ query, page, year })` |      ✅       | `/search/tv`                                                    |
-| `endpoints.searchMovies({ query, page, year })` |      🚧       | `/search/movie`                                                 |
-| `endpoints.seriesDetails(id)`                   |      ✅       | `/tv/{id}?append_to_response=credits,videos,recommendations`    |
-| `endpoints.movieDetails(id)`                    |      🚧       | `/movie/{id}?append_to_response=credits,videos,recommendations` |
-| `endpoints.seasonsBatch(id, seasonNumbers)`     |      ✅       | `/tv/{id}?append_to_response=season/1,…` (≤ 20)                 |
-| `endpoints.trending(mediaType)`                 |      🚧       | `/trending/{movie,tv}/week`                                     |
-| `endpoints.languages()`                         |      🚧       | `/configuration/languages`                                      |
+| Function / endpoint builder                     | Status | Request                                                         |
+| ----------------------------------------------- | :----: | --------------------------------------------------------------- |
+| `tmdbGet(path, { signal })`                     |   ✅   | `GET https://api.themoviedb.org/3{path}` with Bearer token      |
+| `buildPath(path, params)`                       |   ✅   | Builds a path + query string, skips empty values                |
+| `imageUrl(path, size)`                          |   ✅   | `https://image.tmdb.org/t/p/{size}{path}`                       |
+| `endpoints.genres(mediaType)`                   |   ✅   | `/genre/{movie,tv}/list`                                        |
+| `endpoints.discoverSeries(params)`              |   ✅   | `/discover/tv`                                                  |
+| `endpoints.discoverMovies(params)`              |   ✅   | `/discover/movie`                                               |
+| `endpoints.searchSeries({ query, page, year })` |   ✅   | `/search/tv`                                                    |
+| `endpoints.searchMovies({ query, page, year })` |   ✅   | `/search/movie`                                                 |
+| `endpoints.seriesDetails(id)`                   |   ✅   | `/tv/{id}?append_to_response=credits,videos,recommendations`    |
+| `endpoints.movieDetails(id)`                    |   ✅   | `/movie/{id}?append_to_response=credits,videos,recommendations` |
+| `endpoints.seasonsBatch(id, seasonNumbers)`     |   ✅   | `/tv/{id}?append_to_response=season/1,…` (≤ 20)                 |
+| `endpoints.trending(mediaType)`                 |   ✅   | `/trending/{movie,tv}/week`                                     |
+| `tmdbGetAll(paths, { signal })`                 |   ✅   | Several paths in parallel (`Promise.all`), one shared signal    |
 
 🚧 Every endpoint builder gets a `language` param from the current UI language, so a language
 switch changes the path string and `useFetch` refetches.
 
-🚧 `fetchCatalogPage({ mediaType, filters, page, size }, { signal })`: for `size` 40/60 loads
-2/3 TMDB pages with `Promise.all` and returns
-`{ results, page, totalPages, totalResults }` in app pages.
+**Page size.** TMDB always returns 20 titles per page. For 40 or 60 per page, `useCatalog`
+loads 2 or 3 consecutive TMDB pages with `tmdbGetAll` (one `AbortController` for all of them)
+and `utils/catalog.ts → mergeCatalogPages` joins them into `{ items, totalPages, totalResults }`
+in app pages: `totalPages = ceil(min(total_pages, 500) / pagesPerAppPage)`. Titles repeated
+across two TMDB pages (popularity shifts between requests) are dropped, so React keys stay
+unique. Changing the size keeps the first visible title on screen (`pageAfterResize`).
+
+**Original language** uses a short fixed list of ISO 639-1 codes with names from
+`Intl.DisplayNames` instead of the ~190 entries of `/configuration/languages`: a long select is
+hard to use, and the names need no request.
 
 **Errors handled:** missing token (401), invalid id (404 → "not found" state), page > 500
 (capped), network failure (`status: 0`, retry button), aborted request (ignored).
@@ -182,18 +189,20 @@ Thunks call the services above; reducers stay pure. The store only holds seriali
 
 ## Hooks
 
-| Hook                                                  | Status  | Returns                                                                                    |
-| ----------------------------------------------------- | :-----: | ------------------------------------------------------------------------------------------ |
-| `useFetch(path)`                                      |   ✅    | `{ status, data, error, reload }` for a TMDB path                                          |
-| `useDebouncedValue(value, ms)`                        |   ✅    | Debounced value                                                                            |
-| `useEpisodeRatings(id, seasons)`                      |   ✅    | Episode ratings for the heatmap                                                            |
-| `useSeriesFilters()` → `useCatalogFilters(mediaType)` | ✅ → 🚧 | Filters, sort, page, size from the URL, plus setters                                       |
-| `useGenres(mediaType)`                                | ✅ / 🚧 | Genre list and id → name map                                                               |
-| `useAuth()`                                           |   🚧    | `{ user, status, error }` from the store + sign-in/out actions                             |
-| `useFirestoreQuery(subscribe, deps)`                  |   🚧    | `{ status, data, error }` for any `watch*` function                                        |
-| `useLibrary()`                                        |   🚧    | Entries + `add`, `update`, `remove`, `getEntry(mediaKey)`; uses guest storage or Firestore |
-| `useLists()` / `useList(id)`                          |   🚧    | Lists, list + items + current role, CRUD actions                                           |
-| `usePlanner()` / `usePlan(id)`                        |   🚧    | Plans, sessions in range, actions                                                          |
-| `useDashboardStats(period)`                           |   🚧    | Memoized statistics and breakdowns                                                         |
-| `useTheme()` / `useLanguage()`                        |   🚧    | Current value + setter                                                                     |
-| `useOnlineStatus()`                                   |   🚧    | `true` / `false` from `online` / `offline` events                                          |
+| Hook                                                    | Status | Returns                                                                                    |
+| ------------------------------------------------------- | :----: | ------------------------------------------------------------------------------------------ |
+| `useRequest(key, load)`                                 |   ✅   | Generic `{ status, data, error, reload }` for any async loader keyed by a string           |
+| `useFetch(path)`                                        |   ✅   | `{ status, data, error, reload }` for a TMDB path (built on `useRequest`)                  |
+| `useCatalog({ mediaType, filters, query, page, size })` |   ✅   | One app page of a catalog (1–3 TMDB pages), normalized to `MediaSummary`                   |
+| `useDebouncedValue(value, ms)`                          |   ✅   | Debounced value                                                                            |
+| `useEpisodeRatings(id, seasons)`                        |   ✅   | Episode ratings for the heatmap                                                            |
+| `useCatalogFilters(mediaType)`                          |   ✅   | Filters, sort, page, size from the URL, plus setters                                       |
+| `useGenres(mediaType)`                                  |   ✅   | Genre list and id → name map                                                               |
+| `useAuth()`                                             |   🚧   | `{ user, status, error }` from the store + sign-in/out actions                             |
+| `useFirestoreQuery(subscribe, deps)`                    |   🚧   | `{ status, data, error }` for any `watch*` function                                        |
+| `useLibrary()`                                          |   🚧   | Entries + `add`, `update`, `remove`, `getEntry(mediaKey)`; uses guest storage or Firestore |
+| `useLists()` / `useList(id)`                            |   🚧   | Lists, list + items + current role, CRUD actions                                           |
+| `usePlanner()` / `usePlan(id)`                          |   🚧   | Plans, sessions in range, actions                                                          |
+| `useDashboardStats(period)`                             |   🚧   | Memoized statistics and breakdowns                                                         |
+| `useTheme()` / `useLanguage()`                          |   🚧   | Current value + setter                                                                     |
+| `useOnlineStatus()`                                     |   🚧   | `true` / `false` from `online` / `offline` events                                          |

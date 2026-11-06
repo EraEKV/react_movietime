@@ -124,7 +124,8 @@ the first load a page switch keeps the old page on screen until the new chunk is
 
 | Chunk                   | Size (min) | Loaded                                                        |
 | ----------------------- | ---------- | ------------------------------------------------------------- |
-| `index` (main)          | ~410 kB    | Always: React, Router, Redux, Firebase Auth, layout, Home     |
+| `index` (main)          | ~410 kB    | Always: React, Redux, Firebase Auth, layout, Home             |
+| `router`                | ~47 kB     | Always; own group in `vite.config.ts`, cached across deploys  |
 | One chunk per lazy page | 1–15 kB    | First visit to that route                                     |
 | Firestore SDK           | ~535 kB    | Lazy pages that read data, and the profile sync after sign-in |
 
@@ -171,7 +172,7 @@ confirms later. A failed write (for example `permission-denied`) is shown as an 
 
 ## Current implementation
 
-Phases 0–3 are in place. Movies, lists, planner, dashboard and settings routes exist and show a
+Phases 0–4 are in place. Lists, planner, dashboard and settings routes exist and show a
 "Coming soon" placeholder until their phase lands, so the navigation never leads to a 404.
 
 ### Routes and render tree
@@ -180,7 +181,8 @@ Phases 0–3 are in place. Movies, lists, planner, dashboard and settings routes
 | ------------------------ | -------------------------- | ----------------------------------------------------------- |
 | `/`                      | `HomePage`                 | Guest hero or "Up next", trending rows, heatmap teaser      |
 | `/about`                 | `AboutPage`                | Features and TMDB credit                                    |
-| `/series`                | `CatalogPage`              | Discover + search, filters, sort, pagination                |
+| `/movies`, `/series`     | `CatalogPage mediaType`    | Discover + search, 5 filters, sort, pagination, page size   |
+| `/movies/:id`            | `MoviePage`                | Movie details, key facts, trailer, cast, recommendations    |
 | `/series/:id`            | `SeriesPage`               | Series details and episode heatmap                          |
 | `/library`               | `WatchlistPage`            | Personal list with search, tabs, sort, paging               |
 | `/library/new`           | `WatchlistAddPage`         | Add form (`?series=<id>` preselects a series)               |
@@ -198,33 +200,40 @@ Phases 0–3 are in place. Movies, lists, planner, dashboard and settings routes
             │   ├── <HomeHero> (guests) | <UpNextSection>, <ContinueWatching> (users)
             │   ├── <TrendingSection> → <SegmentedControl>, <PosterRow> → <PosterCard>
             │   └── <HeatmapTeaser> → <HeatmapGrid> (inert preview)
-            ├── <CatalogPage>
+            ├── <CatalogPage key={mediaType} mediaType>   /movies and /series
+            │   ├── <SegmentedControl>      Movies ⇄ Series (keeps shared params)
             │   ├── <SearchBar>
-            │   ├── <FilterBar> → <SelectField> ×5
-            │   ├── <SkeletonGrid> | <StatusMessage> | <SeriesGrid> → <SeriesCard> → <RatingBadge>
-            │   └── <Pagination>
+            │   ├── <FilterBar> → <SelectField> ×6, <FilterChip>, <BottomSheet> (mobile)
+            │   ├── <SkeletonGrid> | <ErrorState> | <EmptyState> | <MediaGrid> → <PosterCard>
+            │   └── <Pagination pageSize>
+            ├── <MoviePage>
+            │   └── <MovieDetails key={id}>
+            │       ├── <TitleHero>
+            │       ├── <FactTiles>         director, budget, revenue, runtime
+            │       ├── <Trailer>, <CastList>
+            │       └── <MediaGrid layout="row">   recommendations
             ├── <SeriesPage>
             │   └── <SeriesDetails key={id}>
-            │       ├── <SeriesHero actions={<WatchlistButton>}>
+            │       ├── <TitleHero actions={<WatchlistButton>}>
             │       ├── <EpisodeHeatmap> → <HeatmapGrid>, <EpisodePanel>
             │       ├── <SeasonList>, <Trailer>, <CastList>
-            │       └── <SeriesGrid>        recommendations (same component as Discover)
+            │       └── <MediaGrid layout="row">   recommendations (same component as the catalog)
             ├── <WatchlistPage> → <StatusTabs>, <SelectField>, <WatchlistItem>, <Pagination>, <Toast>
             └── <WatchlistAddPage> / <WatchlistEditPage> → <WatchlistForm key=…> → <SeriesPicker>
 ```
 
 ### Where state lives and why
 
-| State                                      | Where                                              | Why                                                                                       |
-| ------------------------------------------ | -------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| Discover filters, sort, page, search query | URL search params (`useSeriesFilters`)             | Shareable links, refresh keeps them, back/forward walks through them                      |
-| Text typed in the search box               | `useState` in `SearchBar`                          | Changes on every keystroke; only the debounced value is committed to the URL              |
-| API responses + request status             | `useState` inside `useFetch` / `useEpisodeRatings` | Each component that needs data owns its request                                           |
-| Watchlist entries                          | `useState` in `WatchlistProvider` (context)        | Needed by the series page, the watchlist pages and the nav. Lifted to their common parent |
-| Watchlist search, status tab, sort, page   | `useState` in `WatchlistPage`                      | Page-only UI state. Personal data, so there is nothing to share in a URL                  |
-| Form values, "submitted" flag              | `useState` in `WatchlistForm`                      | Local to the form until submit                                                            |
-| Selected episode in the heatmap            | `useState` in `EpisodeHeatmap` (id only)           | The episode object is derived from loaded data, so it can't go stale                      |
-| Trailer playing                            | `useState` in `Trailer`                            | Pure UI state, reset per series by `key`                                                  |
+| State                                    | Where                                                | Why                                                                                       |
+| ---------------------------------------- | ---------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| Catalog filters, sort, page, size, query | URL search params (`useCatalogFilters`)              | Shareable links, refresh keeps them, back/forward walks through them                      |
+| Text typed in the search box             | `useState` in `SearchBar`                            | Changes on every keystroke; only the debounced value is committed to the URL              |
+| API responses + request status           | `useState` inside `useRequest` / `useEpisodeRatings` | Each component that needs data owns its request                                           |
+| Watchlist entries                        | `useState` in `WatchlistProvider` (context)          | Needed by the series page, the watchlist pages and the nav. Lifted to their common parent |
+| Watchlist search, status tab, sort, page | `useState` in `WatchlistPage`                        | Page-only UI state. Personal data, so there is nothing to share in a URL                  |
+| Form values, "submitted" flag            | `useState` in `WatchlistForm`                        | Local to the form until submit                                                            |
+| Selected episode in the heatmap          | `useState` in `EpisodeHeatmap` (id only)             | The episode object is derived from loaded data, so it can't go stale                      |
+| Trailer playing                          | `useState` in `Trailer`                              | Pure UI state, reset per series by `key`                                                  |
 
 Things that can be computed are **not** stored: filtered/sorted watchlist, total pages,
 validation errors, `loading` status, best/worst episode, season averages.
@@ -232,18 +241,26 @@ validation errors, `loading` status, best/worst episode, season averages.
 ### How API data reaches the UI
 
 ```
-CatalogPage
-  filters (URL) ──► toDiscoverParams() ──► endpoints.discoverSeries() ──► path string
-                                                                          │
-                                       useFetch(path) ◄────────────────────┘
-                                         └─ useEffect([path, attempt]) → tmdbGet(path, { signal })
-  { status, data, error, reload } ◄──────┘
+CatalogPage (mediaType from the route)
+  URL ──► useCatalogFilters(mediaType) ──► { filters, query, page, size }
+                                                │
+  useCatalog ──► tmdbPagesFor(page, size)   e.g. size 40, page 3 → TMDB pages 5, 6
+             ──► catalogPath(mediaType, filters, query, tmdbPage) per TMDB page
+             ──► key = paths.join('\n')
+                    │
+  useRequest(key, load)
+    └─ useEffect([key, attempt]) → tmdbGetAll(paths, { signal }) → mergeCatalogPages()
+  { status, data: { items, totalPages, totalResults }, error, reload }
         │
-        ├─ loading → <SkeletonGrid>
-        ├─ error   → <StatusMessage tone="error"> + "Try again" (reload)
-        ├─ empty   → <StatusMessage> with a context-specific action
-        └─ success → <SeriesGrid items={data.results} genresById={…}> → <SeriesCard> (props)
+        ├─ loading → <SkeletonGrid count={size}>
+        ├─ error   → <ErrorState> + "Try again" (reload); filters stay in the URL
+        ├─ empty   → <EmptyState> with a context-specific action
+        └─ success → <MediaGrid items={data.items}> → <PosterCard> (props)
 ```
+
+`MediaSummary` (`types/media.ts`) is the one shape cards and grids get: `fromMovie` and
+`fromSeries` (`utils/media.ts`) map TMDB's `title`/`release_date` and
+`name`/`first_air_date` into it.
 
 The data isn't shown as-is. Genre ids are turned into names, unaired episodes are marked as
 "not rated" instead of 0, season averages and best/worst episodes are computed, trailers are
@@ -256,7 +273,7 @@ watchlist.
 
 | Effect                                  | Dependencies                      | Cleanup                                |
 | --------------------------------------- | --------------------------------- | -------------------------------------- |
-| `useFetch`: load a TMDB path            | `[path, attempt]`                 | `controller.abort()` + `ignore = true` |
+| `useRequest`: run a keyed loader        | `[key, attempt]`                  | `controller.abort()` + `ignore = true` |
 | `useEpisodeRatings`: load all seasons   | `[seriesId, seasonsKey, attempt]` | aborts every batch with one controller |
 | `SearchBar`: debounce commit to the URL | `[value, query]`                  | `clearTimeout`                         |
 | `useDebouncedValue`                     | `[value, delay]`                  | `clearTimeout`                         |
@@ -266,7 +283,9 @@ watchlist.
 | `Layout`: scroll to top on route change | `[pathname]`                      | none needed                            |
 
 - **Stable dependencies.** Effects depend on strings, not on objects or arrays created during
-  render. `useFetch` gets a path string. `useEpisodeRatings` turns the season list into
+  render. `useFetch` gets a path string; `useCatalog` joins its TMDB paths into one key, and
+  `useRequest` reads the loader through `useEffectEvent`, so a new function each render doesn't
+  restart the request. `useEpisodeRatings` turns the season list into
   `seasonNumbers.join(',')`, because a new array every render would re-run the effect forever.
 - **No synchronous `setState` in effects.** `loading` isn't stored. Each result is saved together
   with the request key it belongs to, and if that key doesn't match the current request, the
@@ -290,7 +309,9 @@ the results for the current query.
 - List keys are stable ids: TMDB `id` for series, `credit_id` for cast (one actor can play
   several roles), `crypto.randomUUID()` for watchlist entries. Indexes are only used where the
   position _is_ the identity (skeleton placeholders, heatmap rows "episode N").
-- `<SeriesDetails key={id}>`: going from one series to a recommended one would otherwise reuse
+- `<CatalogPage key={mediaType}>`: /movies and /series render the same component in the same
+  place; the key makes Movies ⇄ Series mount a fresh page (search input, sheet state).
+- `<SeriesDetails key={id}>`, `<MovieDetails key={id}>`: going to a recommended title would otherwise reuse
   the component and keep its state, for example a trailer still playing. The key makes React mount
   a fresh instance.
 - `<WatchlistForm key={…}>`: the form reads `initialValues` only on mount, so a different entry
@@ -313,7 +334,9 @@ the results for the current query.
 
 | Limitation                                                   | Handling                                                               |
 | ------------------------------------------------------------ | ---------------------------------------------------------------------- |
-| `/search/tv` can't filter by genre/rating/status or sort     | Search mode disables those controls and explains why. Year still works |
+| `/search/*` can't filter by genre/rating/language or sort    | Search mode disables those controls and explains why. Year still works |
+| A page is always 20 titles                                   | Size 40/60 loads 2/3 TMDB pages in parallel; repeats are dropped       |
+| Budget, revenue, runtime are `0` when unknown                | Shown as "Unknown", not as $0                                          |
 | `total_pages` can be 1000+, but pages above 500 return 400   | Pages are capped at 500, also when they come from the URL              |
 | "Top rated" is dominated by shows with one 10/10 vote        | Rating sort and the rating filter require a minimum number of votes    |
 | Discover "newest" includes announced shows dated years ahead | Newest sort is capped at today                                         |

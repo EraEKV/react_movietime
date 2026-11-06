@@ -43,3 +43,24 @@ export function formatDate(date: string | null | undefined): string | null {
 export function episodeCode(season: number, episode: number): string {
   return `S${season}E${episode}`
 }
+
+/** 136 → "2h 16m", 45 → "45m"; null for unknown (TMDB sends 0 or null). */
+export function formatRuntime(minutes: number | null | undefined): string | null {
+  if (!minutes) return null
+  const hours = Math.floor(minutes / 60)
+  const rest = minutes % 60
+  if (hours === 0) return `${rest}m`
+  return rest === 0 ? `${hours}h` : `${hours}h ${rest}m`
+}
+
+const usdCompact = new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'USD',
+  notation: 'compact',
+  maximumFractionDigits: 1,
+})
+
+/** 63000000 → "$63M"; null when TMDB doesn't know (it sends 0). */
+export function formatMoney(amount: number): string | null {
+  return amount > 0 ? usdCompact.format(amount) : null
+}

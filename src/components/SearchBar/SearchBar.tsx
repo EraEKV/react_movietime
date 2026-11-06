@@ -14,6 +14,8 @@ const DEBOUNCE_MS = 400
 interface SearchBarProps {
   query: string
   onSearch: (query: string) => void
+  /** Accessible name of the field, e.g. "Search movies". */
+  label?: string
   placeholder?: string
   autoFocus?: boolean
 }
@@ -21,6 +23,7 @@ interface SearchBarProps {
 export default function SearchBar({
   query,
   onSearch,
+  label = 'Search series',
   placeholder = 'Search series by title',
   autoFocus = false,
 }: SearchBarProps) {
@@ -69,7 +72,7 @@ export default function SearchBar({
   return (
     <form role="search" className={styles.form} onSubmit={handleSubmit}>
       <label htmlFor={id} className="sr-only">
-        Search TV series
+        {label}
       </label>
       <div className={fieldStyles.control}>
         <Icon name="search" size={18} className={fieldStyles.leading} />
