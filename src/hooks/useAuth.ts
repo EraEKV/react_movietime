@@ -26,7 +26,9 @@ export function useAuth() {
   const pending = useAppSelector(selectAuthPending)
   const error = useAppSelector(selectAuthError)
 
-  const clearError = useCallback(() => dispatch(authErrorCleared()), [dispatch])
+  const clearError = useCallback(() => {
+    dispatch(authErrorCleared())
+  }, [dispatch])
 
   // useMemo keeps the object stable between renders, so it is safe in effect dependencies.
   const actions = useMemo(
@@ -40,7 +42,11 @@ export function useAuth() {
       signOut: async () => signOut.fulfilled.match(await dispatch(signOut())),
       resendVerification: async () =>
         resendVerification.fulfilled.match(await dispatch(resendVerification())),
-      refreshUser: async () => refreshUser.fulfilled.match(await dispatch(refreshUser())),
+      /** Resolves to the reloaded user (null on failure), to check `emailVerified` right away. */
+      refreshUser: async () => {
+        const result = await dispatch(refreshUser())
+        return refreshUser.fulfilled.match(result) ? result.payload : null
+      },
     }),
     [dispatch],
   )
