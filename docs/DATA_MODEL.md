@@ -30,17 +30,17 @@ TMDB title ──(media key)──► library entry      users/{uid}/library/{me
 
 ## TMDB resources
 
-| Resource        | Endpoint                                                            | Used for                             |
-| --------------- | ------------------------------------------------------------------- | ------------------------------------ |
-| Discover movies | `GET /discover/movie`                                               | Movie catalog: filters, sort, paging |
-| Discover series | `GET /discover/tv`                                                  | Series catalog                       |
-| Search          | `GET /search/movie`, `GET /search/tv`                               | Debounced title search               |
-| Movie details   | `GET /movie/{id}?append_to_response=credits,videos,recommendations` | Movie page                           |
-| Series details  | `GET /tv/{id}?append_to_response=credits,videos,recommendations`    | Series page                          |
-| Seasons (batch) | `GET /tv/{id}?append_to_response=season/1,…,season/20`              | Heatmap, planner episode list        |
-| Genres          | `GET /genre/movie/list`, `GET /genre/tv/list`                       | Filter options, genre names          |
-| Languages       | `GET /configuration/languages`                                      | Original language filter             |
-| Trending        | `GET /trending/{movie,tv}/week`                                     | Home page                            |
+| Resource        | Endpoint                                                                            | Used for                             |
+| --------------- | ----------------------------------------------------------------------------------- | ------------------------------------ |
+| Discover movies | `GET /discover/movie`                                                               | Movie catalog: filters, sort, paging |
+| Discover series | `GET /discover/tv`                                                                  | Series catalog                       |
+| Search          | `GET /search/movie`, `GET /search/tv`                                               | Debounced title search               |
+| Movie details   | `GET /movie/{id}?append_to_response=credits,videos,recommendations,watch/providers` | Movie page                           |
+| Series details  | `GET /tv/{id}?append_to_response=credits,videos,recommendations,watch/providers`    | Series page                          |
+| Seasons (batch) | `GET /tv/{id}?append_to_response=season/1,…,season/20`                              | Heatmap, planner episode list        |
+| Genres          | `GET /genre/movie/list`, `GET /genre/tv/list`                                       | Filter options, genre names          |
+| Languages       | `GET /configuration/languages`                                                      | Original language filter             |
+| Trending        | `GET /trending/{movie,tv}/week`                                                     | Home page                            |
 
 All requests send `language` (`en-US` / `ru-RU` / `kk-KZ`) from the current UI language.
 
@@ -474,4 +474,5 @@ Sessions are queried inside one plan by `date` (single-field index, created auto
 | -------------------------- | ------------------------------- | ------------------------------------------ |
 | `movietime.library.v1`     | `storage/libraryStorage.ts`     | Guest library entries                      |
 | `movietime.preferences.v1` | `storage/preferencesStorage.ts` | `{ theme, language }`                      |
+| `movietime.watchRegion.v1` | `storage/watchRegionStorage.ts` | Country for "Where to watch" (`US`)        |
 | `movietime.watchlist.v1`   | (legacy, midterm)               | Migrated to the library once, then removed |

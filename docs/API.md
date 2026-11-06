@@ -34,21 +34,21 @@ types in `src/types/`.
 
 ## TMDB: `src/shared/api/tmdb.ts`
 
-| Function / endpoint builder                     | Status | Request                                                         |
-| ----------------------------------------------- | :----: | --------------------------------------------------------------- |
-| `tmdbGet(path, { signal })`                     |   ✅   | `GET https://api.themoviedb.org/3{path}` with Bearer token      |
-| `buildPath(path, params)`                       |   ✅   | Builds a path + query string, skips empty values                |
-| `imageUrl(path, size)`                          |   ✅   | `https://image.tmdb.org/t/p/{size}{path}`                       |
-| `endpoints.genres(mediaType)`                   |   ✅   | `/genre/{movie,tv}/list`                                        |
-| `endpoints.discoverSeries(params)`              |   ✅   | `/discover/tv`                                                  |
-| `endpoints.discoverMovies(params)`              |   ✅   | `/discover/movie`                                               |
-| `endpoints.searchSeries({ query, page, year })` |   ✅   | `/search/tv`                                                    |
-| `endpoints.searchMovies({ query, page, year })` |   ✅   | `/search/movie`                                                 |
-| `endpoints.seriesDetails(id)`                   |   ✅   | `/tv/{id}?append_to_response=credits,videos,recommendations`    |
-| `endpoints.movieDetails(id)`                    |   ✅   | `/movie/{id}?append_to_response=credits,videos,recommendations` |
-| `endpoints.seasonsBatch(id, seasonNumbers)`     |   ✅   | `/tv/{id}?append_to_response=season/1,…` (≤ 20)                 |
-| `endpoints.trending(mediaType)`                 |   ✅   | `/trending/{movie,tv}/week`                                     |
-| `tmdbGetAll(paths, { signal })`                 |   ✅   | Several paths in parallel (`Promise.all`), one shared signal    |
+| Function / endpoint builder                     | Status | Request                                                                                      |
+| ----------------------------------------------- | :----: | -------------------------------------------------------------------------------------------- |
+| `tmdbGet(path, { signal })`                     |   ✅   | `GET https://api.themoviedb.org/3{path}` with Bearer token                                   |
+| `buildPath(path, params)`                       |   ✅   | Builds a path + query string, skips empty values                                             |
+| `imageUrl(path, size)`                          |   ✅   | `https://image.tmdb.org/t/p/{size}{path}`                                                    |
+| `endpoints.genres(mediaType)`                   |   ✅   | `/genre/{movie,tv}/list`                                                                     |
+| `endpoints.discoverSeries(params)`              |   ✅   | `/discover/tv`                                                                               |
+| `endpoints.discoverMovies(params)`              |   ✅   | `/discover/movie`                                                                            |
+| `endpoints.searchSeries({ query, page, year })` |   ✅   | `/search/tv`                                                                                 |
+| `endpoints.searchMovies({ query, page, year })` |   ✅   | `/search/movie`                                                                              |
+| `endpoints.seriesDetails(id)`                   |   ✅   | `/tv/{id}?append_to_response=credits,videos,recommendations,translations,watch/providers`    |
+| `endpoints.movieDetails(id)`                    |   ✅   | `/movie/{id}?append_to_response=credits,videos,recommendations,translations,watch/providers` |
+| `endpoints.seasonsBatch(id, seasonNumbers)`     |   ✅   | `/tv/{id}?append_to_response=season/1,…` (≤ 20)                                              |
+| `endpoints.trending(mediaType)`                 |   ✅   | `/trending/{movie,tv}/week`                                                                  |
+| `tmdbGetAll(paths, { signal })`                 |   ✅   | Several paths in parallel (`Promise.all`), one shared signal                                 |
 
 ✅ Every request carries `language=en-US | ru-RU | kk-KZ` for the current UI language
 (`tmdbGet` appends it unless the path already has one). The hooks (`useFetch`, `useCatalog`,

@@ -21,6 +21,7 @@ import MediaGrid from '../MediaGrid/MediaGrid'
 import Section from '../../shared/ui/Section/Section'
 import TitleHero from '../TitleHero/TitleHero'
 import Trailer from '../Trailer/Trailer'
+import WhereToWatch from '../WhereToWatch/WhereToWatch'
 
 const MAX_CAST = 12
 const MAX_RECOMMENDATIONS = 10
@@ -121,6 +122,10 @@ export default function MovieDetails({ movieId }: { movieId: string }) {
           { label: t('details.runtime'), value: formatRuntime(movie.runtime) },
         ]}
       />
+
+      <Section title={t('watch.title')}>
+        <WhereToWatch providers={movie['watch/providers']} />
+      </Section>
 
       {trailer && (
         <Section title={t('details.trailer')}>

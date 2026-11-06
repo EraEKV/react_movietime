@@ -336,13 +336,13 @@ shape (a page component, a hook that owns the data, presentational components).
             │   └── <MovieDetails key={id}>
             │       ├── <TitleHero actions={<LibraryButton>}>
             │       ├── <FactTiles>         director, budget, revenue, runtime
-            │       ├── <Trailer>, <CastList>
+            │       ├── <WhereToWatch>, <Trailer>, <CastList>
             │       └── <MediaGrid layout="row">   recommendations
             ├── <SeriesPage>
             │   └── <SeriesDetails key={id}>
             │       ├── <TitleHero actions={<LibraryButton>}>
             │       ├── <EpisodeHeatmap> → <HeatmapGrid>, <EpisodePanel>
-            │       ├── <SeasonList>, <Trailer>, <CastList>
+            │       ├── <SeasonList>, <WhereToWatch>, <Trailer>, <CastList>
             │       └── <MediaGrid layout="row">   recommendations (same component as the catalog)
             ├── <LibraryPage> → <Banner> (guest), <Tabs>, <SelectField>, <LibraryItem> | <LibraryGrid>, <Pagination>, <Toast>
             └── <LibraryEditPage> → <LibraryEntryForm key={entry.key}> → <RadioCards>, <ScorePicker>, <Textarea>, <Dialog>
@@ -350,17 +350,18 @@ shape (a page component, a hook that owns the data, presentational components).
 
 ### Where state lives and why
 
-| State                                    | Where                                                | Why                                                                                |
-| ---------------------------------------- | ---------------------------------------------------- | ---------------------------------------------------------------------------------- |
-| Catalog filters, sort, page, size, query | URL search params (`useCatalogFilters`)              | Shareable links, refresh keeps them, back/forward walks through them               |
-| Text typed in the search box             | `useState` in `SearchBar`                            | Changes on every keystroke; only the debounced value is committed to the URL       |
-| API responses + request status           | `useState` inside `useRequest` / `useEpisodeRatings` | Each component that needs data owns its request                                    |
-| Library entries                          | Redux `library` slice (normalized by media key)      | Title pages, library pages and Home all read it; guest or Firestore behind one API |
-| Library search, tab, type, genre, sort   | URL search params (`useLibraryFilters`)              | Refresh and links keep them; the dashboard links to a filtered library             |
-| Edit form values, "submitted" flag       | `useState` in `LibraryEntryForm`                     | Local to the form until Save                                                       |
-| Undo toast                               | `useTimedState` in the page / `LibraryButton`        | Pure UI state that clears itself                                                   |
-| Selected episode in the heatmap          | `useState` in `EpisodeHeatmap` (id only)             | The episode object is derived from loaded data, so it can't go stale               |
-| Trailer playing                          | `useState` in `Trailer`                              | Pure UI state, reset per series by `key`                                           |
+| State                                    | Where                                                                      | Why                                                                                         |
+| ---------------------------------------- | -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| Catalog filters, sort, page, size, query | URL search params (`useCatalogFilters`)                                    | Shareable links, refresh keeps them, back/forward walks through them                        |
+| Text typed in the search box             | `useState` in `SearchBar`                                                  | Changes on every keystroke; only the debounced value is committed to the URL                |
+| API responses + request status           | `useState` inside `useRequest` / `useEpisodeRatings`                       | Each component that needs data owns its request                                             |
+| Library entries                          | Redux `library` slice (normalized by media key)                            | Title pages, library pages and Home all read it; guest or Firestore behind one API          |
+| Library search, tab, type, genre, sort   | URL search params (`useLibraryFilters`)                                    | Refresh and links keep them; the dashboard links to a filtered library                      |
+| Edit form values, "submitted" flag       | `useState` in `LibraryEntryForm`                                           | Local to the form until Save                                                                |
+| Undo toast                               | `useTimedState` in the page / `LibraryButton`                              | Pure UI state that clears itself                                                            |
+| Selected episode in the heatmap          | `useState` in `EpisodeHeatmap` (id only)                                   | The episode object is derived from loaded data, so it can't go stale                        |
+| "Where to watch" country                 | `useState` in `WhereToWatch` + `localStorage` (`movietime.watchRegion.v1`) | Device habit, not account data: no rules, no Firestore; default from the interface language |
+| Trailer playing                          | `useState` in `Trailer`                                                    | Pure UI state, reset per series by `key`                                                    |
 
 Things that can be computed are **not** stored: filtered/sorted library (memoized selector), counts, total pages,
 validation errors, `loading` status, best/worst episode, season averages.

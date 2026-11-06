@@ -147,6 +147,41 @@ export function formatRelativeWith(
   return value < 0 ? `${-value} ${word} бұрын` : `${value} ${word} кейін`
 }
 
+const KK_REGIONS: Record<string, string> = {
+  KZ: 'Қазақстан',
+  RU: 'Ресей',
+  US: 'АҚШ',
+  GB: 'Ұлыбритания',
+  UA: 'Украина',
+  BY: 'Беларусь',
+  UZ: 'Өзбекстан',
+  KG: 'Қырғызстан',
+  TR: 'Түркия',
+  DE: 'Германия',
+  FR: 'Франция',
+  IT: 'Италия',
+  ES: 'Испания',
+  CA: 'Канада',
+  AU: 'Австралия',
+  JP: 'Жапония',
+  KR: 'Оңтүстік Корея',
+  CN: 'Қытай',
+  IN: 'Үндістан',
+  PL: 'Польша',
+}
+
+/** "Kazakhstan" / "Казахстан" / "Қазақстан" for an ISO 3166-1 code (a code that has no name stays itself). */
+export function regionNameWith(code: string, locale: string): string {
+  // Chrome has no Kazakh Intl data: a short table, then English for the rest.
+  if (fallback(locale))
+    return KK_REGIONS[code] ?? new Intl.DisplayNames(['en'], { type: 'region' }).of(code) ?? code
+  try {
+    return new Intl.DisplayNames([locale], { type: 'region' }).of(code) ?? code
+  } catch {
+    return code
+  }
+}
+
 /** "English" / "английский" / "ағылшын тілі" for an ISO 639-1 code. */
 export function languageNameWith(code: string, locale: string): string {
   if (fallback(locale)) return KK_LANGUAGES[code] ?? code

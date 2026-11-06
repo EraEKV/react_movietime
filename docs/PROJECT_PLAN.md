@@ -256,7 +256,7 @@ Vitest + React Testing Library + jsdom, `npm test`:
 - **Hooks:** `useDebouncedValue` with fake timers, `useFetch` race condition (a slow old
   response must not overwrite a newer one) with a mocked `fetch`.
 - **Components:** signup form validation messages, `ProtectedRoute` redirect, `Pagination`.
-- 109 tests in 13 files. Firestore security rules were checked by hand-written scripts against
+- 122 tests in 15 files. Firestore security rules were checked by hand-written scripts against
   the emulator (owner, editor, viewer, unverified member, stranger, guest), not by `npm test`.
 
 ## 4. Pages and routes
@@ -312,6 +312,7 @@ Small fixes between phases go straight to `main`.
 | 13  | `feat/notifications` ✅      | In-app notifications (bell, realtime), invite link (copy, Web Share, mailto), rules and index; web push stays out (see 3.10)                                          |
 | 14  | `test/unit-and-component` ✅ | Vitest + Testing Library: logic, slices, hooks, components (see 3.12)                                                                                                 |
 | 15  | `docs/final` ✅              | Final README, screenshots, docs sync, defense notes                                                                                                                   |
+| 16  | `feat/player` ✅             | "Where to watch" from TMDB `/watch/providers` with the JustWatch credit; no streaming of our own (see 7.4)                                                            |
 
 ## 6. Requirements checklist
 
@@ -498,7 +499,8 @@ with verified emails, in two browser profiles or one normal and one private wind
 | Why not send the invitation by email?                  | A transactional email service needs a verified domain, and the project has none. Instead the owner gets a link to copy, share or send through their own mail app, and people who already use Movietime get an in-app notification.                                           |
 | Why doesn't the app check if the email has an account? | Answering "this email is registered" is an email-enumeration leak, and profiles are private. The notification is keyed by email and waits; the rules show it only to the verified owner of that email.                                                                       |
 | How can an owner not spam strangers?                   | The rules accept a notification only in the same batch that adds that email as a member of the owner's own list or plan, at most 20 members, and never twice for the same member.                                                                                            |
-| How do you test?                                       | `npm test`: 109 unit and component tests (logic, slices, hooks, components). Rules and UI flows were verified against the emulator and a mocked TMDB with scripts that aren't part of the repo.                                                                              |
+| Why doesn't the app play movies?                       | Streams need licences. "Where to watch" shows where a title is officially offered in the viewer's country (TMDB `/watch/providers`, data by JustWatch, credited next to it) and plays nothing itself, so the project has no copyright exposure.                              |
+| How do you test?                                       | `npm test`: 122 unit and component tests (logic, slices, hooks, components). Rules and UI flows were verified against the emulator and a mocked TMDB with scripts that aren't part of the repo.                                                                              |
 
 ## Layered structure (FSD-like): `shared/` done, the rest is an idea
 

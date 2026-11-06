@@ -69,6 +69,29 @@ export interface Video {
   official: boolean
 }
 
+/** One streaming service as TMDB returns it (/watch/providers; the data comes from JustWatch). */
+export interface WatchProvider {
+  provider_id: number
+  provider_name: string
+  logo_path: string | null
+  display_priority: number
+}
+
+/** What is offered in one country. `link` is the TMDB page for that country (it leads to JustWatch). */
+export interface WatchRegion {
+  link: string
+  flatrate?: WatchProvider[]
+  free?: WatchProvider[]
+  ads?: WatchProvider[]
+  rent?: WatchProvider[]
+  buy?: WatchProvider[]
+}
+
+/** Appended with `watch/providers`: every country at once, keyed by ISO 3166-1 code. */
+export interface WatchProviders {
+  results: Record<string, WatchRegion>
+}
+
 export interface NamedEntity {
   id: number
   name: string
@@ -120,6 +143,7 @@ export interface SeriesDetails extends SeriesBase {
   videos: { results: Video[] }
   recommendations: Paginated<SeriesListItem>
   translations?: Translations
+  'watch/providers'?: WatchProviders
 }
 
 /** /movie/{id} without appended responses. */
@@ -151,6 +175,7 @@ export interface MovieDetails extends MovieBase {
   videos: { results: Video[] }
   recommendations: Paginated<MovieListItem>
   translations?: Translations
+  'watch/providers'?: WatchProviders
 }
 
 export interface RawEpisode {

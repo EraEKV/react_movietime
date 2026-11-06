@@ -182,7 +182,7 @@ export const endpoints = {
   // Videos are filtered by `language` too, so English (and language-less) trailers are added.
   seriesDetails: (id: Id, language: string) =>
     buildPath(`/tv/${id}`, {
-      append_to_response: 'credits,videos,recommendations,translations',
+      append_to_response: 'credits,videos,recommendations,translations,watch/providers',
       include_video_language: videoLanguages(language),
     }),
 
@@ -191,7 +191,7 @@ export const endpoints = {
 
   movieDetails: (id: Id, language: string) =>
     buildPath(`/movie/${id}`, {
-      append_to_response: 'credits,videos,recommendations,translations',
+      append_to_response: 'credits,videos,recommendations,translations,watch/providers',
       include_video_language: videoLanguages(language),
     }),
 
