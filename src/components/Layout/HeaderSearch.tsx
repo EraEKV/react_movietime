@@ -1,8 +1,8 @@
 import { useTranslation } from 'react-i18next'
 import { useId, useState, type FormEvent } from 'react'
 import { createSearchParams, useLocation, useNavigate } from 'react-router'
-import fieldStyles from '../Field/Field.module.css'
-import Icon from '../Icon/Icon'
+import fieldStyles from '../../shared/ui/Field/Field.module.css'
+import Icon from '../../shared/ui/Icon/Icon'
 import styles from './Layout.module.css'
 
 /**

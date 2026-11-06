@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
-import ButtonLink from '../components/ButtonLink/ButtonLink'
-import type { IconName } from '../components/Icon/icons'
+import ButtonLink from '../shared/ui/ButtonLink/ButtonLink'
+import type { IconName } from '../shared/ui/Icon/icons'
 import styles from './SystemPage.module.css'
 
 interface NotFoundPageProps {

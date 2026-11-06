@@ -1,4 +1,4 @@
-import Skeleton from '../Skeleton/Skeleton'
+import Skeleton from '../../shared/ui/Skeleton/Skeleton'
 import styles from './Library.module.css'
 
 /** Rows in the shape of LibraryItem, shown while the account library loads. */

@@ -1,0 +1,33 @@
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-4);
+  margin-bottom: var(--space-5);
+}
+
+.kicker {
+  composes: overline from '../../styles/typography.module.css';
+  margin-bottom: var(--space-1);
+}
+
+.title {
+  composes: titleL from '../../styles/typography.module.css';
+}
+
+/* Accent = interactive. Padding gives the text link a 44px touch target. */
+.link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: var(--touch-min);
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.link:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}

@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import type { ReactNode } from 'react'
-import PosterSkeleton from '../Skeleton/PosterSkeleton'
+import PosterSkeleton from '../../shared/ui/Skeleton/PosterSkeleton'
 import styles from './PosterRow.module.css'
 
 interface PosterRowProps {

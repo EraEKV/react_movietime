@@ -6,8 +6,8 @@ import { progressRatio } from '../../utils/library'
 import { mediaHref } from '../../utils/media'
 import PosterCard from '../PosterCard/PosterCard'
 import PosterRow from '../PosterRow/PosterRow'
-import Section from '../Section/Section'
-import SectionLink from '../SectionHeader/SectionLink'
+import Section from '../../shared/ui/Section/Section'
+import SectionLink from '../../shared/ui/SectionHeader/SectionLink'
 
 /** Titles marked "Watching" in the library. Nothing to continue → the section is skipped. */
 export default function ContinueWatching() {

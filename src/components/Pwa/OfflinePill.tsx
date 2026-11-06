@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { useOnlineStatus } from '../../shared/hooks/useOnlineStatus'
-import Icon from '../Icon/Icon'
+import Icon from '../../shared/ui/Icon/Icon'
 import styles from './OfflinePill.module.css'
 
 /** Header indicator, shown only while the browser has no network. */

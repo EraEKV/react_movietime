@@ -1,4 +1,4 @@
-import Skeleton from '../Skeleton/Skeleton'
+import Skeleton from '../../shared/ui/Skeleton/Skeleton'
 import styles from './DetailsSkeleton.module.css'
 
 /** Same shape as the hero and the first section, so nothing jumps when data arrives. */

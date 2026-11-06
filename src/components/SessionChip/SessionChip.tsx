@@ -4,7 +4,7 @@ import { Link } from 'react-router'
 import { imageUrl } from '../../shared/api/tmdb'
 import type { PlanColor, SessionStatus } from '../../types/plan'
 import { cx } from '../../shared/lib/cx'
-import Icon from '../Icon/Icon'
+import Icon from '../../shared/ui/Icon/Icon'
 import styles from './SessionChip.module.css'
 
 interface SessionChipProps {

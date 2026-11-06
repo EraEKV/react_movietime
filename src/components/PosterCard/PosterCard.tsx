@@ -1,9 +1,9 @@
 import { useTranslation } from 'react-i18next'
 import type { ReactNode } from 'react'
 import { Link } from 'react-router'
-import Icon from '../Icon/Icon'
-import type { IconName } from '../Icon/icons'
-import RatingBadge from '../RatingBadge/RatingBadge'
+import Icon from '../../shared/ui/Icon/Icon'
+import type { IconName } from '../../shared/ui/Icon/icons'
+import RatingBadge from '../../shared/ui/RatingBadge/RatingBadge'
 import styles from './PosterCard.module.css'
 
 interface PosterCardProps {

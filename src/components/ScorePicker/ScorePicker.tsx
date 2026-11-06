@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { useId } from 'react'
 import { SCORES, scoreWord, type Score } from '../../utils/library'
-import { buttonClass } from '../Button/variants'
+import { buttonClass } from '../../shared/ui/Button/variants'
 import styles from './ScorePicker.module.css'
 
 interface ScorePickerProps {

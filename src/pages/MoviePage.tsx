@@ -1,8 +1,8 @@
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
-import BackButton from '../components/BackButton/BackButton'
-import ButtonLink from '../components/ButtonLink/ButtonLink'
-import ErrorState from '../components/EmptyState/ErrorState'
+import BackButton from '../shared/ui/BackButton/BackButton'
+import ButtonLink from '../shared/ui/ButtonLink/ButtonLink'
+import ErrorState from '../shared/ui/EmptyState/ErrorState'
 import MovieDetails from '../components/MovieDetails/MovieDetails'
 
 export default function MoviePage() {

@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../hooks/useAuth'
-import Button from '../Button/Button'
+import Button from '../../shared/ui/Button/Button'
 
 /** One Google button for login and signup: Firebase creates the account on first use. */
 export default function GoogleButton() {

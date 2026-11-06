@@ -5,9 +5,9 @@ import { useAuth } from '../../hooks/useAuth'
 import { useForm } from '../../shared/hooks/useForm'
 import { useTimedState } from '../../shared/hooks/useTimedState'
 import { offlineMessage } from '../../utils/listErrors'
-import Button from '../Button/Button'
-import Icon from '../Icon/Icon'
-import TextField from '../TextField/TextField'
+import Button from '../../shared/ui/Button/Button'
+import Icon from '../../shared/ui/Icon/Icon'
+import TextField from '../../shared/ui/TextField/TextField'
 import styles from './Settings.module.css'
 
 /** Same limit as firestore.rules (validProfile) and profileService. */

@@ -2,9 +2,9 @@ import { useTranslation } from 'react-i18next'
 import { useState, type FormEvent } from 'react'
 import type { ListItem } from '../../types/list'
 import { LIST_NOTE_MAX } from '../../utils/lists'
-import Button from '../Button/Button'
-import Dialog from '../Dialog/Dialog'
-import Textarea from '../Textarea/Textarea'
+import Button from '../../shared/ui/Button/Button'
+import Dialog from '../../shared/ui/Dialog/Dialog'
+import Textarea from '../../shared/ui/Textarea/Textarea'
 
 interface NoteDialogProps {
   item: ListItem

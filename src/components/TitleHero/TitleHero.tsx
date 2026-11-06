@@ -2,9 +2,9 @@ import { useTranslation } from 'react-i18next'
 import type { ReactNode } from 'react'
 import { imageUrl } from '../../shared/api/tmdb'
 import type { Genre } from '../../types/tmdb'
-import Icon from '../Icon/Icon'
-import type { IconName } from '../Icon/icons'
-import RatingBadge from '../RatingBadge/RatingBadge'
+import Icon from '../../shared/ui/Icon/Icon'
+import type { IconName } from '../../shared/ui/Icon/icons'
+import RatingBadge from '../../shared/ui/RatingBadge/RatingBadge'
 import styles from './TitleHero.module.css'
 
 export interface TitleFact {

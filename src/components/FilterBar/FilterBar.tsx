@@ -14,11 +14,11 @@ import {
   type CatalogFilters,
   type FilterKey,
 } from '../../utils/filters'
-import Banner from '../Banner/Banner'
-import Button from '../Button/Button'
-import FilterChip from '../Chip/FilterChip'
-import BottomSheet from '../Dialog/BottomSheet'
-import SelectField from '../SelectField/SelectField'
+import Banner from '../../shared/ui/Banner/Banner'
+import Button from '../../shared/ui/Button/Button'
+import FilterChip from '../../shared/ui/Chip/FilterChip'
+import BottomSheet from '../../shared/ui/Dialog/BottomSheet'
+import SelectField from '../../shared/ui/SelectField/SelectField'
 import styles from './FilterBar.module.css'
 
 type ChangeKey = FilterKey | 'sort'

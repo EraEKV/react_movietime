@@ -4,8 +4,8 @@ import { endpoints, imageUrl } from '../../shared/api/tmdb'
 import { useFetch } from '../../shared/hooks/useFetch'
 import { useSystemThemeSync } from '../../hooks/useTheme'
 import type { Paginated, SeriesListItem } from '../../types/tmdb'
-import Logo from '../Logo/Logo'
-import Skeleton from '../Skeleton/Skeleton'
+import Logo from '../../shared/ui/Logo/Logo'
+import Skeleton from '../../shared/ui/Skeleton/Skeleton'
 import styles from './AuthLayout.module.css'
 
 const MOSAIC_SIZE = 9

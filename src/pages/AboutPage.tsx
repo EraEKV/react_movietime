@@ -1,7 +1,7 @@
 import { Trans, useTranslation } from 'react-i18next'
-import Card from '../components/Card/Card'
-import type { IconName } from '../components/Icon/icons'
-import Icon from '../components/Icon/Icon'
+import Card from '../shared/ui/Card/Card'
+import type { IconName } from '../shared/ui/Icon/icons'
+import Icon from '../shared/ui/Icon/Icon'
 import styles from './AboutPage.module.css'
 
 const FEATURES: { icon: IconName; id: 'heatmap' | 'planner' | 'sharing' }[] = [

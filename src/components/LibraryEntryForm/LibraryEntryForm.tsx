@@ -11,13 +11,13 @@ import type {
 import type { SeasonSummary } from '../../types/tmdb'
 import { episodeCode } from '../../shared/lib/format'
 import { LIBRARY_STATUSES, NOTES_MAX, watchedUpTo } from '../../utils/library'
-import Button from '../Button/Button'
-import ProgressBar from '../ProgressBar/ProgressBar'
-import RadioCards from '../RadioCards/RadioCards'
+import Button from '../../shared/ui/Button/Button'
+import ProgressBar from '../../shared/ui/ProgressBar/ProgressBar'
+import RadioCards from '../../shared/ui/RadioCards/RadioCards'
 import ScorePicker from '../ScorePicker/ScorePicker'
-import SelectField from '../SelectField/SelectField'
+import SelectField from '../../shared/ui/SelectField/SelectField'
 import { STATUS_ICON } from '../StatusMarker/statusIcons'
-import Textarea from '../Textarea/Textarea'
+import Textarea from '../../shared/ui/Textarea/Textarea'
 import styles from './LibraryEntryForm.module.css'
 
 interface LibraryEntryFormProps {

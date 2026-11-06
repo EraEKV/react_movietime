@@ -2,9 +2,9 @@ import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router'
 import { useAuth } from '../../hooks/useAuth'
 import { loginPath } from '../../shared/lib/redirect'
-import Avatar from '../Avatar/Avatar'
-import ButtonLink from '../ButtonLink/ButtonLink'
-import Menu from '../Menu/Menu'
+import Avatar from '../../shared/ui/Avatar/Avatar'
+import ButtonLink from '../../shared/ui/ButtonLink/ButtonLink'
+import Menu from '../../shared/ui/Menu/Menu'
 import styles from './UserMenu.module.css'
 
 /** Header corner: avatar menu for a signed-in user, "Sign in" for a guest. */

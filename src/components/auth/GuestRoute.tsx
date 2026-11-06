@@ -1,7 +1,7 @@
 import { Navigate, Outlet, useSearchParams } from 'react-router'
 import { useAuth } from '../../hooks/useAuth'
 import { safeRedirect } from '../../shared/lib/redirect'
-import PageLoader from '../PageLoader/PageLoader'
+import PageLoader from '../../shared/ui/PageLoader/PageLoader'
 
 interface GuestRouteProps {
   /** Where a new email account goes first (signup → "check your email"). */

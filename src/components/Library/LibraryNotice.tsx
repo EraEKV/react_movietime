@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next'
 import { useEffect } from 'react'
 import { useAppDispatch, useAppSelector } from '../../store/hooks'
 import { libraryNoticeDismissed, selectLibraryNotice } from '../../store/librarySlice'
-import Toast from '../Toast/Toast'
+import Toast from '../../shared/ui/Toast/Toast'
 
 const NOTICE_MS = 6000
 

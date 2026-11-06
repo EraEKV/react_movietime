@@ -11,7 +11,7 @@ import {
   weekdayShort,
 } from '../../utils/calendar'
 import { cx } from '../../shared/lib/cx'
-import IconButton from '../IconButton/IconButton'
+import IconButton from '../../shared/ui/IconButton/IconButton'
 import styles from './DatePicker.module.css'
 
 interface DatePickerProps {

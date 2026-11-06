@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next'
 import { useLibrary } from '../../hooks/useLibrary'
 import { useMyLists } from '../../hooks/useLists'
 import { usePlans } from '../../hooks/usePlanner'
-import StatTile from '../StatTile/StatTile'
+import StatTile from '../../shared/ui/StatTile/StatTile'
 import styles from './Profile.module.css'
 
 /**

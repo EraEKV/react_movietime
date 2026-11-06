@@ -1,9 +1,9 @@
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
-import BackButton from '../components/BackButton/BackButton'
+import BackButton from '../shared/ui/BackButton/BackButton'
 import SeriesDetails from '../components/SeriesDetails/SeriesDetails'
-import ButtonLink from '../components/ButtonLink/ButtonLink'
-import ErrorState from '../components/EmptyState/ErrorState'
+import ButtonLink from '../shared/ui/ButtonLink/ButtonLink'
+import ErrorState from '../shared/ui/EmptyState/ErrorState'
 
 export default function SeriesPage() {
   const { t } = useTranslation('catalog')

@@ -2,8 +2,8 @@ import { useTranslation } from 'react-i18next'
 import { useSharedLists } from '../../hooks/useLists'
 import ListCard from '../ListCard/ListCard'
 import ListGrid from '../ListCard/ListGrid'
-import Section from '../Section/Section'
-import SectionLink from '../SectionHeader/SectionLink'
+import Section from '../../shared/ui/Section/Section'
+import SectionLink from '../../shared/ui/SectionHeader/SectionLink'
 
 const SHOWN = 3
 

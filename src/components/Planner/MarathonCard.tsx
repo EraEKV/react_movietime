@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
-import ButtonLink from '../ButtonLink/ButtonLink'
-import Icon from '../Icon/Icon'
+import ButtonLink from '../../shared/ui/ButtonLink/ButtonLink'
+import Icon from '../../shared/ui/Icon/Icon'
 import styles from './MarathonCard.module.css'
 
 /** List page: turns the list's movies into a plan, one movie per evening. */

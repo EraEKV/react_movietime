@@ -1,4 +1,4 @@
-import Skeleton from '../Skeleton/Skeleton'
+import Skeleton from '../../shared/ui/Skeleton/Skeleton'
 import styles from './ListCard.module.css'
 
 /** Same shape as ListCard while lists load. */

@@ -10,10 +10,10 @@ import { formatRuntime } from '../../shared/lib/format'
 import { canEditSessions, planErrorMessage, planProgress, sessionPoster } from '../../utils/planner'
 import { unitsLabel } from '../../utils/schedule'
 import { roleOf } from '../../utils/sharing'
-import Button from '../Button/Button'
-import ButtonLink from '../ButtonLink/ButtonLink'
+import Button from '../../shared/ui/Button/Button'
+import ButtonLink from '../../shared/ui/ButtonLink/ButtonLink'
 import ProgressRing from '../ProgressRing/ProgressRing'
-import Skeleton from '../Skeleton/Skeleton'
+import Skeleton from '../../shared/ui/Skeleton/Skeleton'
 import styles from './PlanSide.module.css'
 
 interface TodayCardProps {

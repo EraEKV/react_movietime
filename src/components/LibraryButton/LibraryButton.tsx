@@ -4,12 +4,12 @@ import { useTimedState } from '../../shared/hooks/useTimedState'
 import type { LibraryMedia } from '../../types/library'
 import { LIBRARY_STATUSES, statusLabel } from '../../utils/library'
 import { mediaKey } from '../../utils/media'
-import Button from '../Button/Button'
-import { buttonClass } from '../Button/variants'
-import Icon from '../Icon/Icon'
-import Menu, { type MenuItem } from '../Menu/Menu'
+import Button from '../../shared/ui/Button/Button'
+import { buttonClass } from '../../shared/ui/Button/variants'
+import Icon from '../../shared/ui/Icon/Icon'
+import Menu, { type MenuItem } from '../../shared/ui/Menu/Menu'
 import { STATUS_ICON } from '../StatusMarker/statusIcons'
-import Toast from '../Toast/Toast'
+import Toast from '../../shared/ui/Toast/Toast'
 
 const UNDO_MS = 6000
 

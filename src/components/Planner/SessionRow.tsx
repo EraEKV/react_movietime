@@ -5,9 +5,9 @@ import { daysBetween, formatDay, relativeDay } from '../../utils/calendar'
 import { cx } from '../../shared/lib/cx'
 import { formatRuntime } from '../../shared/lib/format'
 import { unitsLabel } from '../../utils/schedule'
-import Badge from '../Badge/Badge'
-import Button from '../Button/Button'
-import IconButton from '../IconButton/IconButton'
+import Badge from '../../shared/ui/Badge/Badge'
+import Button from '../../shared/ui/Button/Button'
+import IconButton from '../../shared/ui/IconButton/IconButton'
 import styles from './SessionRow.module.css'
 
 interface SessionRowProps {

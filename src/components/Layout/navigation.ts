@@ -1,4 +1,4 @@
-import type { IconName } from '../Icon/icons'
+import type { IconName } from '../../shared/ui/Icon/icons'
 
 export interface NavItem {
   to: string

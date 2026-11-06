@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { Link, useLocation } from 'react-router'
-import Icon from '../Icon/Icon'
+import Icon from '../../shared/ui/Icon/Icon'
 import styles from './Layout.module.css'
 import { isNavItemActive, TAB_BAR_NAV } from './navigation'
 
