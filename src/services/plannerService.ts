@@ -308,6 +308,9 @@ export async function loadSeriesEpisodes(
 }
 
 export interface ListSource {
+  /** The list's name and first cover, for the plan title and the preview. */
+  name: string
+  posterPath: string | null
   units: PlanUnit[]
   /** Series in the list: a marathon plan is for movies only. */
   skipped: number
@@ -315,13 +318,19 @@ export interface ListSource {
 
 /** The movies of a list in list order, each with its runtime from /movie/{id}. */
 export async function loadListMovies(listId: string, signal?: AbortSignal): Promise<ListSource> {
+  // The list first: a missing or unreadable list fails here with one clear error.
+  const list = (await getDoc(doc(db, 'lists', listId))).data()
+  if (!list) throw new PlanError('This list doesn’t exist or isn’t shared with you.')
   const items = await getDocs(query(collection(db, 'lists', listId, 'items'), orderBy('position')))
   const keys = items.docs.map((d) => parseMediaKey(d.id)).filter((k) => k !== null)
   const movieIds = keys.filter((k) => k.mediaType === 'movie').map((k) => k.id)
   const movies = await Promise.all(
     movieIds.map((id) => tmdbGet<MovieBase>(endpoints.movieSummary(id), { signal })),
   )
+  const covers = strings(list.covers)
   return {
+    name: String(list.name ?? ''),
+    posterPath: covers[0] ?? movies[0]?.poster_path ?? null,
     units: movies.map((movie) => movieToUnit(movieToLibraryMedia(movie))),
     skipped: keys.length - movieIds.length,
   }

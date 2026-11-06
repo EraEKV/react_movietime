@@ -1,4 +1,4 @@
-import { useSearchParams } from 'react-router'
+import { useLocation, useSearchParams } from 'react-router'
 import Button from '../components/Button/Button'
 import ButtonLink from '../components/ButtonLink/ButtonLink'
 import CalendarMonth, { type CalendarItem } from '../components/CalendarMonth/CalendarMonth'
@@ -24,6 +24,7 @@ import {
   shiftMonth,
   type MonthRef,
 } from '../utils/calendar'
+import { noticeFromState } from '../utils/notice'
 import { sessionPoster } from '../utils/planner'
 import { unitsLabel } from '../utils/schedule'
 import styles from './PlannerPage.module.css'
@@ -60,7 +61,13 @@ export default function PlannerPage() {
   const [params, setParams] = useSearchParams()
   const desktop = useMediaQuery('(min-width: 1024px)')
   const tablet = useMediaQuery('(min-width: 768px)')
-  const [toast, showToast] = useTimedState<string>(6000)
+  const location = useLocation()
+  // "Deleted …" / "You left …" arrive from the plan page through history state.
+  const passed = noticeFromState(location.state)
+  const [toast, showToast] = useTimedState<{ text: string; error?: boolean }>(
+    6000,
+    passed ? { text: passed } : null,
+  )
 
   // An invalid ?month= falls back to the current month instead of an error.
   const month: MonthRef = parseMonthKey(params.get('month')) ?? monthOf(localToday())
@@ -197,7 +204,11 @@ export default function PlannerPage() {
 
   const side = (
     <div className={styles.side}>
-      <TodayCard today={today} sessions={todaySessions} onError={showToast} />
+      <TodayCard
+        today={today}
+        sessions={todaySessions}
+        onError={(text) => showToast({ text, error: true })}
+      />
       <ActivePlans plans={shownPlans} />
     </div>
   )
@@ -214,7 +225,7 @@ export default function PlannerPage() {
         </section>
         {tablet && side}
       </div>
-      {toast && <Toast icon="alert">{toast}</Toast>}
+      {toast && <Toast icon={toast.error ? 'alert' : 'check'}>{toast.text}</Toast>}
     </div>
   )
 }

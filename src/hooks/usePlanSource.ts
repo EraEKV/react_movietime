@@ -9,6 +9,9 @@ export type SourcePick =
   | { kind: 'list'; id: string; title: string; posterPath: string | null }
 
 export interface LoadedSource {
+  /** Series or list name. */
+  name: string
+  posterPath: string | null
   media: LibraryMedia | null
   units: PlanUnit[]
   /** Series in a list (left out of a movie marathon). */
@@ -27,9 +30,9 @@ export function usePlanSource(pick: SourcePick | null) {
     if (!pick) throw new Error('Nothing picked')
     if (pick.kind === 'series') {
       const { media, units } = await service.loadSeriesEpisodes(pick.id, signal)
-      return { media, units, skipped: 0 }
+      return { name: media.title, posterPath: media.posterPath, media, units, skipped: 0 }
     }
-    const { units, skipped } = await service.loadListMovies(pick.id, signal)
-    return { media: null, units, skipped }
+    const list = await service.loadListMovies(pick.id, signal)
+    return { ...list, media: null }
   })
 }

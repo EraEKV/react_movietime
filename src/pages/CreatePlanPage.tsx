@@ -72,8 +72,8 @@ export default function CreatePlanPage() {
   const entry = useLibraryEntry(pick?.kind === 'series' ? mediaKey('tv', pick.id) : null)
   const progress = entry?.progress ?? null
 
-  const name = loaded?.media?.title || pick?.title || ''
-  const posterPath = loaded?.media?.posterPath ?? pick?.posterPath ?? null
+  const name = loaded?.name || pick?.title || ''
+  const posterPath = loaded?.posterPath ?? pick?.posterPath ?? null
   const isList = pick?.kind === 'list'
   // Movies: one per night. Memoized so the schedule below isn't rebuilt on every render.
   const effective = useMemo<ScheduleOptions>(
