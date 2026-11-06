@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { Provider } from 'react-redux'
 import { BrowserRouter } from 'react-router'
 import App from './App'
+import { initI18n } from './i18n'
 import { registerLibraryListeners } from './store/libraryListeners'
 import { registerPreferenceListeners, startAuthSync } from './store/listeners'
 import { store } from './store/store'
@@ -17,6 +18,9 @@ void startAuthSync(store.dispatch)
 
 const root = document.getElementById('root')
 if (!root) throw new Error('Missing #root element in index.html')
+
+// The first render waits for the `common` dictionary (a few kB) so no raw keys flash.
+await initI18n(store.getState().preferences.language)
 
 createRoot(root).render(
   <StrictMode>
