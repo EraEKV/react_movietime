@@ -270,6 +270,18 @@ service cloud.firestore {
         && request.resource.data.roles.keys().toSet() == resource.data.roles.keys().toSet().difference(me);
     }
 
+    // Sharing fields as the owner writes them: roles and memberEmails describe the same
+    // people, roles are only editor/viewer, at most 20 members, never the owner's own email.
+    function validSharing(d) {
+      return d.visibility in ['private', 'link']
+        && d.roles is map
+        && d.memberEmails is list
+        && d.memberEmails.size() <= 20
+        && d.roles.keys().toSet() == d.memberEmails.toSet()
+        && d.roles.values().hasOnly(['editor', 'viewer'])
+        && !(request.auth.token.get('email', '').lower() in d.memberEmails);
+    }
+
     // ---------- private user data ----------
     match /users/{userId} {
       allow read, write: if signedIn() && uid() == userId;
@@ -287,8 +299,12 @@ service cloud.firestore {
 
     // ---------- lists ----------
     match /lists/{listId} {
-      allow read: if canRead(resource.data);
-      // validList: known fields only, name 1–60, description ≤ 300, itemCount ≥ 0, ≤ 4 covers.
+      // get = one document by id (a shared link works for anyone); list = queries, only for
+      // owners and members, so nobody can enumerate every public list.
+      allow get: if canRead(resource.data);
+      allow list: if isOwner(resource.data) || isMember(resource.data);
+      // validList: known fields only, name 1–60, description ≤ 300, itemCount ≥ 0, ≤ 4 covers,
+      // and validSharing().
       allow create: if isOwner(request.resource.data) && validList()
         && request.resource.data.itemCount == 0;
       allow update: if (isOwner(resource.data)
@@ -311,10 +327,12 @@ service cloud.firestore {
 
     // ---------- plans ----------
     match /plans/{planId} {
-      allow read: if canRead(resource.data);
-      allow create: if isOwner(request.resource.data);
+      allow get: if canRead(resource.data);
+      allow list: if isOwner(resource.data) || isMember(resource.data);
+      allow create: if isOwner(request.resource.data) && validSharing(request.resource.data);
       allow update: if (isOwner(resource.data)
-                        && request.resource.data.ownerUid == resource.data.ownerUid)
+                        && request.resource.data.ownerUid == resource.data.ownerUid
+                        && validSharing(request.resource.data))
                     || (isEditor(resource.data)
                         && onlyChanges(['doneUnits', 'nextDate', 'endDate', 'status', 'updatedAt']))
                     || isLeaving();
@@ -335,15 +353,27 @@ Notes:
 - **Rules are not filters.** A query must only ask for documents the user may read, otherwise
   the whole query is rejected. The app always queries lists and plans with
   `where("ownerUid", "==", uid)` or `where("memberEmails", "array-contains", email)`.
-- A link visitor opens one document by id (`getDoc` / `onSnapshot` on the doc), never a query
-  over all public lists.
+- A link visitor opens one document by id (`getDoc` / `onSnapshot` on the doc). Queries are
+  a separate `list` permission (owner or member only), so a query like
+  `where("visibility", "==", "link")` is rejected: public lists can't be enumerated.
+- A link visitor can read the whole list document, `memberEmails` included. The UI shows
+  member names only to the owner and members, but the emails are not secret from someone who
+  has the link. Turn the link off for lists shared with people who mind.
+- **Copy list** is two steps: create the new list (rules require `itemCount == 0` on create),
+  then items in batches with `itemCount: increment(n)`. One batch can't do both, because item
+  rules read the list with `get()`, which sees the state before the batch.
+- Leaving is the same write as removing a member; `isLeaving()` accepts it from a non-owner
+  only if the one email removed is their own.
 - `get()` inside sub-collection rules costs one extra read per request; that's fine at this
   scale. In a batch, `get()` sees the state before the batch, so a list and its items can be
   deleted together.
 - Items of a missing list are unreadable (`canRead` of a missing document is false), so the
   list page asks for items only after the list itself arrived.
-- The rules are exercised against the local emulator (see FIREBASE_SETUP.md): valid and
-  invalid writes, a stranger's reads and writes, a link visitor, batch delete.
+- The rules are exercised against the local emulator (see FIREBASE_SETUP.md) with verified
+  owner, editor, viewer and stranger accounts, an unverified member and a guest: editor adds and
+  removes titles but can't rename, share or delete; viewer and stranger can't write; the
+  unverified member is a stranger; a guest reads by link only; members leave only themselves;
+  invalid sharing (mismatched roles, unknown role, own email, 21 members) is rejected.
 
 ## Composite indexes
 

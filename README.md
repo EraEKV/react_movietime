@@ -44,8 +44,11 @@ Legend: ✅ implemented, 🚧 in progress.
 - ✅ **Lists**: named collections of movies and series with an emoji cover and a poster
   collage; create, rename, delete with confirm; add titles from a search picker, from a title
   page or a catalog card; per-title notes; remove with undo. Stored in Firestore, live.
-- 🚧 **Sharing**: share a list or a plan by link (read-only) or add friends by email as
-  **editor** or **viewer**. Access is enforced by Firestore security rules.
+- ✅ **Sharing**: share a list by link (read-only, works for guests) or add friends by email
+  as **editor** or **viewer**; change roles, remove access with undo, leave a list, copy a
+  shared list to your own. "Shared with me" on the Lists and Home pages. Access is enforced by
+  Firestore security rules (member access needs a verified email). Plans reuse the same
+  service and rules in the planner phase.
 - 🚧 **Watch Planner**: generate a schedule of viewing sessions from a series' episodes or a
   list of movies, then complete, reschedule or skip sessions. Your library progress updates
   automatically. Export to `.ics`.
