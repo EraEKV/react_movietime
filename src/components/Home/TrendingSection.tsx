@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
 import { endpoints, imageUrl } from '../../api/tmdb'
 import type { FetchState } from '../../hooks/useFetch'
@@ -19,6 +20,7 @@ interface TrendingSectionProps {
 }
 
 export default function TrendingSection({ series }: TrendingSectionProps) {
+  const { t } = useTranslation(['home', 'common'])
   const [tab, setTab] = useState<Tab>('series')
   // null path = no request: movies are fetched only once someone opens that tab.
   const movies = useFetch<Paginated<MovieListItem>>(
@@ -34,15 +36,15 @@ export default function TrendingSection({ series }: TrendingSectionProps) {
 
   return (
     <Section
-      title="Trending this week"
+      title={t('trending.title')}
       aside={
         <SegmentedControl
-          label="Type"
+          label={t('trending.type')}
           value={tab}
           onChange={setTab}
           options={[
-            { value: 'series', label: 'Series' },
-            { value: 'movies', label: 'Movies' },
+            { value: 'series', label: t('common:nav.series') },
+            { value: 'movies', label: t('common:nav.movies') },
           ]}
         />
       }
@@ -51,13 +53,13 @@ export default function TrendingSection({ series }: TrendingSectionProps) {
       {state.status === 'error' && (
         <ErrorState
           headingLevel="h3"
-          title="We couldn’t load trending titles"
+          title={t('trending.error')}
           body={state.error.message}
           onRetry={state.reload}
         />
       )}
       {state.status === 'success' && (
-        <PosterRow label={`Trending ${tab}`}>
+        <PosterRow label={t(tab === 'movies' ? 'trending.rowMovies' : 'trending.rowSeries')}>
           {items.map((item) => (
             <li key={mediaKey(item.mediaType, item.id)}>
               <PosterCard
@@ -65,7 +67,7 @@ export default function TrendingSection({ series }: TrendingSectionProps) {
                 href={mediaHref(item.mediaType, item.id)}
                 posterUrl={imageUrl(item.posterPath, 'w342')}
                 year={getYear(item.date)}
-                meta={item.mediaType === 'movie' ? 'Movie' : 'Series'}
+                meta={t(item.mediaType === 'movie' ? 'media.movie' : 'media.series')}
                 rating={item.rating}
                 placeholderIcon={item.mediaType === 'movie' ? 'film' : 'tv'}
               />

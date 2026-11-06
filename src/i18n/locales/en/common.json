@@ -206,5 +206,18 @@
     "atMost_other": "Use at most {{count}} characters.",
     "met": " — met",
     "notMet": " — not met"
+  },
+  "notFound": {
+    "title": "This reel is missing",
+    "text": "The page you’re looking for was moved, deleted, or never existed. Check the link, or head back to something you know.",
+    "home": "Go home",
+    "library": "Go to library",
+    "pageTitle": "{{title}} · Movietime"
+  },
+  "offline": {
+    "pageTitle": "Offline · Movietime",
+    "title": "The projector’s off for a moment",
+    "text": "You’re offline. Your library and planned sessions saved on this device still work — anything you change will sync when you reconnect.",
+    "retry": "Retry"
   }
 }

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
 import { Link } from 'react-router'
 import { imageUrl } from '../../api/tmdb'
@@ -29,6 +30,7 @@ const SHOWN = 2
 
 /** Lazy part of "Up next": the planner hooks load only for signed-in users on Home. */
 export default function UpNextList() {
+  const { t } = useTranslation('home')
   const upcoming = useUpcoming()
   const [error, setError] = useState<string | null>(null)
 
@@ -36,8 +38,8 @@ export default function UpNextList() {
     return (
       <Card>
         <ErrorState
-          title="We couldn’t load your plans"
-          body="Check your connection and try again."
+          title={t('upNext.error')}
+          body={t('upNext.errorBody')}
           onRetry={() => {
             upcoming.plans.retry()
             upcoming.retry()
@@ -64,11 +66,11 @@ export default function UpNextList() {
         <EmptyState
           icon="calendar"
           headingLevel="h3"
-          title="Nothing planned tonight"
-          body="Plan a series or a movie night, and your next sessions will show up here."
+          title={t('upNext.emptyTitle')}
+          body={t('upNext.emptyBody')}
           actions={
             <ButtonLink to="/planner/new" variant="primary" icon="plus">
-              Create a plan
+              {t('upNext.create')}
             </ButtonLink>
           }
         />
@@ -109,13 +111,14 @@ function UpNextCard({
   primary: boolean
   onError: (message: string | null) => void
 }) {
+  const { t } = useTranslation('home')
   const { user } = useAuth()
   const actions = usePlanActions()
   const [busy, setBusy] = useState(false)
   const role = roleOf(plan, user)
   const poster = imageUrl(sessionPoster(plan, session.units), 'w154')
   const day = relativeDay(session.date, today)
-  const when = `${day === 'Today' ? 'Tonight' : day} · ${session.time}`
+  const when = `${session.date === today ? t('upNext.tonight') : day} · ${session.time}`
   const finish = plan.endDate ? formatDay(plan.endDate, { month: 'short', day: 'numeric' }) : '—'
 
   async function mark() {
@@ -154,13 +157,17 @@ function UpNextCard({
         </h3>
         <ProgressBar
           value={planProgress(plan)}
-          label={`${plan.title} progress`}
-          caption={`${plan.doneUnits} of ${unitWord(plan, plan.totalUnits)} · ends ${finish}`}
+          label={t('upNext.progress', { title: plan.title })}
+          caption={t('upNext.caption', {
+            done: plan.doneUnits,
+            total: unitWord(plan, plan.totalUnits),
+            finish,
+          })}
         />
       </div>
       {session.status === 'done' ? (
         <Badge icon="check" tone="success">
-          Watched
+          {t('upNext.watched')}
         </Badge>
       ) : (
         role &&
@@ -172,7 +179,7 @@ function UpNextCard({
             onClick={() => void mark()}
             className={styles.upNextAction}
           >
-            Mark watched
+            {t('upNext.mark')}
           </Button>
         )
       )}
@@ -181,8 +188,9 @@ function UpNextCard({
 }
 
 function UpNextSkeleton() {
+  const { t } = useTranslation('home')
   return (
-    <div className={styles.upNext} aria-busy="true" aria-label="Loading your next sessions">
+    <div className={styles.upNext} aria-busy="true" aria-label={t('upNext.loading')}>
       <Skeleton height={120} radius="md" />
       <Skeleton height={120} radius="md" />
     </div>

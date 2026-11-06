@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { lazy, Suspense } from 'react'
 import { endpoints } from '../api/tmdb'
 import ContinueWatching from '../components/Home/ContinueWatching'
@@ -20,6 +21,7 @@ const SharedWithYou = lazy(() => import('../components/Home/SharedWithYou'))
  * never blanks the whole page.
  */
 export default function HomePage() {
+  const { t } = useTranslation('home')
   const { user, status } = useAuth()
   // Fetched here, not in TrendingSection: the guest hero needs the same posters,
   // and lifting the request up means one network call for both.
@@ -30,13 +32,13 @@ export default function HomePage() {
 
   return (
     <div className={styles.page}>
-      <title>Movietime · plan what you watch together</title>
+      <title>{t('pageTitle')}</title>
       {guest ? (
         <HomeHero series={trendingSeries.data?.results ?? null} />
       ) : (
         <>
           {/* The page needs an h1; for users it is visually replaced by the section titles. */}
-          <h1 className="sr-only">Home</h1>
+          <h1 className="sr-only">{t('heading')}</h1>
           {user && <UpNextSection />}
           {user && <ContinueWatching />}
         </>

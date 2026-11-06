@@ -1,6 +1,7 @@
 import 'i18next'
 import type auth from './locales/en/auth.json'
 import type common from './locales/en/common.json'
+import type home from './locales/en/home.json'
 
 // English dictionaries describe the shape: t('nav.home') is type-checked, a typo fails the build.
 declare module 'i18next' {
@@ -9,6 +10,7 @@ declare module 'i18next' {
     resources: {
       common: typeof common
       auth: typeof auth
+      home: typeof home
     }
   }
 }

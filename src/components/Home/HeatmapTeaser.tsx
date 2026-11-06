@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { useEpisodeRatings } from '../../hooks/useEpisodeRatings'
 import ButtonLink from '../ButtonLink/ButtonLink'
 import Card from '../Card/Card'
@@ -13,6 +14,7 @@ const EPISODES_SHOWN = 6
 
 /** Explains the heatmap with a real preview: the first episodes of a few seasons. */
 export default function HeatmapTeaser() {
+  const { t } = useTranslation('home')
   const ratings = useEpisodeRatings(FEATURED.id, SEASONS)
   const href = `/series/${FEATURED.id}`
 
@@ -25,17 +27,14 @@ export default function HeatmapTeaser() {
     <section className={styles.teaserSection} aria-labelledby="heatmap-teaser-title">
       <Card className={styles.teaser}>
         <div className={styles.teaserText}>
-          <p className={styles.kicker}>Episode heatmap</p>
+          <p className={styles.kicker}>{t('teaser.kicker')}</p>
           <h2 id="heatmap-teaser-title" className={styles.teaserTitle}>
-            Know which episodes are worth it
+            {t('teaser.title')}
           </h2>
-          <p className={styles.muted}>
-            Every season at a glance — find the slump in season 3, the finale everyone talks about,
-            and where to start a rewatch.
-          </p>
+          <p className={styles.muted}>{t('teaser.text')}</p>
           <div>
             <ButtonLink to={href} icon="heat">
-              See {FEATURED.name}
+              {t('teaser.see', { name: FEATURED.name })}
             </ButtonLink>
           </div>
         </div>

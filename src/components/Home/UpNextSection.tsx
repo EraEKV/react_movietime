@@ -1,3 +1,5 @@
+import { currentLocale } from '../../i18n'
+import { useTranslation } from 'react-i18next'
 import { lazy, Suspense } from 'react'
 import Section from '../Section/Section'
 import SectionLink from '../SectionHeader/SectionLink'
@@ -9,21 +11,24 @@ import styles from './Home.module.css'
 const UpNextList = lazy(() => import('./UpNextList'))
 
 const todayLabel = () =>
-  new Intl.DateTimeFormat('en-US', { weekday: 'long', month: 'long', day: 'numeric' }).format(
-    new Date(),
-  )
+  new Intl.DateTimeFormat(currentLocale(), {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+  }).format(new Date())
 
 /** Today's and tomorrow's sessions with "Mark watched", or the way to make a first plan. */
 export default function UpNextSection() {
+  const { t } = useTranslation('home')
   return (
     <Section
-      title="Up next"
+      title={t('upNext.title')}
       kicker={todayLabel()}
-      aside={<SectionLink to="/planner">Open planner</SectionLink>}
+      aside={<SectionLink to="/planner">{t('upNext.open')}</SectionLink>}
     >
       <Suspense
         fallback={
-          <div className={styles.upNext} aria-busy="true" aria-label="Loading your next sessions">
+          <div className={styles.upNext} aria-busy="true" aria-label={t('upNext.loading')}>
             <Skeleton height={120} radius="md" />
             <Skeleton height={120} radius="md" />
           </div>

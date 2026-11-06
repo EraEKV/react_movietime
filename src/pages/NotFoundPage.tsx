@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import ButtonLink from '../components/ButtonLink/ButtonLink'
 import type { IconName } from '../components/Icon/icons'
 import styles from './SystemPage.module.css'
@@ -9,27 +10,26 @@ interface NotFoundPageProps {
   secondary?: { to: string; label: string; icon: IconName }
 }
 
-export default function NotFoundPage({
-  title = 'This reel is missing',
-  text = 'The page you’re looking for was moved, deleted, or never existed. Check the link, or head back to something you know.',
-  secondary = { to: '/library', label: 'Go to library', icon: 'bookmark' },
-}: NotFoundPageProps) {
+export default function NotFoundPage({ title: customTitle, text, secondary }: NotFoundPageProps) {
+  const { t } = useTranslation()
+  const title = customTitle ?? t('notFound.title')
+  const link = secondary ?? { to: '/library', label: t('notFound.library'), icon: 'bookmark' }
   return (
     <section className={styles.page} aria-labelledby="not-found-title">
-      <title>{`${title} · Movietime`}</title>
+      <title>{t('notFound.pageTitle', { title })}</title>
       <p className={styles.code} aria-hidden="true">
         404
       </p>
       <h1 id="not-found-title" className={styles.title}>
         {title}
       </h1>
-      <p className={styles.text}>{text}</p>
+      <p className={styles.text}>{text ?? t('notFound.text')}</p>
       <div className={styles.actions}>
         <ButtonLink to="/" variant="primary" icon="home">
-          Go home
+          {t('notFound.home')}
         </ButtonLink>
-        <ButtonLink to={secondary.to} icon={secondary.icon}>
-          {secondary.label}
+        <ButtonLink to={link.to} icon={link.icon}>
+          {link.label}
         </ButtonLink>
       </div>
     </section>

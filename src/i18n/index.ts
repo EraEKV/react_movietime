@@ -31,14 +31,18 @@ i18n.on('languageChanged', (language) => {
   document.documentElement.lang = language
 })
 
-/** Called once before the first render (main.tsx), so the app never shows raw keys. */
-export function initI18n(language: Language) {
+/**
+ * Called once before the first render (main.tsx), so the app never shows raw keys.
+ * `preload` adds the namespace of the page being opened (Home: 'home'), so it arrives in
+ * parallel with `common` instead of after the first render suspends on it.
+ */
+export function initI18n(language: Language, preload: string[] = []) {
   return i18n
     .use(lazyBackend)
     .use(initReactI18next)
     .init({
       lng: language,
-      ns: ['common'],
+      ns: ['common', ...preload],
       defaultNS: 'common',
       // No fallback language: it would download English as well on every first load.
       // `npm run check:locales` makes sure every dictionary has every key instead.

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import Button from '../components/Button/Button'
 import ButtonLink from '../components/ButtonLink/ButtonLink'
 import Icon from '../components/Icon/Icon'
@@ -8,9 +9,10 @@ import styles from './SystemPage.module.css'
  * worker serve this route as the navigation fallback; until then it is reachable directly.
  */
 export default function OfflinePage() {
+  const { t } = useTranslation()
   return (
     <section className={styles.page} aria-labelledby="offline-title">
-      <title>Offline · Movietime</title>
+      <title>{t('offline.pageTitle')}</title>
       <div className={styles.posters} aria-hidden="true">
         <span className={styles.poster} />
         <span className={styles.poster}>
@@ -19,19 +21,16 @@ export default function OfflinePage() {
         <span className={styles.poster} />
       </div>
       <h1 id="offline-title" className={styles.title}>
-        The projector’s off for a moment
+        {t('offline.title')}
       </h1>
-      <p className={styles.text}>
-        You’re offline. Your library and planned sessions saved on this device still work — anything
-        you change will sync when you reconnect.
-      </p>
+      <p className={styles.text}>{t('offline.text')}</p>
       <div className={styles.actions}>
         {/* A full reload asks the network again, which is what "retry" means here. */}
         <Button variant="primary" icon="refresh" onClick={() => window.location.reload()}>
-          Retry
+          {t('offline.retry')}
         </Button>
         <ButtonLink to="/library" icon="bookmark">
-          Go to library
+          {t('notFound.library')}
         </ButtonLink>
       </div>
     </section>

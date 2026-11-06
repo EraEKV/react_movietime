@@ -20,7 +20,10 @@ const root = document.getElementById('root')
 if (!root) throw new Error('Missing #root element in index.html')
 
 // The first render waits for the `common` dictionary (a few kB) so no raw keys flash.
-await initI18n(store.getState().preferences.language)
+await initI18n(
+  store.getState().preferences.language,
+  window.location.pathname === '/' ? ['home'] : [],
+)
 
 createRoot(root).render(
   <StrictMode>

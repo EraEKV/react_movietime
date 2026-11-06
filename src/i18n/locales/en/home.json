@@ -1,0 +1,66 @@
+{
+  "pageTitle": "Movietime · plan what you watch together",
+  "heading": "Home",
+  "hero": {
+    "kicker": "Your evening programme",
+    "title": "Stop asking “what do we watch tonight?”",
+    "text": "Find a series, see which episodes are worth it, and turn it into a watch schedule you share with friends.",
+    "explore": "Explore titles",
+    "plan": "Start planning",
+    "tonight": "Tonight 21:00"
+  },
+  "teaser": {
+    "kicker": "Episode heatmap",
+    "title": "Know which episodes are worth it",
+    "text": "Every season at a glance — find the slump in season 3, the finale everyone talks about, and where to start a rewatch.",
+    "see": "See {{name}}"
+  },
+  "continue": {
+    "title": "Continue watching",
+    "library": "Library"
+  },
+  "media": {
+    "movie": "Movie",
+    "series": "Series"
+  },
+  "trending": {
+    "title": "Trending this week",
+    "type": "Type",
+    "error": "We couldn’t load trending titles",
+    "rowSeries": "Trending series",
+    "rowMovies": "Trending movies"
+  },
+  "shared": {
+    "title": "Shared with you",
+    "all": "All lists"
+  },
+  "upNext": {
+    "title": "Up next",
+    "open": "Open planner",
+    "loading": "Loading your next sessions",
+    "error": "We couldn’t load your plans",
+    "errorBody": "Check your connection and try again.",
+    "emptyTitle": "Nothing planned tonight",
+    "emptyBody": "Plan a series or a movie night, and your next sessions will show up here.",
+    "create": "Create a plan",
+    "tonight": "Tonight",
+    "progress": "{{title}} progress",
+    "caption": "{{done}} of {{total}} · ends {{finish}}",
+    "watched": "Watched",
+    "mark": "Mark watched"
+  },
+  "about": {
+    "pageTitle": "About · Movietime",
+    "kicker": "About Movietime",
+    "title": "A personal cinema schedule for you and your friends",
+    "lead": "Movietime helps you discover movies and series, keep a library of what you watch, and plan viewing nights that actually happen. Discover → save → plan → watch → track.",
+    "features": "Features",
+    "heatmapTitle": "Episode heatmap",
+    "heatmapText": "Every episode of a series, coloured by rating. Spot the strong seasons and the slumps before you commit.",
+    "plannerTitle": "Watch planner",
+    "plannerText": "Pick a series or a list, choose your evenings, and get a schedule with a finish date.",
+    "sharingTitle": "Sharing",
+    "sharingText": "Share lists and plans by link, or invite friends as editors or viewers. Everyone marks progress together.",
+    "credit": "Movie and series data and images are provided by <tmdb>TMDB</tmdb>. Movietime uses the TMDB API but is not endorsed or certified by TMDB."
+  }
+}

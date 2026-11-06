@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { imageUrl } from '../../api/tmdb'
 import { useLibrary } from '../../hooks/useLibrary'
 import { episodeCode } from '../../utils/format'
@@ -10,13 +11,17 @@ import SectionLink from '../SectionHeader/SectionLink'
 
 /** Titles marked "Watching" in the library. Nothing to continue → the section is skipped. */
 export default function ContinueWatching() {
+  const { t } = useTranslation('home')
   const { entries } = useLibrary()
   const watching = entries.filter((e) => e.status === 'watching')
   if (watching.length === 0) return null
 
   return (
-    <Section title="Continue watching" aside={<SectionLink to="/library">Library</SectionLink>}>
-      <PosterRow label="Continue watching">
+    <Section
+      title={t('continue.title')}
+      aside={<SectionLink to="/library">{t('continue.library')}</SectionLink>}
+    >
+      <PosterRow label={t('continue.title')}>
         {watching.map((entry) => {
           const progress = progressRatio(entry)
           return (
@@ -35,8 +40,8 @@ export default function ContinueWatching() {
                         .filter(Boolean)
                         .join(' · ')
                     : entry.mediaType === 'movie'
-                      ? 'Movie'
-                      : 'Series'
+                      ? t('media.movie')
+                      : t('media.series')
                 }
                 rating={entry.tmdbRating}
                 progress={progress ?? undefined}
