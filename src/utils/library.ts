@@ -1,7 +1,7 @@
 // Pure helpers for library entries: options, labels, building and changing entries.
 import type { Option } from '../types/common'
 import type { LibraryChanges, LibraryEntry, LibraryMedia, LibraryStatus } from '../types/library'
-import type { MovieDetails, SeriesDetails } from '../types/tmdb'
+import type { MovieBase, SeriesBase } from '../types/tmdb'
 import { getYear } from './format'
 import { mediaKey } from './media'
 import type { MediaType } from '../types/media'
@@ -36,7 +36,7 @@ export const SCORE_WORDS = [
 export const NOTES_MAX = 500
 
 /** Snapshot of a movie for the library, taken from the details response. */
-export function movieToLibraryMedia(movie: MovieDetails): LibraryMedia {
+export function movieToLibraryMedia(movie: MovieBase): LibraryMedia {
   return {
     mediaType: 'movie',
     tmdbId: movie.id,
@@ -50,7 +50,7 @@ export function movieToLibraryMedia(movie: MovieDetails): LibraryMedia {
   }
 }
 
-export function seriesToLibraryMedia(series: SeriesDetails): LibraryMedia {
+export function seriesToLibraryMedia(series: SeriesBase): LibraryMedia {
   return {
     mediaType: 'tv',
     tmdbId: series.id,

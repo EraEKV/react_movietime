@@ -83,8 +83,8 @@ export interface SeriesSummary {
   vote_average: number
 }
 
-/** /tv/{id}?append_to_response=credits,videos,recommendations */
-export interface SeriesDetails extends SeriesSummary {
+/** /tv/{id}: the series with its seasons, without appended responses. */
+export interface SeriesBase extends SeriesSummary {
   original_name: string
   tagline: string
   overview: string
@@ -101,13 +101,17 @@ export interface SeriesDetails extends SeriesSummary {
   created_by: NamedEntity[]
   networks: NamedEntity[]
   seasons: SeasonSummary[]
+}
+
+/** /tv/{id}?append_to_response=credits,videos,recommendations */
+export interface SeriesDetails extends SeriesBase {
   credits: { cast: CastMember[] }
   videos: { results: Video[] }
   recommendations: Paginated<SeriesListItem>
 }
 
-/** /movie/{id}?append_to_response=credits,videos,recommendations */
-export interface MovieDetails {
+/** /movie/{id} without appended responses. */
+export interface MovieBase {
   id: number
   title: string
   original_title: string
@@ -127,6 +131,10 @@ export interface MovieDetails {
   original_language: string
   genres: Genre[]
   production_countries: { iso_3166_1: string; name: string }[]
+}
+
+/** /movie/{id}?append_to_response=credits,videos,recommendations */
+export interface MovieDetails extends MovieBase {
   credits: { cast: CastMember[]; crew: CrewMember[] }
   videos: { results: Video[] }
   recommendations: Paginated<MovieListItem>
