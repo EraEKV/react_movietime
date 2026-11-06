@@ -1,0 +1,87 @@
+import type { User } from 'firebase/auth'
+import {
+  doc,
+  getDoc,
+  onSnapshot,
+  serverTimestamp,
+  setDoc,
+  Timestamp,
+  updateDoc,
+  type DocumentData,
+} from 'firebase/firestore'
+import type { UserProfile } from '../types/auth'
+import type { Preferences } from '../types/preferences'
+import { db } from './firebase'
+
+const profileRef = (uid: string) => doc(db, 'users', uid)
+
+function toIso(value: unknown): string | null {
+  return value instanceof Timestamp ? value.toDate().toISOString() : null
+}
+
+/** Firestore data → app type; Timestamps become ISO strings so the result is serializable. */
+function toProfile(data: DocumentData): UserProfile {
+  return {
+    displayName: String(data.displayName ?? ''),
+    email: String(data.email ?? ''),
+    photoURL: typeof data.photoURL === 'string' ? data.photoURL : null,
+    providers: Array.isArray(data.providers) ? data.providers.map(String) : [],
+    settings: data.settings,
+    createdAt: toIso(data.createdAt),
+    updatedAt: toIso(data.updatedAt),
+  }
+}
+
+function fallbackName(user: User): string {
+  return user.displayName?.trim() || user.email?.split('@')[0] || 'Movie fan'
+}
+
+/**
+ * Creates `users/{uid}` on the first sign-in; on later sign-ins refreshes the fields that come
+ * from the auth provider (a Google photo can change). Name and settings stay the user's own.
+ */
+export async function ensureProfile(user: User, settings: Preferences): Promise<void> {
+  const ref = profileRef(user.uid)
+  const fromAuth = {
+    email: (user.email ?? '').toLowerCase(),
+    photoURL: user.photoURL,
+    providers: user.providerData.map((p) => p.providerId),
+    updatedAt: serverTimestamp(),
+  }
+
+  const snapshot = await getDoc(ref)
+  if (snapshot.exists()) {
+    await updateDoc(ref, fromAuth)
+    return
+  }
+  await setDoc(ref, {
+    ...fromAuth,
+    displayName: fallbackName(user),
+    settings,
+    createdAt: serverTimestamp(),
+  })
+}
+
+/** Live profile. Returns the unsubscribe function: call it in an effect cleanup. */
+export function watchProfile(
+  uid: string,
+  onData: (profile: UserProfile | null) => void,
+  onError: (error: unknown) => void,
+): () => void {
+  return onSnapshot(
+    profileRef(uid),
+    (snapshot) => {
+      // 'estimate' fills a just-written serverTimestamp() with local time instead of null.
+      const data = snapshot.data({ serverTimestamps: 'estimate' })
+      onData(data ? toProfile(data) : null)
+    },
+    onError,
+  )
+}
+
+export async function updateUserProfile(
+  uid: string,
+  changes: Partial<Pick<UserProfile, 'displayName' | 'settings'>>,
+): Promise<void> {
+  await updateDoc(profileRef(uid), { ...changes, updatedAt: serverTimestamp() })
+}
