@@ -27,6 +27,8 @@ export default function LibraryItem({ entry, onStatusChange, onRemove }: Library
   const poster = imageUrl(entry.posterPath, 'w185')
   const progress = progressRatio(entry)
   const editHref = `/library/${entry.key}/edit`
+  // Series only: a movie is one night, a plan is for watching episodes over time.
+  const planHref = entry.mediaType === 'tv' ? `/planner/new?series=${entry.tmdbId}` : null
 
   return (
     <article className={cx(styles.item, entry.status === 'dropped' && styles.dropped)}>
@@ -98,6 +100,16 @@ export default function LibraryItem({ entry, onStatusChange, onRemove }: Library
         >
           <Icon name="edit" size={20} />
         </Link>
+        {planHref && (
+          <Link
+            to={planHref}
+            className={buttonClass('ghost', 'md', { iconOnly: true })}
+            aria-label={`Plan watching ${entry.title}`}
+            title={`Plan watching ${entry.title}`}
+          >
+            <Icon name="calendar" size={20} />
+          </Link>
+        )}
         <IconButton icon="trash" label={`Remove ${entry.title}`} onClick={() => onRemove(entry)} />
       </div>
 
@@ -117,6 +129,9 @@ export default function LibraryItem({ entry, onStatusChange, onRemove }: Library
             })),
             { kind: 'divider' },
             { label: 'Edit', icon: 'edit', to: editHref },
+            ...(planHref
+              ? [{ label: 'Plan watching', icon: 'calendar' as const, to: planHref }]
+              : []),
             { label: 'Remove', icon: 'trash', danger: true, onSelect: () => onRemove(entry) },
           ]}
         />
