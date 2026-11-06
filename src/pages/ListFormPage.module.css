@@ -1,0 +1,23 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  width: 100%;
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+.back {
+  align-self: flex-start;
+  margin-left: calc(-1 * var(--space-3));
+}
+
+.title {
+  composes: displayL from '../styles/typography.module.css';
+}
+
+.skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}

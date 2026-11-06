@@ -15,5 +15,9 @@ export interface MediaSummary {
   genreIds: number[]
 }
 
-/** "movie:603", "tv:1396" — unique across both types (TMDB ids alone can collide). */
-export type MediaKey = `${MediaType}:${number}`
+/**
+ * "movie_603", "tv_1396" — unique across both types (TMDB ids alone can collide).
+ * Used as the Firestore document id of library entries and list items, so a title
+ * can't be added twice.
+ */
+export type MediaKey = `${MediaType}_${number}`

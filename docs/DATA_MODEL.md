@@ -132,18 +132,19 @@ Append-only, shown on the profile page.
 
 Top-level, not under `users/`, because lists are shared between users.
 
-| Field                    | Type                               | Notes                                                 |
-| ------------------------ | ---------------------------------- | ----------------------------------------------------- |
-| `ownerUid`               | string                             |                                                       |
-| `ownerName`              | string                             | Shown to people the list is shared with               |
-| `name`                   | string                             | 1–60 chars                                            |
-| `description`            | string                             | ≤ 300 chars                                           |
-| `emoji`                  | string                             | Cover, for example "🍿"                               |
-| `visibility`             | `"private" \| "link"`              | `link` = anyone with the URL can read                 |
-| `roles`                  | map `email → "editor" \| "viewer"` | Members (the owner isn't listed here)                 |
-| `memberEmails`           | string[]                           | Keys of `roles`, for `array-contains` queries         |
-| `itemCount`              | number                             | Updated with `increment()` in the same batch as items |
-| `createdAt`, `updatedAt` | Timestamp                          |                                                       |
+| Field                    | Type                               | Notes                                                  |
+| ------------------------ | ---------------------------------- | ------------------------------------------------------ |
+| `ownerUid`               | string                             |                                                        |
+| `ownerName`              | string                             | Shown to people the list is shared with                |
+| `name`                   | string                             | 1–60 chars                                             |
+| `description`            | string                             | ≤ 300 chars                                            |
+| `emoji`                  | string                             | Cover, for example "🍿"                                |
+| `visibility`             | `"private" \| "link"`              | `link` = anyone with the URL can read                  |
+| `roles`                  | map `email → "editor" \| "viewer"` | Members (the owner isn't listed here)                  |
+| `memberEmails`           | string[]                           | Keys of `roles`, for `array-contains` queries          |
+| `itemCount`              | number                             | Updated with `increment()` in the same batch as items  |
+| `covers`                 | string[] (≤ 4)                     | Poster paths of the newest items, for the card collage |
+| `createdAt`, `updatedAt` | Timestamp                          |                                                        |
 
 ### `lists/{listId}/items/{mediaKey}`: list item
 
@@ -221,6 +222,8 @@ The owner's access comes from `ownerUid`. Members are stored on the shared docum
 - Access by email requires `email_verified == true`. Otherwise anyone could register an
   email/password account with someone else's address and get their shared access. Google
   accounts are always verified; email/password users verify through the link sent at signup.
+- The owner may change any field (validated by `validList()`); an editor only `itemCount`,
+  `covers` and `updatedAt` (adding or removing items).
 - Link visibility (`visibility == "link"`) allows **read** for anyone, including guests.
   It never allows writes.
 
@@ -272,7 +275,10 @@ service cloud.firestore {
       allow read, write: if signedIn() && uid() == userId;
 
       match /library/{mediaKey} {
-        allow read, write: if signedIn() && uid() == userId;
+        allow read, delete: if signedIn() && uid() == userId;
+        // validLibraryEntry: only known fields, status/score/notes in range, and the
+        // document id equals mediaType + "_" + tmdbId (see firestore.rules).
+        allow create, update: if signedIn() && uid() == userId && validLibraryEntry(mediaKey);
       }
       match /activity/{activityId} {
         allow read, create: if signedIn() && uid() == userId;
@@ -282,20 +288,24 @@ service cloud.firestore {
     // ---------- lists ----------
     match /lists/{listId} {
       allow read: if canRead(resource.data);
-      allow create: if isOwner(request.resource.data)
-        && request.resource.data.name is string
-        && request.resource.data.name.size() >= 1
-        && request.resource.data.name.size() <= 60;
+      // validList: known fields only, name 1–60, description ≤ 300, itemCount ≥ 0, ≤ 4 covers.
+      allow create: if isOwner(request.resource.data) && validList()
+        && request.resource.data.itemCount == 0;
       allow update: if (isOwner(resource.data)
-                        && request.resource.data.ownerUid == resource.data.ownerUid)
-                    || (isEditor(resource.data) && onlyChanges(['itemCount', 'updatedAt']))
+                        && request.resource.data.ownerUid == resource.data.ownerUid
+                        && validList())
+                    || (isEditor(resource.data)
+                        && onlyChanges(['itemCount', 'covers', 'updatedAt']))
                     || isLeaving();
       allow delete: if isOwner(resource.data);
 
       match /items/{mediaKey} {
         function list() { return get(/databases/$(database)/documents/lists/$(listId)).data; }
+        function canEdit() { return isOwner(list()) || isEditor(list()); }
         allow read: if canRead(list());
-        allow write: if isOwner(list()) || isEditor(list());
+        // validListItem: known fields only, note ≤ 200, id == mediaType + "_" + tmdbId.
+        allow create, update: if canEdit() && validListItem(mediaKey);
+        allow delete: if canEdit();
       }
     }
 
@@ -328,7 +338,12 @@ Notes:
 - A link visitor opens one document by id (`getDoc` / `onSnapshot` on the doc), never a query
   over all public lists.
 - `get()` inside sub-collection rules costs one extra read per request; that's fine at this
-  scale.
+  scale. In a batch, `get()` sees the state before the batch, so a list and its items can be
+  deleted together.
+- Items of a missing list are unreadable (`canRead` of a missing document is false), so the
+  list page asks for items only after the list itself arrived.
+- The rules are exercised against the local emulator (see FIREBASE_SETUP.md): valid and
+  invalid writes, a stranger's reads and writes, a link visitor, batch delete.
 
 ## Composite indexes
 

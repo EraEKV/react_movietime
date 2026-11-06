@@ -34,13 +34,16 @@ Legend: ✅ implemented, 🚧 in progress.
 
 ### Personal data
 
-- ✅ **Watchlist** (midterm): add, edit, remove with undo, search, tabs, sort, pagination,
-  saved in `localStorage` and synced across tabs.
 - ✅ **Authentication**: email/password with validation and email verification, Google
   sign-in, persistent session, protected routes.
-- 🚧 **Library**: your status, score, notes and episode progress for each title. Guests keep it
-  locally, signed-in users in Firestore. The guest library is merged into your account on sign-in.
-- 🚧 **Lists**: named collections of titles with full CRUD.
+- ✅ **Library** (the midterm watchlist, now for movies and series): status, score 1–10, notes
+  and episode progress for each title; status tabs with counts, search, type, genre and sort in
+  the URL, rows or poster grid, undo for changes and removals. Guests keep it in `localStorage`
+  (synced across tabs), signed-in users in Firestore in real time. On sign-in the guest library
+  is merged into the account, and the midterm watchlist is moved into it once.
+- ✅ **Lists**: named collections of movies and series with an emoji cover and a poster
+  collage; create, rename, delete with confirm; add titles from a search picker, from a title
+  page or a catalog card; per-title notes; remove with undo. Stored in Firestore, live.
 - 🚧 **Sharing**: share a list or a plan by link (read-only) or add friends by email as
   **editor** or **viewer**. Access is enforced by Firestore security rules.
 - 🚧 **Watch Planner**: generate a schedule of viewing sessions from a series' episodes or a
@@ -68,7 +71,7 @@ Legend: ✅ implemented, 🚧 in progress.
 ## Tech stack
 
 - **React 19** + **TypeScript** (strict) + **Vite**, **React Router** (declarative mode)
-- **Redux Toolkit**: global state; `preferences` with listener middleware ✅, `auth` ✅, `library` 🚧
+- **Redux Toolkit**: global state; `preferences` with listener middleware ✅, `auth` ✅, `library` ✅
 - **Firebase**: Authentication (email/password, Google), Cloud Firestore
 - **TMDB API** for movies and series
 - **CSS Modules** on design tokens (`styles/tokens.css`), dark and light themes via `data-theme`
@@ -177,7 +180,6 @@ src/
 ├── services/     Firebase: auth, profile, library, lists, sharing, planner
 ├── storage/      localStorage modules
 ├── store/        Redux store, slices, typed hooks
-├── context/      React context (midterm watchlist; replaced by the store)
 ├── hooks/        custom hooks
 ├── types/        TypeScript types for TMDB responses and app data
 ├── components/   reusable UI, one folder per component + CSS Module

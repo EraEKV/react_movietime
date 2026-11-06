@@ -17,3 +17,8 @@
 .success {
   color: var(--success);
 }
+
+.strong {
+  color: var(--text);
+  border-color: var(--border-strong);
+}

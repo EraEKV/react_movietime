@@ -1,0 +1,84 @@
+.group {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+@media (min-width: 768px) {
+  .group {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.legend {
+  grid-column: 1 / -1;
+  margin-bottom: var(--space-2);
+  padding: 0;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+}
+
+.card {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  min-height: 56px;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  cursor: pointer;
+  transition:
+    border-color var(--dur-fast),
+    background var(--dur-fast);
+}
+
+.card:hover {
+  background: var(--surface-hover);
+}
+
+/* Visually hidden but still focusable and announced. */
+.card input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.card:has(input:checked) {
+  border-color: var(--accent);
+  background: var(--surface-selected);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+.card:has(input:focus-visible) {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.icon {
+  margin-top: 2px;
+  color: var(--text-muted);
+}
+
+.card:has(input:checked) .icon {
+  color: var(--accent);
+}
+
+.label {
+  display: block;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+}
+
+.description {
+  display: block;
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 20px;
+}

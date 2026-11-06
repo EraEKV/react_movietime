@@ -100,31 +100,38 @@ offline support.
 | `watchActivity(uid, { limit }, callback)` | `unsubscribe`                                              |
 | `logActivity(uid, activity)`              | `Promise<void>` (usually added to a batch instead)         |
 
-### `libraryService.ts` 🚧
+### `libraryService.ts` ✅
 
-| Function                                             | Returns                       | Notes                                      |
-| ---------------------------------------------------- | ----------------------------- | ------------------------------------------ |
-| `watchLibrary(uid, callback)`                        | `unsubscribe`                 | Whole library, ordered by `updatedAt`      |
-| `addToLibrary(uid, media, { status, score, notes })` | `Promise<void>`               | Doc id = media key                         |
-| `updateLibraryEntry(uid, mediaKey, changes)`         | `Promise<void>`               | Sets `completedAt` when status → completed |
-| `removeFromLibrary(uid, mediaKey)`                   | `Promise<void>`               |                                            |
-| `mergeGuestLibrary(uid, entries)`                    | `Promise<{ added, skipped }>` | Batch; existing entries win                |
+| Function                                    | Returns                       | Notes                                                             |
+| ------------------------------------------- | ----------------------------- | ----------------------------------------------------------------- |
+| `watchLibrary(uid, onData, onError)`        | `unsubscribe`                 | `onSnapshot` on the whole library; pending server times estimated |
+| `addEntry(uid, entry)`                      | `Promise<void>`               | Doc id = media key; `addedAt`/`updatedAt` = `serverTimestamp()`   |
+| `updateEntry(uid, key, changes, completed)` | `Promise<void>`               | `completed`: `'set'` / `'clear'` / `'keep'` for `completedAt`     |
+| `restoreEntry(uid, entry)`                  | `Promise<void>`               | "Undo" after a removal, keeps the original dates                  |
+| `removeEntry(uid, key)`                     | `Promise<void>`               |                                                                   |
+| `mergeGuestLibrary(uid, entries)`           | `Promise<{ added, skipped }>` | Batches of 400; entries already in the account win                |
 
-### `listsService.ts` 🚧
+### `listsService.ts` ✅
 
-| Function                                               | Returns                | Notes                                 |
-| ------------------------------------------------------ | ---------------------- | ------------------------------------- |
-| `watchMyLists(uid, callback)`                          | `unsubscribe`          | `ownerUid == uid`                     |
-| `watchSharedLists(email, callback)`                    | `unsubscribe`          | `memberEmails array-contains email`   |
-| `watchList(listId, callback)`                          | `unsubscribe`          | Single doc (owner, member or link)    |
-| `watchListItems(listId, callback)`                     | `unsubscribe`          | Ordered by `position`                 |
-| `createList(user, { name, description, emoji })`       | `Promise<string>` (id) |                                       |
-| `updateList(listId, changes)`                          | `Promise<void>`        | Owner only                            |
-| `deleteList(listId)`                                   | `Promise<void>`        | Deletes items and the list in batches |
-| `addListItem(listId, media, user)`                     | `Promise<void>`        | Batch: item + `itemCount` increment   |
-| `updateListItem(listId, mediaKey, { note, position })` | `Promise<void>`        |                                       |
-| `removeListItem(listId, mediaKey)`                     | `Promise<void>`        | Batch: delete + `itemCount` decrement |
-| `copyList(listId, user)`                               | `Promise<string>`      | New private list owned by `user`      |
+Loaded with `import()` (`loadListsService` in `hooks/useLists.ts`), so the Firestore SDK stays
+out of the main chunk. Timestamps are converted to ISO strings; pending server timestamps are
+read as estimates.
+
+| Function                                           | Returns                | Notes                                                      |
+| -------------------------------------------------- | ---------------------- | ---------------------------------------------------------- |
+| `watchMyLists(uid, onData, onError)`               | `unsubscribe`          | `ownerUid == uid`, `updatedAt` desc (composite index)      |
+| `watchList(listId, onData, onError)`               | `unsubscribe`          | Single doc; `null` when it doesn't exist                   |
+| `watchListItems(listId, onData, onError)`          | `unsubscribe`          | Ordered by `position`                                      |
+| `createList(author, { name, description, emoji })` | `Promise<string>` (id) | Private, empty; resolves when the server accepted it       |
+| `updateList(listId, draft)`                        | `Promise<void>`        | Owner only (rules)                                         |
+| `deleteList(listId)`                               | `Promise<void>`        | Items in batches of 400, the list itself in the last batch |
+| `addItems(listId, media[], author, covers)`        | `Promise<void>`        | One batch: items + `itemCount: increment(n)` + `covers`    |
+| `removeItem(listId, mediaKey, covers)`             | `Promise<void>`        | One batch: delete + `increment(-1)` + `covers`             |
+| `restoreItem(listId, item, covers)`                | `Promise<void>`        | "Undo": same note, position, author and `addedAt`          |
+| `updateItemNote(listId, mediaKey, note)`           | `Promise<void>`        | ≤ 200 characters                                           |
+| `listsContaining(listIds, mediaKey)`               | `Promise<Set<string>>` | One `getDoc` per list, for the "Add to list" checkboxes    |
+
+`watchSharedLists` and `copyList` come with sharing (phase 7).
 
 ### `sharingService.ts` 🚧
 
@@ -168,41 +175,44 @@ Pure helpers in `src/utils/schedule.ts` (unit tested on their own):
 
 | Module                  | Status | Functions                                                                                            |
 | ----------------------- | :----: | ---------------------------------------------------------------------------------------------------- |
-| `watchlistStorage.ts`   |   ✅   | `loadWatchlist()`, `saveWatchlist(entries)` (legacy)                                                 |
-| `libraryStorage.ts`     |   🚧   | `loadGuestLibrary()`, `saveGuestLibrary(entries)`, `clearGuestLibrary()`, `migrateLegacyWatchlist()` |
-| `preferencesStorage.ts` |   🚧   | `loadPreferences()`, `savePreferences({ theme, language })`                                          |
+| `libraryStorage.ts`     |   ✅   | `loadGuestLibrary()`, `saveGuestLibrary(entries)`, `clearGuestLibrary()`, `migrateLegacyWatchlist()` |
+| `preferencesStorage.ts` |   ✅   | `loadPreferences()`, `savePreferences({ theme, language })`                                          |
 
 All of them catch storage errors (private mode, quota) and fall back to defaults.
 
-## Redux store: `src/store/` 🚧
+## Redux store: `src/store/` ✅
 
-| Module                | Exports                                                                                                                                                                    |
-| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `store.ts`            | `store`, `RootState`, `AppDispatch`                                                                                                                                        |
-| `hooks.ts`            | `useAppDispatch`, `useAppSelector` (typed)                                                                                                                                 |
-| `authSlice.ts`        | `authChanged`, `signInWithEmail`, `signInWithGoogle`, `signUp`, `signOut` thunks; `selectUser`, `selectAuthStatus`                                                         |
-| `librarySlice.ts`     | `librarySynced`, `addToLibrary`, `updateLibraryEntry`, `removeFromLibrary` thunks; `selectLibrary`, `selectEntry(mediaKey)`, `selectFilteredLibrary`, `selectLibraryStats` |
-| `preferencesSlice.ts` | `themeChanged`, `languageChanged`; `selectTheme`, `selectLanguage`                                                                                                         |
-| `listeners.ts`        | Listener middleware: auth subscription, library sync, preferences persistence                                                                                              |
+| Module                | Exports                                                                                                                                                                                |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `store.ts`            | `store`, `RootState`, `AppDispatch`, `AppThunk`                                                                                                                                        |
+| `hooks.ts`            | `useAppDispatch`, `useAppSelector` (typed)                                                                                                                                             |
+| `authSlice.ts`        | `authChanged`; `signIn`, `signUp`, `signInWithGoogle`, `signOut` thunks; `selectAuthUser`, `selectAuthStatus`                                                                          |
+| `librarySlice.ts`     | Entities by media key (`createEntityAdapter`); `addToLibrary`, `updateLibraryEntry`, `removeFromLibrary`, `restoreLibraryEntry` thunks; `selectLibraryCounts`, `selectFilteredLibrary` |
+| `preferencesSlice.ts` | `themeChanged`, `languageChanged`; `selectResolvedTheme`                                                                                                                               |
+| `listeners.ts`        | Auth subscription, preferences persistence                                                                                                                                             |
+| `libraryListeners.ts` | Per-user Firestore subscription (cancelled on sign-out), guest merge on sign-in, guest persistence, cross-tab sync                                                                     |
 
 Thunks call the services above; reducers stay pure. The store only holds serializable data.
 
 ## Hooks
 
-| Hook                                                    | Status | Returns                                                                                    |
-| ------------------------------------------------------- | :----: | ------------------------------------------------------------------------------------------ |
-| `useRequest(key, load)`                                 |   ✅   | Generic `{ status, data, error, reload }` for any async loader keyed by a string           |
-| `useFetch(path)`                                        |   ✅   | `{ status, data, error, reload }` for a TMDB path (built on `useRequest`)                  |
-| `useCatalog({ mediaType, filters, query, page, size })` |   ✅   | One app page of a catalog (1–3 TMDB pages), normalized to `MediaSummary`                   |
-| `useDebouncedValue(value, ms)`                          |   ✅   | Debounced value                                                                            |
-| `useEpisodeRatings(id, seasons)`                        |   ✅   | Episode ratings for the heatmap                                                            |
-| `useCatalogFilters(mediaType)`                          |   ✅   | Filters, sort, page, size from the URL, plus setters                                       |
-| `useGenres(mediaType)`                                  |   ✅   | Genre list and id → name map                                                               |
-| `useAuth()`                                             |   🚧   | `{ user, status, error }` from the store + sign-in/out actions                             |
-| `useFirestoreQuery(subscribe, deps)`                    |   🚧   | `{ status, data, error }` for any `watch*` function                                        |
-| `useLibrary()`                                          |   🚧   | Entries + `add`, `update`, `remove`, `getEntry(mediaKey)`; uses guest storage or Firestore |
-| `useLists()` / `useList(id)`                            |   🚧   | Lists, list + items + current role, CRUD actions                                           |
-| `usePlanner()` / `usePlan(id)`                          |   🚧   | Plans, sessions in range, actions                                                          |
-| `useDashboardStats(period)`                             |   🚧   | Memoized statistics and breakdowns                                                         |
-| `useTheme()` / `useLanguage()`                          |   🚧   | Current value + setter                                                                     |
-| `useOnlineStatus()`                                     |   🚧   | `true` / `false` from `online` / `offline` events                                          |
+| Hook                                                    | Status | Returns                                                                                       |
+| ------------------------------------------------------- | :----: | --------------------------------------------------------------------------------------------- |
+| `useRequest(key, load)`                                 |   ✅   | Generic `{ status, data, error, reload }` for any async loader keyed by a string              |
+| `useFetch(path)`                                        |   ✅   | `{ status, data, error, reload }` for a TMDB path (built on `useRequest`)                     |
+| `useCatalog({ mediaType, filters, query, page, size })` |   ✅   | One app page of a catalog (1–3 TMDB pages), normalized to `MediaSummary`                      |
+| `useDebouncedValue(value, ms)`                          |   ✅   | Debounced value                                                                               |
+| `useEpisodeRatings(id, seasons)`                        |   ✅   | Episode ratings for the heatmap                                                               |
+| `useCatalogFilters(mediaType)`                          |   ✅   | Filters, sort, page, size from the URL, plus setters                                          |
+| `useGenres(mediaType)`                                  |   ✅   | Genre list and id → name map                                                                  |
+| `useAuth()`                                             |   🚧   | `{ user, status, error }` from the store + sign-in/out actions                                |
+| `useSubscription(key, subscribe)`                       |   ✅   | `{ status, data, error, retry }` for any realtime `watch*` listener (async subscribe allowed) |
+| `useLibrary()` / `useLibraryEntry(key)`                 |   ✅   | Entries, status, `isGuest` + `add`, `update`, `remove`, `restore`; guest storage or Firestore |
+| `useLibraryFilters()`                                   |   ✅   | Library search, status, type, genre, sort, page, view from the URL                            |
+| `useTimedState(ms, initial?)`                           |   ✅   | A value that clears itself (undo toasts)                                                      |
+| `useMyLists()` / `useList(id)`                          |   ✅   | My lists; one list + items + current role (`missing` for no access)                           |
+| `useTitleSearch(query)`                                 |   ✅   | Debounced movie + series search for the "Add titles" picker                                   |
+| `usePlanner()` / `usePlan(id)`                          |   🚧   | Plans, sessions in range, actions                                                             |
+| `useDashboardStats(period)`                             |   🚧   | Memoized statistics and breakdowns                                                            |
+| `useTheme()` / `useLanguage()`                          |   🚧   | Current value + setter                                                                        |
+| `useOnlineStatus()`                                     |   🚧   | `true` / `false` from `online` / `offline` events                                             |

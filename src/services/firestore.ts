@@ -1,9 +1,10 @@
 import {
+  connectFirestoreEmulator,
   initializeFirestore,
   persistentLocalCache,
   persistentMultipleTabManager,
 } from 'firebase/firestore'
-import { app } from './firebase'
+import { app, useEmulators } from './firebase'
 
 // A separate module from ./firebase on purpose: the Firestore SDK is large, and only
 // lazy-loaded pages and the sign-in profile sync import it, so it gets its own chunk
@@ -14,3 +15,5 @@ import { app } from './firebase'
 export const db = initializeFirestore(app, {
   localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }),
 })
+
+if (useEmulators) connectFirestoreEmulator(db, '127.0.0.1', 8180)

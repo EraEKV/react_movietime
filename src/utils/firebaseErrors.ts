@@ -60,3 +60,8 @@ export function errorField(code: string): 'email' | 'password' | null {
 export function isPopupDismissed(code: string): boolean {
   return code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request'
 }
+
+/** Just the text, for errors that are shown in a toast (Firestore writes, sync failures). */
+export function errorMessage(error: unknown): string {
+  return toAuthError(error).message
+}

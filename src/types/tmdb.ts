@@ -93,6 +93,8 @@ export interface SeriesDetails extends SeriesSummary {
   in_production: boolean
   number_of_seasons: number
   number_of_episodes: number
+  /** Typical episode lengths in minutes; often empty for newer shows. */
+  episode_run_time: number[]
   status: string
   vote_count: number
   genres: Genre[]

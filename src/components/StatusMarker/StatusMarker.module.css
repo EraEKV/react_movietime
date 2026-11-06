@@ -24,3 +24,10 @@
 .dropped svg {
   color: var(--status-dropped);
 }
+
+.onPoster {
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--surface-raised);
+  box-shadow: var(--shadow-1);
+}
