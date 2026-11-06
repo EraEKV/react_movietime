@@ -9,7 +9,7 @@ import type {
   SeriesProgress,
 } from '../../types/library'
 import type { SeasonSummary } from '../../types/tmdb'
-import { episodeCode } from '../../utils/format'
+import { episodeCode } from '../../shared/lib/format'
 import { LIBRARY_STATUSES, NOTES_MAX, watchedUpTo } from '../../utils/library'
 import Button from '../Button/Button'
 import ProgressBar from '../ProgressBar/ProgressBar'

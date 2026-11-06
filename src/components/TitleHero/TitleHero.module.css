@@ -101,7 +101,7 @@
 }
 
 .title {
-  composes: displayL from '../../styles/typography.module.css';
+  composes: displayL from '../../shared/styles/typography.module.css';
   overflow-wrap: anywhere;
 }
 
@@ -144,7 +144,7 @@
 }
 
 .overview {
-  composes: bodyL from '../../styles/typography.module.css';
+  composes: bodyL from '../../shared/styles/typography.module.css';
   max-width: 70ch;
 }
 

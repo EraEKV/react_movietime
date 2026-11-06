@@ -3,7 +3,7 @@ import i18n, { translatedOption } from '../shared/i18n'
 import type { Option } from '../shared/types/common'
 import type { LibraryChanges, LibraryEntry, LibraryMedia, LibraryStatus } from '../types/library'
 import type { MovieBase, SeriesBase } from '../types/tmdb'
-import { getYear } from './format'
+import { getYear } from '../shared/lib/format'
 import { mediaKey } from './media'
 import type { MediaType } from '../types/media'
 

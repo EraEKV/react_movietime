@@ -1,11 +1,11 @@
 .kicker {
-  composes: overline from '../../styles/typography.module.css';
+  composes: overline from '../../shared/styles/typography.module.css';
   margin: 0;
   color: var(--text-muted);
 }
 
 .title {
-  composes: titleM from '../../styles/typography.module.css';
+  composes: titleM from '../../shared/styles/typography.module.css';
   margin: 0;
 }
 

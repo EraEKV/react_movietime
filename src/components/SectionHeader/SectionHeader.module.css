@@ -8,12 +8,12 @@
 }
 
 .kicker {
-  composes: overline from '../../styles/typography.module.css';
+  composes: overline from '../../shared/styles/typography.module.css';
   margin-bottom: var(--space-1);
 }
 
 .title {
-  composes: titleL from '../../styles/typography.module.css';
+  composes: titleL from '../../shared/styles/typography.module.css';
 }
 
 /* Accent = interactive. Padding gives the text link a 44px touch target. */

@@ -12,7 +12,7 @@ import Toast from '../components/Toast/Toast'
 import { useMyLists, useSharedLists } from '../hooks/useLists'
 import { useTimedState } from '../hooks/useTimedState'
 import { titlesCount } from '../utils/lists'
-import { noticeFromState } from '../utils/notice'
+import { noticeFromState } from '../shared/lib/notice'
 import styles from './ListsPage.module.css'
 
 const SKELETONS = 3

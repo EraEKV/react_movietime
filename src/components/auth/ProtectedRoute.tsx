@@ -1,6 +1,6 @@
 import { Navigate, Outlet, useLocation } from 'react-router'
 import { useAuth } from '../../hooks/useAuth'
-import { loginPath } from '../../utils/redirect'
+import { loginPath } from '../../shared/lib/redirect'
 import PageLoader from '../PageLoader/PageLoader'
 
 /**

@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
 import type { PlanColor, SessionStatus } from '../../types/plan'
 import { formatDay, monthOf, WEEK_ORDER, weekdayShort, type MonthRef } from '../../utils/calendar'
-import { cx } from '../../utils/cx'
+import { cx } from '../../shared/lib/cx'
 
 import SessionChip from '../SessionChip/SessionChip'
 import styles from './CalendarMonth.module.css'

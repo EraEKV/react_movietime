@@ -1,5 +1,5 @@
 import { useId, type ReactNode, type TextareaHTMLAttributes } from 'react'
-import { cx } from '../../utils/cx'
+import { cx } from '../../shared/lib/cx'
 import Field from '../Field/Field'
 import { hintId } from '../Field/hintId'
 import styles from '../Field/Field.module.css'

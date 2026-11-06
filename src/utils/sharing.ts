@@ -2,7 +2,7 @@ import i18n from '../shared/i18n'
 // Pure helpers for sharing lists and plans: roles, invite validation, member display.
 import type { AuthUser } from '../types/auth'
 import type { Member, MemberRole, Shareable, SharedCollection, ShareRole } from '../types/sharing'
-import { validateEmail } from './validation'
+import { validateEmail } from '../shared/lib/validation'
 
 /** Same limit as firestore.rules (validSharing): keeps the document and the rules cheap. */
 export const MAX_MEMBERS = 20

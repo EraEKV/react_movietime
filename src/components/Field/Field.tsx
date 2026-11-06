@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { cx } from '../../utils/cx'
+import { cx } from '../../shared/lib/cx'
 import Icon from '../Icon/Icon'
 import { hintId } from './hintId'
 import styles from './Field.module.css'

@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { passwordRules } from '../../utils/validation'
+import { passwordRules } from '../../shared/lib/validation'
 import Icon from '../Icon/Icon'
 import styles from './PasswordChecklist.module.css'
 

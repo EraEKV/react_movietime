@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import type { SeriesProgress } from '../../types/library'
 import type { PlanUnit } from '../../types/plan'
-import { episodeCode, formatRuntime } from '../../utils/format'
+import { episodeCode, formatRuntime } from '../../shared/lib/format'
 import { continueIndex, type StartChoice } from '../../utils/planner'
 import Banner from '../Banner/Banner'
 import RadioCards, { type RadioCardOption } from '../RadioCards/RadioCards'

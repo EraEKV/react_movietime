@@ -26,7 +26,7 @@ import {
   shiftMonth,
   type MonthRef,
 } from '../utils/calendar'
-import { noticeFromState } from '../utils/notice'
+import { noticeFromState } from '../shared/lib/notice'
 import { sessionPoster } from '../utils/planner'
 import { unitsLabel } from '../utils/schedule'
 import styles from './PlannerPage.module.css'

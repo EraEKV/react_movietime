@@ -29,7 +29,7 @@ import { useTimedState } from '../hooks/useTimedState'
 import type { Plan, PlanRole, PlanSession } from '../types/plan'
 import { addDays, formatDay, localToday, weekStart } from '../utils/calendar'
 import { offlineMessage } from '../utils/listErrors'
-import { noticeFromState } from '../utils/notice'
+import { noticeFromState } from '../shared/lib/notice'
 import {
   canEditSessions,
   planErrorMessage,
@@ -37,7 +37,7 @@ import {
   scheduleLabel,
   unitWord,
 } from '../utils/planner'
-import { loginPath } from '../utils/redirect'
+import { loginPath } from '../shared/lib/redirect'
 import { toIcs, unitsLabel } from '../utils/schedule'
 import { memberName, membersOf, roleLabel, shareUrl } from '../utils/sharing'
 import type { MemberRole } from '../types/sharing'

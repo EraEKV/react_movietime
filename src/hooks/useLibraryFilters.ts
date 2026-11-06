@@ -9,7 +9,7 @@ import {
   type LibraryTypeFilter,
   type StatusFilter,
 } from '../utils/library'
-import { parsePage } from '../utils/format'
+import { parsePage } from '../shared/lib/format'
 
 export type LibraryView = 'rows' | 'grid'
 

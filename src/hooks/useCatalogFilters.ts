@@ -15,7 +15,7 @@ import {
   type CatalogFilters,
   type FilterKey,
 } from '../utils/filters'
-import { parsePage } from '../utils/format'
+import { parsePage } from '../shared/lib/format'
 
 type ParamValue = string | number | null
 

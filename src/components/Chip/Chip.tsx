@@ -1,6 +1,6 @@
 import { Link } from 'react-router'
 import type { ReactNode } from 'react'
-import { cx } from '../../utils/cx'
+import { cx } from '../../shared/lib/cx'
 import type { IconName } from '../Icon/icons'
 import Icon from '../Icon/Icon'
 import styles from './Chip.module.css'

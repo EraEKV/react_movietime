@@ -1,4 +1,4 @@
-import { cx } from '../../utils/cx'
+import { cx } from '../../shared/lib/cx'
 import { FILLED_ICONS, ICON_PATHS, type IconName } from './icons'
 import styles from './Icon.module.css'
 

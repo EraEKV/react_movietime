@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../hooks/useAuth'
-import { loginPath } from '../../utils/redirect'
+import { loginPath } from '../../shared/lib/redirect'
 import ButtonLink from '../ButtonLink/ButtonLink'
 
 /** Series page action: opens the stepper with the series picked. Guests sign in first. */

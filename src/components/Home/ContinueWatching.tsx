@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { imageUrl } from '../../shared/api/tmdb'
 import { useLibrary } from '../../hooks/useLibrary'
-import { episodeCode } from '../../utils/format'
+import { episodeCode } from '../../shared/lib/format'
 import { progressRatio } from '../../utils/library'
 import { mediaHref } from '../../utils/media'
 import PosterCard from '../PosterCard/PosterCard'

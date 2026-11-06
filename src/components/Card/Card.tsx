@@ -1,5 +1,5 @@
 import type { ElementType, ReactNode } from 'react'
-import { cx } from '../../utils/cx'
+import { cx } from '../../shared/lib/cx'
 import styles from './Card.module.css'
 
 interface CardProps {

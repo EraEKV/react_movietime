@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { cx } from '../../utils/cx'
+import { cx } from '../../shared/lib/cx'
 import styles from './ListForm.module.css'
 
 interface EmojiPickerProps {

@@ -11,7 +11,7 @@ import type {
   Weekday,
 } from '../types/plan'
 import { addDays, daysBetween, isDay, isTime, weekdayOf } from './calendar'
-import { episodeCode } from './format'
+import { episodeCode } from '../shared/lib/format'
 
 /** Hard stop for the day loop: no plan should take more than ten years. */
 const MAX_DAYS = 3660

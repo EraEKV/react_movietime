@@ -8,8 +8,8 @@ import {
   type ReactNode,
 } from 'react'
 import { Link } from 'react-router'
-import { cx } from '../../utils/cx'
-import { nextIndexForKey } from '../../utils/rovingFocus'
+import { cx } from '../../shared/lib/cx'
+import { nextIndexForKey } from '../../shared/lib/rovingFocus'
 import type { IconName } from '../Icon/icons'
 import Icon from '../Icon/Icon'
 import styles from './Menu.module.css'

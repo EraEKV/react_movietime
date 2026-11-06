@@ -1,6 +1,6 @@
 import { Navigate, Outlet, useSearchParams } from 'react-router'
 import { useAuth } from '../../hooks/useAuth'
-import { safeRedirect } from '../../utils/redirect'
+import { safeRedirect } from '../../shared/lib/redirect'
 import PageLoader from '../PageLoader/PageLoader'
 
 interface GuestRouteProps {

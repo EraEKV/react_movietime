@@ -7,7 +7,7 @@
 }
 
 .title {
-  composes: displayM from '../styles/typography.module.css';
+  composes: displayM from '../shared/styles/typography.module.css';
   margin: 0;
 }
 
@@ -18,7 +18,7 @@
 }
 
 .sectionTitle {
-  composes: titleM from '../styles/typography.module.css';
+  composes: titleM from '../shared/styles/typography.module.css';
   margin: 0;
 }
 

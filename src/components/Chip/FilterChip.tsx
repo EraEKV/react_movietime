@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { cx } from '../../utils/cx'
+import { cx } from '../../shared/lib/cx'
 import Icon from '../Icon/Icon'
 import styles from './Chip.module.css'
 

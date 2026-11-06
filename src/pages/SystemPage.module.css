@@ -20,11 +20,11 @@
 }
 
 .title {
-  composes: displayM from '../styles/typography.module.css';
+  composes: displayM from '../shared/styles/typography.module.css';
 }
 
 .text {
-  composes: bodyL from '../styles/typography.module.css';
+  composes: bodyL from '../shared/styles/typography.module.css';
   max-width: 480px;
   color: var(--text-muted);
 }

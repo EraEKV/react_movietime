@@ -1,8 +1,8 @@
 import { useTranslation } from 'react-i18next'
 import type { Episode, Season } from '../../hooks/useEpisodeRatings'
 import i18n from '../../shared/i18n'
-import { episodeCode, formatRating } from '../../utils/format'
-import { ratingStep, ratingWord } from '../../utils/rating'
+import { episodeCode, formatRating } from '../../shared/lib/format'
+import { ratingStep, ratingWord } from '../../shared/lib/rating'
 import styles from './EpisodeHeatmap.module.css'
 
 function average(episodes: Episode[]): number | null {

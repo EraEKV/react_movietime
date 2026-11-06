@@ -3,7 +3,7 @@ import type { CSSProperties } from 'react'
 import { Link } from 'react-router'
 import { imageUrl } from '../../shared/api/tmdb'
 import type { PlanColor, SessionStatus } from '../../types/plan'
-import { cx } from '../../utils/cx'
+import { cx } from '../../shared/lib/cx'
 import Icon from '../Icon/Icon'
 import styles from './SessionChip.module.css'
 

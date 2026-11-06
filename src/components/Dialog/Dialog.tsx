@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { useEffect, useId, useRef, type MouseEvent, type ReactNode } from 'react'
-import { cx } from '../../utils/cx'
+import { cx } from '../../shared/lib/cx'
 import IconButton from '../IconButton/IconButton'
 import styles from './Dialog.module.css'
 

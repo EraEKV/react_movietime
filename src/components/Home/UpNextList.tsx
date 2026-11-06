@@ -6,7 +6,7 @@ import { useAuth } from '../../hooks/useAuth'
 import { usePlanActions, useUpcoming } from '../../hooks/usePlanner'
 import type { PlannedSession } from '../../types/plan'
 import { formatDay, relativeDay } from '../../utils/calendar'
-import { formatRuntime } from '../../utils/format'
+import { formatRuntime } from '../../shared/lib/format'
 import {
   canEditSessions,
   planErrorMessage,

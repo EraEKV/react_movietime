@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
-import { cx } from '../../utils/cx'
-import { formatRating } from '../../utils/format'
-import { ratingStep, ratingWord } from '../../utils/rating'
+import { cx } from '../../shared/lib/cx'
+import { formatRating } from '../../shared/lib/format'
+import { ratingStep, ratingWord } from '../../shared/lib/rating'
 import styles from './RatingBadge.module.css'
 
 interface RatingBadgeProps {

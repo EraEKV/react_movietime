@@ -10,7 +10,7 @@ import TextField from '../components/TextField/TextField'
 import { useAuth } from '../hooks/useAuth'
 import { useForm } from '../hooks/useForm'
 import { errorField } from '../utils/firebaseErrors'
-import { validateEmail, validatePassword } from '../utils/validation'
+import { validateEmail, validatePassword } from '../shared/lib/validation'
 
 export default function LoginPage() {
   const { t } = useTranslation('auth')

@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router'
 import { useAuth } from '../../hooks/useAuth'
-import { loginPath } from '../../utils/redirect'
+import { loginPath } from '../../shared/lib/redirect'
 import Avatar from '../Avatar/Avatar'
 import ButtonLink from '../ButtonLink/ButtonLink'
 import Menu from '../Menu/Menu'

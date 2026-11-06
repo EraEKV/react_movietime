@@ -6,7 +6,7 @@ import Banner from '../components/Banner/Banner'
 import Button from '../components/Button/Button'
 import Icon from '../components/Icon/Icon'
 import { useAuth } from '../hooks/useAuth'
-import { safeRedirect } from '../utils/redirect'
+import { safeRedirect } from '../shared/lib/redirect'
 
 /** After email signup: "check your inbox", resend, "I've verified", or start over. */
 export default function VerifyEmailPage() {

@@ -3,7 +3,7 @@ import i18n from '../shared/i18n'
 import type { LibraryMedia } from '../types/library'
 import type { ListDraft, ListItem, ListMedia, ListRole } from '../types/list'
 import type { MediaSummary } from '../types/media'
-import { getYear } from './format'
+import { getYear } from '../shared/lib/format'
 
 export const LIST_NAME_MAX = 60
 export const LIST_DESCRIPTION_MAX = 300

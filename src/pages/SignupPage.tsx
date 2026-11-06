@@ -16,7 +16,7 @@ import {
   validateEmail,
   validateNewPassword,
   validatePasswordConfirm,
-} from '../utils/validation'
+} from '../shared/lib/validation'
 
 type Field = 'displayName' | 'email' | 'password' | 'confirm'
 

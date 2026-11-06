@@ -1,4 +1,4 @@
-import { cx } from '../../utils/cx'
+import { cx } from '../../shared/lib/cx'
 import styles from './Button.module.css'
 
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'danger-solid'

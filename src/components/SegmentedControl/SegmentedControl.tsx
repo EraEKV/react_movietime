@@ -1,5 +1,5 @@
 import type { KeyboardEvent } from 'react'
-import { focusItem, nextIndexForKey } from '../../utils/rovingFocus'
+import { focusItem, nextIndexForKey } from '../../shared/lib/rovingFocus'
 import type { IconName } from '../Icon/icons'
 import Icon from '../Icon/Icon'
 import styles from './SegmentedControl.module.css'
