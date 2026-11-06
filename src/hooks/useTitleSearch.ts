@@ -32,12 +32,18 @@ export function useTitleSearch(query: string) {
   const state = useRequest(key, async (currentKey, signal) => {
     const q = currentKey.slice(language.length + 1)
     const [movies, series] = await Promise.all([
-      tmdbGet<Paginated<MovieListItem>>(withLanguage(endpoints.searchMovies({ query: q }), language), {
-        signal,
-      }),
-      tmdbGet<Paginated<SeriesListItem>>(withLanguage(endpoints.searchSeries({ query: q }), language), {
-        signal,
-      }),
+      tmdbGet<Paginated<MovieListItem>>(
+        withLanguage(endpoints.searchMovies({ query: q }), language),
+        {
+          signal,
+        },
+      ),
+      tmdbGet<Paginated<SeriesListItem>>(
+        withLanguage(endpoints.searchSeries({ query: q }), language),
+        {
+          signal,
+        },
+      ),
     ])
     return interleave(movies.results.map(fromMovie), series.results.map(fromSeries))
   })
