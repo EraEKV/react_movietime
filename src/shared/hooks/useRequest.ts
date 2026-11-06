@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useEffectEvent, useState } from 'react'
-import { isAbortError } from '../shared/api/tmdb'
+import { isAbortError } from '../api/tmdb'
 
 interface StoredResult<T> {
   key: string | null

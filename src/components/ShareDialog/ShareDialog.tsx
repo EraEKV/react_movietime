@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { useRef, useState, type FormEvent } from 'react'
-import { useTimedState } from '../../hooks/useTimedState'
+import { useTimedState } from '../../shared/hooks/useTimedState'
 import type { Member, MemberRole, Visibility } from '../../types/sharing'
 import { cx } from '../../shared/lib/cx'
 import { membersOf, memberName, roleLabel, validateInvite } from '../../utils/sharing'

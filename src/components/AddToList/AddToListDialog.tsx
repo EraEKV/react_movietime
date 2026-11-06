@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
 import { loadListsService, useListAuthor, useMyLists } from '../../hooks/useLists'
-import { useRequest } from '../../hooks/useRequest'
+import { useRequest } from '../../shared/hooks/useRequest'
 import type { ListMedia, TitleList } from '../../types/list'
 import { listErrorMessage } from '../../utils/listErrors'
 import { coversAfterAdd, titlesCount } from '../../utils/lists'

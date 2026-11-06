@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { useOnlineStatus } from '../../hooks/useOnlineStatus'
+import { useOnlineStatus } from '../../shared/hooks/useOnlineStatus'
 import Icon from '../Icon/Icon'
 import styles from './OfflinePill.module.css'
 

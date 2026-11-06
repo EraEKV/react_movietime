@@ -7,7 +7,7 @@ import HomeHero from '../components/Home/HomeHero'
 import TrendingSection from '../components/Home/TrendingSection'
 import UpNextSection from '../components/Home/UpNextSection'
 import { useAuth } from '../hooks/useAuth'
-import { useFetch } from '../hooks/useFetch'
+import { useFetch } from '../shared/hooks/useFetch'
 import type { Paginated, SeriesListItem } from '../types/tmdb'
 import styles from '../components/Home/Home.module.css'
 

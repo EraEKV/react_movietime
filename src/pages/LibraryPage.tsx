@@ -17,7 +17,7 @@ import Toast from '../components/Toast/Toast'
 import { useGenres } from '../hooks/useGenres'
 import { useLibrary } from '../hooks/useLibrary'
 import { useLibraryFilters } from '../hooks/useLibraryFilters'
-import { useTimedState } from '../hooks/useTimedState'
+import { useTimedState } from '../shared/hooks/useTimedState'
 import { useAppDispatch, useAppSelector } from '../store/hooks'
 import {
   librarySyncRetried,

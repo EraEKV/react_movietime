@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import type { FormEvent } from 'react'
-import { useForm } from '../../hooks/useForm'
+import { useForm } from '../../shared/hooks/useForm'
 import type { ListDraft } from '../../types/list'
 import {
   cleanDraft,

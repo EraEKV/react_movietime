@@ -1,7 +1,7 @@
 import type { LibraryMedia } from '../types/library'
 import type { PlanUnit } from '../types/plan'
 import { loadPlannerService } from './usePlanner'
-import { useRequest } from './useRequest'
+import { useRequest } from '../shared/hooks/useRequest'
 
 /** What the stepper plans: a series or a list of movies. */
 export type SourcePick =

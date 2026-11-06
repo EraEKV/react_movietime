@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { useLibrary, useLibraryEntry } from '../../hooks/useLibrary'
-import { useTimedState } from '../../hooks/useTimedState'
+import { useTimedState } from '../../shared/hooks/useTimedState'
 import type { LibraryMedia } from '../../types/library'
 import { LIBRARY_STATUSES, statusLabel } from '../../utils/library'
 import { mediaKey } from '../../utils/media'

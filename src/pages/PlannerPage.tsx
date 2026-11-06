@@ -12,9 +12,9 @@ import SegmentedControl from '../components/SegmentedControl/SegmentedControl'
 import SessionChip from '../components/SessionChip/SessionChip'
 import Skeleton from '../components/Skeleton/Skeleton'
 import Toast from '../components/Toast/Toast'
-import { useMediaQuery } from '../hooks/useMediaQuery'
+import { useMediaQuery } from '../shared/hooks/useMediaQuery'
 import { usePlanner } from '../hooks/usePlanner'
-import { useTimedState } from '../hooks/useTimedState'
+import { useTimedState } from '../shared/hooks/useTimedState'
 import type { Plan, PlannedSession } from '../types/plan'
 import {
   formatMonth,

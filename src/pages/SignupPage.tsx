@@ -8,7 +8,7 @@ import Button from '../components/Button/Button'
 import PasswordChecklist from '../components/PasswordChecklist/PasswordChecklist'
 import TextField from '../components/TextField/TextField'
 import { useAuth } from '../hooks/useAuth'
-import { useForm } from '../hooks/useForm'
+import { useForm } from '../shared/hooks/useForm'
 import { errorField } from '../utils/firebaseErrors'
 import {
   DISPLAY_NAME_MAX,

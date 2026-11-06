@@ -1,10 +1,10 @@
 import { useTranslation } from 'react-i18next'
 
 import { ApiError, endpoints } from '../../shared/api/tmdb'
-import { useFetch } from '../../hooks/useFetch'
+import { useFetch } from '../../shared/hooks/useFetch'
 import { useGenres } from '../../hooks/useGenres'
 import type { SeriesDetails as SeriesDetailsData } from '../../types/tmdb'
-import { useTmdbLanguage } from '../../hooks/useTmdbLanguage'
+import { useTmdbLanguage } from '../../shared/hooks/useTmdbLanguage'
 import { fromSeries, overviewOf, pickTrailer, tmdbStatusLabel } from '../../utils/media'
 import { formatYearRange } from '../../shared/lib/format'
 import { seriesToLibraryMedia } from '../../utils/library'

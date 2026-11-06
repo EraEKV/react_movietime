@@ -8,7 +8,7 @@ import Banner from '../components/Banner/Banner'
 import Button from '../components/Button/Button'
 import TextField from '../components/TextField/TextField'
 import { useAuth } from '../hooks/useAuth'
-import { useForm } from '../hooks/useForm'
+import { useForm } from '../shared/hooks/useForm'
 import { errorField } from '../utils/firebaseErrors'
 import { validateEmail, validatePassword } from '../shared/lib/validation'
 

@@ -9,8 +9,8 @@ import {
 } from '../utils/catalog'
 import { catalogPath, type CatalogFilters } from '../utils/filters'
 import { fromMovie, fromSeries } from '../utils/media'
-import { useRequest, type FetchState } from './useRequest'
-import { useTmdbLanguage } from './useTmdbLanguage'
+import { useRequest, type FetchState } from '../shared/hooks/useRequest'
+import { useTmdbLanguage } from '../shared/hooks/useTmdbLanguage'
 
 interface CatalogRequest {
   mediaType: MediaType
