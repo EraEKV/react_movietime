@@ -1,6 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { Link, useLocation } from 'react-router'
-import AuthLayout from '../components/auth/AuthLayout'
 import styles from '../components/auth/AuthLayout.module.css'
 import ForgotPasswordDialog from '../components/auth/ForgotPasswordDialog'
 import GoogleButton from '../components/auth/GoogleButton'
@@ -42,7 +41,7 @@ export default function LoginPage() {
   }
 
   return (
-    <AuthLayout>
+    <>
       <title>Sign in · Movietime</title>
       <div className={styles.heading}>
         <h1 className={styles.title}>Welcome back</h1>
@@ -108,6 +107,6 @@ export default function LoginPage() {
         onClose={() => setResetOpen(false)}
         initialEmail={form.values.email}
       />
-    </AuthLayout>
+    </>
   )
 }

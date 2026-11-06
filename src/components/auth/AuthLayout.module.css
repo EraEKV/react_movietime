@@ -34,12 +34,15 @@
   }
 
   .panel {
-    position: relative;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     gap: var(--space-8);
     overflow: hidden;
+    /* The panel stays in view while a long form (signup) scrolls. */
+    position: sticky;
+    top: 0;
+    height: 100dvh;
     padding: var(--space-12);
     background: var(--surface-sunken);
   }
@@ -56,6 +59,8 @@
 
 /* Slightly tilted wall of posters, cropped by the panel's edges. */
 .mosaic {
+  /* Three rows of 2:3 posters are 1.5× the grid width; cap it so logo and pitch still fit. */
+  width: min(100%, calc((100dvh - 320px) / 1.5));
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: var(--space-3);

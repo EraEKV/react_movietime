@@ -43,7 +43,7 @@
   border-radius: var(--radius-lg);
 }
 
-.details dt {
+.term {
   composes: overline from '../styles/typography.module.css';
 }
 

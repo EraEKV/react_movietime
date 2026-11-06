@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router'
-import AuthLayout from '../components/auth/AuthLayout'
 import styles from '../components/auth/AuthLayout.module.css'
 import Banner from '../components/Banner/Banner'
 import Button from '../components/Button/Button'
@@ -40,7 +39,7 @@ export default function VerifyEmailPage() {
 
   if (verified) {
     return (
-      <AuthLayout>
+      <>
         <title>Email verified · Movietime</title>
         <span className={styles.iconTile}>
           <Icon name="check" size={30} />
@@ -52,12 +51,12 @@ export default function VerifyEmailPage() {
         <Button variant="primary" size="lg" block onClick={() => navigate(next, { replace: true })}>
           Continue to Movietime
         </Button>
-      </AuthLayout>
+      </>
     )
   }
 
   return (
-    <AuthLayout>
+    <>
       <title>Verify your email · Movietime</title>
       <span className={styles.iconTile}>
         <Icon name="mail" size={30} />
@@ -97,6 +96,6 @@ export default function VerifyEmailPage() {
           Change email
         </button>
       </p>
-    </AuthLayout>
+    </>
   )
 }

@@ -56,11 +56,11 @@ export default function ProfilePage() {
       {status !== 'error' && (
         <dl className={styles.details}>
           <div>
-            <dt>Sign-in method</dt>
+            <dt className={styles.term}>Sign-in method</dt>
             <dd>{providers.join(', ')}</dd>
           </div>
           <div>
-            <dt>Member since</dt>
+            <dt className={styles.term}>Member since</dt>
             <dd>
               {status === 'loading' ? (
                 <Skeleton width={120} />

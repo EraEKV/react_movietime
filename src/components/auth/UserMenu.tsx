@@ -17,7 +17,7 @@ export default function UserMenu() {
 
   if (!user) {
     return (
-      <ButtonLink to={loginPath(pathname + search)} size="sm" variant="primary">
+      <ButtonLink to={loginPath(pathname + search)} variant="primary">
         Sign in
       </ButtonLink>
     )

@@ -1,6 +1,5 @@
 import { useEffect, type FormEvent } from 'react'
 import { Link, useLocation } from 'react-router'
-import AuthLayout from '../components/auth/AuthLayout'
 import styles from '../components/auth/AuthLayout.module.css'
 import GoogleButton from '../components/auth/GoogleButton'
 import Banner from '../components/Banner/Banner'
@@ -49,7 +48,7 @@ export default function SignupPage() {
   }
 
   return (
-    <AuthLayout>
+    <>
       <title>Create account · Movietime</title>
       <div className={styles.heading}>
         <h1 className={styles.title}>Create your account</h1>
@@ -121,6 +120,6 @@ export default function SignupPage() {
           Sign in
         </Link>
       </p>
-    </AuthLayout>
+    </>
   )
 }

@@ -1,4 +1,5 @@
 import { Route, Routes } from 'react-router'
+import AuthLayout from './components/auth/AuthLayout'
 import GuestRoute from './components/auth/GuestRoute'
 import ProtectedRoute from './components/auth/ProtectedRoute'
 import Layout from './components/Layout/Layout'
@@ -19,14 +20,16 @@ export default function App() {
     <WatchlistProvider>
       <Routes>
         {/* Auth screens have their own split layout, without the app header. */}
-        <Route element={<GuestRoute />}>
-          <Route path="login" element={<LoginPage />} />
-        </Route>
-        <Route element={<GuestRoute unverifiedTo="/verify-email" />}>
-          <Route path="signup" element={<SignupPage />} />
-        </Route>
-        <Route element={<ProtectedRoute />}>
-          <Route path="verify-email" element={<VerifyEmailPage />} />
+        <Route element={<AuthLayout />}>
+          <Route element={<GuestRoute />}>
+            <Route path="login" element={<LoginPage />} />
+          </Route>
+          <Route element={<GuestRoute unverifiedTo="/verify-email" />}>
+            <Route path="signup" element={<SignupPage />} />
+          </Route>
+          <Route element={<ProtectedRoute />}>
+            <Route path="verify-email" element={<VerifyEmailPage />} />
+          </Route>
         </Route>
 
         <Route element={<Layout />}>

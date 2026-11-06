@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { Outlet } from 'react-router'
 import { endpoints, imageUrl } from '../../api/tmdb'
 import { useFetch } from '../../hooks/useFetch'
 import { useSystemThemeSync } from '../../hooks/useTheme'
@@ -31,8 +31,11 @@ function PosterMosaic() {
   )
 }
 
-/** Login, signup and verify-email share this split screen; on mobile only the form remains. */
-export default function AuthLayout({ children }: { children: ReactNode }) {
+/**
+ * Layout route for login, signup and verify-email: a split screen, on mobile only the form.
+ * Being a parent route, it stays mounted while the guards and pages inside it change.
+ */
+export default function AuthLayout() {
   // These pages live outside the main Layout, so they follow the OS theme themselves.
   useSystemThemeSync()
 
@@ -50,7 +53,9 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
         <div className={styles.mobileLogo}>
           <Logo />
         </div>
-        <div className={styles.content}>{children}</div>
+        <div className={styles.content}>
+          <Outlet />
+        </div>
       </main>
     </div>
   )
