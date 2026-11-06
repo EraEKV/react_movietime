@@ -1,3 +1,18 @@
 {
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }],
+  "git": {
+    "deploymentEnabled": {
+      "feat/**": false,
+      "fix/**": false,
+      "refactor/**": false,
+      "docs/**": false,
+      "test/**": false,
+      "ci/**": false,
+      "build/**": false,
+      "chore/**": false,
+      "perf/**": false,
+      "dependabot/**": false
+    }
+  }
 }
