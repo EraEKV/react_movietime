@@ -1,9 +1,51 @@
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
+import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    VitePWA({
+      // Own worker (src/sw.ts) with the precache list injected into it at build time.
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      filename: 'sw.ts',
+      // The new worker waits until the user accepts the update prompt.
+      registerType: 'prompt',
+      injectRegister: false,
+      injectManifest: {
+        // public/locales/**/*.json is copied to dist, so it is listed here and precached.
+        globPatterns: ['**/*.{js,css,html,svg,png,woff2,json}'],
+        // Everything the app loads at start fits; the Firestore chunk (~540 kB) must too.
+        maximumFileSizeToCacheInBytes: 2 * 1024 * 1024,
+      },
+      manifest: {
+        name: 'Movietime',
+        short_name: 'Movietime',
+        description: 'Discover movies and series, track what you watch and plan watching together.',
+        lang: 'en',
+        start_url: '/',
+        scope: '/',
+        display: 'standalone',
+        orientation: 'portrait-primary',
+        theme_color: '#0b0c0f',
+        background_color: '#0b0c0f',
+        categories: ['entertainment'],
+        icons: [
+          { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+          { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+          {
+            src: '/icons/maskable-512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'maskable',
+          },
+        ],
+      },
+      devOptions: { enabled: false },
+    }),
+  ],
   // Dictionaries in public/locales keep their file names; this id goes into their URLs.
   define: { __BUILD_ID__: JSON.stringify(Date.now().toString(36)) },
   build: {
