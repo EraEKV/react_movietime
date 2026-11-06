@@ -14,7 +14,7 @@ import { useSeriesFilters } from '../hooks/useSeriesFilters'
 import type { Paginated, SeriesListItem } from '../types/tmdb'
 import { toDiscoverParams } from '../utils/filters'
 import { formatNumber } from '../utils/format'
-import styles from './HomePage.module.css'
+import styles from './CatalogPage.module.css'
 
 /** Router state is untyped (any page can push anything), so check its shape before trusting it. */
 function wantsSearchFocus(state: unknown): boolean {
@@ -26,7 +26,7 @@ function wantsSearchFocus(state: unknown): boolean {
   )
 }
 
-export default function HomePage() {
+export default function CatalogPage() {
   const { filters, query, page, activeCount, setFilter, setQuery, setPage, resetFilters } =
     useSeriesFilters()
   const { genres, genresById } = useGenres()

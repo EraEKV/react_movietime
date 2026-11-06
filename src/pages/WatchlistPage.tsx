@@ -110,7 +110,7 @@ export default function WatchlistPage() {
           title="Your library is empty"
           body="Series you add appear here with your status, score and notes."
           actions={
-            <ButtonLink to="/" variant="primary" icon="compass">
+            <ButtonLink to="/series" variant="primary" icon="compass">
               Discover series
             </ButtonLink>
           }

@@ -1,11 +1,11 @@
-import { Route, Routes } from 'react-router'
+import { Navigate, Route, Routes } from 'react-router'
 import AuthLayout from './components/auth/AuthLayout'
 import GuestRoute from './components/auth/GuestRoute'
 import ProtectedRoute from './components/auth/ProtectedRoute'
 import Layout from './components/Layout/Layout'
 import WatchlistProvider from './context/WatchlistProvider'
-import HomePage from './pages/HomePage'
 import LoginPage from './pages/LoginPage'
+import CatalogPage from './pages/CatalogPage'
 import NotFoundPage from './pages/NotFoundPage'
 import ProfilePage from './pages/ProfilePage'
 import SeriesPage from './pages/SeriesPage'
@@ -33,7 +33,9 @@ export default function App() {
         </Route>
 
         <Route element={<Layout />}>
-          <Route index element={<HomePage />} />
+          {/* Temporary: the landing page replaces this redirect. */}
+          <Route index element={<Navigate to="/series" replace />} />
+          <Route path="series" element={<CatalogPage />} />
           <Route path="series/:id" element={<SeriesPage />} />
           <Route path="watchlist" element={<WatchlistPage />} />
           <Route path="watchlist/new" element={<WatchlistAddPage />} />

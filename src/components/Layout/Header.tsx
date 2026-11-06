@@ -38,7 +38,7 @@ export default function Header() {
           <HeaderSearch />
           {/* state asks the catalog to focus its search field: one tap to start typing. */}
           <Link
-            to="/"
+            to="/series"
             state={{ focusSearch: true }}
             className={buttonClass('ghost', 'md', { iconOnly: true, className: styles.mobileOnly })}
             aria-label="Search"

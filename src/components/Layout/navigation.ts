@@ -18,11 +18,11 @@ export function isNavItemActive(item: NavItem, pathname: string): boolean {
 
 // Only routes that exist today. Phase "routing" adds Home, Movies, Lists, Planner, Profile.
 export const MAIN_NAV: NavItem[] = [
-  { to: '/', label: 'Series', icon: 'tv', alsoActiveOn: ['/series'] },
+  { to: '/series', label: 'Series', icon: 'tv' },
   { to: '/watchlist', label: 'Library', icon: 'bookmark' },
 ]
 
 export const TAB_BAR_NAV: NavItem[] = [
-  { to: '/', label: 'Discover', icon: 'compass', alsoActiveOn: ['/series'] },
+  { to: '/series', label: 'Discover', icon: 'compass' },
   { to: '/watchlist', label: 'Library', icon: 'bookmark' },
 ]
