@@ -1,10 +1,10 @@
 import { useTranslation } from 'react-i18next'
-import { LANGUAGES, languageInfo } from '../../i18n/languages'
+import { LANGUAGES, languageInfo } from '../../shared/i18n/languages'
 import { useAppDispatch, useAppSelector } from '../../store/hooks'
 import { languageChanged, selectLanguage } from '../../store/preferencesSlice'
-import { buttonClass } from '../Button/variants'
-import Icon from '../Icon/Icon'
-import Menu from '../Menu/Menu'
+import { buttonClass } from '../../shared/ui/Button/variants'
+import Icon from '../../shared/ui/Icon/Icon'
+import Menu from '../../shared/ui/Menu/Menu'
 import styles from './Layout.module.css'
 
 /**

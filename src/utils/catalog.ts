@@ -1,7 +1,7 @@
 // Page size math for the catalog. TMDB always returns 20 titles per page; the app offers
 // 20, 40 or 60 by loading 1, 2 or 3 consecutive TMDB pages for one app page.
-import { MAX_PAGE } from '../api/tmdb'
-import type { Option } from '../types/common'
+import { MAX_PAGE } from '../shared/api/tmdb'
+import type { Option } from '../shared/types/common'
 import type { MediaSummary } from '../types/media'
 import type { Paginated } from '../types/tmdb'
 import { uniqueById } from './media'

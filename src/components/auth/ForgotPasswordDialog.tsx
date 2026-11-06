@@ -2,10 +2,10 @@ import { Trans, useTranslation } from 'react-i18next'
 import { useState, type FormEvent } from 'react'
 import { resetPassword } from '../../services/authService'
 import { toAuthError } from '../../utils/firebaseErrors'
-import { validateEmail } from '../../utils/validation'
-import Button from '../Button/Button'
-import Dialog from '../Dialog/Dialog'
-import TextField from '../TextField/TextField'
+import { validateEmail } from '../../shared/lib/validation'
+import Button from '../../shared/ui/Button/Button'
+import Dialog from '../../shared/ui/Dialog/Dialog'
+import TextField from '../../shared/ui/TextField/TextField'
 
 interface ForgotPasswordDialogProps {
   open: boolean

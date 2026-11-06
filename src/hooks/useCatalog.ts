@@ -1,4 +1,4 @@
-import { tmdbGetAll, withLanguage } from '../api/tmdb'
+import { tmdbGetAll, withLanguage } from '../shared/api/tmdb'
 import type { MediaType } from '../types/media'
 import type { MovieListItem, Paginated, SeriesListItem } from '../types/tmdb'
 import {
@@ -9,8 +9,8 @@ import {
 } from '../utils/catalog'
 import { catalogPath, type CatalogFilters } from '../utils/filters'
 import { fromMovie, fromSeries } from '../utils/media'
-import { useRequest, type FetchState } from './useRequest'
-import { useTmdbLanguage } from './useTmdbLanguage'
+import { useRequest, type FetchState } from '../shared/hooks/useRequest'
+import { useTmdbLanguage } from '../shared/hooks/useTmdbLanguage'
 
 interface CatalogRequest {
   mediaType: MediaType

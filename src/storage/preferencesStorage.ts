@@ -1,4 +1,4 @@
-import type { Language, Preferences, ThemePreference } from '../types/preferences'
+import type { Language, Preferences, ThemePreference } from '../shared/types/preferences'
 
 // index.html reads the same key before the first paint — keep both in sync.
 export const PREFERENCES_KEY = 'movietime.preferences.v1'

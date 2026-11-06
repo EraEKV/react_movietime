@@ -20,17 +20,17 @@
 }
 
 .kicker {
-  composes: overline from '../../styles/typography.module.css';
+  composes: overline from '../../shared/styles/typography.module.css';
   color: var(--text-muted);
 }
 
 .pageTitle {
-  composes: displayL from '../../styles/typography.module.css';
+  composes: displayL from '../../shared/styles/typography.module.css';
   margin: 0;
 }
 
 .panelTitle {
-  composes: titleM from '../../styles/typography.module.css';
+  composes: titleM from '../../shared/styles/typography.module.css';
   margin: 0;
 }
 
@@ -83,7 +83,7 @@
 }
 
 .stepTitle {
-  composes: titleL from '../../styles/typography.module.css';
+  composes: titleL from '../../shared/styles/typography.module.css';
   margin: 0;
 }
 

@@ -1,9 +1,9 @@
 import { useTranslation } from 'react-i18next'
-import { imageUrl } from '../../api/tmdb'
-import { episodeCode, formatDate, formatRuntime } from '../../utils/format'
+import { imageUrl } from '../../shared/api/tmdb'
+import { episodeCode, formatDate, formatRuntime } from '../../shared/lib/format'
 import type { Episode } from '../../hooks/useEpisodeRatings'
-import IconButton from '../IconButton/IconButton'
-import RatingBadge from '../RatingBadge/RatingBadge'
+import IconButton from '../../shared/ui/IconButton/IconButton'
+import RatingBadge from '../../shared/ui/RatingBadge/RatingBadge'
 import styles from './EpisodeHeatmap.module.css'
 
 interface EpisodePanelProps {

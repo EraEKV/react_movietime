@@ -3,9 +3,9 @@ import { useState } from 'react'
 import { useLocation } from 'react-router'
 import { useAuth } from '../../hooks/useAuth'
 import type { ListMedia } from '../../types/list'
-import { loginPath } from '../../utils/redirect'
-import Button from '../Button/Button'
-import ButtonLink from '../ButtonLink/ButtonLink'
+import { loginPath } from '../../shared/lib/redirect'
+import Button from '../../shared/ui/Button/Button'
+import ButtonLink from '../../shared/ui/ButtonLink/ButtonLink'
 import AddToListDialog from './AddToListDialog'
 
 /** Title page action. Lists need an account, so guests are sent to sign in and back. */

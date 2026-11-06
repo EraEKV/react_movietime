@@ -1,9 +1,9 @@
 import { useTranslation } from 'react-i18next'
 import { useEpisodeRatings } from '../../hooks/useEpisodeRatings'
-import ButtonLink from '../ButtonLink/ButtonLink'
-import Card from '../Card/Card'
+import ButtonLink from '../../shared/ui/ButtonLink/ButtonLink'
+import Card from '../../shared/ui/Card/Card'
 import HeatmapGrid from '../EpisodeHeatmap/HeatmapGrid'
-import Skeleton from '../Skeleton/Skeleton'
+import Skeleton from '../../shared/ui/Skeleton/Skeleton'
 import styles from './Home.module.css'
 
 // A well-known series with a telling heatmap. Defined outside the component, so the

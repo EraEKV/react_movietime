@@ -1,4 +1,4 @@
-import i18n from '../i18n'
+import i18n from '../shared/i18n'
 // Pure planner helpers: TMDB episodes → plan units, colours, labels, roles. No React.
 import type { LibraryMedia, SeriesProgress } from '../types/library'
 import type { Plan, PlanColor, PlanRole, PlanUnit, Weekday } from '../types/plan'

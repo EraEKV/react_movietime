@@ -3,7 +3,7 @@ import type * as ListsService from '../services/listsService'
 import type { ListAuthor, ListItem, ListRole, TitleList } from '../types/list'
 import { normalizeEmail, roleOf } from '../utils/sharing'
 import { useAuth } from './useAuth'
-import { useSubscription } from './useSubscription'
+import { useSubscription } from '../shared/hooks/useSubscription'
 
 // Lists are loaded per page (not kept in Redux): only the page that shows them needs them,
 // and a Firestore listener closes when that page unmounts.

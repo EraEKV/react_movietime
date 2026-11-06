@@ -1,6 +1,6 @@
 import { useRegisterSW } from 'virtual:pwa-register/react'
 import { useTranslation } from 'react-i18next'
-import Toast from '../Toast/Toast'
+import Toast from '../../shared/ui/Toast/Toast'
 
 /**
  * Registers the service worker and tells the user when a new version is waiting.

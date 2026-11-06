@@ -1,8 +1,8 @@
 import { Trans, useTranslation } from 'react-i18next'
 import { useState } from 'react'
 import { useAuth } from '../../hooks/useAuth'
-import Banner from '../Banner/Banner'
-import Button from '../Button/Button'
+import Banner from '../../shared/ui/Banner/Banner'
+import Button from '../../shared/ui/Button/Button'
 
 /**
  * Reminder for email/password accounts that aren't verified yet. Verification matters:

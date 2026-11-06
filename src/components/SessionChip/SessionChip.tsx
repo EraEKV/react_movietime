@@ -1,10 +1,10 @@
 import { useTranslation } from 'react-i18next'
 import type { CSSProperties } from 'react'
 import { Link } from 'react-router'
-import { imageUrl } from '../../api/tmdb'
+import { imageUrl } from '../../shared/api/tmdb'
 import type { PlanColor, SessionStatus } from '../../types/plan'
-import { cx } from '../../utils/cx'
-import Icon from '../Icon/Icon'
+import { cx } from '../../shared/lib/cx'
+import Icon from '../../shared/ui/Icon/Icon'
 import styles from './SessionChip.module.css'
 
 interface SessionChipProps {

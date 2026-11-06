@@ -10,7 +10,7 @@ import {
   type DocumentData,
 } from 'firebase/firestore'
 import type { UserProfile } from '../types/auth'
-import type { Preferences } from '../types/preferences'
+import type { Preferences } from '../shared/types/preferences'
 import { isLanguage, isTheme } from '../storage/preferencesStorage'
 import { db } from './firestore'
 

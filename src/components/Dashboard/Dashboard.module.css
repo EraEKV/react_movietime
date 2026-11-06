@@ -16,7 +16,7 @@
 }
 
 .cardTitle {
-  composes: titleM from '../../styles/typography.module.css';
+  composes: titleM from '../../shared/styles/typography.module.css';
   margin: 0;
 }
 

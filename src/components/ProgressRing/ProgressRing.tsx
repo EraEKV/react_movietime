@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { useId } from 'react'
-import Icon from '../Icon/Icon'
+import Icon from '../../shared/ui/Icon/Icon'
 import styles from './ProgressRing.module.css'
 import type { PlanColor } from '../../types/plan'
 

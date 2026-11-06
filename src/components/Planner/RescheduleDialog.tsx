@@ -2,11 +2,11 @@ import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
 import type { PlanSession } from '../../types/plan'
 import { bySchedule, unitsLabel } from '../../utils/schedule'
-import Banner from '../Banner/Banner'
-import Button from '../Button/Button'
-import Checkbox from '../Checkbox/Checkbox'
+import Banner from '../../shared/ui/Banner/Banner'
+import Button from '../../shared/ui/Button/Button'
+import Checkbox from '../../shared/ui/Checkbox/Checkbox'
 import DatePicker from '../DatePicker/DatePicker'
-import Dialog from '../Dialog/Dialog'
+import Dialog from '../../shared/ui/Dialog/Dialog'
 
 interface RescheduleDialogProps {
   session: PlanSession

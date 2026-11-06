@@ -37,7 +37,7 @@
 }
 
 .title {
-  composes: displayM from '../styles/typography.module.css';
+  composes: displayM from '../shared/styles/typography.module.css';
   overflow-wrap: anywhere;
 }
 

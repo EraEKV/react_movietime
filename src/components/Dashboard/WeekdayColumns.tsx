@@ -1,7 +1,7 @@
 import type { Bar } from '../../utils/stats'
 import { weekdayLong } from '../../utils/calendar'
 import type { Weekday } from '../../types/plan'
-import { cx } from '../../utils/cx'
+import { cx } from '../../shared/lib/cx'
 import styles from './Dashboard.module.css'
 
 interface WeekdayColumnsProps {

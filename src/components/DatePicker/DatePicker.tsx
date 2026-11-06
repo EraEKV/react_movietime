@@ -10,8 +10,8 @@ import {
   WEEK_ORDER,
   weekdayShort,
 } from '../../utils/calendar'
-import { cx } from '../../utils/cx'
-import IconButton from '../IconButton/IconButton'
+import { cx } from '../../shared/lib/cx'
+import IconButton from '../../shared/ui/IconButton/IconButton'
 import styles from './DatePicker.module.css'
 
 interface DatePickerProps {

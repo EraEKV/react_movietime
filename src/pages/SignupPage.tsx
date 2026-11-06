@@ -3,12 +3,12 @@ import { useEffect, type FormEvent } from 'react'
 import { Link, useLocation } from 'react-router'
 import styles from '../components/auth/AuthLayout.module.css'
 import GoogleButton from '../components/auth/GoogleButton'
-import Banner from '../components/Banner/Banner'
-import Button from '../components/Button/Button'
-import PasswordChecklist from '../components/PasswordChecklist/PasswordChecklist'
-import TextField from '../components/TextField/TextField'
+import Banner from '../shared/ui/Banner/Banner'
+import Button from '../shared/ui/Button/Button'
+import PasswordChecklist from '../shared/ui/PasswordChecklist/PasswordChecklist'
+import TextField from '../shared/ui/TextField/TextField'
 import { useAuth } from '../hooks/useAuth'
-import { useForm } from '../hooks/useForm'
+import { useForm } from '../shared/hooks/useForm'
 import { errorField } from '../utils/firebaseErrors'
 import {
   DISPLAY_NAME_MAX,
@@ -16,7 +16,7 @@ import {
   validateEmail,
   validateNewPassword,
   validatePasswordConfirm,
-} from '../utils/validation'
+} from '../shared/lib/validation'
 
 type Field = 'displayName' | 'email' | 'password' | 'confirm'
 

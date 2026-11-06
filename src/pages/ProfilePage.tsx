@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
-import Banner from '../components/Banner/Banner'
-import ErrorState from '../components/EmptyState/ErrorState'
+import Banner from '../shared/ui/Banner/Banner'
+import ErrorState from '../shared/ui/EmptyState/ErrorState'
 import ActivityFeed from '../components/Profile/ActivityFeed'
 import ProfileCounters from '../components/Profile/ProfileCounters'
 import ProfileHeader from '../components/Profile/ProfileHeader'

@@ -15,7 +15,7 @@
 }
 
 .name {
-  composes: displayM from '../../styles/typography.module.css';
+  composes: displayM from '../../shared/styles/typography.module.css';
   margin: 0;
   overflow-wrap: anywhere;
 }

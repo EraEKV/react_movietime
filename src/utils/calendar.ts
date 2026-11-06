@@ -5,8 +5,8 @@
 // of the next), and the schedule would slip. Treating the string as a UTC date and moving
 // by whole days with setUTCDate never sees DST, because UTC has none.
 
-import { currentLocale } from '../i18n'
-import { formatDateWith, formatRelativeWith } from '../i18n/intl'
+import { currentLocale } from '../shared/i18n'
+import { formatDateWith, formatRelativeWith } from '../shared/i18n/intl'
 import type { Weekday } from '../types/plan'
 
 const DAY_RE = /^(\d{4})-(\d{2})-(\d{2})$/

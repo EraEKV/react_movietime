@@ -3,11 +3,11 @@ import { createRoot } from 'react-dom/client'
 import { Provider } from 'react-redux'
 import { BrowserRouter } from 'react-router'
 import App from './App'
-import { initI18n } from './i18n'
+import { initI18n } from './shared/i18n'
 import { registerLibraryListeners } from './store/libraryListeners'
 import { registerPreferenceListeners, startAuthSync } from './store/listeners'
 import { store } from './store/store'
-import './styles/global.css'
+import './shared/styles/global.css'
 
 // Listeners are registered once, before the first render, and live as long as the store.
 registerPreferenceListeners(store.getState)

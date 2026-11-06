@@ -1,6 +1,6 @@
-import { useTmdbLanguage } from './useTmdbLanguage'
+import { useTmdbLanguage } from '../shared/hooks/useTmdbLanguage'
 import { useCallback, useEffect, useState } from 'react'
-import { endpoints, isAbortError, MAX_APPEND, tmdbGet, withLanguage } from '../api/tmdb'
+import { endpoints, isAbortError, MAX_APPEND, tmdbGet, withLanguage } from '../shared/api/tmdb'
 import type { RawSeason, SeasonsBatchResponse } from '../types/tmdb'
 
 export interface Episode {

@@ -1,4 +1,4 @@
-import type { ThemePreference } from '../../types/preferences'
+import type { ThemePreference } from '../../shared/types/preferences'
 import styles from './Settings.module.css'
 
 /**

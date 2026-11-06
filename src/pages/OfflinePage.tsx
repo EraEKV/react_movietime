@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
-import Button from '../components/Button/Button'
-import ButtonLink from '../components/ButtonLink/ButtonLink'
-import Icon from '../components/Icon/Icon'
+import Button from '../shared/ui/Button/Button'
+import ButtonLink from '../shared/ui/ButtonLink/ButtonLink'
+import Icon from '../shared/ui/Icon/Icon'
 import styles from './SystemPage.module.css'
 
 /**

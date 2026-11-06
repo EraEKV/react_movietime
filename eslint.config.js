@@ -25,6 +25,25 @@ export default defineConfig([
       '@typescript-eslint/consistent-type-imports': 'error',
     },
   },
+  // Layer direction: src/shared knows nothing about the app. Imports are relative, so a file
+  // N folders below src must not climb exactly N levels (that lands in src/<other folder>).
+  // Climbing further reaches the repository root (public/locales types) and is allowed.
+  ...[2, 3].map((depth) => ({
+    files: [`src/shared/${'*/'.repeat(depth - 1)}*.{ts,tsx}`],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              regex: `^(\\.\\./){${depth}}(?!\\.\\./)`,
+              message: 'shared/ must not import from the rest of src (components, pages, store…).',
+            },
+          ],
+        },
+      ],
+    },
+  })),
   // Must stay last: turns off rules that conflict with Prettier formatting
   prettier,
 ])

@@ -9,7 +9,7 @@ pages / components
       ▼
 hooks (useFetch, useLibrary, useMyLists, usePlanner, …)
       │
-      ├──► src/api/tmdb.ts          TMDB REST (read-only)
+      ├──► src/shared/api/tmdb.ts          TMDB REST (read-only)
       ├──► src/services/*.ts        Firebase Auth + Firestore
       └──► src/storage/*.ts         localStorage (guests, preferences)
                 │
@@ -32,7 +32,7 @@ types in `src/types/`.
     `utils/firebaseErrors.ts` (for example `auth/invalid-credential` → "Wrong email or
     password"). `permission-denied` → "You don't have access to this".
 
-## TMDB: `src/api/tmdb.ts`
+## TMDB: `src/shared/api/tmdb.ts`
 
 | Function / endpoint builder                     | Status | Request                                                         |
 | ----------------------------------------------- | :----: | --------------------------------------------------------------- |

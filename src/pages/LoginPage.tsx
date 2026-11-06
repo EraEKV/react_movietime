@@ -4,13 +4,13 @@ import { Link, useLocation } from 'react-router'
 import styles from '../components/auth/AuthLayout.module.css'
 import ForgotPasswordDialog from '../components/auth/ForgotPasswordDialog'
 import GoogleButton from '../components/auth/GoogleButton'
-import Banner from '../components/Banner/Banner'
-import Button from '../components/Button/Button'
-import TextField from '../components/TextField/TextField'
+import Banner from '../shared/ui/Banner/Banner'
+import Button from '../shared/ui/Button/Button'
+import TextField from '../shared/ui/TextField/TextField'
 import { useAuth } from '../hooks/useAuth'
-import { useForm } from '../hooks/useForm'
+import { useForm } from '../shared/hooks/useForm'
 import { errorField } from '../utils/firebaseErrors'
-import { validateEmail, validatePassword } from '../utils/validation'
+import { validateEmail, validatePassword } from '../shared/lib/validation'
 
 export default function LoginPage() {
   const { t } = useTranslation('auth')

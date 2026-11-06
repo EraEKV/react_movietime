@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
-import { imageUrl } from '../../api/tmdb'
-import { formatDate } from '../../utils/format'
-import RatingBadge from '../RatingBadge/RatingBadge'
+import { imageUrl } from '../../shared/api/tmdb'
+import { formatDate } from '../../shared/lib/format'
+import RatingBadge from '../../shared/ui/RatingBadge/RatingBadge'
 import type { SeasonSummary } from '../../types/tmdb'
 import styles from './SeasonList.module.css'
 

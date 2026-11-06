@@ -1,7 +1,7 @@
 import { Navigate, Outlet, useLocation } from 'react-router'
 import { useAuth } from '../../hooks/useAuth'
-import { loginPath } from '../../utils/redirect'
-import PageLoader from '../PageLoader/PageLoader'
+import { loginPath } from '../../shared/lib/redirect'
+import PageLoader from '../../shared/ui/PageLoader/PageLoader'
 
 /**
  * Layout route for pages that need an account. This is UX only: it hides pages from guests.

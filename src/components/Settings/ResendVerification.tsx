@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { useAuth } from '../../hooks/useAuth'
 import { resendVerification } from '../../store/authSlice'
 import { useAppDispatch } from '../../store/hooks'
-import Button from '../Button/Button'
+import Button from '../../shared/ui/Button/Button'
 
 interface ResendVerificationProps {
   size?: 'sm' | 'md'

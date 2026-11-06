@@ -1,7 +1,7 @@
 import type { LibraryStatus } from '../../types/library'
-import { cx } from '../../utils/cx'
+import { cx } from '../../shared/lib/cx'
 import { statusLabel } from '../../utils/library'
-import Icon from '../Icon/Icon'
+import Icon from '../../shared/ui/Icon/Icon'
 import styles from './StatusMarker.module.css'
 import { STATUS_ICON } from './statusIcons'
 

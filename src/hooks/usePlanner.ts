@@ -6,7 +6,7 @@ import { bySchedule } from '../utils/schedule'
 import { normalizeEmail, roleOf } from '../utils/sharing'
 import { useAuth } from './useAuth'
 import { useListAuthor } from './useLists'
-import { useSubscription } from './useSubscription'
+import { useSubscription } from '../shared/hooks/useSubscription'
 import { offlineMessage } from '../utils/listErrors'
 
 // Plans live in page hooks, not in Redux (like lists): only the planner pages, Home and the

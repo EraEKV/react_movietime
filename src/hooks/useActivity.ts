@@ -1,6 +1,6 @@
 import type { ActivityItem } from '../types/activity'
 import { useAuth } from './useAuth'
-import { useSubscription } from './useSubscription'
+import { useSubscription } from '../shared/hooks/useSubscription'
 
 /** How many records the profile shows. */
 export const FEED_SIZE = 20

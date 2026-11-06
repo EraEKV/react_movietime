@@ -1,12 +1,12 @@
 import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
 import { Link } from 'react-router'
-import { imageUrl } from '../../api/tmdb'
+import { imageUrl } from '../../shared/api/tmdb'
 import { useAuth } from '../../hooks/useAuth'
 import { usePlanActions, useUpcoming } from '../../hooks/usePlanner'
 import type { PlannedSession } from '../../types/plan'
 import { formatDay, relativeDay } from '../../utils/calendar'
-import { formatRuntime } from '../../utils/format'
+import { formatRuntime } from '../../shared/lib/format'
 import {
   canEditSessions,
   planErrorMessage,
@@ -16,14 +16,14 @@ import {
 } from '../../utils/planner'
 import { unitsLabel } from '../../utils/schedule'
 import { roleOf } from '../../utils/sharing'
-import Badge from '../Badge/Badge'
-import Button from '../Button/Button'
-import ButtonLink from '../ButtonLink/ButtonLink'
-import Card from '../Card/Card'
-import EmptyState from '../EmptyState/EmptyState'
-import ErrorState from '../EmptyState/ErrorState'
-import ProgressBar from '../ProgressBar/ProgressBar'
-import Skeleton from '../Skeleton/Skeleton'
+import Badge from '../../shared/ui/Badge/Badge'
+import Button from '../../shared/ui/Button/Button'
+import ButtonLink from '../../shared/ui/ButtonLink/ButtonLink'
+import Card from '../../shared/ui/Card/Card'
+import EmptyState from '../../shared/ui/EmptyState/EmptyState'
+import ErrorState from '../../shared/ui/EmptyState/ErrorState'
+import ProgressBar from '../../shared/ui/ProgressBar/ProgressBar'
+import Skeleton from '../../shared/ui/Skeleton/Skeleton'
 import styles from './Home.module.css'
 
 const SHOWN = 2

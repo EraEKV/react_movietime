@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
-import { imageUrl } from '../../api/tmdb'
+import { imageUrl } from '../../shared/api/tmdb'
 import type { SeriesListItem } from '../../types/tmdb'
-import ButtonLink from '../ButtonLink/ButtonLink'
+import ButtonLink from '../../shared/ui/ButtonLink/ButtonLink'
 import ProgressRing from '../ProgressRing/ProgressRing'
 import styles from './Home.module.css'
 

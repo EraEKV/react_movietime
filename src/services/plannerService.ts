@@ -1,4 +1,4 @@
-import i18n from '../i18n'
+import i18n from '../shared/i18n'
 import {
   collection,
   doc,
@@ -16,7 +16,7 @@ import {
   type Unsubscribe,
   type WriteBatch,
 } from 'firebase/firestore'
-import { endpoints, MAX_APPEND, tmdbGet } from '../api/tmdb'
+import { endpoints, MAX_APPEND, tmdbGet } from '../shared/api/tmdb'
 import type { LibraryMedia, LibraryStatus, SeriesProgress } from '../types/library'
 import type {
   Plan,

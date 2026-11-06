@@ -83,7 +83,7 @@
 }
 
 .pitch {
-  composes: bodyL from '../../styles/typography.module.css';
+  composes: bodyL from '../../shared/styles/typography.module.css';
   max-width: 420px;
   margin: 0;
 }
@@ -96,7 +96,7 @@
 }
 
 .title {
-  composes: displayM from '../../styles/typography.module.css';
+  composes: displayM from '../../shared/styles/typography.module.css';
   margin: 0;
 }
 

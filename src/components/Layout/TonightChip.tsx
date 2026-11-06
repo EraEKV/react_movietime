@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { useUpcoming } from '../../hooks/usePlanner'
 import { unitsLabel } from '../../utils/schedule'
-import Chip from '../Chip/Chip'
+import Chip from '../../shared/ui/Chip/Chip'
 import styles from './TonightChip.module.css'
 
 /**

@@ -2,11 +2,11 @@ import { Trans, useTranslation } from 'react-i18next'
 import { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router'
 import styles from '../components/auth/AuthLayout.module.css'
-import Banner from '../components/Banner/Banner'
-import Button from '../components/Button/Button'
-import Icon from '../components/Icon/Icon'
+import Banner from '../shared/ui/Banner/Banner'
+import Button from '../shared/ui/Button/Button'
+import Icon from '../shared/ui/Icon/Icon'
 import { useAuth } from '../hooks/useAuth'
-import { safeRedirect } from '../utils/redirect'
+import { safeRedirect } from '../shared/lib/redirect'
 
 /** After email signup: "check your inbox", resend, "I've verified", or start over. */
 export default function VerifyEmailPage() {

@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import type { FormEvent } from 'react'
-import { useForm } from '../../hooks/useForm'
+import { useForm } from '../../shared/hooks/useForm'
 import type { ListDraft } from '../../types/list'
 import {
   cleanDraft,
@@ -9,10 +9,10 @@ import {
   LIST_NAME_MAX,
   validateListDraft,
 } from '../../utils/lists'
-import Banner from '../Banner/Banner'
-import Button from '../Button/Button'
-import Textarea from '../Textarea/Textarea'
-import TextField from '../TextField/TextField'
+import Banner from '../../shared/ui/Banner/Banner'
+import Button from '../../shared/ui/Button/Button'
+import Textarea from '../../shared/ui/Textarea/Textarea'
+import TextField from '../../shared/ui/TextField/TextField'
 import EmojiPicker from './EmojiPicker'
 import styles from './ListForm.module.css'
 

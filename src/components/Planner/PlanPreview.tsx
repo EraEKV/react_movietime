@@ -1,13 +1,13 @@
 import { useTranslation } from 'react-i18next'
-import { imageUrl } from '../../api/tmdb'
+import { imageUrl } from '../../shared/api/tmdb'
 import type { PlanColor, ScheduledSession } from '../../types/plan'
 import { formatDay, monthGrid, monthOf } from '../../utils/calendar'
 import type { PlanSummary } from '../../utils/schedule'
 import { totalHours, unitsLabel } from '../../utils/schedule'
-import Banner from '../Banner/Banner'
+import Banner from '../../shared/ui/Banner/Banner'
 import CalendarMonth from '../CalendarMonth/CalendarMonth'
-import StatTile from '../StatTile/StatTile'
-import TextField from '../TextField/TextField'
+import StatTile from '../../shared/ui/StatTile/StatTile'
+import TextField from '../../shared/ui/TextField/TextField'
 import styles from './Planner.module.css'
 
 const finishLabel = (day: string | null) =>

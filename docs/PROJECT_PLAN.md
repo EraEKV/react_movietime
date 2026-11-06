@@ -322,7 +322,7 @@ Small fixes between phases go straight to `main`.
 
 | Requirement                                    | How                                                                                 |
 | ---------------------------------------------- | ----------------------------------------------------------------------------------- |
-| pages / components / hooks / services / styles | `src/pages`, `src/components`, `src/hooks`, `src/services`, `src/styles`            |
+| pages / components / hooks / services / styles | `src/pages`, `src/components`, `src/hooks`, `src/services`, `src/shared/styles`     |
 | Logic outside components                       | Firestore and TMDB calls in `src/services` and `src/api`; pure logic in `src/utils` |
 | No `localStorage` in UI components             | Only in `src/storage/*` modules                                                     |
 | One page per file                              | `src/pages/*Page.tsx`                                                               |
@@ -435,9 +435,11 @@ with verified emails, in two browser profiles or one normal and one private wind
 
 ### 7.2 Architecture in two minutes
 
-- `src/` is split by kind: `pages` (one per route) and `components` render; `hooks` connect React
-  to data; `services` and `api` talk to Firebase and TMDB; `storage` is the only code that
-  touches `localStorage`; `utils` is pure and has the unit tests.
+- `src/shared` holds everything without business meaning (UI kit, generic hooks, helpers, the
+  TMDB client, i18n, styles) and may not import from the rest of `src` (ESLint rule). The rest
+  is split by kind: `pages` (one per route) and `components` render; `hooks` connect React to
+  data; `services` talk to Firebase; `storage` is the only code that touches `localStorage`;
+  `utils` holds pure domain logic with the unit tests.
 - **State:** Redux Toolkit for what the whole app needs (`auth`, `library`, `preferences`) with
   listener middleware for side effects; the URL for what must be shareable (catalog and library
   filters); `useState` for local UI. Lists and plans stay in page-level hooks with Firestore
@@ -483,16 +485,22 @@ with verified emails, in two browser profiles or one normal and one private wind
 | Why `injectManifest` and not `generateSW`?   | Every caching rule is visible in our own `src/sw.ts`; the plugin only injects the precache list and the manifest.                                                                                                                                                            |
 | What works offline?                          | The shell, visited and lazy pages, cached TMDB responses and posters, the library and lists from the Firestore cache. New TMDB searches don't work offline and show an error with a retry button.                                                                            |
 | Why TypeScript 6 and not 7?                  | `typescript-eslint` 8 doesn't support TS 7 yet.                                                                                                                                                                                                                              |
-| What is not done?                            | Push notifications (out of scope), the layered `shared/` structure (a note only), UI check of the update prompt. Stored data keeps the language it was created in; Kazakh TMDB overviews often fall back to English.                                                         |
+| What is not done?                            | Push notifications (out of scope), UI check of the update prompt. Stored data keeps the language it was created in; Kazakh TMDB overviews often fall back to English.                                                                                                        |
 | How do you test?                             | `npm test`: 74 unit and component tests (logic, slices, hooks, components). Rules and UI flows were verified against the emulator and a mocked TMDB with scripts that aren't part of the repo.                                                                               |
 
-## Idea: a layered structure (FSD-like), not scheduled
+## Layered structure (FSD-like): `shared/` done, the rest is an idea
 
-Only a note: nothing here is implemented, and the current flat structure is the one the docs describe.
+Done in `refactor/structure`: step 1 below. `src/shared` holds the UI kit, generic hooks,
+domain-free helpers, the TMDB client, i18n, styles and app-wide types, and an ESLint rule keeps
+it from importing the rest of `src`. Files were only moved (`git diff -M` shows renames);
+first-load JS stayed the same. Full FSD looks too heavy for an app this size, so steps 2–3 are
+not planned; the target below stays as a reference.
 
-Today `src/` is flat by kind (`components/`, `hooks/`, `utils/`, `services/`…): 70+ component
-folders and many shared pieces that "just lie around". Idea for a later `refactor/structure`
-branch, after the PWA and tests phases (a big move conflicts with every open branch):
+Kept outside `shared/` on purpose: `utils/calendar.ts` and `DatePicker` (they use the planner's
+`Weekday` type), `CalendarMonth`, `ProgressRing`, `WeekdayToggle`, `ScorePicker` (planner and
+library types), `useTheme` (reads the Redux store).
+
+Reference target:
 
 ```
 src/
@@ -517,7 +525,8 @@ Order of work, each step one PR that moves files and changes imports only:
    `i18n/`, styles. Biggest win, lowest risk.
 2. `entities/`: types, services and small views of media, library, list, plan, user.
 3. `features/` and `widgets/`: split the large pages (`PlanPage`, `ListPage`, `DashboardPage`).
-4. Enforce the direction of imports with an ESLint rule (`no-restricted-imports` per layer).
+4. Enforce the direction of imports with an ESLint rule (`no-restricted-imports` per layer);
+   done for `shared/`.
 
 Dictionaries stay in `public/locales/`; the namespace per feature already matches the future
 `features/` and `entities/` slices.

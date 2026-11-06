@@ -1,11 +1,11 @@
 import { useTranslation } from 'react-i18next'
 import type { SeriesProgress } from '../../types/library'
 import type { PlanUnit } from '../../types/plan'
-import { episodeCode, formatRuntime } from '../../utils/format'
+import { episodeCode, formatRuntime } from '../../shared/lib/format'
 import { continueIndex, type StartChoice } from '../../utils/planner'
-import Banner from '../Banner/Banner'
-import RadioCards, { type RadioCardOption } from '../RadioCards/RadioCards'
-import SelectField from '../SelectField/SelectField'
+import Banner from '../../shared/ui/Banner/Banner'
+import RadioCards, { type RadioCardOption } from '../../shared/ui/RadioCards/RadioCards'
+import SelectField from '../../shared/ui/SelectField/SelectField'
 import styles from './Planner.module.css'
 
 interface StartStepProps {

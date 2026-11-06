@@ -1,11 +1,11 @@
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
-import { imageUrl } from '../../api/tmdb'
+import { imageUrl } from '../../shared/api/tmdb'
 import type { ListRole, TitleList } from '../../types/list'
 import { LIST_COVERS, titlesCount } from '../../utils/lists'
 import { memberName } from '../../utils/sharing'
-import AvatarStack from '../AvatarStack/AvatarStack'
-import { RoleBadge, VisibilityBadge } from '../Badge/ListBadges'
+import AvatarStack from '../../shared/ui/AvatarStack/AvatarStack'
+import { RoleBadge, VisibilityBadge } from './ListBadges'
 import styles from './ListCard.module.css'
 
 interface ListCardProps {

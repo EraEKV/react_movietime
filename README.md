@@ -99,7 +99,7 @@ Both themes follow the system setting and can be switched in the header.
 - **Redux Toolkit**: global state (`preferences`, `auth`, `library`) with listener middleware
 - **Firebase**: Authentication (email/password, Google), Cloud Firestore
 - **TMDB API** for movies and series
-- **CSS Modules** on design tokens (`styles/tokens.css`), dark and light themes via `data-theme`
+- **CSS Modules** on design tokens (`shared/styles/tokens.css`), dark and light themes via `data-theme`
 - Plain `fetch` + custom hooks for TMDB, `onSnapshot` + custom hooks for Firestore
 - `i18next` + `react-i18next`: en / ru / kk, dictionaries are JSON files in `public/locales/`, split by feature and loaded on demand
 - **Service worker** written with Workbox (`vite-plugin-pwa`, `injectManifest` mode)
@@ -257,20 +257,28 @@ Full reference: **[docs/API.md](docs/API.md)** (service functions) and
 
 ```
 src/
-├── api/          TMDB client and endpoint builders
+├── shared/       code with no business meaning, imports nothing from the rest of src
+│   ├── ui/       UI kit: Button, Dialog, Menu, Field, Tabs, Toast, Skeleton, …
+│   ├── hooks/    useFetch, useRequest, useSubscription, useDebouncedValue, useMediaQuery, …
+│   ├── lib/      cx, format, relativeTime, validation, rovingFocus, rating, …
+│   ├── api/      TMDB client and endpoint builders
+│   ├── i18n/     i18next setup, typed keys, Intl helpers
+│   ├── styles/   global styles, design tokens, themes
+│   └── types/    app-wide types (Option, Language, Theme)
+├── components/   app components: layout, catalog, library, lists, planner, dashboard, …
+├── pages/        one file per route
+├── hooks/        hooks with app data: auth, library, lists, planner, sharing, …
 ├── services/     Firebase: auth, profile, library, lists, sharing, planner
 ├── storage/      localStorage modules
 ├── store/        Redux store, slices, typed hooks
-├── hooks/        custom hooks
-├── i18n/         i18next setup, typed keys, Intl helpers
-├── sw.ts         service worker (Workbox)
-├── test/         Vitest setup (tests live next to the code as *.test.ts[x])
 ├── types/        TypeScript types for TMDB responses and app data
-├── components/   reusable UI, one folder per component + CSS Module
-├── pages/        one file per route
-├── styles/       global styles, design tokens, themes
-└── utils/        pure helpers: filters, formatting, schedule, stats
+├── utils/        pure domain helpers: filters, schedule, stats, sharing, …
+├── test/         Vitest setup (tests live next to the code as *.test.ts[x])
+└── sw.ts         service worker (Workbox)
 ```
+
+`src/shared` must not import from the rest of `src`; an ESLint `no-restricted-imports` rule
+enforces it.
 
 How it fits together, where each piece of state lives and why, and the React patterns used
 (effects and cleanup, race conditions, keys): **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)**.
