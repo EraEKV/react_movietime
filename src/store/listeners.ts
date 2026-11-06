@@ -1,5 +1,5 @@
 import { isAnyOf, TaskAbortError } from '@reduxjs/toolkit'
-import { onAuthChange, toAuthUser } from '../services/authService'
+import { loadAuthService } from '../services/loadAuthService'
 import { savePreferences } from '../storage/preferencesStorage'
 import { authChanged } from './authSlice'
 import { startAppListening } from './listenerMiddleware'
@@ -111,7 +111,8 @@ export function registerPreferenceListeners(getState: () => RootState) {
  * Subscribed once for the app's lifetime, so there is nothing to unsubscribe.
  * Until the first callback, auth.status stays 'loading' and protected routes wait.
  */
-export function startAuthSync(dispatch: AppDispatch) {
+export async function startAuthSync(dispatch: AppDispatch) {
+  const { onAuthChange, toAuthUser } = await loadAuthService()
   onAuthChange((user) => {
     dispatch(authChanged(user ? toAuthUser(user) : null))
   })

@@ -1,19 +1,22 @@
-import { lazy } from 'react'
+import { lazy, Suspense } from 'react'
 import { Navigate, Route, Routes } from 'react-router'
-import AuthLayout from './components/auth/AuthLayout'
+
 import GuestRoute from './components/auth/GuestRoute'
 import ProtectedRoute from './components/auth/ProtectedRoute'
 import Layout from './components/Layout/Layout'
+import PageLoader from './components/PageLoader/PageLoader'
 import HomePage from './pages/HomePage'
-import LoginPage from './pages/LoginPage'
 import NotFoundPage from './pages/NotFoundPage'
-import SignupPage from './pages/SignupPage'
-import VerifyEmailPage from './pages/VerifyEmailPage'
 
 // Each lazy() page becomes its own JS chunk, downloaded the first time its route renders.
 // The <Suspense> boundary that shows a skeleton meanwhile lives in Layout, around <Outlet>,
-// so the header and tab bar stay on screen. Home (the first screen most visitors see),
-// auth screens and 404 stay in the main bundle.
+// so the header and tab bar stay on screen. Home (the first screen most visitors see) and
+// 404 stay in the main bundle. Auth screens are lazy too: most visits never open them, and
+// their forms + validation would otherwise ride along with every first load.
+const AuthLayout = lazy(() => import('./components/auth/AuthLayout'))
+const LoginPage = lazy(() => import('./pages/LoginPage'))
+const SignupPage = lazy(() => import('./pages/SignupPage'))
+const VerifyEmailPage = lazy(() => import('./pages/VerifyEmailPage'))
 const AboutPage = lazy(() => import('./pages/AboutPage'))
 const CatalogPage = lazy(() => import('./pages/CatalogPage'))
 const MoviePage = lazy(() => import('./pages/MoviePage'))
@@ -36,7 +39,13 @@ export default function App() {
   return (
     <Routes>
       {/* Auth screens have their own split layout, without the app header. */}
-      <Route element={<AuthLayout />}>
+      <Route
+        element={
+          <Suspense fallback={<PageLoader />}>
+            <AuthLayout />
+          </Suspense>
+        }
+      >
         <Route element={<GuestRoute />}>
           <Route path="login" element={<LoginPage />} />
         </Route>

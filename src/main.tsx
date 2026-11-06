@@ -12,7 +12,8 @@ import './styles/global.css'
 registerPreferenceListeners(store.getState)
 // Before startAuthSync: the library listener must already be listening for the first auth result.
 registerLibraryListeners(store.getState, store.dispatch)
-startAuthSync(store.dispatch)
+// Not awaited: the auth SDK arrives as its own chunk; until then auth.status is 'loading'.
+void startAuthSync(store.dispatch)
 
 const root = document.getElementById('root')
 if (!root) throw new Error('Missing #root element in index.html')
