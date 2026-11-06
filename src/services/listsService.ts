@@ -122,6 +122,29 @@ export function watchMyLists(
   )
 }
 
+/**
+ * Lists other people shared with this email, recently changed first. Again a query the
+ * rules can prove: every result has the user's email in memberEmails (rules also need a
+ * verified email, so the page asks only verified users).
+ * Needs the composite index memberEmails ARRAY_CONTAINS + updatedAt DESC.
+ */
+export function watchSharedLists(
+  email: string,
+  onData: (lists: TitleList[]) => void,
+  onError: (error: Error) => void,
+): Unsubscribe {
+  const q = query(
+    listsCol,
+    where('memberEmails', 'array-contains', email),
+    orderBy('updatedAt', 'desc'),
+  )
+  return onSnapshot(
+    q,
+    (snapshot) => onData(snapshot.docs.map((d) => toList(d.id, d.data(ESTIMATE)))),
+    onError,
+  )
+}
+
 /** One list; `null` when it doesn't exist (or was just deleted). */
 export function watchList(
   id: string,
@@ -268,4 +291,43 @@ export async function listsContaining(listIds: string[], key: MediaKey): Promise
     listIds.map(async (id) => ((await getDoc(itemRef(id, key))).exists() ? id : null)),
   )
   return new Set(found.filter((id): id is string => id !== null))
+}
+
+/**
+ * "Copy to my lists": a new private list owned by the current user with the same titles.
+ * Two steps, because the rules check items against the list as it was *before* a batch:
+ * the list must exist first, then items go in batches together with itemCount and covers.
+ * Notes and order are kept; the copier becomes the author of every item.
+ */
+export async function copyList(source: TitleList, owner: ListAuthor): Promise<string> {
+  const items = (await getDocs(query(itemsCol(source.id), orderBy('position')))).docs
+    .map((d) => toItem(d.id, d.data()))
+    .filter((item): item is ListItem => item !== null)
+
+  const id = await createList(owner, {
+    name: source.name,
+    description: source.description,
+    emoji: source.emoji,
+  })
+
+  for (let i = 0; i < items.length; i += BATCH_LIMIT) {
+    const chunk = items.slice(i, i + BATCH_LIMIT)
+    const batch = writeBatch(db)
+    for (const item of chunk) {
+      batch.set(itemRef(id, item.key), {
+        ...media(item),
+        note: item.note,
+        position: item.position,
+        addedBy: { uid: owner.uid, name: owner.name },
+        addedAt: serverTimestamp(),
+      })
+    }
+    batch.update(listRef(id), {
+      itemCount: increment(chunk.length),
+      covers: source.covers,
+      updatedAt: serverTimestamp(),
+    })
+    await batch.commit()
+  }
+  return id
 }
