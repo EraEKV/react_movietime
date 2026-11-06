@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { Outlet } from 'react-router'
 import { endpoints, imageUrl } from '../../api/tmdb'
 import { useFetch } from '../../hooks/useFetch'
@@ -36,6 +37,7 @@ function PosterMosaic() {
  * Being a parent route, it stays mounted while the guards and pages inside it change.
  */
 export default function AuthLayout() {
+  const { t } = useTranslation('auth')
   // These pages live outside the main Layout, so they follow the OS theme themselves.
   useSystemThemeSync()
 
@@ -44,9 +46,7 @@ export default function AuthLayout() {
       <aside className={styles.panel}>
         <Logo />
         <PosterMosaic />
-        <p className={styles.pitch}>
-          Plan the evenings. Watch together. Never lose your place in a series again.
-        </p>
+        <p className={styles.pitch}>{t('pitch')}</p>
       </aside>
 
       <main id="main" className={styles.main}>

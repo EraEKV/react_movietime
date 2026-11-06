@@ -1,4 +1,4 @@
-import i18n, { type BackendModule, type Namespace, type ParseKeys } from 'i18next'
+import i18n, { type BackendModule, type ParseKeys } from 'i18next'
 import { initReactI18next } from 'react-i18next'
 import type { Language } from '../types/preferences'
 
@@ -55,8 +55,8 @@ export function setLanguage(language: Language) {
   if (i18n.language !== language) void i18n.changeLanguage(language)
 }
 
-/** Any key of any dictionary: 'nav.home' (common) or 'library:sort.title'. */
-export type TranslationKey = ParseKeys<Namespace>
+/** A key of the common dictionary ('nav.home') or of another one with its prefix ('library:sort.title'). */
+export type TranslationKey = ParseKeys<'common'>
 
 /**
  * A select option whose label is looked up when it is read, not when the module loads:
