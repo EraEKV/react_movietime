@@ -127,3 +127,9 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+@media (pointer: coarse) {
+  .todayText > button {
+    min-height: 44px;
+  }
+}

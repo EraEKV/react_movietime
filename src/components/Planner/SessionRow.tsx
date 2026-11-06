@@ -121,6 +121,7 @@ export default function SessionRow({
                 size="sm"
                 variant="ghost"
                 icon="undo"
+                aria-label={`Undo ${session.status === 'done' ? 'watched' : 'skip'}: ${unitsLabel(session.units)}`}
                 loading={busy === 'undo'}
                 onClick={() => run('undo', onUndo)}
               >

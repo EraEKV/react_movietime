@@ -103,7 +103,12 @@ function PlanView({ id }: { id: string }) {
   const [confirmLeave, setConfirmLeave] = useState(false)
   const [leaving, setLeaving] = useState(false)
   const [leaveError, setLeaveError] = useState<string | null>(null)
-  const [toast, showToast] = useTimedState<string>(6000, noticeFromState(location.state))
+  const passed = noticeFromState(location.state)
+  const [toast, showToast, hideToast] = useTimedState<{
+    text: string
+    undo?: () => void
+    error?: boolean
+  }>(6000, passed ? { text: passed } : null)
 
   if (state.status === 'loading' || ((deleting || leaving) && state.status === 'missing')) {
     return <PlanSkeleton />
@@ -140,12 +145,12 @@ function PlanView({ id }: { id: string }) {
 
   const { plan, sessions, role } = state
   const editable = canEditSessions(role)
-  const report = (error: unknown) => showToast(planErrorMessage(error))
+  const report = (error: unknown) => showToast({ text: planErrorMessage(error), error: true })
   /** Session actions: the snapshot shows the result; a failure comes back as a toast. */
-  const act = (action: () => Promise<void>, done?: string) => () =>
+  const act = (action: () => Promise<void>, done?: string, undo?: () => Promise<void>) => () =>
     action().then(
       () => {
-        if (done) showToast(done)
+        if (done) showToast({ text: done, undo: undo && (() => void undo().catch(report)) })
       },
       (error: unknown) => report(error),
     )
@@ -282,6 +287,9 @@ function PlanView({ id }: { id: string }) {
                   onSkip={act(
                     () => actions.skip(plan, s),
                     `Skipped ${unitsLabel(s.units)}: moved to the end`,
+                    // Undo needs the skipped state, which the snapshot brings; the service
+                    // re-reads sessions, so passing the old object with the new status is enough.
+                    () => actions.undo(plan, { ...s, status: 'skipped' }),
                   )}
                   onUndo={act(() => actions.undo(plan, s))}
                   onReschedule={() => setMoving(s)}
@@ -395,9 +403,9 @@ function PlanView({ id }: { id: string }) {
           onMove={async (date, shiftLater) => {
             try {
               await actions.reschedule(plan, moving, date, shiftLater)
-              showToast(
-                `Moved ${unitsLabel(moving.units)} to ${formatDay(date, { weekday: 'short', month: 'short', day: 'numeric' })}`,
-              )
+              showToast({
+                text: `Moved ${unitsLabel(moving.units)} to ${formatDay(date, { weekday: 'short', month: 'short', day: 'numeric' })}`,
+              })
             } catch (error) {
               throw new Error(planErrorMessage(error), { cause: error })
             }
@@ -490,7 +498,18 @@ function PlanView({ id }: { id: string }) {
         )}
       </Dialog>
 
-      {toast && <Toast icon="check">{toast}</Toast>}
+      {toast && (
+        <Toast
+          icon={toast.undo ? undefined : toast.error ? 'alert' : 'check'}
+          actionLabel={toast.undo ? 'Undo' : undefined}
+          onAction={() => {
+            toast.undo?.()
+            hideToast()
+          }}
+        >
+          {toast.text}
+        </Toast>
+      )}
     </article>
   )
 }
