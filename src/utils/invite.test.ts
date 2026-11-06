@@ -5,6 +5,7 @@ describe('parseInvite', () => {
   it('accepts a list or plan id', () => {
     expect(parseInvite('lists/aB12')).toEqual({ collection: 'lists', id: 'aB12' })
     expect(parseInvite('plans/xyz')).toEqual({ collection: 'plans', id: 'xyz' })
+    expect(parseInvite('lists/a-b_c')).toEqual({ collection: 'lists', id: 'a-b_c' })
   })
 
   it.each([

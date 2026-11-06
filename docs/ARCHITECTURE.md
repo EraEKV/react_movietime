@@ -187,7 +187,7 @@ _Decline_ is the normal leave write plus the deletion of the notification in one
 
 For people outside the app, `ShareDialog` shows `InviteLink` after an invite (and from the
 member menu): `/signup?invite=lists/<id>&email=<email>`. `parseInvite` accepts only
-`lists|plans/<alphanumeric id>`, so the parameter cannot become an open redirect; `GuestRoute`
+`lists|plans/<id>` (letters, digits, `-`, `_`), so the parameter cannot become an open redirect; `GuestRoute`
 turns it into the list or plan path, and the existing redirect chain (sign-up → verify email →
 continue) brings the user there. The link is copied, passed to `navigator.share` where it
 exists, or put into a `mailto:` with a subject and body from the `sharing` dictionary.

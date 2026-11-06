@@ -6,8 +6,8 @@ import { normalizeEmail, sharePath } from './sharing'
 // The sign-up form prefills the email, and after the email is verified the user lands on
 // the list or plan (the same "return after sign-in" redirect the app already has).
 
-/** Firestore auto ids are letters and digits; anything else is not an invite target. */
-const INVITE_TARGET = /^(lists|plans)\/([A-Za-z0-9]{1,64})$/
+/** Firestore ids are letters, digits, "-" and "_"; anything else is not an invite target. */
+const INVITE_TARGET = /^(lists|plans)\/([A-Za-z0-9_-]{1,64})$/
 
 export interface InviteTarget {
   collection: SharedCollection
