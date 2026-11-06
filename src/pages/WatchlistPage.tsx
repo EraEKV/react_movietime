@@ -99,7 +99,7 @@ export default function WatchlistPage() {
           <h1 className={styles.title}>Library</h1>
           <p className={styles.subtitle}>Saved on this device · {entries.length} series</p>
         </div>
-        <ButtonLink to="/watchlist/new" variant="primary" icon="plus">
+        <ButtonLink to="/library/new" variant="primary" icon="plus">
           Add series
         </ButtonLink>
       </header>

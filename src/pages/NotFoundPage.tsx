@@ -1,5 +1,5 @@
 import ButtonLink from '../components/ButtonLink/ButtonLink'
-import styles from './NotFoundPage.module.css'
+import styles from './SystemPage.module.css'
 
 export default function NotFoundPage() {
   return (
@@ -19,7 +19,7 @@ export default function NotFoundPage() {
         <ButtonLink to="/" variant="primary" icon="home">
           Go home
         </ButtonLink>
-        <ButtonLink to="/watchlist" icon="bookmark">
+        <ButtonLink to="/library" icon="bookmark">
           Go to library
         </ButtonLink>
       </div>

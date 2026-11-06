@@ -18,7 +18,10 @@ const SeriesPage = lazy(() => import('./pages/SeriesPage'))
 const WatchlistPage = lazy(() => import('./pages/WatchlistPage'))
 const WatchlistAddPage = lazy(() => import('./pages/WatchlistAddPage'))
 const WatchlistEditPage = lazy(() => import('./pages/WatchlistEditPage'))
+const ProfileLayout = lazy(() => import('./components/Layout/ProfileLayout'))
 const ProfilePage = lazy(() => import('./pages/ProfilePage'))
+const OfflinePage = lazy(() => import('./pages/OfflinePage'))
+const ComingSoonPage = lazy(() => import('./pages/ComingSoonPage'))
 
 export default function App() {
   return (
@@ -40,14 +43,77 @@ export default function App() {
         <Route element={<Layout />}>
           {/* Temporary: the landing page replaces this redirect. */}
           <Route index element={<Navigate to="/series" replace />} />
-          <Route path="series" element={<CatalogPage />} />
-          <Route path="series/:id" element={<SeriesPage />} />
-          <Route path="watchlist" element={<WatchlistPage />} />
-          <Route path="watchlist/new" element={<WatchlistAddPage />} />
-          <Route path="watchlist/:entryId/edit" element={<WatchlistEditPage />} />
-          <Route element={<ProtectedRoute />}>
-            <Route path="profile" element={<ProfilePage />} />
+
+          <Route
+            path="movies"
+            element={
+              <ComingSoonPage
+                title="Movies"
+                icon="film"
+                body="Search and filter movies the same way as series, then save them to your library."
+              />
+            }
+          />
+          <Route path="series">
+            <Route index element={<CatalogPage />} />
+            <Route path=":id" element={<SeriesPage />} />
           </Route>
+
+          <Route path="library">
+            <Route index element={<WatchlistPage />} />
+            <Route path="new" element={<WatchlistAddPage />} />
+            <Route path=":entryId/edit" element={<WatchlistEditPage />} />
+          </Route>
+          {/* Old links from the midterm version keep working. */}
+          <Route path="watchlist/*" element={<Navigate to="/library" replace />} />
+
+          <Route element={<ProtectedRoute />}>
+            <Route
+              path="lists"
+              element={
+                <ComingSoonPage
+                  title="Lists"
+                  icon="list"
+                  body="Named collections of titles you can share with friends as editors or viewers."
+                />
+              }
+            />
+            <Route
+              path="planner"
+              element={
+                <ComingSoonPage
+                  title="Planner"
+                  icon="calendar"
+                  body="Turn a series or a list into a schedule of viewing nights with a finish date."
+                />
+              }
+            />
+            <Route
+              path="dashboard"
+              element={
+                <ComingSoonPage
+                  title="Dashboard"
+                  icon="chart"
+                  body="Statistics from your library and plans: what you watch, how much and when."
+                />
+              }
+            />
+            <Route path="profile" element={<ProfileLayout />}>
+              <Route index element={<ProfilePage />} />
+              <Route
+                path="settings"
+                element={
+                  <ComingSoonPage
+                    title="Settings"
+                    icon="settings"
+                    body="Display name, theme, language and notifications in one place."
+                  />
+                }
+              />
+            </Route>
+          </Route>
+
+          <Route path="offline" element={<OfflinePage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>
