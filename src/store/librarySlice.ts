@@ -64,6 +64,8 @@ const librarySlice = createSlice({
       state.status = 'error'
       state.error = action.payload
     },
+    /** "Try again" after a sync error: the listener restarts the subscription. */
+    librarySyncRetried() {},
     // Guest writes change the store directly; a listener mirrors them to localStorage.
     guestEntrySaved: libraryAdapter.setOne,
     guestEntryRemoved: libraryAdapter.removeOne,
@@ -81,6 +83,7 @@ export const {
   accountLibraryLoading,
   accountLibrarySynced,
   librarySyncFailed,
+  librarySyncRetried,
   guestEntrySaved,
   guestEntryRemoved,
   libraryNoticeShown,

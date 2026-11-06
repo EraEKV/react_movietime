@@ -2,6 +2,7 @@ import { Suspense, useEffect } from 'react'
 import { Link, Outlet, useLocation } from 'react-router'
 import { useSystemThemeSync } from '../../hooks/useTheme'
 import VerifyEmailBanner from '../auth/VerifyEmailBanner'
+import LibraryNotice from '../Library/LibraryNotice'
 import PageLoader from '../PageLoader/PageLoader'
 import Header from './Header'
 import styles from './Layout.module.css'
@@ -48,6 +49,7 @@ export default function Layout() {
       </footer>
 
       <TabBar />
+      <LibraryNotice />
     </div>
   )
 }

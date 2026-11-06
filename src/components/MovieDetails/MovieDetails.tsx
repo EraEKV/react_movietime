@@ -3,6 +3,7 @@ import { useFetch } from '../../hooks/useFetch'
 import { useGenres } from '../../hooks/useGenres'
 import type { CrewMember, MovieDetails as MovieDetailsData } from '../../types/tmdb'
 import { formatDate, formatMoney, formatRuntime, getYear } from '../../utils/format'
+import { movieToLibraryMedia } from '../../utils/library'
 import { fromMovie, pickTrailer } from '../../utils/media'
 import BackButton from '../BackButton/BackButton'
 import ButtonLink from '../ButtonLink/ButtonLink'
@@ -10,6 +11,7 @@ import CastList from '../CastList/CastList'
 import DetailsSkeleton from '../DetailsSkeleton/DetailsSkeleton'
 import ErrorState from '../EmptyState/ErrorState'
 import FactTiles from '../FactTiles/FactTiles'
+import LibraryButton from '../LibraryButton/LibraryButton'
 import MediaGrid from '../MediaGrid/MediaGrid'
 import Section from '../Section/Section'
 import TitleHero from '../TitleHero/TitleHero'
@@ -98,6 +100,7 @@ export default function MovieDetails({ movieId }: { movieId: string }) {
           },
           { label: 'Country', value: countries },
         ].filter((fact) => fact.value)}
+        actions={<LibraryButton media={movieToLibraryMedia(movie)} />}
       />
 
       <FactTiles

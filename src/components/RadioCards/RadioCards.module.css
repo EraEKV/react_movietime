@@ -1,21 +1,20 @@
-.form {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-6);
-  max-width: 640px;
-}
-
-.fieldset {
-  display: flex;
-  flex-direction: column;
+.group {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-2);
-  min-width: 0;
   margin: 0;
   padding: 0;
   border: 0;
 }
 
+@media (min-width: 768px) {
+  .group {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
 .legend {
+  grid-column: 1 / -1;
   margin-bottom: var(--space-2);
   padding: 0;
   font-size: 14px;
@@ -23,41 +22,16 @@
   font-weight: 600;
 }
 
-.fixed {
-  composes: titleM from '../../styles/typography.module.css';
-}
-
-.error {
-  display: flex;
-  gap: var(--space-1);
-  color: var(--danger);
-  font-size: 14px;
-  line-height: 20px;
-}
-
-.error svg {
-  margin-top: 2px;
-}
-
-/* Radio cards: a real radio input inside each label, styled as a card. */
-.cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: var(--space-2);
-}
-
 .card {
   position: relative;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--space-3);
   min-height: 56px;
   padding: var(--space-3) var(--space-4);
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-md);
   background: var(--surface);
-  font-size: 14px;
-  font-weight: 600;
   cursor: pointer;
   transition:
     border-color var(--dur-fast),
@@ -68,9 +42,11 @@
   background: var(--surface-hover);
 }
 
+/* Visually hidden but still focusable and announced. */
 .card input {
   position: absolute;
   opacity: 0;
+  pointer-events: none;
 }
 
 .card:has(input:checked) {
@@ -84,10 +60,25 @@
   outline-offset: 2px;
 }
 
-.actions {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: var(--space-2);
-  padding-top: var(--space-2);
+.icon {
+  margin-top: 2px;
+  color: var(--text-muted);
+}
+
+.card:has(input:checked) .icon {
+  color: var(--accent);
+}
+
+.label {
+  display: block;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+}
+
+.description {
+  display: block;
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 20px;
 }

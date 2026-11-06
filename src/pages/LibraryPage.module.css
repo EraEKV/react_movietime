@@ -1,0 +1,64 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.title {
+  composes: displayL from '../styles/typography.module.css';
+}
+
+.subtitle {
+  margin-top: var(--space-1);
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 20px;
+  font-variant-numeric: tabular-nums;
+}
+
+.toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* Phones: search on its own row, type + genre side by side; sort and view are tablet+. */
+.controls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: end;
+  gap: var(--space-3);
+}
+
+.search {
+  grid-column: 1 / -1;
+}
+
+.sort {
+  grid-column: 1 / -1;
+}
+
+.view {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .controls {
+    grid-template-columns: minmax(0, 1fr) repeat(2, 180px) 210px auto;
+  }
+
+  .search,
+  .sort {
+    grid-column: auto;
+  }
+
+  .view {
+    display: block;
+  }
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}

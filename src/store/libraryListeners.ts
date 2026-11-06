@@ -16,6 +16,7 @@ import {
   guestLibraryLoaded,
   libraryNoticeShown,
   librarySyncFailed,
+  librarySyncRetried,
   selectLibraryEntries,
 } from './librarySlice'
 import type { AppDispatch, RootState } from './store'
@@ -33,12 +34,14 @@ export function registerLibraryListeners(getState: () => RootState, dispatch: Ap
   /**
    * Runs when auth settles for the first time and whenever the user changes
    * (guest → user, user → guest, user A → user B). Token refreshes keep the same uid,
-   * so they don't restart the subscription.
+   * so they don't restart the subscription. "Try again" after an error restarts it too.
    */
   startAppListening({
-    predicate: (_action, current, previous) =>
+    predicate: (action, current, previous) =>
       current.auth.status !== 'loading' &&
-      (previous.auth.status === 'loading' || current.auth.user?.uid !== previous.auth.user?.uid),
+      (previous.auth.status === 'loading' ||
+        current.auth.user?.uid !== previous.auth.user?.uid ||
+        librarySyncRetried.match(action)),
     effect: async (_action, api) => {
       // Like takeLatest: a newer run stops this one's subscription (see the finally block).
       api.cancelActiveListeners()

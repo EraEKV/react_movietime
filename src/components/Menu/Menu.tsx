@@ -12,6 +12,8 @@ export type MenuItem =
       label: string
       icon?: IconName
       danger?: boolean
+      /** Makes it a menuitemradio: one of a set of choices (e.g. the library status). */
+      checked?: boolean
       to?: string
       onSelect?: () => void
     }
@@ -47,7 +49,7 @@ export default function Menu({
   const listRef = useRef<HTMLDivElement>(null)
   const menuId = useId()
 
-  const menuItems = () => listRef.current?.querySelectorAll<HTMLElement>('[role="menuitem"]') ?? []
+  const menuItems = () => listRef.current?.querySelectorAll<HTMLElement>('[role^="menuitem"]') ?? []
 
   // Opening moves focus into the menu, so arrow keys work right away.
   useEffect(() => {
@@ -111,7 +113,8 @@ export default function Menu({
             const content = (
               <>
                 {item.icon && <Icon name={item.icon} size={18} />}
-                {item.label}
+                <span className={styles.label}>{item.label}</span>
+                {item.checked && <Icon name="check" size={18} className={styles.check} />}
               </>
             )
             const className = cx(styles.item, item.danger && styles.danger)
@@ -135,7 +138,8 @@ export default function Menu({
               <button
                 key={i}
                 type="button"
-                role="menuitem"
+                role={item.checked === undefined ? 'menuitem' : 'menuitemradio'}
+                aria-checked={item.checked}
                 tabIndex={-1}
                 className={className}
                 onClick={select}

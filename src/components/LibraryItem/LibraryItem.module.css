@@ -1,16 +1,24 @@
 .item {
   display: flex;
-  gap: var(--space-4);
-  height: 100%;
+  align-items: flex-start;
+  gap: var(--space-3);
   padding: var(--space-3);
   border-radius: var(--radius-md);
   background: var(--surface);
   box-shadow: var(--shadow-1);
 }
 
+@media (min-width: 768px) {
+  .item {
+    align-items: center;
+    gap: var(--space-5);
+    padding: var(--space-4);
+  }
+}
+
 /* Dropped titles step back visually; the status marker still names the status. */
 .dropped .poster,
-.dropped .top {
+.dropped .heading {
   opacity: 0.64;
 }
 
@@ -18,7 +26,7 @@
   display: grid;
   flex-shrink: 0;
   place-items: center;
-  width: 72px;
+  width: 64px;
   aspect-ratio: 2 / 3;
   overflow: hidden;
   border-radius: var(--radius-sm);
@@ -28,7 +36,7 @@
 
 @media (min-width: 768px) {
   .poster {
-    width: 88px;
+    width: 72px;
   }
 }
 
@@ -42,61 +50,89 @@
   display: flex;
   flex: 1;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: 6px;
   min-width: 0;
+}
+
+.heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px var(--space-2);
 }
 
 .title {
   composes: titleM from '../../styles/typography.module.css';
+  overflow-wrap: anywhere;
 }
 
 .title a:hover {
   color: var(--accent);
 }
 
-.meta {
-  margin-top: 2px;
+.meta,
+.unscored {
+  color: var(--text-subtle);
+  font-size: 13px;
+  line-height: 18px;
+  font-variant-numeric: tabular-nums;
+}
+
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+}
+
+.score {
   color: var(--text-muted);
   font-size: 13px;
   line-height: 18px;
   font-variant-numeric: tabular-nums;
 }
 
-.scores {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-2) var(--space-4);
+.score strong {
+  color: var(--text);
 }
 
-.score {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  color: var(--text-muted);
-  font-size: 12px;
-  font-weight: 600;
+.progress {
+  max-width: 360px;
 }
 
 .notes {
-  display: -webkit-box;
   overflow: hidden;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
+  max-width: 520px;
   color: var(--text-muted);
   font-size: 14px;
   line-height: 20px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-1);
-  margin-top: auto;
+  display: none;
+}
+
+.menu {
+  flex-shrink: 0;
+  margin: -4px -4px 0 0;
+}
+
+@media (min-width: 768px) {
+  .actions {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: var(--space-1);
+  }
+
+  .menu {
+    display: none;
+  }
 }
 
 .status {
-  min-width: 160px;
+  width: 168px;
   margin-right: var(--space-1);
 }

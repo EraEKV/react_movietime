@@ -3,7 +3,8 @@
   display: flex;
   align-items: flex-end;
   min-height: 360px;
-  overflow: hidden;
+  /* No overflow: hidden here — the library status menu opens below the hero's edge.
+     The backdrop and the scrim round their own corners instead. */
   border-radius: var(--radius-lg);
   background: var(--surface-sunken);
   color: var(--text-on-backdrop);
@@ -12,6 +13,7 @@
 .backdrop {
   position: absolute;
   inset: 0;
+  border-radius: inherit;
   background-size: cover;
   background-position: center top;
 }
@@ -21,6 +23,7 @@
   content: '';
   position: absolute;
   inset: 0;
+  border-radius: inherit;
   background: var(--scrim-backdrop);
 }
 

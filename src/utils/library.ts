@@ -154,3 +154,20 @@ export function filterLibrary(entries: LibraryEntry[], query: LibraryQuery): Lib
     .filter((e) => !term || e.title.toLowerCase().includes(term))
     .toSorted(SORTERS[query.sort])
 }
+
+/** Season sizes of a series, as /tv/{id} lists them. */
+export interface SeasonSize {
+  season_number: number
+  episode_count: number
+}
+
+/**
+ * Episodes watched up to S{season}E{episode}: all regular seasons before it plus the
+ * episode number. Specials (season 0) don't count towards progress.
+ */
+export function watchedUpTo(seasons: SeasonSize[], season: number, episode: number): number {
+  const before = seasons
+    .filter((s) => s.season_number > 0 && s.season_number < season)
+    .reduce((sum, s) => sum + s.episode_count, 0)
+  return before + episode
+}

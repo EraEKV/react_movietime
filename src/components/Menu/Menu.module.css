@@ -53,6 +53,14 @@
   outline: none;
 }
 
+.label {
+  flex: 1;
+}
+
+.item .check {
+  color: var(--accent);
+}
+
 .danger,
 .danger svg {
   color: var(--danger);

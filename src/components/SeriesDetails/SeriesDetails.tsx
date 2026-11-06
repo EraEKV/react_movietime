@@ -4,6 +4,7 @@ import { useGenres } from '../../hooks/useGenres'
 import type { SeriesDetails as SeriesDetailsData } from '../../types/tmdb'
 import { fromSeries, pickTrailer } from '../../utils/media'
 import { formatYearRange, pluralize } from '../../utils/format'
+import { seriesToLibraryMedia } from '../../utils/library'
 import { sortSeasons } from '../../utils/series'
 import BackButton from '../BackButton/BackButton'
 import ButtonLink from '../ButtonLink/ButtonLink'
@@ -15,7 +16,7 @@ import SeasonList from '../SeasonList/SeasonList'
 import Section from '../Section/Section'
 import TitleHero from '../TitleHero/TitleHero'
 import Trailer from '../Trailer/Trailer'
-import WatchlistButton from '../WatchlistButton/WatchlistButton'
+import LibraryButton from '../LibraryButton/LibraryButton'
 import DetailsSkeleton from '../DetailsSkeleton/DetailsSkeleton'
 
 const MAX_CAST = 12
@@ -91,7 +92,7 @@ export default function SeriesDetails({ seriesId }: { seriesId: string }) {
           { label: 'Created by', value: series.created_by.map((p) => p.name).join(', ') },
           { label: 'Network', value: series.networks.map((n) => n.name).join(', ') },
         ].filter((fact) => fact.value)}
-        actions={<WatchlistButton seriesId={series.id} />}
+        actions={<LibraryButton media={seriesToLibraryMedia(series)} />}
       />
 
       {regularSeasons.length > 0 && (
