@@ -1,6 +1,7 @@
+import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
 import type { PlanSession } from '../../types/plan'
-import { formatDay, relativeDay } from '../../utils/calendar'
+import { daysBetween, formatDay, relativeDay } from '../../utils/calendar'
 import { cx } from '../../utils/cx'
 import { formatRuntime } from '../../utils/format'
 import { unitsLabel } from '../../utils/schedule'
@@ -35,9 +36,10 @@ export default function SessionRow({
   onUndo,
   onReschedule,
 }: SessionRowProps) {
+  const { t } = useTranslation(['planner', 'common'])
   const [busy, setBusy] = useState<'complete' | 'skip' | 'undo' | null>(null)
   const isToday = session.date === today
-  const by = session.doneBy && (session.doneBy.uid === ownUid ? 'you' : session.doneBy.name)
+  const by = session.doneBy && (session.doneBy.uid === ownUid ? t('you') : session.doneBy.name)
   const single = session.units.length === 1 ? session.units[0] : undefined
 
   // The row stays mounted while the batch runs; the snapshot then changes its status.
@@ -47,12 +49,13 @@ export default function SessionRow({
   }
 
   const day = relativeDay(session.date, today)
-  const when =
-    day === 'Today'
-      ? `Tonight · ${formatDay(session.date, { weekday: 'short', month: 'short', day: 'numeric' })}`
-      : day === 'Tomorrow' || day === 'Yesterday'
-        ? `${day} · ${formatDay(session.date, { weekday: 'short', month: 'short', day: 'numeric' })}`
-        : day
+  const date = formatDay(session.date, { weekday: 'short', month: 'short', day: 'numeric' })
+  const diff = daysBetween(today, session.date)
+  const when = isToday
+    ? t('row.tonight', { date })
+    : Math.abs(diff) === 1
+      ? t('row.relative', { day, date })
+      : day
 
   return (
     <li
@@ -76,14 +79,14 @@ export default function SessionRow({
       <div className={styles.status}>
         {session.status === 'done' ? (
           <Badge icon="check" tone="success">
-            Watched{by ? ` · marked by ${by}` : ''}
+            {by ? t('row.watchedBy', { name: by }) : t('row.watched')}
           </Badge>
         ) : session.status === 'skipped' ? (
-          <Badge icon="skip">Skipped{by ? ` by ${by}` : ''}</Badge>
+          <Badge icon="skip">{by ? t('row.skippedBy', { name: by }) : t('row.skipped')}</Badge>
         ) : session.date < today ? (
-          <Badge icon="clock">Missed?</Badge>
+          <Badge icon="clock">{t('row.missed')}</Badge>
         ) : (
-          <Badge icon="clock">Pending</Badge>
+          <Badge icon="clock">{t('row.pending')}</Badge>
         )}
       </div>
       {editable && (
@@ -98,19 +101,19 @@ export default function SessionRow({
                 disabled={busy !== null}
                 onClick={() => run('complete', onComplete)}
               >
-                Mark watched
+                {t('row.mark')}
               </Button>
               <IconButton
                 size="sm"
                 icon="calendar"
-                label={`Reschedule ${unitsLabel(session.units)}`}
+                label={t('row.reschedule', { units: unitsLabel(session.units) })}
                 disabled={busy !== null}
                 onClick={onReschedule}
               />
               <IconButton
                 size="sm"
                 icon="skip"
-                label={`Skip ${unitsLabel(session.units)}`}
+                label={t('row.skip', { units: unitsLabel(session.units) })}
                 disabled={busy !== null}
                 onClick={() => run('skip', onSkip)}
               />
@@ -121,11 +124,13 @@ export default function SessionRow({
                 size="sm"
                 variant="ghost"
                 icon="undo"
-                aria-label={`Undo ${session.status === 'done' ? 'watched' : 'skip'}: ${unitsLabel(session.units)}`}
+                aria-label={t(session.status === 'done' ? 'row.undoWatched' : 'row.undoSkip', {
+                  units: unitsLabel(session.units),
+                })}
                 loading={busy === 'undo'}
                 onClick={() => run('undo', onUndo)}
               >
-                Undo
+                {t('common:actions.undo')}
               </Button>
             )
           )}

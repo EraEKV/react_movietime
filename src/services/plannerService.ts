@@ -1,3 +1,4 @@
+import i18n from '../i18n'
 import {
   collection,
   doc,
@@ -320,7 +321,7 @@ export interface ListSource {
 export async function loadListMovies(listId: string, signal?: AbortSignal): Promise<ListSource> {
   // The list first: a missing or unreadable list fails here with one clear error.
   const list = (await getDoc(doc(db, 'lists', listId))).data()
-  if (!list) throw new PlanError('This list doesn’t exist or isn’t shared with you.')
+  if (!list) throw new PlanError(i18n.t('planner:errors.listMissing'))
   const items = await getDocs(query(collection(db, 'lists', listId, 'items'), orderBy('position')))
   const keys = items.docs.map((d) => parseMediaKey(d.id)).filter((k) => k !== null)
   const movieIds = keys.filter((k) => k.mediaType === 'movie').map((k) => k.id)
@@ -429,7 +430,7 @@ export async function createPlan(
 ): Promise<string> {
   const sessions = buildSchedule(draft.units, draft.options)
   const last = sessions.at(-1)
-  if (!last) throw new PlanError('There’s nothing to schedule with these settings.')
+  if (!last) throw new PlanError(i18n.t('planner:errors.nothingToSchedule'))
 
   const ref = doc(plansCol)
   const now = serverTimestamp()

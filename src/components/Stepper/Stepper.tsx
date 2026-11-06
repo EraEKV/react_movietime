@@ -32,7 +32,7 @@ export default function Stepper({ steps, current }: StepperProps) {
               </span>
               <span className={styles.label}>
                 {step}
-                {state === 'done' && <span className="sr-only"> (done)</span>}
+                {state === 'done' && <span className="sr-only">{t('ui.done')}</span>}
               </span>
             </li>
           </Fragment>

@@ -1,3 +1,5 @@
+import { translatedOption } from '../i18n'
+import { useTranslation } from 'react-i18next'
 import { useLocation, useSearchParams } from 'react-router'
 import Button from '../components/Button/Button'
 import ButtonLink from '../components/ButtonLink/ButtonLink'
@@ -30,10 +32,10 @@ import { unitsLabel } from '../utils/schedule'
 import styles from './PlannerPage.module.css'
 
 type Show = 'all' | 'mine' | 'shared'
-const SHOWS: { value: Show; label: string }[] = [
-  { value: 'all', label: 'All plans' },
-  { value: 'mine', label: 'Mine' },
-  { value: 'shared', label: 'Shared' },
+const SHOWS = [
+  translatedOption<Show>('all', 'planner:show.all'),
+  translatedOption<Show>('mine', 'planner:show.mine'),
+  translatedOption<Show>('shared', 'planner:show.shared'),
 ]
 
 const chipTitle = (plan: Plan) => plan.media?.title ?? plan.title
@@ -58,6 +60,7 @@ function toItem({ plan, session }: PlannedSession): CalendarItem {
  * (?month=2026-11&show=mine), so Back and shared links keep them.
  */
 export default function PlannerPage() {
+  const { t } = useTranslation(['planner', 'common'])
   const [params, setParams] = useSearchParams()
   const desktop = useMediaQuery('(min-width: 1024px)')
   const tablet = useMediaQuery('(min-width: 768px)')
@@ -97,17 +100,17 @@ export default function PlannerPage() {
 
   const header = (
     <header className={styles.header}>
-      <h1 className={styles.title}>Planner</h1>
+      <h1 className={styles.title}>{t('title')}</h1>
       <div className={styles.tools}>
         <SegmentedControl
-          label="Plans"
+          label={t('plansLabel')}
           value={show}
           onChange={(value) => setParam('show', value === 'all' ? null : value)}
           options={SHOWS}
         />
         {tablet && (
           <ButtonLink to="/planner/new" variant="primary" icon="plus">
-            New plan
+            {t('newPlan')}
           </ButtonLink>
         )}
       </div>
@@ -117,13 +120,9 @@ export default function PlannerPage() {
   if (plans.status === 'error') {
     return (
       <div className={styles.page}>
-        <title>Planner · Movietime</title>
+        <title>{t('pageTitle')}</title>
         {header}
-        <ErrorState
-          title="We couldn’t load your plans"
-          body="Your sessions are safe. Check your connection and try again."
-          onRetry={plans.retry}
-        />
+        <ErrorState title={t('loadError')} body={t('loadErrorBody')} onRetry={plans.retry} />
       </div>
     )
   }
@@ -131,19 +130,19 @@ export default function PlannerPage() {
   if (plans.status === 'success' && plans.plans.length === 0) {
     return (
       <div className={styles.page}>
-        <title>Planner · Movietime</title>
+        <title>{t('pageTitle')}</title>
         {header}
         <EmptyState
           icon="calendar"
-          title="Nothing planned yet"
-          body="Turn a series or a list into a schedule: pick your evenings and Movietime works out the finish date."
+          title={t('emptyTitle')}
+          body={t('emptyBody')}
           actions={
             <>
               <ButtonLink to="/planner/new" variant="primary" icon="plus">
-                Create a plan
+                {t('create')}
               </ButtonLink>
               <ButtonLink to="/series" icon="tv">
-                Browse series
+                {t('browseSeries')}
               </ButtonLink>
             </>
           }
@@ -157,7 +156,7 @@ export default function PlannerPage() {
       <div className={styles.monthSwitch}>
         <IconButton
           icon="chevron-left"
-          label="Previous month"
+          label={t('common:calendar.previousMonth')}
           onClick={() => goMonth(shiftMonth(month, -1))}
         />
         <h2 className={styles.month} aria-live="polite">
@@ -165,12 +164,12 @@ export default function PlannerPage() {
         </h2>
         <IconButton
           icon="chevron-right"
-          label="Next month"
+          label={t('common:calendar.nextMonth')}
           onClick={() => goMonth(shiftMonth(month, 1))}
         />
       </div>
       <Button size="sm" onClick={() => goMonth(monthOf(today))}>
-        Today
+        {t('today')}
       </Button>
     </div>
   )
@@ -179,8 +178,8 @@ export default function PlannerPage() {
   if (visible.status === 'error') {
     schedule = (
       <ErrorState
-        title="Couldn’t load your schedule"
-        body="Sessions stay safe. Reconnect and try again."
+        title={t('scheduleError')}
+        body={t('scheduleErrorBody')}
         onRetry={visible.retry}
         headingLevel="h3"
       />
@@ -190,7 +189,7 @@ export default function PlannerPage() {
   } else if (tablet) {
     schedule = (
       <CalendarMonth
-        label={`Sessions in ${formatMonth(month)}`}
+        label={t('sessionsIn', { month: formatMonth(month) })}
         month={month}
         days={grid}
         today={today}
@@ -215,11 +214,11 @@ export default function PlannerPage() {
 
   return (
     <div className={styles.page}>
-      <title>Planner · Movietime</title>
+      <title>{t('pageTitle')}</title>
       {header}
       <div className={styles.layout}>
         {!tablet && side}
-        <section className={styles.calendar} aria-label="Schedule">
+        <section className={styles.calendar} aria-label={t('scheduleTitle')}>
           {monthNav}
           {schedule}
         </section>
@@ -240,6 +239,7 @@ function Agenda({
   today: string
   month: MonthRef
 }) {
+  const { t } = useTranslation('planner')
   const current = monthKey(month) === monthKey(monthOf(today))
   const inMonth = sessions.filter(
     (s) =>
@@ -247,11 +247,7 @@ function Agenda({
       (!current || s.session.date >= today),
   )
   if (inMonth.length === 0) {
-    return (
-      <p className={styles.empty}>
-        {current ? 'No more sessions this month.' : 'No sessions this month.'}
-      </p>
-    )
+    return <p className={styles.empty}>{t(current ? 'noMoreMonth' : 'noneMonth')}</p>
   }
   const days = new Map<string, PlannedSession[]>()
   for (const s of inMonth) days.set(s.session.date, [...(days.get(s.session.date) ?? []), s])

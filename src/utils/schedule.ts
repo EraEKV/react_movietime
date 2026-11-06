@@ -1,3 +1,4 @@
+import i18n from '../i18n'
 // Schedule generation for watch plans: pure functions, no React and no Firestore, so the
 // business rules can be read (and tested) on their own. Days are "YYYY-MM-DD" in local time,
 // times "HH:mm" (see utils/calendar.ts for why the day math runs in UTC).
@@ -19,15 +20,15 @@ export const MAX_PER_SESSION = 10
 
 /** Why the options can't make a schedule, or null when they can. Shown in the stepper. */
 export function scheduleProblem(options: ScheduleOptions): string | null {
-  if (!isDay(options.startDate)) return 'Pick a start date.'
-  if (options.weekdays.length === 0) return 'Pick at least one weekday.'
-  if (!isTime(options.time)) return 'Pick a time.'
+  if (!isDay(options.startDate)) return i18n.t('planner:problem.startDate')
+  if (options.weekdays.length === 0) return i18n.t('planner:problem.weekdays')
+  if (!isTime(options.time)) return i18n.t('planner:problem.time')
   if (
     !Number.isInteger(options.perSession) ||
     options.perSession < 1 ||
     options.perSession > MAX_PER_SESSION
   ) {
-    return `Choose 1 to ${MAX_PER_SESSION} per session.`
+    return i18n.t('planner:problem.perSession', { max: MAX_PER_SESSION })
   }
   return null
 }
@@ -142,11 +143,11 @@ export function planSummary(sessions: ScheduledSession[], weekdays: Weekday[]): 
 
 /** Minutes → "36 h" or "45 min" for the summary tiles. */
 export function totalHours(minutes: number): { value: string; unit: string } {
-  if (minutes < 60) return { value: String(minutes), unit: 'min' }
+  if (minutes < 60) return { value: String(minutes), unit: i18n.t('planner:units.min') }
   const hours = minutes / 60
   return {
     value: hours < 10 ? hours.toFixed(1).replace(/\.0$/, '') : String(Math.round(hours)),
-    unit: 'h',
+    unit: i18n.t('planner:units.hour'),
   }
 }
 

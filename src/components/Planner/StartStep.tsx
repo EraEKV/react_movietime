@@ -1,4 +1,4 @@
-import i18n from '../../i18n'
+import { useTranslation } from 'react-i18next'
 import type { SeriesProgress } from '../../types/library'
 import type { PlanUnit } from '../../types/plan'
 import { episodeCode, formatRuntime } from '../../utils/format'
@@ -31,6 +31,7 @@ export default function StartStep({
   onChange,
   skipped,
 }: StartStepProps) {
+  const { t } = useTranslation(['planner', 'common', 'library'])
   if (kind === 'list')
     return <MovieStart units={units} choice={choice} onChange={onChange} skipped={skipped} />
 
@@ -40,22 +41,25 @@ export default function StartStep({
   if (progress && !caughtUp) {
     options.push({
       value: 'continue',
-      label: `Continue from ${code(units[next])}`,
-      description: `Right after your last watched episode (${episodeCode(progress.season, progress.episode)}) · ${i18n.t('count.episodes', { count: units.length - next })}`,
+      label: t('start.continue', { code: code(units[next]) }),
+      description: t('start.continueDesc', {
+        code: episodeCode(progress.season, progress.episode),
+        episodes: t('common:count.episodes', { count: units.length - next }),
+      }),
       icon: 'play',
     })
   }
   options.push(
     {
       value: 'beginning',
-      label: 'From the beginning',
-      description: `${code(units[0])} · ${i18n.t('count.episodes', { count: units.length })}`,
+      label: t('start.beginning'),
+      description: `${code(units[0])} · ${t('common:count.episodes', { count: units.length })}`,
       icon: 'refresh',
     },
     {
       value: 'episode',
-      label: 'Choose an episode',
-      description: 'Pick a season and episode',
+      label: t('start.chooseEpisode'),
+      description: t('start.chooseHint'),
       icon: 'list',
     },
   )
@@ -66,13 +70,9 @@ export default function StartStep({
 
   return (
     <div className={styles.stack}>
-      {caughtUp && (
-        <Banner>
-          You’ve watched every aired episode. Plan a rewatch from the start or any episode.
-        </Banner>
-      )}
+      {caughtUp && <Banner>{t('start.caughtUp')}</Banner>}
       <RadioCards
-        legend="Start from"
+        legend={t('start.from')}
         options={options}
         value={choice.mode === 'movie' ? 'beginning' : choice.mode}
         onChange={(mode) =>
@@ -86,20 +86,23 @@ export default function StartStep({
       {choice.mode === 'episode' && (
         <div className={styles.row}>
           <SelectField
-            label="Season"
+            label={t('start.season')}
             value={String(season)}
-            options={seasons.map((s) => ({ value: String(s), label: `Season ${s}` }))}
+            options={seasons.map((s) => ({
+              value: String(s),
+              label: t('library:form.seasonN', { n: s }),
+            }))}
             onChange={(value) => {
               const first = units.find((u) => u.season === Number(value))
               onChange({ mode: 'episode', season: Number(value), episode: first?.episode ?? 1 })
             }}
           />
           <SelectField
-            label="Episode"
+            label={t('start.episode')}
             value={String(choice.episode)}
             options={episodes.map((u) => ({
               value: String(u.episode),
-              label: `Episode ${u.episode} · ${u.title}`.slice(0, 60),
+              label: t('start.episodeN', { n: u.episode, title: u.title }).slice(0, 60),
             }))}
             onChange={(value) => onChange({ mode: 'episode', season, episode: Number(value) })}
           />
@@ -115,22 +118,18 @@ function MovieStart({
   onChange,
   skipped,
 }: Pick<StartStepProps, 'units' | 'choice' | 'onChange' | 'skipped'>) {
+  const { t } = useTranslation(['planner', 'common', 'library'])
   const index = choice.mode === 'movie' ? choice.index : 0
   return (
     <div className={styles.stack}>
-      {skipped > 0 && (
-        <Banner>
-          {i18n.t('count.series', { count: skipped })} in this list {skipped === 1 ? 'is' : 'are'}{' '}
-          left out: a marathon plans movies. Plan a series on its own.
-        </Banner>
-      )}
+      {skipped > 0 && <Banner>{t('start.leftOut', { count: skipped })}</Banner>}
       <SelectField
-        label="Start with"
+        label={t('start.startWith')}
         value={String(index)}
         options={units.map((u, i) => ({ value: String(i), label: `${i + 1}. ${u.title}` }))}
         onChange={(value) => onChange({ mode: 'movie', index: Number(value) })}
       />
-      <ol className={styles.movies} aria-label="Movies in the plan">
+      <ol className={styles.movies} aria-label={t('start.movies')}>
         {units.map((u, i) => (
           <li key={u.mediaKey} className={i < index ? styles.movieOut : undefined}>
             <span className={styles.movieTitle}>{u.title}</span>

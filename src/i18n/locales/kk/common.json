@@ -84,7 +84,9 @@
     "watched": "Көрілді",
     "removeFilter": "Сүзгіні алып тастау: {{label}}",
     "playTrailer": "Трейлерді көру: {{name}}",
-    "people": "{{people}}: {{names}}"
+    "people": "{{people}}: {{names}}",
+    "done": " (орындалды)",
+    "pageTitle": "{{title}} · Movietime"
   },
   "title": {
     "genres": "Жанрлар",

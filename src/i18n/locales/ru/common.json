@@ -86,7 +86,9 @@
     "watched": "Просмотрено",
     "removeFilter": "Убрать фильтр: {{label}}",
     "playTrailer": "Смотреть трейлер: {{name}}",
-    "people": "{{people}}: {{names}}"
+    "people": "{{people}}: {{names}}",
+    "done": " (выполнено)",
+    "pageTitle": "{{title}} · Movietime"
   },
   "title": {
     "genres": "Жанры",

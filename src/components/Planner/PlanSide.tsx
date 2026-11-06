@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
 import { Link } from 'react-router'
 import { imageUrl } from '../../api/tmdb'
@@ -23,15 +24,18 @@ interface TodayCardProps {
 
 /** "Today": tonight's sessions with "Mark as watched" for the people who may mark them. */
 export function TodayCard({ today, sessions, onError }: TodayCardProps) {
+  const { t } = useTranslation('planner')
   return (
     <section className={styles.today} aria-labelledby="today-title">
       <h2 id="today-title" className={styles.kicker}>
-        Today · {formatDay(today, { weekday: 'short', month: 'short', day: 'numeric' })}
+        {t('side.today', {
+          date: formatDay(today, { weekday: 'short', month: 'short', day: 'numeric' }),
+        })}
       </h2>
       {sessions === null ? (
         <Skeleton height={56} radius="sm" />
       ) : sessions.length === 0 ? (
-        <p className={styles.muted}>Nothing planned tonight.</p>
+        <p className={styles.muted}>{t('side.nothing')}</p>
       ) : (
         <ul className={styles.todayList}>
           {sessions.map((item) => (
@@ -50,6 +54,7 @@ function TodaySession({
   item: PlannedSession
   onError: (message: string) => void
 }) {
+  const { t } = useTranslation('planner')
   const { user } = useAuth()
   const actions = usePlanActions()
   const [busy, setBusy] = useState(false)
@@ -88,18 +93,19 @@ function TodaySession({
             loading={busy}
             onClick={() => void mark()}
           >
-            Mark as watched
+            {t('side.mark')}
           </Button>
         )}
         {done && (
           <span className={styles.watched}>
-            Watched
             {session.doneBy
-              ? ` · marked by ${session.doneBy.uid === user?.uid ? 'you' : session.doneBy.name}`
-              : ''}
+              ? t('side.watchedBy', {
+                  name: session.doneBy.uid === user?.uid ? t('you') : session.doneBy.name,
+                })
+              : t('side.watched')}
           </span>
         )}
-        {session.status === 'skipped' && <span className={styles.muted}>Skipped</span>}
+        {session.status === 'skipped' && <span className={styles.muted}>{t('side.skipped')}</span>}
       </div>
     </li>
   )
@@ -107,11 +113,12 @@ function TodaySession({
 
 /** Active plans with their colour ring, progress and finish date. */
 export function ActivePlans({ plans }: { plans: Plan[] | null }) {
+  const { t } = useTranslation('planner')
   const active = plans?.filter((p) => p.status === 'active') ?? null
   return (
     <section className={styles.plans} aria-labelledby="active-plans-title">
       <h2 id="active-plans-title" className={styles.title}>
-        Active plans
+        {t('side.active')}
       </h2>
       {active === null ? (
         <>
@@ -119,7 +126,7 @@ export function ActivePlans({ plans }: { plans: Plan[] | null }) {
           <Skeleton height={52} radius="sm" />
         </>
       ) : active.length === 0 ? (
-        <p className={styles.muted}>No active plans. Finished ones stay on their own page.</p>
+        <p className={styles.muted}>{t('side.noActive')}</p>
       ) : (
         <ul className={styles.planList}>
           {active.map((plan) => (
@@ -129,15 +136,18 @@ export function ActivePlans({ plans }: { plans: Plan[] | null }) {
                   value={planProgress(plan)}
                   size={44}
                   color={plan.color}
-                  label={`${plan.title} progress`}
+                  label={t('side.progress', { title: plan.title })}
                 />
                 <span className={styles.planText}>
                   <strong>{plan.title}</strong>
                   <span className={styles.muted}>
-                    {plan.doneUnits}/{plan.totalUnits} · finishes{' '}
-                    {plan.endDate
-                      ? formatDay(plan.endDate, { month: 'short', day: 'numeric' })
-                      : '—'}
+                    {t('side.finishes', {
+                      done: plan.doneUnits,
+                      total: plan.totalUnits,
+                      date: plan.endDate
+                        ? formatDay(plan.endDate, { month: 'short', day: 'numeric' })
+                        : '—',
+                    })}
                   </span>
                 </span>
               </Link>
@@ -146,7 +156,7 @@ export function ActivePlans({ plans }: { plans: Plan[] | null }) {
         </ul>
       )}
       <ButtonLink to="/planner/new" icon="plus">
-        New plan
+        {t('newPlan')}
       </ButtonLink>
     </section>
   )

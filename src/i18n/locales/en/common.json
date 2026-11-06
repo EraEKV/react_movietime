@@ -84,7 +84,9 @@
     "watched": "Watched",
     "removeFilter": "Remove filter: {{label}}",
     "playTrailer": "Play trailer: {{name}}",
-    "people": "{{people}}: {{names}}"
+    "people": "{{people}}: {{names}}",
+    "done": " (done)",
+    "pageTitle": "{{title}} · Movietime"
   },
   "title": {
     "genres": "Genres",
