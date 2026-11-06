@@ -173,6 +173,25 @@ credentials after sign-in or email verification. `ListPage` renders `<ListView k
 navigating to a fresh copy starts with fresh state. `ShareDialog` only talks through callbacks
 (`useSharing`), and `PlanPage` reuses it for plans.
 
+### Notifications and invitations
+
+`addMember` (sharingService) is one `writeBatch`: the `roles` / `memberEmails` change and a
+`notifications/{id}` document keyed by the lowercase `toEmail`. The rules accept the
+notification only together with that change (`getAfter` on the list or plan), so an owner
+cannot message arbitrary addresses. Nothing checks whether an account exists: profiles stay
+private (no email enumeration), and the notification waits until a user with that verified
+email signs in. `NotificationBell` (lazy chunk in the header, shown only for a verified email)
+reads them with `useNotifications` → `useSubscription` → `onSnapshot` on
+`where toEmail == me orderBy createdAt desc limit 30` (index in `firestore.indexes.json`).
+_Decline_ is the normal leave write plus the deletion of the notification in one batch.
+
+For people outside the app, `ShareDialog` shows `InviteLink` after an invite (and from the
+member menu): `/signup?invite=lists/<id>&email=<email>`. `parseInvite` accepts only
+`lists|plans/<alphanumeric id>`, so the parameter cannot become an open redirect; `GuestRoute`
+turns it into the list or plan path, and the existing redirect chain (sign-up → verify email →
+continue) brings the user there. The link is copied, passed to `navigator.share` where it
+exists, or put into a `mailto:` with a subject and body from the `sharing` dictionary.
+
 ### Planner
 
 - `usePlans` merges two listeners (my plans, plans shared with my verified email).
@@ -273,8 +292,8 @@ confirms later. A failed write (for example `permission-denied`) is shown as an 
 ## Current implementation
 
 All planned phases are in place: TypeScript, UI foundation, auth, routing, movies, library,
-lists, sharing, planner, dashboard, profile, i18n, PWA and tests. Web push notifications are out
-of scope. The sections above describe the design; the ones below show how it maps to the code.
+lists, sharing, planner, dashboard, profile, i18n, PWA and tests. Web push is out of scope;
+sharing sends in-app notifications instead (see "Notifications and invitations"). The sections above describe the design; the ones below show how it maps to the code.
 
 ### Routes and render tree
 

@@ -157,18 +157,19 @@ read as estimates.
 ### `sharingService.ts` ✅
 
 Works for both collections: `collection` is `"lists"` or `"plans"`; the same `ShareDialog` serves both.
-Loaded with `import()` from `hooks/useSharing.ts`. Every change is **one** `updateDoc`, so
-`roles` and `memberEmails` never disagree. Emails contain dots, so a member's role is addressed
+Loaded with `import()` from `hooks/useSharing.ts`. Every change is **one** write (`updateDoc`, or a `writeBatch`
+for `addMember`, which also adds the notification), so `roles` and `memberEmails` never
+disagree. Emails contain dots, so a member's role is addressed
 with `new FieldPath('roles', email)`: the string path `"roles.dan@gmail.com"` would mean
 `roles → dan@gmail → com`.
 
-| Function                                                  | Returns         | Notes                                                             |
-| --------------------------------------------------------- | --------------- | ----------------------------------------------------------------- |
-| `setVisibility(collection, id, "private" \| "link")`      | `Promise<void>` | Owner only (rules)                                                |
-| `addMember(collection, id, roles, email, role, ownEmail)` | `Promise<void>` | `validateInvite` again, lowercase; role + `arrayUnion(email)`     |
-| `changeRole(collection, id, email, role)`                 | `Promise<void>` | Owner only                                                        |
-| `removeMember(collection, id, email)`                     | `Promise<void>` | `deleteField()` on the role + `arrayRemove(email)`                |
-| `leave(collection, id, ownEmail)`                         | `Promise<void>` | Same write as `removeMember`; rules (`isLeaving`) allow only self |
+| Function                                                 | Returns         | Notes                                                                                     |
+| -------------------------------------------------------- | --------------- | ----------------------------------------------------------------------------------------- |
+| `setVisibility(collection, id, "private" \| "link")`     | `Promise<void>` | Owner only (rules)                                                                        |
+| `addMember(collection, id, roles, email, role, context)` | `Promise<void>` | `validateInvite` again, lowercase; role + `arrayUnion(email)` + notification in one batch |
+| `changeRole(collection, id, email, role)`                | `Promise<void>` | Owner only                                                                                |
+| `removeMember(collection, id, email)`                    | `Promise<void>` | `deleteField()` on the role + `arrayRemove(email)`                                        |
+| `leave(collection, id, ownEmail)`                        | `Promise<void>` | Same write as `removeMember`; rules (`isLeaving`) allow only self                         |
 
 Pure helpers in `utils/sharing.ts`:
 
@@ -179,6 +180,21 @@ Pure helpers in `utils/sharing.ts`:
 | `normalizeEmail(email)`                      | string                                              | `trim().toLowerCase()`                                  |
 | `membersOf(doc)`                             | `Member[]`                                          | Editors first, then by email                            |
 | `shareUrl(collection, id)`                   | string                                              | `https://…/lists/{id}` (`/planner/{id}` for plans)      |
+
+### `notificationsService.ts` ✅
+
+Loaded with `import()` from `hooks/useNotifications.ts`. Collection `notifications`
+(docs/DATA_MODEL.md). No account lookup anywhere.
+
+| Function                                     | Returns         | Notes                                                                         |
+| -------------------------------------------- | --------------- | ----------------------------------------------------------------------------- |
+| `addSharedNotice(batch, notice)`             | `void`          | Adds the "you were given access" document to the invite's batch               |
+| `watchNotifications(email, onData, onError)` | `Unsubscribe`   | Newest 30 for the lowercase email, live; needs the (toEmail, createdAt) index |
+| `markRead(id)` / `markAllRead(ids)`          | `Promise<void>` | Sets `readAt`; the batch version for "Mark all as read"                       |
+| `decline(notification, ownEmail)`            | `Promise<void>` | Leave + delete in one batch; if access is already gone, only deletes          |
+
+Pure helpers in `utils/invite.ts`: `inviteUrl(collection, id, email)` (`/signup?invite=…&email=…`),
+`parseInvite(value)` / `invitePath(value)` (accepts only `lists|plans/<id>`), `inviteMailto(email, subject, body)`.
 
 ### `plannerService.ts` ✅
 
@@ -278,4 +294,5 @@ Thunks call the services above; reducers stay pure. The store only holds seriali
 | `useDashboardStats(period)`                             |   ✅   | Library stats (selector), genres, plan stats per section with `status` and `retry`            |
 | `useTheme()`                                            |   ✅   | Current value + setter                                                                        |
 | `useTmdbLanguage()`                                     |   ✅   | TMDB code of the UI language (`ru-RU`), part of every request key                             |
+| `useNotifications()`                                    |   ✅   | Live notifications of the verified email, `unread`, `markRead`, `markAllRead`, `decline`      |
 | `useOnlineStatus()`                                     |   ✅   | `true` / `false` from `online` / `offline` events                                             |

@@ -14,7 +14,8 @@ with an editor / viewer role.
 
 > React end-term project (KBTU), built on top of the midterm version.
 > **Status:** all planned features are implemented, deployed and covered by tests; see the
-> [roadmap](docs/PROJECT_PLAN.md#5-roadmap). Push notifications are out of scope.
+> [roadmap](docs/PROJECT_PLAN.md#5-roadmap). Web push is out of scope; sharing sends in-app
+> notifications and invite links instead.
 
 ![Discover page with filters](docs/screenshots/discover-dark.jpg)
 
@@ -61,6 +62,12 @@ with an editor / viewer role.
   by weekday) for all time, 30 days or this year (`?period=`). Tiles and bars open the library
   with the same filter; upcoming sessions open their plan. Works for guests from the local
   library.
+- ✅ **Invitations and notifications**: when an owner adds someone to a list or plan, that
+  person gets a bell notification (unread counter, live) with _Open_, _Mark as read_ and
+  _Decline_ (leave). For people who may not have an account, the share dialog gives an invite
+  link (copy, the phone's share sheet, or a prefilled email) that opens sign-up with the email
+  filled in and then the list or plan. The app never checks whether an account exists, and
+  there is no mail server: the notification waits for the verified email.
 - ✅ **Profile**: account info, counters and an activity feed; settings for display name, theme
   and language.
 - ✅ **Languages**: English, Русский, Қазақша from the header menu or the settings. The choice is
@@ -74,7 +81,7 @@ with an editor / viewer role.
 - ✅ **Installable PWA with offline support**: own Workbox service worker, precached app shell,
   cached TMDB responses and images, an offline pill and an update prompt (see
   [PWA notes](#pwa-notes)).
-- ✅ **Tests**: 74 unit and component tests with Vitest and React Testing Library.
+- ✅ **Tests**: 109 unit and component tests with Vitest and React Testing Library.
 
 ## Screenshots
 
@@ -141,7 +148,7 @@ npm test             # run once, as in CI
 npm run test:watch   # re-run on change
 ```
 
-74 tests in 10 files: pure logic (schedule, stats, filters, validation, catalog paging),
+109 tests in 13 files: pure logic (schedule, stats, filters, validation, catalog paging),
 Redux slices, hooks (`useFetch`, `useDebouncedValue`) and components (pagination, signup
 validation, protected routes, and others). Vitest runs in `jsdom`; `src/test/setup.ts` loads the
 real English dictionaries from `public/locales` and stubs `matchMedia`. Tests need no network,
@@ -203,6 +210,7 @@ Full reference: **[docs/API.md](docs/API.md)** (service functions) and
 | Lists + items           | Firestore `lists`, `lists/{id}/items`    | Full CRUD; shared by link or roles                                           |
 | Plans + sessions        | Firestore `plans`, `plans/{id}/sessions` | Generate, complete, reschedule, skip, delete                                 |
 | Profile, activity       | Firestore `users/{uid}`                  | Read, update                                                                 |
+| Notifications           | Firestore `notifications`                | Create (owner, with the invite), read, mark read, delete (recipient)         |
 
 ### TMDB endpoints
 
@@ -253,6 +261,9 @@ Full reference: **[docs/API.md](docs/API.md)** (service functions) and
 | `/offline`                                | Offline          | public                    |
 | `*`                                       | Not found        | public                    |
 
+An invite link, `/signup?invite=lists/<id>&email=<email>`, prefills the email and, after
+sign-up and email verification, opens that list (`plans/<id>` opens the plan).
+
 ## Project structure
 
 ```
@@ -268,7 +279,7 @@ src/
 ├── components/   app components: layout, catalog, library, lists, planner, dashboard, …
 ├── pages/        one file per route
 ├── hooks/        hooks with app data: auth, library, lists, planner, sharing, …
-├── services/     Firebase: auth, profile, library, lists, sharing, planner
+├── services/     Firebase: auth, profile, library, lists, sharing, notifications, planner
 ├── storage/      localStorage modules
 ├── store/        Redux store, slices, typed hooks
 ├── types/        TypeScript types for TMDB responses and app data
