@@ -6,6 +6,7 @@ import WatchlistProvider from './context/WatchlistProvider'
 import HomePage from './pages/HomePage'
 import LoginPage from './pages/LoginPage'
 import NotFoundPage from './pages/NotFoundPage'
+import ProfilePage from './pages/ProfilePage'
 import SeriesPage from './pages/SeriesPage'
 import SignupPage from './pages/SignupPage'
 import VerifyEmailPage from './pages/VerifyEmailPage'
@@ -34,6 +35,9 @@ export default function App() {
           <Route path="watchlist" element={<WatchlistPage />} />
           <Route path="watchlist/new" element={<WatchlistAddPage />} />
           <Route path="watchlist/:entryId/edit" element={<WatchlistEditPage />} />
+          <Route element={<ProtectedRoute />}>
+            <Route path="profile" element={<ProfilePage />} />
+          </Route>
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>
