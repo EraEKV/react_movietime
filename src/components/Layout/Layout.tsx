@@ -1,5 +1,5 @@
 import { Suspense, useEffect } from 'react'
-import { Outlet, useLocation } from 'react-router'
+import { Link, Outlet, useLocation } from 'react-router'
 import { useSystemThemeSync } from '../../hooks/useTheme'
 import VerifyEmailBanner from '../auth/VerifyEmailBanner'
 import PageLoader from '../PageLoader/PageLoader'
@@ -39,7 +39,7 @@ export default function Layout() {
 
       <footer className={styles.footer}>
         <p>
-          Movie and series data from{' '}
+          <Link to="/about">About Movietime</Link> · Movie and series data from{' '}
           <a href="https://www.themoviedb.org/" target="_blank" rel="noreferrer">
             TMDB
           </a>

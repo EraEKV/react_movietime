@@ -15,6 +15,7 @@ import VerifyEmailPage from './pages/VerifyEmailPage'
 // The <Suspense> boundary that shows a skeleton meanwhile lives in Layout, around <Outlet>,
 // so the header and tab bar stay on screen. Home (the first screen most visitors see),
 // auth screens and 404 stay in the main bundle.
+const AboutPage = lazy(() => import('./pages/AboutPage'))
 const CatalogPage = lazy(() => import('./pages/CatalogPage'))
 const SeriesPage = lazy(() => import('./pages/SeriesPage'))
 const WatchlistPage = lazy(() => import('./pages/WatchlistPage'))
@@ -44,6 +45,7 @@ export default function App() {
 
         <Route element={<Layout />}>
           <Route index element={<HomePage />} />
+          <Route path="about" element={<AboutPage />} />
 
           <Route path="movies">
             <Route
