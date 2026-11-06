@@ -245,7 +245,7 @@ their own lazy chunks; the planner service is ~9 kB lazy); the bundler names the
 
 ### Realtime data
 
-Firestore reads use `onSnapshot` through `useFirestoreQuery(subscribe, deps)`: the hook calls
+Firestore reads use `onSnapshot` through `useSubscription(key, subscribe)`: the hook calls
 a `watch*` function from a service in an effect and returns the unsubscribe function as
 cleanup. The same `{ status, data, error }` shape as `useFetch` keeps pages consistent. With the
 persistent cache, snapshots come from IndexedDB first (instantly and offline), then from the
@@ -266,22 +266,32 @@ confirms later. A failed write (for example `permission-denied`) is shown as an 
 
 ## Current implementation
 
-Phases 0–10 are in place (library, lists, sharing, planner, dashboard, profile and settings).
+All planned phases are in place: TypeScript, UI foundation, auth, routing, movies, library,
+lists, sharing, planner, dashboard, profile, i18n, PWA and tests. Web push notifications are out
+of scope. The sections above describe the design; the ones below show how it maps to the code.
 
 ### Routes and render tree
 
-| Route                     | Page                       | Purpose                                                     |
-| ------------------------- | -------------------------- | ----------------------------------------------------------- |
-| `/`                       | `HomePage`                 | Guest hero or "Up next", trending rows, heatmap teaser      |
-| `/about`                  | `AboutPage`                | Features and TMDB credit                                    |
-| `/movies`, `/series`      | `CatalogPage mediaType`    | Discover + search, 5 filters, sort, pagination, page size   |
-| `/movies/:id`             | `MoviePage`                | Movie details, key facts, trailer, cast, recommendations    |
-| `/series/:id`             | `SeriesPage`               | Series details and episode heatmap                          |
-| `/library`                | `LibraryPage`              | Status tabs, search, type/genre/sort in the URL, rows/grid  |
-| `/library/:mediaKey/edit` | `LibraryEditPage`          | Status, score, series progress, notes; remove with confirm  |
-| `/profile`                | `ProfileLayout` → children | Nested: `ProfilePage` (index), `SettingsPage` (settings)    |
-| `/offline`                | `OfflinePage`              | Offline screen (the service worker will serve it, phase 12) |
-| `*`                       | `NotFoundPage`             | 404                                                         |
+| Route                                     | Page                             | Access                    |
+| ----------------------------------------- | -------------------------------- | ------------------------- |
+| `/`                                       | `HomePage`                       | public                    |
+| `/about`                                  | `AboutPage`                      | public                    |
+| `/login`, `/signup`                       | `LoginPage`, `SignupPage`        | guests only               |
+| `/movies`, `/series`                      | `CatalogPage mediaType`          | public                    |
+| `/movies/:id`, `/series/:id`              | `MoviePage`, `SeriesPage`        | public                    |
+| `/library`, `/library/:mediaKey/edit`     | `LibraryPage`, `LibraryEditPage` | public (local for guests) |
+| `/lists`, `/lists/new`, `/lists/:id/edit` | lists management                 | signed in                 |
+| `/lists/:id`                              | `ListPage`                       | owner, members, link      |
+| `/planner`, `/planner/new`                | planner                          | signed in                 |
+| `/planner/:id`                            | `PlanPage`                       | owner, members, link      |
+| `/dashboard`                              | `DashboardPage`                  | public (local for guests) |
+| `/profile`, `/profile/settings`           | `ProfileLayout` → children       | signed in                 |
+| `/offline`                                | `OfflinePage`                    | public                    |
+| `*`                                       | `NotFoundPage`                   | public                    |
+
+The full route tree with lazy boundaries is in [Routing](#routing). The render tree below shows
+the catalog, details and library pages; the planner, lists and dashboard pages follow the same
+shape (a page component, a hook that owns the data, presentational components).
 
 ```
 <BrowserRouter>
@@ -455,3 +465,28 @@ the results for the current query.
 | Discover "newest" includes announced shows dated years ahead | Newest sort is capped at today                                         |
 | `append_to_response` accepts at most 20 sub-requests         | Seasons are split into batches of 20 and loaded with `Promise.all`     |
 | Unaired episodes have rating `0`                             | Shown as "not rated", not as a bad score                               |
+
+### Caching and invalidation (as implemented)
+
+| What                        | Where                          | Rule                                                                                 |
+| --------------------------- | ------------------------------ | ------------------------------------------------------------------------------------ |
+| JS/CSS/HTML, icons, locales | Workbox precache (`src/sw.ts`) | Revisioned by the build; `cleanupOutdatedCaches()` drops old entries on activate     |
+| Navigations                 | `NavigationRoute`              | Answered with the cached `/index.html`; falls back to `/offline`                     |
+| `api.themoviedb.org`        | `tmdb-api`, NetworkFirst       | 5 s network timeout, 200 entries, max age 1 day                                      |
+| `image.tmdb.org`            | `tmdb-images`, CacheFirst      | 300 entries, 30 days, opaque responses accepted                                      |
+| Google Fonts                | SWR (css), CacheFirst (files)  | Stylesheet revalidated, font files cached for a year                                 |
+| Firestore                   | Persistent local cache         | Multi-tab; snapshots come from IndexedDB first, offline writes are queued and synced |
+| Guest library, preferences  | `localStorage`                 | Written on change; `storage` events keep tabs in sync                                |
+
+**Updates.** A new build gets a new precache manifest. The new service worker installs and
+_waits_; `UpdatePrompt` (`useRegisterSW`) shows a toast, and "Reload" sends `SKIP_WAITING`, then
+the page reloads under the new worker. A reload never swaps assets under a page the user is
+working in. The old caches are removed when the new worker activates.
+
+### Tests
+
+Vitest + Testing Library in `jsdom` (`vitest.config.ts`, `src/test/setup.ts`). Test files sit
+next to the code: planner schedule, dashboard stats, catalog filters, validation, Redux slices,
+`useFetch` (race condition), `useDebouncedValue`, `Pagination`, `ProtectedRoute` and the signup
+form. They need no network, no Firebase and no environment variables. Firestore security rules
+were checked separately against the emulator (not part of `npm test`).
