@@ -6,7 +6,7 @@ import ErrorState from '../components/EmptyState/ErrorState'
 import FilterBar from '../components/FilterBar/FilterBar'
 import Pagination from '../components/Pagination/Pagination'
 import SearchBar from '../components/SearchBar/SearchBar'
-import SeriesGrid from '../components/SeriesGrid/SeriesGrid'
+import MediaGrid from '../components/MediaGrid/MediaGrid'
 import SkeletonGrid from '../components/Skeleton/SkeletonGrid'
 import { useFetch } from '../hooks/useFetch'
 import { useGenres } from '../hooks/useGenres'
@@ -14,6 +14,7 @@ import { useSeriesFilters } from '../hooks/useSeriesFilters'
 import type { Paginated, SeriesListItem } from '../types/tmdb'
 import { toDiscoverParams } from '../utils/filters'
 import { formatNumber } from '../utils/format'
+import { fromSeries } from '../utils/media'
 import styles from './CatalogPage.module.css'
 
 /** Router state is untyped (any page can push anything), so check its shape before trusting it. */
@@ -97,7 +98,7 @@ export default function CatalogPage() {
       {status === 'success' && data.results.length > 0 && (
         <div>
           <h2 className="sr-only">Results</h2>
-          <SeriesGrid items={data.results} genresById={genresById} label="Series" />
+          <MediaGrid items={data.results.map(fromSeries)} genresById={genresById} label="Series" />
           <Pagination page={page} totalPages={totalPages} onPageChange={handlePageChange} />
         </div>
       )}
