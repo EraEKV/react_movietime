@@ -428,6 +428,7 @@ function PlanView({ id }: { id: string }) {
           onClose={() => setShareOpen(false)}
           name={plan.title}
           url={sharing.url}
+          inviteLink={sharing.inviteLink}
           owner={{
             name: author?.name ?? plan.ownerName,
             email: user?.email ?? null,

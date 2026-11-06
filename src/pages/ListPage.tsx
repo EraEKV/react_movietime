@@ -392,6 +392,7 @@ function ListView({ id }: { id: string }) {
           onClose={() => setShareOpen(false)}
           name={list.name}
           url={sharing.url}
+          inviteLink={sharing.inviteLink}
           owner={{
             name: author?.name ?? list.ownerName,
             email: user?.email ?? null,

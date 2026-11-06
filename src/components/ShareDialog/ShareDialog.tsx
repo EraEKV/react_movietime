@@ -6,6 +6,7 @@ import { cx } from '../../shared/lib/cx'
 import { membersOf, memberName, roleLabel, validateInvite } from '../../utils/sharing'
 import i18n, { translatedOption } from '../../shared/i18n'
 import Avatar from '../../shared/ui/Avatar/Avatar'
+import InviteLink from './InviteLink'
 import { RoleBadge } from '../ListCard/ListBadges'
 import Banner from '../../shared/ui/Banner/Banner'
 import Button from '../../shared/ui/Button/Button'
@@ -29,6 +30,8 @@ export interface ShareDialogProps {
   /** Name of the shared list or plan, for the title. */
   name: string
   url: string
+  /** Invite link for one email (sign-up with the email prefilled, then this list or plan). */
+  inviteLink: (email: string) => string
   owner: { name: string; email: string | null; photoUrl: string | null }
   visibility: Visibility
   roles: Record<string, MemberRole>
@@ -67,6 +70,8 @@ export default function ShareDialog(props: ShareDialogProps) {
 
 function ShareDialogBody({
   url,
+  inviteLink,
+  name,
   owner,
   visibility,
   roles,
@@ -84,6 +89,8 @@ function ShareDialogBody({
   const [copied, showCopied] = useTimedState<'copied' | 'manual'>(2500)
   // Removing access is instant (no confirm), so it can be undone for a few seconds.
   const [removed, showRemoved, clearRemoved] = useTimedState<Member>(8000)
+  // The person whose invite link is shown: the one just invited, or picked in the menu.
+  const [linkFor, setLinkFor] = useState<string | null>(null)
   const linkRef = useRef<HTMLInputElement>(null)
   const members = membersOf({ roles })
   const linkOn = visibility === 'link'
@@ -114,6 +121,7 @@ function ShareDialogBody({
     setInviting(true)
     try {
       await onInvite(email, role)
+      setLinkFor(email.trim().toLowerCase())
       setEmail('')
       setInviteError(null)
     } catch (error) {
@@ -190,6 +198,17 @@ function ShareDialogBody({
         </p>
       </form>
 
+      {linkFor && roles[linkFor] && (
+        <InviteLink
+          key={linkFor}
+          email={linkFor}
+          url={inviteLink(linkFor)}
+          name={name}
+          ownerName={owner.name}
+          onDismiss={() => setLinkFor(null)}
+        />
+      )}
+
       <section aria-labelledby="share-people">
         <h3 id="share-people" className={styles.peopleTitle}>
           {t('share.people')}
@@ -231,6 +250,11 @@ function ShareDialogBody({
                     },
                   })),
                   { kind: 'divider' as const },
+                  {
+                    label: t('inviteLink.menu'),
+                    icon: 'link' as const,
+                    onSelect: () => setLinkFor(member.email),
+                  },
                   {
                     label: t('share.removeAccess'),
                     icon: 'trash' as const,
