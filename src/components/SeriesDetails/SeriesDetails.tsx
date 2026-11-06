@@ -3,6 +3,7 @@ import { useFetch } from '../../hooks/useFetch'
 import { useGenres } from '../../hooks/useGenres'
 import type { SeriesDetails as SeriesDetailsData } from '../../types/tmdb'
 import { fromSeries } from '../../utils/media'
+import { formatYearRange, pluralize } from '../../utils/format'
 import { pickTrailer, sortSeasons } from '../../utils/series'
 import BackButton from '../BackButton/BackButton'
 import ButtonLink from '../ButtonLink/ButtonLink'
@@ -12,10 +13,10 @@ import MediaGrid from '../MediaGrid/MediaGrid'
 import EpisodeHeatmap from '../EpisodeHeatmap/EpisodeHeatmap'
 import SeasonList from '../SeasonList/SeasonList'
 import Section from '../Section/Section'
-import SeriesHero from '../SeriesHero/SeriesHero'
+import TitleHero from '../TitleHero/TitleHero'
 import Trailer from '../Trailer/Trailer'
 import WatchlistButton from '../WatchlistButton/WatchlistButton'
-import DetailsSkeleton from './DetailsSkeleton'
+import DetailsSkeleton from '../DetailsSkeleton/DetailsSkeleton'
 
 const MAX_CAST = 12
 const MAX_RECOMMENDATIONS = 10
@@ -30,7 +31,7 @@ export default function SeriesDetails({ seriesId }: { seriesId: string }) {
   } = useFetch<SeriesDetailsData>(endpoints.seriesDetails(seriesId))
   const { genresById } = useGenres('tv')
 
-  if (status === 'idle' || status === 'loading') return <DetailsSkeleton />
+  if (status === 'idle' || status === 'loading') return <DetailsSkeleton label="Loading series" />
 
   if (status === 'error') {
     const notFound = error instanceof ApiError && error.status === 404
@@ -69,7 +70,29 @@ export default function SeriesDetails({ seriesId }: { seriesId: string }) {
       <title>{`${series.name} · Movietime`}</title>
 
       <BackButton />
-      <SeriesHero series={series} actions={<WatchlistButton seriesId={series.id} />} />
+      <TitleHero
+        title={series.name}
+        originalTitle={series.original_name}
+        tagline={series.tagline}
+        posterPath={series.poster_path}
+        backdropPath={series.backdrop_path}
+        fallbackIcon="tv"
+        genres={series.genres}
+        rating={series.vote_average}
+        votes={series.vote_count}
+        meta={[
+          formatYearRange(series.first_air_date, series.last_air_date, series.in_production),
+          series.number_of_seasons > 0 && pluralize(series.number_of_seasons, 'season'),
+          series.number_of_episodes > 0 && pluralize(series.number_of_episodes, 'episode'),
+          series.status,
+        ]}
+        overview={series.overview}
+        facts={[
+          { label: 'Created by', value: series.created_by.map((p) => p.name).join(', ') },
+          { label: 'Network', value: series.networks.map((n) => n.name).join(', ') },
+        ].filter((fact) => fact.value)}
+        actions={<WatchlistButton seriesId={series.id} />}
+      />
 
       {regularSeasons.length > 0 && (
         <Section title="Episode ratings">
