@@ -96,7 +96,11 @@ function PlanView({ id }: { id: string }) {
   const author = useListAuthor()
   const state = usePlan(id)
   const actions = usePlanActions()
-  const sharing = useSharing('plans', state.status === 'ready' ? state.plan : null)
+  const sharing = useSharing(
+    'plans',
+    state.status === 'ready' ? state.plan : null,
+    state.status === 'ready' ? state.plan.title : '',
+  )
   const today = localToday()
 
   const [moving, setMoving] = useState<PlanSession | null>(null)
