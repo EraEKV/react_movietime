@@ -1,5 +1,7 @@
 # Movietime
 
+[![CI](https://github.com/EraEKV/react_movietime/actions/workflows/ci.yml/badge.svg)](https://github.com/EraEKV/react_movietime/actions/workflows/ci.yml)
+
 Plan what to watch, and watch it together.
 
 Movietime is a React single-page application for movies and TV series. You discover titles
@@ -144,6 +146,24 @@ Redux slices, hooks (`useFetch`, `useDebouncedValue`) and components (pagination
 validation, protected routes, and others). Vitest runs in `jsdom`; `src/test/setup.ts` loads the
 real English dictionaries from `public/locales` and stubs `matchMedia`. Tests need no network,
 no Firebase and no environment variables.
+
+### Continuous integration
+
+GitHub Actions (`.github/workflows/ci.yml`) runs on every push and on pull requests to `main`,
+on Node 22 (`.nvmrc`). It needs no secrets: the build works without `VITE_*` values, Vercel
+injects them for the real deployment. Steps, in order:
+
+1. `npm ci`
+2. `npm run typecheck`
+3. `npm run lint`
+4. Prettier check over all tracked files
+5. `npm run check:locales` (en, ru and kk dictionaries have the same keys)
+6. `npm run test:coverage` (Vitest with the v8 coverage report)
+7. `npm run build`
+
+The coverage report is uploaded as the `coverage` artifact of the run. `npm audit` reports
+high-severity advisories but does not fail the run. Dependabot opens weekly grouped updates
+for npm packages and GitHub Actions.
 
 ### Local Firebase emulators (optional)
 

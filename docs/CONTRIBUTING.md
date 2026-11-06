@@ -68,3 +68,22 @@ build(deps): add firebase
 ```
 
 Breaking changes: add `!` after the type (`feat(library)!: …`) and a `BREAKING CHANGE:` footer.
+
+## Continuous integration
+
+`.github/workflows/ci.yml` runs on every push and on pull requests to `main` (Node 22 from
+`.nvmrc`, no secrets needed). It runs the same checks you run before a pull request, in this
+order: `npm ci`, `npm run typecheck`, `npm run lint`, Prettier over tracked files,
+`npm run check:locales`, `npm run test:coverage`, `npm run build`. The coverage report is kept
+as a run artifact; `npm audit --audit-level=high` is informational only. A newer push to the
+same branch cancels the older run.
+
+Run the same checks locally:
+
+```bash
+npm run typecheck && npm run lint && npx prettier --check --ignore-unknown $(git ls-files) \
+  && npm run check:locales && npm test && npm run build
+```
+
+Dependabot opens one grouped pull request per week for npm and one for GitHub Actions
+(`.github/dependabot.yml`). Vercel stays responsible for deployment.
