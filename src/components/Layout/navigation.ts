@@ -16,13 +16,21 @@ export function isNavItemActive(item: NavItem, pathname: string): boolean {
   )
 }
 
-// Only routes that exist today. Phase "routing" adds Home, Movies, Lists, Planner, Profile.
+// Desktop header (≥ 1024px). Profile and Dashboard live in the avatar menu there.
 export const MAIN_NAV: NavItem[] = [
+  { to: '/', label: 'Home', icon: 'home' },
+  { to: '/movies', label: 'Movies', icon: 'film' },
   { to: '/series', label: 'Series', icon: 'tv' },
-  { to: '/watchlist', label: 'Library', icon: 'bookmark' },
+  { to: '/library', label: 'Library', icon: 'bookmark' },
+  { to: '/lists', label: 'Lists', icon: 'list' },
+  { to: '/planner', label: 'Planner', icon: 'calendar' },
 ]
 
+// Bottom tab bar (< 1024px): five sections, so related routes share one tab.
 export const TAB_BAR_NAV: NavItem[] = [
-  { to: '/series', label: 'Discover', icon: 'compass' },
-  { to: '/watchlist', label: 'Library', icon: 'bookmark' },
+  { to: '/', label: 'Home', icon: 'home' },
+  { to: '/series', label: 'Discover', icon: 'compass', alsoActiveOn: ['/movies'] },
+  { to: '/planner', label: 'Planner', icon: 'calendar' },
+  { to: '/library', label: 'Library', icon: 'bookmark', alsoActiveOn: ['/lists'] },
+  { to: '/profile', label: 'Profile', icon: 'user', alsoActiveOn: ['/dashboard'] },
 ]
