@@ -1,9 +1,10 @@
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import type * as Tmdb from '../api/tmdb'
 
 const tmdbGet = vi.fn()
 vi.mock('../api/tmdb', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('../api/tmdb')>()),
+  ...(await importOriginal<typeof Tmdb>()),
   tmdbGet: (path: string, options: { signal: AbortSignal }) => tmdbGet(path, options),
 }))
 vi.mock('./useTmdbLanguage', () => ({ useTmdbLanguage: () => 'en-US' }))

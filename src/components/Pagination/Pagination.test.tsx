@@ -16,7 +16,10 @@ describe('Pagination', () => {
     render(<Pagination page={10} totalPages={50} onPageChange={() => {}} />)
     const labels = pageButtons().filter((l) => /\d/.test(l))
     expect(labels).toHaveLength(5) // 1, 9, 10, 11, 50
-    expect(screen.getByRole('button', { name: /^Page 10$/ })).toHaveAttribute('aria-current', 'page')
+    expect(screen.getByRole('button', { name: /^Page 10$/ })).toHaveAttribute(
+      'aria-current',
+      'page',
+    )
     expect(screen.getAllByText('…')).toHaveLength(2)
   })
 

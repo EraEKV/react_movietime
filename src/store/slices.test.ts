@@ -42,7 +42,10 @@ describe('authSlice', () => {
     })
   })
   it('clears the error', () => {
-    const state = { ...authSlice.reducer(undefined, { type: 'init' }), error: { code: 'x' } as never }
+    const state = {
+      ...authSlice.reducer(undefined, { type: 'init' }),
+      error: { code: 'x' } as never,
+    }
     expect(authSlice.reducer(state, authErrorCleared()).error).toBeNull()
   })
 })
@@ -54,7 +57,10 @@ describe('preferencesSlice', () => {
     expect(preferencesSlice.reducer(initial, languageChanged('ru')).language).toBe('ru')
   })
   it('applies the account settings', () => {
-    const next = preferencesSlice.reducer(initial, preferencesSynced({ theme: 'dark', language: 'kk' }))
+    const next = preferencesSlice.reducer(
+      initial,
+      preferencesSynced({ theme: 'dark', language: 'kk' }),
+    )
     expect(next).toMatchObject({ theme: 'dark', language: 'kk' })
   })
 })
@@ -113,10 +119,18 @@ describe('librarySlice', () => {
   })
   it('filters by status and search, and memoizes the result', () => {
     const state = root(reduce(guestLibraryLoaded([entry(1), entry(2, { status: 'completed' })])))
-    const query = { search: '', status: 'completed', type: 'all', genre: '', sort: 'updated' } as never
+    const query = {
+      search: '',
+      status: 'completed',
+      type: 'all',
+      genre: '',
+      sort: 'updated',
+    } as never
     const first = selectFilteredLibrary(state, query)
     expect(first.map((e) => e.key)).toEqual(['movie_2'])
     expect(selectFilteredLibrary(state, { ...(query as object) } as never)).toBe(first)
-    expect(selectFilteredLibrary(state, { ...(query as object), search: 'zzz' } as never)).toEqual([])
+    expect(selectFilteredLibrary(state, { ...(query as object), search: 'zzz' } as never)).toEqual(
+      [],
+    )
   })
 })

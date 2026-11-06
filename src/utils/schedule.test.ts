@@ -22,7 +22,12 @@ const ep = (season: number, episode: number, ordinal: number): PlanUnit => ({
 })
 const units = [ep(1, 1, 1), ep(1, 2, 2), ep(1, 3, 3), ep(2, 1, 4), ep(2, 2, 5)]
 // Fri, Sun, Tue; 2026-03-08 is the US DST change, so day math must not drift.
-const options = { startDate: '2026-03-06', weekdays: [5, 0, 2] as never, time: '21:00', perSession: 2 }
+const options = {
+  startDate: '2026-03-06',
+  weekdays: [5, 0, 2] as never,
+  time: '21:00',
+  perSession: 2,
+}
 
 describe('buildSchedule', () => {
   const sessions = buildSchedule(units, options)
