@@ -5,7 +5,7 @@
     "lib": ["ES2023", "DOM", "DOM.Iterable"],
     "module": "esnext",
     "moduleResolution": "bundler",
-    "types": ["vite/client", "vite-plugin-pwa/react"],
+    "types": ["vite/client", "vite-plugin-pwa/react", "@testing-library/jest-dom"],
     "jsx": "react-jsx",
     "noEmit": true,
     "verbatimModuleSyntax": true,
