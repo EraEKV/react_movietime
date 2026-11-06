@@ -2,9 +2,9 @@ import { ApiError, endpoints } from '../../api/tmdb'
 import { useFetch } from '../../hooks/useFetch'
 import { useGenres } from '../../hooks/useGenres'
 import type { SeriesDetails as SeriesDetailsData } from '../../types/tmdb'
-import { fromSeries } from '../../utils/media'
+import { fromSeries, pickTrailer } from '../../utils/media'
 import { formatYearRange, pluralize } from '../../utils/format'
-import { pickTrailer, sortSeasons } from '../../utils/series'
+import { sortSeasons } from '../../utils/series'
 import BackButton from '../BackButton/BackButton'
 import ButtonLink from '../ButtonLink/ButtonLink'
 import CastList from '../CastList/CastList'
@@ -120,7 +120,12 @@ export default function SeriesDetails({ seriesId }: { seriesId: string }) {
 
       {recommendations.length > 0 && (
         <Section title="You might also like">
-          <MediaGrid items={recommendations} genresById={genresById} label="Recommendations" />
+          <MediaGrid
+            items={recommendations}
+            genresById={genresById}
+            label="Recommendations"
+            layout="row"
+          />
         </Section>
       )}
     </article>

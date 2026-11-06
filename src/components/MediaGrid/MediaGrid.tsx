@@ -4,17 +4,21 @@ import { getYear } from '../../utils/format'
 import { mediaHref, mediaKey } from '../../utils/media'
 import PosterCard from '../PosterCard/PosterCard'
 import PosterGrid from '../PosterCard/PosterGrid'
+import PosterRow from '../PosterRow/PosterRow'
 
 interface MediaGridProps {
   items: MediaSummary[]
   genresById: Map<number, string>
-  label?: string
+  label: string
+  /** "grid" wraps (catalogs); "row" scrolls sideways (recommendations under a title). */
+  layout?: 'grid' | 'row'
 }
 
-/** Poster grid for movies and series alike: catalogs and recommendations. */
-export default function MediaGrid({ items, genresById, label }: MediaGridProps) {
+/** Posters for movies and series alike: catalogs and recommendations. */
+export default function MediaGrid({ items, genresById, label, layout = 'grid' }: MediaGridProps) {
+  const List = layout === 'row' ? PosterRow : PosterGrid
   return (
-    <PosterGrid label={label}>
+    <List label={label}>
       {items.map((item) => (
         // The media key is unique across movies and series and stable between re-fetches.
         <li key={mediaKey(item.mediaType, item.id)}>
@@ -33,6 +37,6 @@ export default function MediaGrid({ items, genresById, label }: MediaGridProps) 
           />
         </li>
       ))}
-    </PosterGrid>
+    </List>
   )
 }

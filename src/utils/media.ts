@@ -1,5 +1,5 @@
 import type { MediaKey, MediaSummary, MediaType } from '../types/media'
-import type { MovieListItem, SeriesListItem } from '../types/tmdb'
+import type { MovieListItem, SeriesListItem, Video } from '../types/tmdb'
 
 // TMDB names the same fields differently for movies (title, release_date)
 // and series (name, first_air_date). These functions hide that difference.
@@ -49,4 +49,15 @@ export function uniqueById<T extends { id: number }>(items: T[]): T[] {
     seen.add(item.id)
     return true
   })
+}
+
+/** Best YouTube trailer: official trailer → any trailer → teaser. */
+export function pickTrailer(videos: Video[] = []): Video | null {
+  const youtube = videos.filter((v) => v.site === 'YouTube')
+  return (
+    youtube.find((v) => v.type === 'Trailer' && v.official) ??
+    youtube.find((v) => v.type === 'Trailer') ??
+    youtube.find((v) => v.type === 'Teaser') ??
+    null
+  )
 }

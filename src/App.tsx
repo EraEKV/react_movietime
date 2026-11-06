@@ -17,6 +17,7 @@ import VerifyEmailPage from './pages/VerifyEmailPage'
 // auth screens and 404 stay in the main bundle.
 const AboutPage = lazy(() => import('./pages/AboutPage'))
 const CatalogPage = lazy(() => import('./pages/CatalogPage'))
+const MoviePage = lazy(() => import('./pages/MoviePage'))
 const SeriesPage = lazy(() => import('./pages/SeriesPage'))
 const WatchlistPage = lazy(() => import('./pages/WatchlistPage'))
 const WatchlistAddPage = lazy(() => import('./pages/WatchlistAddPage'))
@@ -51,16 +52,7 @@ export default function App() {
               instance on Movies ⇄ Series instead of reusing the old one's state. */}
           <Route path="movies">
             <Route index element={<CatalogPage key="movie" mediaType="movie" />} />
-            <Route
-              path=":id"
-              element={
-                <ComingSoonPage
-                  title="Movie details"
-                  icon="film"
-                  body="Cast, director, budget, trailer and recommendations for every movie."
-                />
-              }
-            />
+            <Route path=":id" element={<MoviePage />} />
           </Route>
           <Route path="series">
             <Route index element={<CatalogPage key="tv" mediaType="tv" />} />
