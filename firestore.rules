@@ -114,6 +114,29 @@ service cloud.firestore {
         && d.createdAt == request.time;
     }
 
+    // An in-app notification "you were given access", written in the same batch as the
+    // sharing change. It is accepted only when that change really adds toEmail with this
+    // role (getAfter sees the batch) and toEmail wasn't a member before, so an owner can't
+    // send messages to arbitrary addresses or repeat them to people who already have access.
+    function validNotification() {
+      let d = request.resource.data;
+      return d.keys().hasOnly(['toEmail', 'type', 'collection', 'targetId', 'targetTitle',
+          'role', 'fromUid', 'fromName', 'createdAt', 'readAt'])
+        && d.type == 'shared'
+        && d.collection in ['lists', 'plans']
+        && d.targetId is string && d.targetId.size() >= 1 && d.targetId.size() <= 64
+        && d.toEmail is string && d.toEmail == d.toEmail.lower()
+        && d.targetTitle is string && d.targetTitle.size() >= 1 && d.targetTitle.size() <= 120
+        && d.role in ['editor', 'viewer']
+        && d.fromUid == uid()
+        && d.fromName is string && d.fromName.size() <= 80
+        && d.createdAt == request.time
+        && d.readAt == null
+        && getAfter(/databases/$(database)/documents/$(d.collection)/$(d.targetId)).data.ownerUid == uid()
+        && getAfter(/databases/$(database)/documents/$(d.collection)/$(d.targetId)).data.roles.get(d.toEmail, '') == d.role
+        && !(d.toEmail in get(/databases/$(database)/documents/$(d.collection)/$(d.targetId)).data.memberEmails);
+    }
+
     // ---------- private user data ----------
     match /users/{userId} {
       function self() { return signedIn() && uid() == userId; }
@@ -132,6 +155,19 @@ service cloud.firestore {
         allow read: if signedIn() && uid() == userId;
         allow create: if signedIn() && uid() == userId && validActivity();
       }
+    }
+
+    // ---------- notifications ----------
+    // Keyed by the recipient's lowercase email, readable only with that verified email.
+    // Nothing checks that an account exists: the notification waits for the email.
+    match /notifications/{notificationId} {
+      allow read, delete: if verified() && resource.data.toEmail == email();
+      allow create: if signedIn() && validNotification();
+      // Mark as read: only readAt changes, from empty to now.
+      allow update: if verified() && resource.data.toEmail == email()
+        && onlyChanges(['readAt'])
+        && resource.data.readAt == null
+        && request.resource.data.readAt == request.time;
     }
 
     // ---------- lists ----------
