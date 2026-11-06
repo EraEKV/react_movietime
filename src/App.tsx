@@ -29,8 +29,8 @@ const PlanPage = lazy(() => import('./pages/PlanPage'))
 const DashboardPage = lazy(() => import('./pages/DashboardPage'))
 const ProfileLayout = lazy(() => import('./components/Layout/ProfileLayout'))
 const ProfilePage = lazy(() => import('./pages/ProfilePage'))
+const SettingsPage = lazy(() => import('./pages/SettingsPage'))
 const OfflinePage = lazy(() => import('./pages/OfflinePage'))
-const ComingSoonPage = lazy(() => import('./pages/ComingSoonPage'))
 
 export default function App() {
   return (
@@ -93,16 +93,7 @@ export default function App() {
           </Route>
           <Route path="profile" element={<ProfileLayout />}>
             <Route index element={<ProfilePage />} />
-            <Route
-              path="settings"
-              element={
-                <ComingSoonPage
-                  title="Settings"
-                  icon="settings"
-                  body="Display name, theme, language and notifications in one place."
-                />
-              }
-            />
+            <Route path="settings" element={<SettingsPage />} />
           </Route>
         </Route>
 

@@ -1,0 +1,82 @@
+/* ---------- Display name form ---------- */
+
+.nameForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.formActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.saved {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--success);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* ---------- Theme previews ---------- */
+
+.previewFrame,
+.previewSplit {
+  display: flex;
+  height: 64px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.preview {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  padding: var(--space-2);
+  background: var(--bg);
+}
+
+.previewTitle {
+  width: 50%;
+  height: 8px;
+  border-radius: var(--radius-xs);
+  background: var(--text);
+  opacity: 0.8;
+}
+
+.previewRow {
+  display: flex;
+  flex: 1;
+  gap: 4px;
+  min-width: 0;
+}
+
+.previewPoster {
+  flex: 0 1 22px;
+  min-width: 8px;
+  border-radius: 3px;
+  background: var(--surface-raised);
+  box-shadow: inset 0 0 0 1px var(--border);
+}
+
+.previewButton {
+  flex: 0 1 34px;
+  min-width: 12px;
+  height: 14px;
+  margin-left: auto;
+  align-self: flex-end;
+  border-radius: var(--radius-xs);
+  background: var(--gradient-brand);
+}
+
+/* System: light on the left, dark on the right, each half a smaller version. */
+.previewSplit .previewPoster:nth-child(n + 3) {
+  display: none;
+}

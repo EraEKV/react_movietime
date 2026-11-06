@@ -11,6 +11,7 @@ import {
   signInWithGoogle,
   signOut,
   signUp,
+  updateDisplayName,
 } from '../store/authSlice'
 import { useAppDispatch, useAppSelector } from '../store/hooks'
 
@@ -40,6 +41,13 @@ export function useAuth() {
       signInWithGoogle: async () =>
         signInWithGoogle.fulfilled.match(await dispatch(signInWithGoogle())),
       signOut: async () => signOut.fulfilled.match(await dispatch(signOut())),
+      /** Resolves to null on success, or the error to show under the field. */
+      updateDisplayName: async (name: string) => {
+        const result = await dispatch(updateDisplayName(name))
+        return updateDisplayName.fulfilled.match(result)
+          ? null
+          : (result.payload ?? { code: 'unknown', message: 'Couldn’t save the name' })
+      },
       resendVerification: async () =>
         resendVerification.fulfilled.match(await dispatch(resendVerification())),
       /** Resolves to the reloaded user (null on failure), to check `emailVerified` right away. */

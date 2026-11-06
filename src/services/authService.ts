@@ -77,6 +77,13 @@ export function resetPassword(email: string): Promise<void> {
   return sendPasswordResetEmail(auth, email.trim())
 }
 
+/** The Auth side of a new display name (users/{uid} is saved by profileService). */
+export async function updateDisplayName(name: string): Promise<void> {
+  const user = auth.currentUser
+  if (!user) throw new Error('Not signed in')
+  await updateProfile(user, { displayName: name })
+}
+
 export async function resendVerification(): Promise<void> {
   const user = auth.currentUser
   if (user) await sendEmailVerification(user)

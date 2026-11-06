@@ -103,6 +103,30 @@ export const resendVerification = createAuthThunk(
   },
 )
 
+/**
+ * New display name: saved in Firebase Auth (header, new lists and plans read it from there)
+ * and in users/{uid} (the profile). Both are awaited — the settings form shows "Saving…"
+ * and reports a failure. Offline the Firestore write would wait for the network, so the
+ * form checks navigator.onLine first.
+ */
+export const updateDisplayName = createAuthThunk(
+  'auth/updateDisplayName',
+  async (name: string, { getState, rejectWithValue }) => {
+    const uid = getState().auth.user?.uid
+    try {
+      if (!uid) throw new Error('Not signed in')
+      const { updateUserProfile } = await import('../services/profileService')
+      await Promise.all([
+        authService.updateDisplayName(name),
+        updateUserProfile(uid, { displayName: name }),
+      ])
+      return name
+    } catch (error) {
+      return rejectWithValue(toAuthError(error))
+    }
+  },
+)
+
 /** "I've verified": reloads the user; the refreshed token reaches the store via authChanged. */
 export const refreshUser = createAuthThunk(
   'auth/refreshUser',
@@ -132,6 +156,12 @@ const authSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
+    // updateProfile() doesn't refresh the token, so authChanged never brings the new name;
+    // the thunk's result does. Pending/error stay in the form (local to the settings page).
+    builder.addCase(updateDisplayName.fulfilled, (state, action) => {
+      if (state.user) state.user.displayName = action.payload
+    })
+
     for (const thunk of SIGN_IN_THUNKS) {
       builder
         .addCase(thunk.pending, (state, action) => {
