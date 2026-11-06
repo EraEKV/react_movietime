@@ -100,15 +100,16 @@ offline support.
 | `watchActivity(uid, { limit }, callback)` | `unsubscribe`                                              |
 | `logActivity(uid, activity)`              | `Promise<void>` (usually added to a batch instead)         |
 
-### `libraryService.ts` 🚧
+### `libraryService.ts` ✅
 
-| Function                                             | Returns                       | Notes                                      |
-| ---------------------------------------------------- | ----------------------------- | ------------------------------------------ |
-| `watchLibrary(uid, callback)`                        | `unsubscribe`                 | Whole library, ordered by `updatedAt`      |
-| `addToLibrary(uid, media, { status, score, notes })` | `Promise<void>`               | Doc id = media key                         |
-| `updateLibraryEntry(uid, mediaKey, changes)`         | `Promise<void>`               | Sets `completedAt` when status → completed |
-| `removeFromLibrary(uid, mediaKey)`                   | `Promise<void>`               |                                            |
-| `mergeGuestLibrary(uid, entries)`                    | `Promise<{ added, skipped }>` | Batch; existing entries win                |
+| Function                                    | Returns                       | Notes                                                             |
+| ------------------------------------------- | ----------------------------- | ----------------------------------------------------------------- |
+| `watchLibrary(uid, onData, onError)`        | `unsubscribe`                 | `onSnapshot` on the whole library; pending server times estimated |
+| `addEntry(uid, entry)`                      | `Promise<void>`               | Doc id = media key; `addedAt`/`updatedAt` = `serverTimestamp()`   |
+| `updateEntry(uid, key, changes, completed)` | `Promise<void>`               | `completed`: `'set'` / `'clear'` / `'keep'` for `completedAt`     |
+| `restoreEntry(uid, entry)`                  | `Promise<void>`               | "Undo" after a removal, keeps the original dates                  |
+| `removeEntry(uid, key)`                     | `Promise<void>`               |                                                                   |
+| `mergeGuestLibrary(uid, entries)`           | `Promise<{ added, skipped }>` | Batches of 400; entries already in the account win                |
 
 ### `listsService.ts` 🚧
 
@@ -168,41 +169,43 @@ Pure helpers in `src/utils/schedule.ts` (unit tested on their own):
 
 | Module                  | Status | Functions                                                                                            |
 | ----------------------- | :----: | ---------------------------------------------------------------------------------------------------- |
-| `watchlistStorage.ts`   |   ✅   | `loadWatchlist()`, `saveWatchlist(entries)` (legacy)                                                 |
-| `libraryStorage.ts`     |   🚧   | `loadGuestLibrary()`, `saveGuestLibrary(entries)`, `clearGuestLibrary()`, `migrateLegacyWatchlist()` |
-| `preferencesStorage.ts` |   🚧   | `loadPreferences()`, `savePreferences({ theme, language })`                                          |
+| `libraryStorage.ts`     |   ✅   | `loadGuestLibrary()`, `saveGuestLibrary(entries)`, `clearGuestLibrary()`, `migrateLegacyWatchlist()` |
+| `preferencesStorage.ts` |   ✅   | `loadPreferences()`, `savePreferences({ theme, language })`                                          |
 
 All of them catch storage errors (private mode, quota) and fall back to defaults.
 
-## Redux store: `src/store/` 🚧
+## Redux store: `src/store/` ✅
 
-| Module                | Exports                                                                                                                                                                    |
-| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `store.ts`            | `store`, `RootState`, `AppDispatch`                                                                                                                                        |
-| `hooks.ts`            | `useAppDispatch`, `useAppSelector` (typed)                                                                                                                                 |
-| `authSlice.ts`        | `authChanged`, `signInWithEmail`, `signInWithGoogle`, `signUp`, `signOut` thunks; `selectUser`, `selectAuthStatus`                                                         |
-| `librarySlice.ts`     | `librarySynced`, `addToLibrary`, `updateLibraryEntry`, `removeFromLibrary` thunks; `selectLibrary`, `selectEntry(mediaKey)`, `selectFilteredLibrary`, `selectLibraryStats` |
-| `preferencesSlice.ts` | `themeChanged`, `languageChanged`; `selectTheme`, `selectLanguage`                                                                                                         |
-| `listeners.ts`        | Listener middleware: auth subscription, library sync, preferences persistence                                                                                              |
+| Module                | Exports                                                                                                                                                                                |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `store.ts`            | `store`, `RootState`, `AppDispatch`, `AppThunk`                                                                                                                                        |
+| `hooks.ts`            | `useAppDispatch`, `useAppSelector` (typed)                                                                                                                                             |
+| `authSlice.ts`        | `authChanged`; `signIn`, `signUp`, `signInWithGoogle`, `signOut` thunks; `selectAuthUser`, `selectAuthStatus`                                                                          |
+| `librarySlice.ts`     | Entities by media key (`createEntityAdapter`); `addToLibrary`, `updateLibraryEntry`, `removeFromLibrary`, `restoreLibraryEntry` thunks; `selectLibraryCounts`, `selectFilteredLibrary` |
+| `preferencesSlice.ts` | `themeChanged`, `languageChanged`; `selectResolvedTheme`                                                                                                                               |
+| `listeners.ts`        | Auth subscription, preferences persistence                                                                                                                                             |
+| `libraryListeners.ts` | Per-user Firestore subscription (cancelled on sign-out), guest merge on sign-in, guest persistence, cross-tab sync                                                                     |
 
 Thunks call the services above; reducers stay pure. The store only holds serializable data.
 
 ## Hooks
 
-| Hook                                                    | Status | Returns                                                                                    |
-| ------------------------------------------------------- | :----: | ------------------------------------------------------------------------------------------ |
-| `useRequest(key, load)`                                 |   ✅   | Generic `{ status, data, error, reload }` for any async loader keyed by a string           |
-| `useFetch(path)`                                        |   ✅   | `{ status, data, error, reload }` for a TMDB path (built on `useRequest`)                  |
-| `useCatalog({ mediaType, filters, query, page, size })` |   ✅   | One app page of a catalog (1–3 TMDB pages), normalized to `MediaSummary`                   |
-| `useDebouncedValue(value, ms)`                          |   ✅   | Debounced value                                                                            |
-| `useEpisodeRatings(id, seasons)`                        |   ✅   | Episode ratings for the heatmap                                                            |
-| `useCatalogFilters(mediaType)`                          |   ✅   | Filters, sort, page, size from the URL, plus setters                                       |
-| `useGenres(mediaType)`                                  |   ✅   | Genre list and id → name map                                                               |
-| `useAuth()`                                             |   🚧   | `{ user, status, error }` from the store + sign-in/out actions                             |
-| `useFirestoreQuery(subscribe, deps)`                    |   🚧   | `{ status, data, error }` for any `watch*` function                                        |
-| `useLibrary()`                                          |   🚧   | Entries + `add`, `update`, `remove`, `getEntry(mediaKey)`; uses guest storage or Firestore |
-| `useLists()` / `useList(id)`                            |   🚧   | Lists, list + items + current role, CRUD actions                                           |
-| `usePlanner()` / `usePlan(id)`                          |   🚧   | Plans, sessions in range, actions                                                          |
-| `useDashboardStats(period)`                             |   🚧   | Memoized statistics and breakdowns                                                         |
-| `useTheme()` / `useLanguage()`                          |   🚧   | Current value + setter                                                                     |
-| `useOnlineStatus()`                                     |   🚧   | `true` / `false` from `online` / `offline` events                                          |
+| Hook                                                    | Status | Returns                                                                                       |
+| ------------------------------------------------------- | :----: | --------------------------------------------------------------------------------------------- |
+| `useRequest(key, load)`                                 |   ✅   | Generic `{ status, data, error, reload }` for any async loader keyed by a string              |
+| `useFetch(path)`                                        |   ✅   | `{ status, data, error, reload }` for a TMDB path (built on `useRequest`)                     |
+| `useCatalog({ mediaType, filters, query, page, size })` |   ✅   | One app page of a catalog (1–3 TMDB pages), normalized to `MediaSummary`                      |
+| `useDebouncedValue(value, ms)`                          |   ✅   | Debounced value                                                                               |
+| `useEpisodeRatings(id, seasons)`                        |   ✅   | Episode ratings for the heatmap                                                               |
+| `useCatalogFilters(mediaType)`                          |   ✅   | Filters, sort, page, size from the URL, plus setters                                          |
+| `useGenres(mediaType)`                                  |   ✅   | Genre list and id → name map                                                                  |
+| `useAuth()`                                             |   🚧   | `{ user, status, error }` from the store + sign-in/out actions                                |
+| `useFirestoreQuery(subscribe, deps)`                    |   🚧   | `{ status, data, error }` for any `watch*` function                                           |
+| `useLibrary()` / `useLibraryEntry(key)`                 |   ✅   | Entries, status, `isGuest` + `add`, `update`, `remove`, `restore`; guest storage or Firestore |
+| `useLibraryFilters()`                                   |   ✅   | Library search, status, type, genre, sort, page, view from the URL                            |
+| `useTimedState(ms)`                                     |   ✅   | A value that clears itself (undo toasts)                                                      |
+| `useLists()` / `useList(id)`                            |   🚧   | Lists, list + items + current role, CRUD actions                                              |
+| `usePlanner()` / `usePlan(id)`                          |   🚧   | Plans, sessions in range, actions                                                             |
+| `useDashboardStats(period)`                             |   🚧   | Memoized statistics and breakdowns                                                            |
+| `useTheme()` / `useLanguage()`                          |   🚧   | Current value + setter                                                                        |
+| `useOnlineStatus()`                                     |   🚧   | `true` / `false` from `online` / `offline` events                                             |

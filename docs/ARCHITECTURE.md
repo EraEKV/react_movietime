@@ -5,7 +5,7 @@ This document has two parts:
 1. **[Target architecture](#target-architecture-end-term)**: how the app is organized once
    the end-term features from [PROJECT_PLAN.md](PROJECT_PLAN.md) are in.
 2. **[Current implementation](#current-implementation-midterm)**: how the existing code
-   works (catalog, series page, heatmap, watchlist) and which React patterns it uses. It
+   works (catalog, title pages, heatmap, library) and which React patterns it uses. It
    stays valid as the base the end-term builds on.
 
 ## Target architecture (end-term)
@@ -172,30 +172,28 @@ confirms later. A failed write (for example `permission-denied`) is shown as an 
 
 ## Current implementation
 
-Phases 0–4 are in place. Lists, planner, dashboard and settings routes exist and show a
+Phases 0–5 are in place. Lists, planner, dashboard and settings routes exist and show a
 "Coming soon" placeholder until their phase lands, so the navigation never leads to a 404.
 
 ### Routes and render tree
 
-| Route                    | Page                       | Purpose                                                     |
-| ------------------------ | -------------------------- | ----------------------------------------------------------- |
-| `/`                      | `HomePage`                 | Guest hero or "Up next", trending rows, heatmap teaser      |
-| `/about`                 | `AboutPage`                | Features and TMDB credit                                    |
-| `/movies`, `/series`     | `CatalogPage mediaType`    | Discover + search, 5 filters, sort, pagination, page size   |
-| `/movies/:id`            | `MoviePage`                | Movie details, key facts, trailer, cast, recommendations    |
-| `/series/:id`            | `SeriesPage`               | Series details and episode heatmap                          |
-| `/library`               | `WatchlistPage`            | Personal list with search, tabs, sort, paging               |
-| `/library/new`           | `WatchlistAddPage`         | Add form (`?series=<id>` preselects a series)               |
-| `/library/:entryId/edit` | `WatchlistEditPage`        | Edit form                                                   |
-| `/profile`               | `ProfileLayout` → children | Nested: `ProfilePage` (index), settings placeholder         |
-| `/offline`               | `OfflinePage`              | Offline screen (the service worker will serve it, phase 12) |
-| `*`                      | `NotFoundPage`             | 404                                                         |
+| Route                     | Page                       | Purpose                                                     |
+| ------------------------- | -------------------------- | ----------------------------------------------------------- |
+| `/`                       | `HomePage`                 | Guest hero or "Up next", trending rows, heatmap teaser      |
+| `/about`                  | `AboutPage`                | Features and TMDB credit                                    |
+| `/movies`, `/series`      | `CatalogPage mediaType`    | Discover + search, 5 filters, sort, pagination, page size   |
+| `/movies/:id`             | `MoviePage`                | Movie details, key facts, trailer, cast, recommendations    |
+| `/series/:id`             | `SeriesPage`               | Series details and episode heatmap                          |
+| `/library`                | `LibraryPage`              | Status tabs, search, type/genre/sort in the URL, rows/grid  |
+| `/library/:mediaKey/edit` | `LibraryEditPage`          | Status, score, series progress, notes; remove with confirm  |
+| `/profile`                | `ProfileLayout` → children | Nested: `ProfilePage` (index), settings placeholder         |
+| `/offline`                | `OfflinePage`              | Offline screen (the service worker will serve it, phase 12) |
+| `*`                       | `NotFoundPage`             | 404                                                         |
 
 ```
 <BrowserRouter>
 └── <App>
-    └── <WatchlistProvider>                 watchlist state (shared by several routes)
-        └── <Layout>                        header, nav, footer, <Suspense> around <Outlet>
+    └── <Layout>                            header, nav, footer, <Suspense> around <Outlet>, <LibraryNotice>
             ├── <HomePage>
             │   ├── <HomeHero> (guests) | <UpNextSection>, <ContinueWatching> (users)
             │   ├── <TrendingSection> → <SegmentedControl>, <PosterRow> → <PosterCard>
@@ -208,34 +206,35 @@ Phases 0–4 are in place. Lists, planner, dashboard and settings routes exist a
             │   └── <Pagination pageSize>
             ├── <MoviePage>
             │   └── <MovieDetails key={id}>
-            │       ├── <TitleHero>
+            │       ├── <TitleHero actions={<LibraryButton>}>
             │       ├── <FactTiles>         director, budget, revenue, runtime
             │       ├── <Trailer>, <CastList>
             │       └── <MediaGrid layout="row">   recommendations
             ├── <SeriesPage>
             │   └── <SeriesDetails key={id}>
-            │       ├── <TitleHero actions={<WatchlistButton>}>
+            │       ├── <TitleHero actions={<LibraryButton>}>
             │       ├── <EpisodeHeatmap> → <HeatmapGrid>, <EpisodePanel>
             │       ├── <SeasonList>, <Trailer>, <CastList>
             │       └── <MediaGrid layout="row">   recommendations (same component as the catalog)
-            ├── <WatchlistPage> → <StatusTabs>, <SelectField>, <WatchlistItem>, <Pagination>, <Toast>
-            └── <WatchlistAddPage> / <WatchlistEditPage> → <WatchlistForm key=…> → <SeriesPicker>
+            ├── <LibraryPage> → <Banner> (guest), <Tabs>, <SelectField>, <LibraryItem> | <LibraryGrid>, <Pagination>, <Toast>
+            └── <LibraryEditPage> → <LibraryEntryForm key={entry.key}> → <RadioCards>, <ScorePicker>, <Textarea>, <Dialog>
 ```
 
 ### Where state lives and why
 
-| State                                    | Where                                                | Why                                                                                       |
-| ---------------------------------------- | ---------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| Catalog filters, sort, page, size, query | URL search params (`useCatalogFilters`)              | Shareable links, refresh keeps them, back/forward walks through them                      |
-| Text typed in the search box             | `useState` in `SearchBar`                            | Changes on every keystroke; only the debounced value is committed to the URL              |
-| API responses + request status           | `useState` inside `useRequest` / `useEpisodeRatings` | Each component that needs data owns its request                                           |
-| Watchlist entries                        | `useState` in `WatchlistProvider` (context)          | Needed by the series page, the watchlist pages and the nav. Lifted to their common parent |
-| Watchlist search, status tab, sort, page | `useState` in `WatchlistPage`                        | Page-only UI state. Personal data, so there is nothing to share in a URL                  |
-| Form values, "submitted" flag            | `useState` in `WatchlistForm`                        | Local to the form until submit                                                            |
-| Selected episode in the heatmap          | `useState` in `EpisodeHeatmap` (id only)             | The episode object is derived from loaded data, so it can't go stale                      |
-| Trailer playing                          | `useState` in `Trailer`                              | Pure UI state, reset per series by `key`                                                  |
+| State                                    | Where                                                | Why                                                                                |
+| ---------------------------------------- | ---------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| Catalog filters, sort, page, size, query | URL search params (`useCatalogFilters`)              | Shareable links, refresh keeps them, back/forward walks through them               |
+| Text typed in the search box             | `useState` in `SearchBar`                            | Changes on every keystroke; only the debounced value is committed to the URL       |
+| API responses + request status           | `useState` inside `useRequest` / `useEpisodeRatings` | Each component that needs data owns its request                                    |
+| Library entries                          | Redux `library` slice (normalized by media key)      | Title pages, library pages and Home all read it; guest or Firestore behind one API |
+| Library search, tab, type, genre, sort   | URL search params (`useLibraryFilters`)              | Refresh and links keep them; the dashboard will link to a filtered library         |
+| Edit form values, "submitted" flag       | `useState` in `LibraryEntryForm`                     | Local to the form until Save                                                       |
+| Undo toast                               | `useTimedState` in the page / `LibraryButton`        | Pure UI state that clears itself                                                   |
+| Selected episode in the heatmap          | `useState` in `EpisodeHeatmap` (id only)             | The episode object is derived from loaded data, so it can't go stale               |
+| Trailer playing                          | `useState` in `Trailer`                              | Pure UI state, reset per series by `key`                                           |
 
-Things that can be computed are **not** stored: filtered/sorted watchlist, total pages,
+Things that can be computed are **not** stored: filtered/sorted library (memoized selector), counts, total pages,
 validation errors, `loading` status, best/worst episode, season averages.
 
 ### How API data reaches the UI
@@ -264,8 +263,30 @@ CatalogPage (mediaType from the route)
 
 The data isn't shown as-is. Genre ids are turned into names, unaired episodes are marked as
 "not rated" instead of 0, season averages and best/worst episodes are computed, trailers are
-picked by priority, specials are moved to the end, and search results can be saved into the
-watchlist.
+picked by priority, specials are moved to the end, and a snapshot of each title (title, poster,
+year, genres, runtime, episode count) is saved with its library entry, so the library renders
+without TMDB requests.
+
+### Library: one API, two backends
+
+```
+component ──► useLibrary().update(key, changes) ──► updateLibraryEntry thunk
+                                                      │
+              guest:  guestEntrySaved ──► reducer ──► listener ──► localStorage
+              signed in: libraryService.updateEntry ──► Firestore local cache
+                                                      └─► onSnapshot ──► accountLibrarySynced ──► reducer
+```
+
+- The listener in `store/libraryListeners.ts` reacts to the user changing (first auth result,
+  sign-in, sign-out, another account). It cancels the previous run (`cancelActiveListeners`),
+  merges a guest library into the account on first sign-in (batched, account entries win),
+  subscribes with `onSnapshot`, and unsubscribes in `finally` when the next run cancels it.
+- Writes for signed-in users are not awaited: the persistent cache fires the snapshot at once
+  (also offline), and a rejected write (e.g. `permission-denied`) becomes an error toast.
+- While the account library loads, title pages show a disabled library button: "Add" could
+  otherwise overwrite an entry with a score and notes.
+- Firestore rules validate every entry (known fields, status, score 1–10, notes ≤ 500, and the
+  document id equals `mediaType_tmdbId`).
 
 ### React concepts in the code
 
@@ -277,9 +298,8 @@ watchlist.
 | `useEpisodeRatings`: load all seasons   | `[seriesId, seasonsKey, attempt]` | aborts every batch with one controller |
 | `SearchBar`: debounce commit to the URL | `[value, query]`                  | `clearTimeout`                         |
 | `useDebouncedValue`                     | `[value, delay]`                  | `clearTimeout`                         |
-| `WatchlistProvider`: persist to storage | `[entries]`                       | none needed                            |
-| `WatchlistProvider`: cross-tab sync     | `[]`                              | `removeEventListener('storage')`       |
-| `WatchlistPage`: hide undo toast        | `[removed]`                       | `clearTimeout`                         |
+| `useTimedState`: hide the undo toast    | `[value, ms]`                     | `clearTimeout`                         |
+| `LibraryNotice`: hide the sync toast    | `[notice, dispatch]`              | `clearTimeout`                         |
 | `Layout`: scroll to top on route change | `[pathname]`                      | none needed                            |
 
 - **Stable dependencies.** Effects depend on strings, not on objects or arrays created during
@@ -307,15 +327,15 @@ the results for the current query.
 #### Keys, identity and resetting state
 
 - List keys are stable ids: TMDB `id` for series, `credit_id` for cast (one actor can play
-  several roles), `crypto.randomUUID()` for watchlist entries. Indexes are only used where the
+  several roles), the media key (`tv_1396`) for library entries. Indexes are only used where the
   position _is_ the identity (skeleton placeholders, heatmap rows "episode N").
 - `<CatalogPage key={mediaType}>`: /movies and /series render the same component in the same
   place; the key makes Movies ⇄ Series mount a fresh page (search input, sheet state).
 - `<SeriesDetails key={id}>`, `<MovieDetails key={id}>`: going to a recommended title would otherwise reuse
   the component and keep its state, for example a trailer still playing. The key makes React mount
   a fresh instance.
-- `<WatchlistForm key={…}>`: the form reads `initialValues` only on mount, so a different entry
-  or a preselected series gets its own instance.
+- `<LibraryEntryForm key={entry.key}>`: the form copies the entry into state only on mount, so
+  another entry gets its own instance instead of stale values.
 - `SearchBar` updates its input during render when the URL query changes from outside (back
   button, clear). This follows React's "adjusting state when a prop changes" pattern instead of
   an effect.

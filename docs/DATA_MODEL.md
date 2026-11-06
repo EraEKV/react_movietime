@@ -272,7 +272,10 @@ service cloud.firestore {
       allow read, write: if signedIn() && uid() == userId;
 
       match /library/{mediaKey} {
-        allow read, write: if signedIn() && uid() == userId;
+        allow read, delete: if signedIn() && uid() == userId;
+        // validLibraryEntry: only known fields, status/score/notes in range, and the
+        // document id equals mediaType + "_" + tmdbId (see firestore.rules).
+        allow create, update: if signedIn() && uid() == userId && validLibraryEntry(mediaKey);
       }
       match /activity/{activityId} {
         allow read, create: if signedIn() && uid() == userId;
