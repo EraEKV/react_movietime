@@ -1,4 +1,4 @@
-import i18n from '../i18n'
+import i18n from '../shared/i18n'
 
 // Form validators: each returns an error message (in the interface language), or null when
 // the value is fine.

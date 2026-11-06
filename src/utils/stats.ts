@@ -1,8 +1,8 @@
-import i18n, { translatedOption } from '../i18n'
+import i18n, { translatedOption } from '../shared/i18n'
 // Dashboard numbers: pure functions over library entries and plan sessions.
 // No React, no Firestore — the page hands the data in, so every figure here can be
 // checked by hand (and in unit tests) from the same input.
-import type { Option } from '../types/common'
+import type { Option } from '../shared/types/common'
 import type { LibraryEntry, LibraryStatus } from '../types/library'
 import type { MediaType } from '../types/media'
 import type { Plan, PlannedSession, Weekday } from '../types/plan'

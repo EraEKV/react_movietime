@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import type { Option } from '../../types/common'
+import type { Option } from '../../shared/types/common'
 import Icon from '../Icon/Icon'
 import SelectField from '../SelectField/SelectField'
 import styles from './Pagination.module.css'

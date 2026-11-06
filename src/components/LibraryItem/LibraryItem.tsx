@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
-import { imageUrl } from '../../api/tmdb'
+import { imageUrl } from '../../shared/api/tmdb'
 import type { LibraryEntry, LibraryStatus } from '../../types/library'
 import { cx } from '../../utils/cx'
 import { episodeCode } from '../../utils/format'

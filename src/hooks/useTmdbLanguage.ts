@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
-import { languageInfo } from '../i18n/languages'
-import type { Language } from '../types/preferences'
+import { languageInfo } from '../shared/i18n/languages'
+import type { Language } from '../shared/types/preferences'
 
 /**
  * TMDB's code for the interface language ("ru-RU"). Hooks put it into their request key, so

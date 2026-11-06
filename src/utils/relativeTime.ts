@@ -1,5 +1,5 @@
-import { currentLocale } from '../i18n'
-import { formatDateWith, formatRelativeWith } from '../i18n/intl'
+import { currentLocale } from '../shared/i18n'
+import { formatDateWith, formatRelativeWith } from '../shared/i18n/intl'
 
 const UNITS: [Intl.RelativeTimeFormatUnit, number][] = [
   ['minute', 60],

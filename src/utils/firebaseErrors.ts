@@ -1,4 +1,4 @@
-import i18n, { type TranslationKey } from '../i18n'
+import i18n, { type TranslationKey } from '../shared/i18n'
 import type { AuthError } from '../types/auth'
 
 // Firebase error codes → text a person can act on (keys of the common dictionary).

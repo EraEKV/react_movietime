@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 
-import { ApiError, endpoints } from '../../api/tmdb'
+import { ApiError, endpoints } from '../../shared/api/tmdb'
 import { useFetch } from '../../hooks/useFetch'
 import { useGenres } from '../../hooks/useGenres'
 import type { SeriesDetails as SeriesDetailsData } from '../../types/tmdb'

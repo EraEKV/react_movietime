@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
-import { imageUrl } from '../../api/tmdb'
+import { imageUrl } from '../../shared/api/tmdb'
 import type { ListItem } from '../../types/list'
 import { mediaHref } from '../../utils/media'
 import { buttonClass } from '../Button/variants'

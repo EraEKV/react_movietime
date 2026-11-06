@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { ApiError, endpoints } from '../../api/tmdb'
+import { ApiError, endpoints } from '../../shared/api/tmdb'
 import { useFetch } from '../../hooks/useFetch'
 import { useGenres } from '../../hooks/useGenres'
 import type { CrewMember, MovieDetails as MovieDetailsData } from '../../types/tmdb'

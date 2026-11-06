@@ -1,4 +1,4 @@
-import i18n from '../i18n'
+import i18n from '../shared/i18n'
 // Schedule generation for watch plans: pure functions, no React and no Firestore, so the
 // business rules can be read (and tested) on their own. Days are "YYYY-MM-DD" in local time,
 // times "HH:mm" (see utils/calendar.ts for why the day math runs in UTC).

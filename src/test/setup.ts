@@ -3,7 +3,7 @@ import { cleanup } from '@testing-library/react'
 import { readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
 import { afterEach, beforeAll, vi } from 'vitest'
-import { initI18n } from '../i18n'
+import { initI18n } from '../shared/i18n'
 
 // jsdom has no matchMedia; "no match" means the dark default.
 window.matchMedia ??= (query: string) =>

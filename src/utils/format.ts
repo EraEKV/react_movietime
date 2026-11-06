@@ -1,5 +1,5 @@
-import { currentLocale } from '../i18n'
-import { formatDateWith, formatNumberWith, formatUnitWith } from '../i18n/intl'
+import { currentLocale } from '../shared/i18n'
+import { formatDateWith, formatNumberWith, formatUnitWith } from '../shared/i18n/intl'
 
 // Every formatter takes the locale as its last parameter (tests pass one); by default it is
 // the interface language, so components get "12 345" in Russian and "12,345" in English.

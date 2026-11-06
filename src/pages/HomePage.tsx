@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { lazy, Suspense } from 'react'
-import { endpoints } from '../api/tmdb'
+import { endpoints } from '../shared/api/tmdb'
 import ContinueWatching from '../components/Home/ContinueWatching'
 import HeatmapTeaser from '../components/Home/HeatmapTeaser'
 import HomeHero from '../components/Home/HomeHero'

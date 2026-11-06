@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import type { ReactNode } from 'react'
-import { imageUrl } from '../../api/tmdb'
+import { imageUrl } from '../../shared/api/tmdb'
 import type { Genre } from '../../types/tmdb'
 import Icon from '../Icon/Icon'
 import type { IconName } from '../Icon/icons'

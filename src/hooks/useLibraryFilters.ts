@@ -1,5 +1,5 @@
 import { useSearchParams } from 'react-router'
-import type { Option } from '../types/common'
+import type { Option } from '../shared/types/common'
 import {
   isLibraryStatus,
   LIBRARY_SORTS,

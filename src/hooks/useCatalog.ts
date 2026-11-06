@@ -1,4 +1,4 @@
-import { tmdbGetAll, withLanguage } from '../api/tmdb'
+import { tmdbGetAll, withLanguage } from '../shared/api/tmdb'
 import type { MediaType } from '../types/media'
 import type { MovieListItem, Paginated, SeriesListItem } from '../types/tmdb'
 import {

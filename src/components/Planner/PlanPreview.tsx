@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { imageUrl } from '../../api/tmdb'
+import { imageUrl } from '../../shared/api/tmdb'
 import type { PlanColor, ScheduledSession } from '../../types/plan'
 import { formatDay, monthGrid, monthOf } from '../../utils/calendar'
 import type { PlanSummary } from '../../utils/schedule'

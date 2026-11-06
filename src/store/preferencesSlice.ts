@@ -1,6 +1,11 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
 import { loadPreferences } from '../storage/preferencesStorage'
-import type { Language, Preferences, ResolvedTheme, ThemePreference } from '../types/preferences'
+import type {
+  Language,
+  Preferences,
+  ResolvedTheme,
+  ThemePreference,
+} from '../shared/types/preferences'
 
 export interface PreferencesState extends Preferences {
   /** What the OS currently prefers; needed to resolve theme: 'system'. */

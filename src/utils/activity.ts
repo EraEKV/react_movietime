@@ -1,4 +1,4 @@
-import i18n from '../i18n'
+import i18n from '../shared/i18n'
 import type { IconName } from '../components/Icon/icons'
 import type { ActivityItem } from '../types/activity'
 import { statusLabel } from './library'

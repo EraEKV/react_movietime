@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
-import { imageUrl } from '../../api/tmdb'
+import { imageUrl } from '../../shared/api/tmdb'
 import { useTitleSearch } from '../../hooks/useTitleSearch'
 import type { ListMedia } from '../../types/list'
 import type { MediaKey } from '../../types/media'

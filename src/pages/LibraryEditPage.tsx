@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router'
-import { imageUrl } from '../api/tmdb'
+import { imageUrl } from '../shared/api/tmdb'
 import Button from '../components/Button/Button'
 import ButtonLink from '../components/ButtonLink/ButtonLink'
 import Dialog from '../components/Dialog/Dialog'

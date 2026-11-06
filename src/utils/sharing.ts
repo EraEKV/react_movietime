@@ -1,4 +1,4 @@
-import i18n from '../i18n'
+import i18n from '../shared/i18n'
 // Pure helpers for sharing lists and plans: roles, invite validation, member display.
 import type { AuthUser } from '../types/auth'
 import type { Member, MemberRole, Shareable, SharedCollection, ShareRole } from '../types/sharing'

@@ -1,5 +1,5 @@
-import { currentLocale } from '../../i18n'
-import { formatDateWith } from '../../i18n/intl'
+import { currentLocale } from '../../shared/i18n'
+import { formatDateWith } from '../../shared/i18n/intl'
 import { useTranslation } from 'react-i18next'
 import { lazy, Suspense } from 'react'
 import Section from '../Section/Section'

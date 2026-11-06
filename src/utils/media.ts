@@ -1,4 +1,4 @@
-import i18n, { type TranslationKey } from '../i18n'
+import i18n, { type TranslationKey } from '../shared/i18n'
 import type { MediaKey, MediaSummary, MediaType } from '../types/media'
 import type { MovieListItem, SeriesListItem, Translations, Video } from '../types/tmdb'
 

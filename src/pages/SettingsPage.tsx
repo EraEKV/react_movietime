@@ -13,9 +13,9 @@ import { useAuth } from '../hooks/useAuth'
 import { useTheme } from '../hooks/useTheme'
 import { useAppDispatch, useAppSelector } from '../store/hooks'
 import { languageChanged, selectLanguage } from '../store/preferencesSlice'
-import { LANGUAGES } from '../i18n/languages'
-import { translatedOption } from '../i18n'
-import type { ThemePreference } from '../types/preferences'
+import { LANGUAGES } from '../shared/i18n/languages'
+import { translatedOption } from '../shared/i18n'
+import type { ThemePreference } from '../shared/types/preferences'
 import styles from './SettingsPage.module.css'
 
 const THEMES = [

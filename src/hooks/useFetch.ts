@@ -1,4 +1,4 @@
-import { tmdbGet, withLanguage } from '../api/tmdb'
+import { tmdbGet, withLanguage } from '../shared/api/tmdb'
 import { useRequest, type FetchState } from './useRequest'
 import { useTmdbLanguage } from './useTmdbLanguage'
 

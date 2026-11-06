@@ -1,4 +1,4 @@
-import i18n from '../i18n'
+import i18n from '../shared/i18n'
 // Pure helpers for lists: limits, validation, snapshots and the cover collage.
 import type { LibraryMedia } from '../types/library'
 import type { ListDraft, ListItem, ListMedia, ListRole } from '../types/list'

@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { imageUrl } from '../../api/tmdb'
+import { imageUrl } from '../../shared/api/tmdb'
 import type { MediaSummary } from '../../types/media'
 import { getYear } from '../../utils/format'
 import { mediaHref, mediaKey } from '../../utils/media'

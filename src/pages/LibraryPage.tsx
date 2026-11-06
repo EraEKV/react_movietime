@@ -24,7 +24,7 @@ import {
   selectFilteredLibrary,
   selectLibraryCounts,
 } from '../store/librarySlice'
-import type { Option } from '../types/common'
+import type { Option } from '../shared/types/common'
 import type { LibraryEntry, LibraryStatus } from '../types/library'
 import {
   LIBRARY_SORTS,

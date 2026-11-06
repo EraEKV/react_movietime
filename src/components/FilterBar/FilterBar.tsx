@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
-import type { Option } from '../../types/common'
+import type { Option } from '../../shared/types/common'
 import type { MediaType } from '../../types/media'
 import type { Genre } from '../../types/tmdb'
 import {

@@ -1,4 +1,4 @@
-import i18n from '../i18n'
+import i18n from '../shared/i18n'
 import { useTranslation } from 'react-i18next'
 import { useMemo, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router'

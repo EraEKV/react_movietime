@@ -1,4 +1,4 @@
-import { endpoints, tmdbGet, withLanguage } from '../api/tmdb'
+import { endpoints, tmdbGet, withLanguage } from '../shared/api/tmdb'
 import type { MediaSummary } from '../types/media'
 import type { MovieListItem, Paginated, SeriesListItem } from '../types/tmdb'
 import { fromMovie, fromSeries } from '../utils/media'

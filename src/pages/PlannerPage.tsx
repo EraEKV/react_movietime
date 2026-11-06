@@ -1,4 +1,4 @@
-import { translatedOption } from '../i18n'
+import { translatedOption } from '../shared/i18n'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useSearchParams } from 'react-router'
 import Button from '../components/Button/Button'

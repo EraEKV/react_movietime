@@ -1,9 +1,9 @@
-import i18n, { currentLocale, translatedOption } from '../i18n'
-import { languageNameWith } from '../i18n/intl'
+import i18n, { currentLocale, translatedOption } from '../shared/i18n'
+import { languageNameWith } from '../shared/i18n/intl'
 // Catalog filters for /discover/movie and /discover/tv. Values are strings because they
 // live in the URL. Pure functions only: the hook (useCatalogFilters) wires them to React.
-import { endpoints } from '../api/tmdb'
-import type { Option } from '../types/common'
+import { endpoints } from '../shared/api/tmdb'
+import type { Option } from '../shared/types/common'
 import type { MediaType } from '../types/media'
 
 const today = () => new Date().toISOString().slice(0, 10)

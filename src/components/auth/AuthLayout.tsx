@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { Outlet } from 'react-router'
-import { endpoints, imageUrl } from '../../api/tmdb'
+import { endpoints, imageUrl } from '../../shared/api/tmdb'
 import { useFetch } from '../../hooks/useFetch'
 import { useSystemThemeSync } from '../../hooks/useTheme'
 import type { Paginated, SeriesListItem } from '../../types/tmdb'

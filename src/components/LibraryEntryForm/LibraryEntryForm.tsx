@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { useState, type FormEvent } from 'react'
-import { endpoints } from '../../api/tmdb'
+import { endpoints } from '../../shared/api/tmdb'
 import { useFetch } from '../../hooks/useFetch'
 import type {
   LibraryChanges,

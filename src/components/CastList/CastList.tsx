@@ -1,4 +1,4 @@
-import { imageUrl } from '../../api/tmdb'
+import { imageUrl } from '../../shared/api/tmdb'
 import type { CastMember } from '../../types/tmdb'
 import styles from './CastList.module.css'
 

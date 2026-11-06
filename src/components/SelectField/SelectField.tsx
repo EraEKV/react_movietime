@@ -1,5 +1,5 @@
 import { useId, type ReactNode } from 'react'
-import type { Option } from '../../types/common'
+import type { Option } from '../../shared/types/common'
 import Field from '../Field/Field'
 import { hintId } from '../Field/hintId'
 import styles from '../Field/Field.module.css'

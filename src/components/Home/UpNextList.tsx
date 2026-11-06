@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
 import { Link } from 'react-router'
-import { imageUrl } from '../../api/tmdb'
+import { imageUrl } from '../../shared/api/tmdb'
 import { useAuth } from '../../hooks/useAuth'
 import { usePlanActions, useUpcoming } from '../../hooks/usePlanner'
 import type { PlannedSession } from '../../types/plan'

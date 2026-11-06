@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { endpoints } from '../api/tmdb'
+import { endpoints } from '../shared/api/tmdb'
 import type { MediaType } from '../types/media'
 import type { Genre, GenresResponse } from '../types/tmdb'
 import { useFetch, type FetchState } from './useFetch'

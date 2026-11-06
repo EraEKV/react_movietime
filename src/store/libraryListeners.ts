@@ -1,4 +1,4 @@
-import i18n from '../i18n'
+import i18n from '../shared/i18n'
 import { isAnyOf, TaskAbortError } from '@reduxjs/toolkit'
 import {
   clearGuestLibrary,

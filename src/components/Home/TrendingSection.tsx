@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
-import { endpoints, imageUrl } from '../../api/tmdb'
+import { endpoints, imageUrl } from '../../shared/api/tmdb'
 import type { FetchState } from '../../hooks/useFetch'
 import { useFetch } from '../../hooks/useFetch'
 import type { MovieListItem, Paginated, SeriesListItem } from '../../types/tmdb'

@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { imageUrl } from '../../api/tmdb'
+import { imageUrl } from '../../shared/api/tmdb'
 import type { LibraryEntry } from '../../types/library'
 import { episodeCode } from '../../utils/format'
 import { progressRatio } from '../../utils/library'
