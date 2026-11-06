@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
 import BackButton from '../components/BackButton/BackButton'
 import SeriesDetails from '../components/SeriesDetails/SeriesDetails'
@@ -5,6 +6,7 @@ import ButtonLink from '../components/ButtonLink/ButtonLink'
 import ErrorState from '../components/EmptyState/ErrorState'
 
 export default function SeriesPage() {
+  const { t } = useTranslation('catalog')
   const { id = '' } = useParams()
 
   if (!/^\d+$/.test(id)) {
@@ -13,11 +15,11 @@ export default function SeriesPage() {
         <BackButton />
         <ErrorState
           icon="link"
-          title="This link doesn’t point to a series"
-          body={`“${id}” is not a valid series id. Check the link, or find the series in the catalog.`}
+          title={t('details.badSeriesLink')}
+          body={t('details.badSeriesId', { id })}
           secondary={
             <ButtonLink to="/series" variant="primary" icon="compass">
-              Browse series
+              {t('details.browseSeries')}
             </ButtonLink>
           }
         />

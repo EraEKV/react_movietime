@@ -1,10 +1,11 @@
+import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
 import type { Option } from '../../types/common'
 import type { MediaType } from '../../types/media'
 import type { Genre } from '../../types/tmdb'
 import {
   DEFAULT_SORT,
-  LANGUAGE_OPTIONS,
+  languageOptions,
   RATING_OPTIONS,
   RUNTIME_OPTIONS,
   SORT_OPTIONS,
@@ -13,7 +14,6 @@ import {
   type CatalogFilters,
   type FilterKey,
 } from '../../utils/filters'
-import { formatNumber } from '../../utils/format'
 import Banner from '../Banner/Banner'
 import Button from '../Button/Button'
 import FilterChip from '../Chip/FilterChip'
@@ -62,11 +62,13 @@ export default function FilterBar({
   onFilterChange,
   onReset,
 }: FilterBarProps) {
+  const { t } = useTranslation('catalog')
   const [sheetOpen, setSheetOpen] = useState(false)
   const isMovie = mediaType === 'movie'
+  const languages = languageOptions()
 
   const genreOptions: Option[] = [
-    { value: '', label: 'All genres' },
+    { value: '', label: t('filters.allGenres') },
     ...genres.map((g) => ({ value: String(g.id), label: g.name })),
   ]
 
@@ -74,8 +76,12 @@ export default function FilterBar({
   const chips = [
     filters.genre && { key: 'genre', label: labelOf(genreOptions, filters.genre), reset: '' },
     filters.year && { key: 'year', label: filters.year, reset: '' },
-    filters.rating && { key: 'rating', label: `Rating ${filters.rating}+`, reset: '' },
-    filters.lang && { key: 'lang', label: labelOf(LANGUAGE_OPTIONS, filters.lang), reset: '' },
+    filters.rating && {
+      key: 'rating',
+      label: t('filters.ratingChip', { value: filters.rating }),
+      reset: '',
+    },
+    filters.lang && { key: 'lang', label: labelOf(languages, filters.lang), reset: '' },
     filters.status && { key: 'status', label: labelOf(STATUS_OPTIONS, filters.status), reset: '' },
     filters.runtime && {
       key: 'runtime',
@@ -93,43 +99,40 @@ export default function FilterBar({
     .filter((chip) => !searchMode || chip.key === 'year')
   const shownCount = searchMode ? chips.length : activeCount
 
-  const resultLabel =
-    resultCount === null
-      ? null
-      : `${formatNumber(resultCount)} ${resultCount === 1 ? 'result' : 'results'}`
+  const resultLabel = resultCount === null ? null : t('filters.results', { count: resultCount })
 
   const fields = (
     <div className={styles.fields}>
       <SelectField
-        label="Genre"
+        label={t('filters.genre')}
         disabled={searchMode}
         value={filters.genre}
         options={genreOptions}
         onChange={(value) => onFilterChange('genre', value)}
       />
       <SelectField
-        label="Year"
+        label={t('filters.year')}
         value={filters.year}
         options={YEAR_OPTIONS}
         onChange={(value) => onFilterChange('year', value)}
       />
       <SelectField
-        label="Rating"
+        label={t('filters.rating')}
         disabled={searchMode}
         value={filters.rating}
         options={RATING_OPTIONS}
         onChange={(value) => onFilterChange('rating', value)}
       />
       <SelectField
-        label="Language"
+        label={t('filters.language')}
         disabled={searchMode}
         value={filters.lang}
-        options={LANGUAGE_OPTIONS}
+        options={languages}
         onChange={(value) => onFilterChange('lang', value)}
       />
       {isMovie ? (
         <SelectField
-          label="Runtime"
+          label={t('filters.runtime')}
           disabled={searchMode}
           value={filters.runtime}
           options={RUNTIME_OPTIONS}
@@ -137,7 +140,7 @@ export default function FilterBar({
         />
       ) : (
         <SelectField
-          label="Status"
+          label={t('filters.status')}
           disabled={searchMode}
           value={filters.status}
           options={STATUS_OPTIONS}
@@ -145,7 +148,7 @@ export default function FilterBar({
         />
       )}
       <SelectField
-        label="Sort by"
+        label={t('filters.sort')}
         disabled={searchMode}
         value={filters.sort}
         options={SORT_OPTIONS}
@@ -155,10 +158,7 @@ export default function FilterBar({
   )
 
   const searchBanner = searchMode && (
-    <Banner>
-      Search matches titles only. Genre, rating, language, {isMovie ? 'runtime' : 'status'} and
-      sorting apply when browsing.
-    </Banner>
+    <Banner>{t(isMovie ? 'filters.searchBannerMovie' : 'filters.searchBannerTv')}</Banner>
   )
 
   return (
@@ -172,7 +172,7 @@ export default function FilterBar({
           onClick={() => setSheetOpen(true)}
           aria-haspopup="dialog"
         >
-          {shownCount > 0 ? `Filters · ${shownCount}` : 'Filters'}
+          {shownCount > 0 ? t('filters.withCount', { count: shownCount }) : t('filters.title')}
         </Button>
         {chips.map((chip) => (
           <FilterChip
@@ -183,7 +183,7 @@ export default function FilterBar({
         ))}
         {chips.length > 1 && (
           <button type="button" className={styles.clear} onClick={onReset}>
-            Clear all
+            {t('filters.clearAll')}
           </button>
         )}
         {/* aria-live: the count is announced when results change after typing or filtering. */}
@@ -197,16 +197,16 @@ export default function FilterBar({
       <BottomSheet
         open={sheetOpen}
         onClose={() => setSheetOpen(false)}
-        title="Filters"
+        title={t('filters.title')}
         footer={
           <>
             {activeCount > 0 && (
               <Button variant="ghost" onClick={onReset}>
-                Clear all
+                {t('filters.clearAll')}
               </Button>
             )}
             <Button variant="primary" className={styles.apply} onClick={() => setSheetOpen(false)}>
-              {resultLabel ? `Show ${resultLabel}` : 'Show results'}
+              {resultLabel ? t('filters.show', { results: resultLabel }) : t('filters.showResults')}
             </Button>
           </>
         }

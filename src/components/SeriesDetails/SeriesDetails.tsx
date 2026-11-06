@@ -1,10 +1,11 @@
-import i18n from '../../i18n'
+import { useTranslation } from 'react-i18next'
+
 import { ApiError, endpoints } from '../../api/tmdb'
 import { useFetch } from '../../hooks/useFetch'
 import { useGenres } from '../../hooks/useGenres'
 import type { SeriesDetails as SeriesDetailsData } from '../../types/tmdb'
 import { useTmdbLanguage } from '../../hooks/useTmdbLanguage'
-import { fromSeries, overviewOf, pickTrailer } from '../../utils/media'
+import { fromSeries, overviewOf, pickTrailer, tmdbStatusLabel } from '../../utils/media'
 import { formatYearRange } from '../../utils/format'
 import { seriesToLibraryMedia } from '../../utils/library'
 import { libraryToListMedia } from '../../utils/lists'
@@ -28,6 +29,7 @@ const MAX_CAST = 12
 const MAX_RECOMMENDATIONS = 10
 
 export default function SeriesDetails({ seriesId }: { seriesId: string }) {
+  const { t } = useTranslation(['catalog', 'common'])
   // One request: details + credits + videos + recommendations via append_to_response.
   const {
     status,
@@ -37,7 +39,9 @@ export default function SeriesDetails({ seriesId }: { seriesId: string }) {
   } = useFetch<SeriesDetailsData>(endpoints.seriesDetails(seriesId, useTmdbLanguage()))
   const { genresById } = useGenres('tv')
 
-  if (status === 'idle' || status === 'loading') return <DetailsSkeleton label="Loading series" />
+  if (status === 'idle' || status === 'loading') {
+    return <DetailsSkeleton label={t('details.loadingSeries')} />
+  }
 
   if (status === 'error') {
     const notFound = error instanceof ApiError && error.status === 404
@@ -46,14 +50,12 @@ export default function SeriesDetails({ seriesId }: { seriesId: string }) {
         <BackButton />
         <ErrorState
           icon={notFound ? 'tv' : 'alert'}
-          title={notFound ? 'Series not found' : 'We couldn’t load this series'}
-          body={
-            notFound ? 'It may have been removed from TMDB, or the link is wrong.' : error.message
-          }
+          title={t(notFound ? 'details.seriesNotFound' : 'details.seriesError')}
+          body={notFound ? t('details.notFoundBody') : error.message}
           onRetry={notFound ? undefined : reload}
           secondary={
             <ButtonLink to="/series" icon="compass">
-              Browse series
+              {t('details.browseSeries')}
             </ButtonLink>
           }
         />
@@ -75,7 +77,7 @@ export default function SeriesDetails({ seriesId }: { seriesId: string }) {
   return (
     <article>
       {/* React 19 hoists <title> into <head> — no document.title side effect needed. */}
-      <title>{`${series.name} · Movietime`}</title>
+      <title>{t('details.pageTitle', { title: series.name })}</title>
 
       <BackButton />
       <TitleHero
@@ -91,15 +93,15 @@ export default function SeriesDetails({ seriesId }: { seriesId: string }) {
         meta={[
           formatYearRange(series.first_air_date, series.last_air_date, series.in_production),
           series.number_of_seasons > 0 &&
-            i18n.t('count.seasons', { count: series.number_of_seasons }),
+            t('common:count.seasons', { count: series.number_of_seasons }),
           series.number_of_episodes > 0 &&
-            i18n.t('count.episodes', { count: series.number_of_episodes }),
-          series.status,
+            t('common:count.episodes', { count: series.number_of_episodes }),
+          tmdbStatusLabel(series.status),
         ]}
         overview={overviewOf(series)}
         facts={[
-          { label: 'Created by', value: series.created_by.map((p) => p.name).join(', ') },
-          { label: 'Network', value: series.networks.map((n) => n.name).join(', ') },
+          { label: t('details.createdBy'), value: series.created_by.map((p) => p.name).join(', ') },
+          { label: t('details.network'), value: series.networks.map((n) => n.name).join(', ') },
         ].filter((fact) => fact.value)}
         actions={
           <>
@@ -111,35 +113,35 @@ export default function SeriesDetails({ seriesId }: { seriesId: string }) {
       />
 
       {regularSeasons.length > 0 && (
-        <Section title="Episode ratings">
+        <Section title={t('details.episodeRatings')}>
           <EpisodeHeatmap seriesId={seriesId} seasonNumbers={regularSeasons} />
         </Section>
       )}
 
       {seasons.length > 0 && (
-        <Section title="Seasons">
+        <Section title={t('details.seasons')}>
           <SeasonList seasons={seasons} />
         </Section>
       )}
 
       {trailer && (
-        <Section title="Trailer">
+        <Section title={t('details.trailer')}>
           <Trailer video={trailer} title={series.name} />
         </Section>
       )}
 
       {cast.length > 0 && (
-        <Section title="Cast">
+        <Section title={t('details.cast')}>
           <CastList cast={cast} />
         </Section>
       )}
 
       {recommendations.length > 0 && (
-        <Section title="You might also like">
+        <Section title={t('details.recommended')}>
           <MediaGrid
             items={recommendations}
             genresById={genresById}
-            label="Recommendations"
+            label={t('details.recommendations')}
             layout="row"
           />
         </Section>

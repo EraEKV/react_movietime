@@ -1,3 +1,4 @@
+import i18n, { type TranslationKey } from '../i18n'
 import type { MediaKey, MediaSummary, MediaType } from '../types/media'
 import type { MovieListItem, SeriesListItem, Translations, Video } from '../types/tmdb'
 
@@ -56,6 +57,24 @@ export function uniqueById<T extends { id: number }>(items: T[]): T[] {
     seen.add(item.id)
     return true
   })
+}
+
+// TMDB sends production statuses as English words; known ones get a translation.
+const TMDB_STATUS: Record<string, TranslationKey> = {
+  'Returning Series': 'catalog:status.returning',
+  'In Production': 'catalog:status.inProduction',
+  Ended: 'catalog:status.ended',
+  Canceled: 'catalog:status.canceled',
+  Planned: 'catalog:status.planned',
+  Pilot: 'catalog:status.pilot',
+  'Post Production': 'catalog:status.postProduction',
+  Rumored: 'catalog:status.rumored',
+  Released: 'catalog:status.released',
+}
+
+export function tmdbStatusLabel(status: string): string {
+  const key = TMDB_STATUS[status]
+  return key ? i18n.t(key) : status
 }
 
 /**

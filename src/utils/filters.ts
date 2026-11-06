@@ -1,3 +1,5 @@
+import i18n, { currentLocale, translatedOption } from '../i18n'
+import { languageNameWith } from '../i18n/intl'
 // Catalog filters for /discover/movie and /discover/tv. Values are strings because they
 // live in the URL. Pure functions only: the hook (useCatalogFilters) wires them to React.
 import { endpoints } from '../api/tmdb'
@@ -25,18 +27,22 @@ const dateField = (mediaType: MediaType) =>
   mediaType === 'movie' ? 'primary_release_date' : 'first_air_date'
 
 export const SORT_OPTIONS: SortOption[] = [
-  { value: 'popular', label: 'Most popular', params: () => ({ sortBy: 'popularity.desc' }) },
+  {
+    ...translatedOption('popular', 'catalog:sort.popular'),
+    params: () => ({ sortBy: 'popularity.desc' }),
+  },
   // Without a vote threshold "top rated" is full of titles with a single 10/10 vote.
   {
-    value: 'top-rated',
-    label: 'Top rated',
+    ...translatedOption('top-rated', 'catalog:sort.topRated'),
     params: () => ({ sortBy: 'vote_average.desc', minVotes: 200 }),
   },
-  { value: 'most-voted', label: 'Most voted', params: () => ({ sortBy: 'vote_count.desc' }) },
+  {
+    ...translatedOption('most-voted', 'catalog:sort.mostVoted'),
+    params: () => ({ sortBy: 'vote_count.desc' }),
+  },
   // TMDB has announced titles dated years ahead — cap at today and skip unknown ones.
   {
-    value: 'newest',
-    label: 'Newest',
+    ...translatedOption('newest', 'catalog:sort.newest'),
     params: (mediaType) => ({
       sortBy: `${dateField(mediaType)}.desc`,
       releasedBefore: today(),
@@ -44,8 +50,7 @@ export const SORT_OPTIONS: SortOption[] = [
     }),
   },
   {
-    value: 'oldest',
-    label: 'Oldest',
+    ...translatedOption('oldest', 'catalog:sort.oldest'),
     params: (mediaType) => ({ sortBy: `${dateField(mediaType)}.asc`, minVotes: 10 }),
   },
 ]
@@ -55,7 +60,7 @@ export const DEFAULT_SORT: SortValue = 'popular'
 /* ---------- Filter options ---------- */
 
 export const RATING_OPTIONS: Option[] = [
-  { value: '', label: 'Any rating' },
+  translatedOption('', 'catalog:filters.anyRating'),
   { value: '9', label: '9+' },
   { value: '8', label: '8+' },
   { value: '7', label: '7+' },
@@ -65,24 +70,24 @@ export const RATING_OPTIONS: Option[] = [
 
 // TMDB series status codes for the with_status parameter.
 export const STATUS_OPTIONS: Option[] = [
-  { value: '', label: 'Any status' },
-  { value: '0', label: 'Returning' },
-  { value: '2', label: 'In production' },
-  { value: '3', label: 'Ended' },
-  { value: '4', label: 'Canceled' },
+  translatedOption('', 'catalog:filters.anyStatus'),
+  translatedOption('0', 'catalog:status.returning'),
+  translatedOption('2', 'catalog:status.inProduction'),
+  translatedOption('3', 'catalog:status.ended'),
+  translatedOption('4', 'catalog:status.canceled'),
 ]
 
 // Upper bound in minutes for with_runtime.lte.
 export const RUNTIME_OPTIONS: Option[] = [
-  { value: '', label: 'Any length' },
-  { value: '90', label: 'Under 90 min' },
-  { value: '120', label: 'Under 2 h' },
-  { value: '150', label: 'Under 2.5 h' },
+  translatedOption('', 'catalog:filters.anyLength'),
+  translatedOption('90', 'catalog:filters.under90'),
+  translatedOption('120', 'catalog:filters.under120'),
+  translatedOption('150', 'catalog:filters.under150'),
 ]
 
 const FIRST_YEAR = 1950
 export const YEAR_OPTIONS: Option[] = [
-  { value: '', label: 'Any year' },
+  translatedOption('', 'catalog:filters.anyYear'),
   ...Array.from({ length: new Date().getFullYear() - FIRST_YEAR + 1 }, (_, i) => {
     const year = String(new Date().getFullYear() - i)
     return { value: year, label: year }
@@ -96,14 +101,20 @@ export const YEAR_OPTIONS: Option[] = [
 const LANGUAGE_CODES = [
   'en', 'ru', 'kk', 'ko', 'ja', 'zh', 'hi', 'fr', 'es', 'de', 'it', 'pt', 'tr', 'uk', 'sv', 'da',
 ]
-const languageNames = new Intl.DisplayNames(['en'], { type: 'language' })
 
-export const LANGUAGE_OPTIONS: Option[] = [
-  { value: '', label: 'Any language' },
-  ...LANGUAGE_CODES.map((code) => ({ value: code, label: languageNames.of(code) ?? code })).sort(
-    (a, b) => a.label.localeCompare(b.label),
-  ),
-]
+/** "Korean" / "корейский" / "корей тілі": names in the interface language, sorted in it. */
+export function languageOptions(locale = currentLocale()): Option[] {
+  return [
+    { value: '', label: i18n.t('catalog:filters.anyLanguage') },
+    ...LANGUAGE_CODES.map((code) => ({ value: code, label: languageName(code, locale) })).sort(
+      (a, b) => a.label.localeCompare(b.label, locale),
+    ),
+  ]
+}
+
+/** Language name for a code, in the interface language: "en" → "English" / "английский". */
+export const languageName = (code: string, locale = currentLocale()) =>
+  languageNameWith(code, locale)
 
 /* ---------- Parsing ---------- */
 
@@ -130,7 +141,7 @@ export function parseFilters(searchParams: URLSearchParams, mediaType: MediaType
     genre: /^\d+$/.test(get('genre')) ? get('genre') : '',
     year: isOption(YEAR_OPTIONS, get('year')) ? get('year') : '',
     rating: isOption(RATING_OPTIONS, get('rating')) ? get('rating') : '',
-    lang: isOption(LANGUAGE_OPTIONS, get('lang')) ? get('lang') : '',
+    lang: LANGUAGE_CODES.includes(get('lang')) ? get('lang') : '',
     status: mediaType === 'tv' && isOption(STATUS_OPTIONS, get('status')) ? get('status') : '',
     runtime:
       mediaType === 'movie' && isOption(RUNTIME_OPTIONS, get('runtime')) ? get('runtime') : '',
