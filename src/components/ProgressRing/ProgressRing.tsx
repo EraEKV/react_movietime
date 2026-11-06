@@ -1,6 +1,7 @@
 import { useId } from 'react'
 import Icon from '../Icon/Icon'
 import styles from './ProgressRing.module.css'
+import type { PlanColor } from '../../types/plan'
 
 interface ProgressRingProps {
   /** 0…1 */
@@ -8,14 +9,17 @@ interface ProgressRingProps {
   size?: number
   stroke?: number
   label?: string
+  /** A plan's calendar colour (`--plan-N`) instead of the brand gradient. */
+  color?: PlanColor
 }
 
-/** Circular progress: the brand gradient fills the ring, the percentage sits in the middle. */
+/** Circular progress: the brand gradient (or a plan colour) fills the ring, the percentage sits in the middle. */
 export default function ProgressRing({
   value,
   size = 48,
   stroke = 5,
   label = 'Progress',
+  color,
 }: ProgressRingProps) {
   // Several rings on one page need different gradient ids; useId gives each a unique one.
   const gradientId = useId()
@@ -49,7 +53,7 @@ export default function ProgressRing({
           cy={center}
           r={radius}
           strokeWidth={stroke}
-          stroke={`url(#${gradientId})`}
+          stroke={color ? `var(--plan-${color})` : `url(#${gradientId})`}
           strokeDasharray={circumference}
           strokeDashoffset={circumference * (1 - v)}
         />
