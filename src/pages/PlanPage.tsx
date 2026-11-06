@@ -26,7 +26,7 @@ import { useSharing } from '../hooks/useSharing'
 import { useTimedState } from '../hooks/useTimedState'
 import type { Plan, PlanRole, PlanSession } from '../types/plan'
 import { addDays, formatDay, localToday, weekStart } from '../utils/calendar'
-import { OFFLINE_MESSAGE } from '../utils/listErrors'
+import { offlineMessage } from '../utils/listErrors'
 import { noticeFromState } from '../utils/notice'
 import {
   canEditSessions,
@@ -37,7 +37,8 @@ import {
 } from '../utils/planner'
 import { loginPath } from '../utils/redirect'
 import { toIcs, unitsLabel } from '../utils/schedule'
-import { memberName, membersOf, ROLE_LABELS, shareUrl } from '../utils/sharing'
+import { memberName, membersOf, roleLabel, shareUrl } from '../utils/sharing'
+import type { MemberRole } from '../types/sharing'
 import NotFoundPage from './NotFoundPage'
 import styles from './PlanPage.module.css'
 
@@ -156,7 +157,7 @@ function PlanView({ id }: { id: string }) {
     )
 
   async function handleDelete() {
-    if (!navigator.onLine) return setDeleteError(OFFLINE_MESSAGE)
+    if (!navigator.onLine) return setDeleteError(offlineMessage())
     setDeleting(true)
     setDeleteError(null)
     try {
@@ -169,7 +170,7 @@ function PlanView({ id }: { id: string }) {
   }
 
   async function handleLeave() {
-    if (!navigator.onLine) return setLeaveError(OFFLINE_MESSAGE)
+    if (!navigator.onLine) return setLeaveError(offlineMessage())
     setLeaving(true)
     setLeaveError(null)
     try {
@@ -522,13 +523,13 @@ function firstMoviePoster(sessions: PlanSession[] | null) {
 
 function peopleLine(
   ownerName: string,
-  members: { email: string; role: keyof typeof ROLE_LABELS }[],
+  members: { email: string; role: MemberRole }[],
   role: PlanRole,
 ): string {
   if (role === 'link') return `by ${ownerName}`
   const shown = members
     .slice(0, 3)
-    .map((m) => `${memberName(m.email)} (${ROLE_LABELS[m.role].toLowerCase()})`)
+    .map((m) => `${memberName(m.email)} (${roleLabel(m.role).toLowerCase()})`)
   const more = members.length - shown.length
   return [`Owner: ${ownerName}`, ...shown, ...(more > 0 ? [`${more} more`] : [])].join(' · ')
 }

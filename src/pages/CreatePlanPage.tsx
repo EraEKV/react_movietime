@@ -16,7 +16,7 @@ import { loadPlannerService, usePlans } from '../hooks/usePlanner'
 import { usePlanSource, type SourcePick } from '../hooks/usePlanSource'
 import type { ScheduleOptions, Weekday } from '../types/plan'
 import { localToday, weekdayOf } from '../utils/calendar'
-import { OFFLINE_MESSAGE } from '../utils/listErrors'
+import { offlineMessage } from '../utils/listErrors'
 import { mediaKey } from '../utils/media'
 import {
   defaultPlanTitle,
@@ -110,7 +110,7 @@ export default function CreatePlanPage() {
 
   async function handleCreate() {
     if (!author || !loaded) return
-    if (!navigator.onLine) return setSaveError(OFFLINE_MESSAGE)
+    if (!navigator.onLine) return setSaveError(offlineMessage())
     setSaving(true)
     setSaveError(null)
     try {

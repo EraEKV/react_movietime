@@ -36,13 +36,13 @@ export function validateListDraft(draft: Record<keyof ListDraft, string>) {
   const name = draft.name.trim()
   return {
     name: !name
-      ? 'Give your list a name.'
+      ? i18n.t('lists:validation.nameRequired')
       : name.length > LIST_NAME_MAX
-        ? `Keep the name under ${LIST_NAME_MAX} characters.`
+        ? i18n.t('lists:validation.nameTooLong', { max: LIST_NAME_MAX })
         : null,
     description:
       draft.description.trim().length > LIST_DESCRIPTION_MAX
-        ? `Keep the description under ${LIST_DESCRIPTION_MAX} characters.`
+        ? i18n.t('lists:validation.descriptionTooLong', { max: LIST_DESCRIPTION_MAX })
         : null,
     emoji: null,
   }

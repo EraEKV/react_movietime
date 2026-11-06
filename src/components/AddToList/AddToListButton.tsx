@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
 import { useLocation } from 'react-router'
 import { useAuth } from '../../hooks/useAuth'
@@ -9,6 +10,7 @@ import AddToListDialog from './AddToListDialog'
 
 /** Title page action. Lists need an account, so guests are sent to sign in and back. */
 export default function AddToListButton({ media }: { media: ListMedia }) {
+  const { t } = useTranslation('sharing')
   const { isAuthenticated } = useAuth()
   const location = useLocation()
   const [open, setOpen] = useState(false)
@@ -16,7 +18,7 @@ export default function AddToListButton({ media }: { media: ListMedia }) {
   if (!isAuthenticated) {
     return (
       <ButtonLink to={loginPath(location.pathname + location.search)} icon="list">
-        Add to list
+        {t('addTo.button')}
       </ButtonLink>
     )
   }
@@ -24,7 +26,7 @@ export default function AddToListButton({ media }: { media: ListMedia }) {
   return (
     <>
       <Button icon="list" onClick={() => setOpen(true)}>
-        Add to list
+        {t('addTo.button')}
       </Button>
       {open && <AddToListDialog media={media} onClose={() => setOpen(false)} />}
     </>

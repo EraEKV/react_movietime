@@ -1,3 +1,4 @@
+import i18n from '../i18n'
 // Pure helpers for sharing lists and plans: roles, invite validation, member display.
 import type { AuthUser } from '../types/auth'
 import type { Member, MemberRole, Shareable, SharedCollection, ShareRole } from '../types/sharing'
@@ -43,12 +44,12 @@ export function validateInvite(
   { ownEmail, roles }: { ownEmail: string | null; roles: Record<string, MemberRole> },
 ): string | null {
   const email = normalizeEmail(raw)
-  if (!email) return 'Enter your friend’s email.'
-  if (validateEmail(email)) return 'Enter a full email address, like name@example.com.'
-  if (ownEmail && email === normalizeEmail(ownEmail)) return 'That’s your email — you’re the owner.'
-  if (roles[email]) return 'They already have access. Change their role in the list below.'
+  if (!email) return i18n.t('sharing:invite.enterEmail')
+  if (validateEmail(email)) return i18n.t('sharing:invite.fullEmail')
+  if (ownEmail && email === normalizeEmail(ownEmail)) return i18n.t('sharing:invite.ownEmail')
+  if (roles[email]) return i18n.t('sharing:invite.already')
   if (Object.keys(roles).length >= MAX_MEMBERS) {
-    return `You can share with up to ${MAX_MEMBERS} people.`
+    return i18n.t('sharing:invite.max', { count: MAX_MEMBERS })
   }
   return null
 }
@@ -64,4 +65,4 @@ export const sharePath = (collection: SharedCollection, id: string) =>
 export const shareUrl = (collection: SharedCollection, id: string) =>
   new URL(sharePath(collection, id), window.location.origin).href
 
-export const ROLE_LABELS: Record<MemberRole, string> = { editor: 'Editor', viewer: 'Viewer' }
+export const roleLabel = (role: MemberRole): string => i18n.t(`role.${role}`)

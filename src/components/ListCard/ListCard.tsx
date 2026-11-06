@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { imageUrl } from '../../api/tmdb'
 import type { ListRole, TitleList } from '../../types/list'
@@ -15,6 +16,7 @@ interface ListCardProps {
 
 /** A list in a grid: 4-poster collage, emoji tile, name, count and a badge. */
 export default function ListCard({ list, role }: ListCardProps) {
+  const { t } = useTranslation('lists')
   // Always four cells, empty ones stay as sunken tiles.
   const cells = Array.from({ length: LIST_COVERS }, (_, i) => list.covers[i] ?? null)
   const count = titlesCount(list.itemCount)
@@ -32,7 +34,9 @@ export default function ListCard({ list, role }: ListCardProps) {
       </div>
       <div className={styles.body}>
         <h3 className={styles.name}>{list.name}</h3>
-        <p className={styles.meta}>{role ? `${count} · by ${list.ownerName}` : count}</p>
+        <p className={styles.meta}>
+          {role ? t('items.byOwner', { count, owner: list.ownerName }) : count}
+        </p>
         <div className={styles.footer}>
           {role ? (
             <RoleBadge role={role} />

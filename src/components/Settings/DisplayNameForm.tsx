@@ -2,7 +2,7 @@ import { useRef, useState, type FormEvent } from 'react'
 import { useAuth } from '../../hooks/useAuth'
 import { useForm } from '../../hooks/useForm'
 import { useTimedState } from '../../hooks/useTimedState'
-import { OFFLINE_MESSAGE } from '../../utils/listErrors'
+import { offlineMessage } from '../../utils/listErrors'
 import Button from '../Button/Button'
 import Icon from '../Icon/Icon'
 import TextField from '../TextField/TextField'
@@ -50,7 +50,7 @@ export default function DisplayNameForm({ initialName }: DisplayNameFormProps) {
     }
     if (unchanged) return
     if (!navigator.onLine) {
-      setSave({ kind: 'error', message: OFFLINE_MESSAGE })
+      setSave({ kind: 'error', message: offlineMessage() })
       inputRef.current?.focus()
       return
     }

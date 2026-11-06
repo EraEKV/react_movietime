@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
 import { loadListsService, useListAuthor, useMyLists } from '../../hooks/useLists'
 import { useRequest } from '../../hooks/useRequest'
@@ -24,6 +25,7 @@ interface AddToListDialogProps {
  * Mounted only while open, so membership is read fresh every time.
  */
 export default function AddToListDialog({ media, onClose }: AddToListDialogProps) {
+  const { t } = useTranslation('sharing')
   const lists = useMyLists()
   const author = useListAuthor()
   const key = mediaKey(media.mediaType, media.tmdbId)
@@ -64,19 +66,14 @@ export default function AddToListDialog({ media, onClose }: AddToListDialogProps
   if (lists.status === 'error' || membership.status === 'error') {
     body = (
       <Banner tone="warning" icon="alert">
-        We couldn’t load your lists. Check your connection and try again.
+        {t('addTo.loadError')}
       </Banner>
     )
   } else if (lists.status === 'success' && lists.data.length === 0) {
-    body = (
-      <p className={styles.empty}>
-        You don’t have any lists yet. Create one, then add “{media.title}” from here or from the
-        list itself.
-      </p>
-    )
+    body = <p className={styles.empty}>{t('addTo.empty', { title: media.title })}</p>
   } else if (lists.status !== 'success' || membership.status !== 'success') {
     body = (
-      <ul className={styles.lists} aria-busy="true" aria-label="Loading lists">
+      <ul className={styles.lists} aria-busy="true" aria-label={t('addTo.loading')}>
         {Array.from({ length: 3 }, (_, i) => (
           <li key={i} className={styles.skeleton}>
             <Skeleton width={20} height={20} radius="xs" />
@@ -87,7 +84,7 @@ export default function AddToListDialog({ media, onClose }: AddToListDialogProps
     )
   } else {
     body = (
-      <ul className={styles.lists} aria-label="Your lists">
+      <ul className={styles.lists} aria-label={t('addTo.yourLists')}>
         {lists.data.map((list) => (
           <li key={list.id}>
             <Checkbox
@@ -116,14 +113,14 @@ export default function AddToListDialog({ media, onClose }: AddToListDialogProps
     <Dialog
       open
       onClose={onClose}
-      title={`Add “${media.title}” to a list`}
+      title={t('addTo.title', { title: media.title })}
       footer={
         <>
           <ButtonLink to="/lists/new" variant="ghost" icon="plus">
-            New list
+            {t('addTo.new')}
           </ButtonLink>
           <Button variant="primary" onClick={onClose}>
-            Done
+            {t('share.done')}
           </Button>
         </>
       }

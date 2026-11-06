@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
 import { imageUrl } from '../../api/tmdb'
 import { useTitleSearch } from '../../hooks/useTitleSearch'
@@ -37,6 +38,7 @@ export default function AddTitlesDialog({
   onAdd,
   onClose,
 }: AddTitlesDialogProps) {
+  const { t } = useTranslation(['sharing', 'common', 'library'])
   const [query, setQuery] = useState('')
   // Map keeps the order in which titles were picked; the key prevents picking one twice.
   const [picked, setPicked] = useState<Map<MediaKey, ListMedia>>(new Map())
@@ -71,12 +73,12 @@ export default function AddTitlesDialog({
     results = (
       <p className={styles.hint}>
         <Icon name="search" size={18} />
-        Type at least two letters to search movies and series.
+        {t('add.tooShort')}
       </p>
     )
   } else if (search.pending || search.status === 'loading') {
     results = (
-      <ul className={styles.results} aria-busy="true" aria-label="Searching">
+      <ul className={styles.results} aria-busy="true" aria-label={t('add.searching')}>
         {Array.from({ length: 4 }, (_, i) => (
           <li key={i} className={styles.skeletonRow}>
             <Skeleton width={32} height={48} radius="xs" />
@@ -91,18 +93,18 @@ export default function AddTitlesDialog({
         tone="warning"
         action={
           <Button size="sm" onClick={search.reload}>
-            Try again
+            {t('common:actions.tryAgain')}
           </Button>
         }
       >
-        Search failed: {search.error.message}
+        {t('add.failed', { message: search.error.message })}
       </Banner>
     )
   } else if (search.status === 'success' && search.data.length === 0) {
-    results = <p className={styles.hint}>Nothing found for “{query.trim()}”.</p>
+    results = <p className={styles.hint}>{t('add.nothing', { query: query.trim() })}</p>
   } else if (search.status === 'success') {
     results = (
-      <ul className={styles.results} aria-label="Search results">
+      <ul className={styles.results} aria-label={t('add.results')}>
         {search.data.slice(0, MAX_RESULTS).map((item) => {
           const key = mediaKey(item.mediaType, item.id)
           const inList = existing.has(key)
@@ -128,12 +130,12 @@ export default function AddTitlesDialog({
                     <span className={styles.text}>
                       <strong>{item.title}</strong>
                       <span>
-                        {[year, item.mediaType === 'movie' ? 'Movie' : 'Series']
+                        {[year, t(item.mediaType === 'movie' ? 'library:movie' : 'library:series')]
                           .filter(Boolean)
                           .join(' · ')}
                       </span>
                     </span>
-                    {inList && <Badge>Already in list</Badge>}
+                    {inList && <Badge>{t('add.already')}</Badge>}
                   </span>
                 }
               />
@@ -149,11 +151,11 @@ export default function AddTitlesDialog({
     <Dialog
       open
       onClose={onClose}
-      title={`Add titles to “${listName}”`}
+      title={t('add.title', { name: listName })}
       footer={
         <>
           <Button variant="ghost" onClick={onClose}>
-            Cancel
+            {t('common:actions.cancel')}
           </Button>
           <Button
             variant="primary"
@@ -162,19 +164,19 @@ export default function AddTitlesDialog({
             loading={saving}
             onClick={() => void handleAdd()}
           >
-            {count === 0 ? 'Add titles' : `Add ${count} ${count === 1 ? 'title' : 'titles'}`}
+            {count === 0 ? t('add.submit') : t('add.submitCount', { count })}
           </Button>
         </>
       }
     >
       <TextField
-        label="Search movies and series"
+        label={t('add.search')}
         hideLabel
         type="search"
         icon="search"
         value={query}
         onChange={setQuery}
-        placeholder="Search movies and series"
+        placeholder={t('add.search')}
         autoComplete="off"
         // The dialog's first focusable element is the close button; searching is the task.
         autoFocus

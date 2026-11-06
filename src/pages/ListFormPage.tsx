@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { useState, type ReactNode } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router'
 import Button from '../components/Button/Button'
@@ -7,7 +8,7 @@ import ListForm from '../components/ListForm/ListForm'
 import Skeleton from '../components/Skeleton/Skeleton'
 import { loadListsService, useList, useListAuthor } from '../hooks/useLists'
 import type { ListDraft } from '../types/list'
-import { listErrorMessage, OFFLINE_MESSAGE } from '../utils/listErrors'
+import { listErrorMessage, offlineMessage } from '../utils/listErrors'
 import { EMPTY_DRAFT } from '../utils/lists'
 import styles from './ListFormPage.module.css'
 
@@ -29,7 +30,7 @@ function useSave(save: (draft: ListDraft) => Promise<void>) {
   const [error, setError] = useState<string | null>(null)
 
   async function submit(draft: ListDraft) {
-    if (!navigator.onLine) return setError(OFFLINE_MESSAGE)
+    if (!navigator.onLine) return setError(offlineMessage())
     setSaving(true)
     setError(null)
     try {
@@ -43,6 +44,7 @@ function useSave(save: (draft: ListDraft) => Promise<void>) {
 }
 
 function NewList() {
+  const { t } = useTranslation('lists')
   const navigate = useNavigate()
   const author = useListAuthor()
   const goBack = useGoBack('/lists')
@@ -50,14 +52,14 @@ function NewList() {
     if (!author) return
     const id = await (await loadListsService()).createList(author, draft)
     // The next page reads the notice from history state and shows a toast.
-    navigate(`/lists/${id}`, { replace: true, state: { notice: 'List created' } })
+    navigate(`/lists/${id}`, { replace: true, state: { notice: t('form.created') } })
   })
 
   return (
-    <FormShell title="New list" onBack={goBack}>
+    <FormShell title={t('form.newTitle')} onBack={goBack}>
       <ListForm
         initial={EMPTY_DRAFT}
-        submitLabel="Create list"
+        submitLabel={t('form.create')}
         saving={saving}
         error={error}
         onSubmit={(draft) => void submit(draft)}
@@ -68,18 +70,19 @@ function NewList() {
 }
 
 function EditList({ id }: { id: string }) {
+  const { t } = useTranslation('lists')
   const navigate = useNavigate()
   const state = useList(id)
   const goBack = useGoBack(`/lists/${id}`)
   const { saving, error, submit } = useSave(async (draft) => {
     await (await loadListsService()).updateList(id, draft)
-    navigate(`/lists/${id}`, { replace: true, state: { notice: 'Changes saved' } })
+    navigate(`/lists/${id}`, { replace: true, state: { notice: t('form.saved') } })
   })
 
   if (state.status === 'loading') {
     return (
-      <FormShell title="Edit list" onBack={goBack}>
-        <div className={styles.skeleton} aria-busy="true" aria-label="Loading list">
+      <FormShell title={t('form.editTitle')} onBack={goBack}>
+        <div className={styles.skeleton} aria-busy="true" aria-label={t('form.loading')}>
           <Skeleton height={100} radius="md" />
           <Skeleton height={72} radius="md" />
           <Skeleton height={120} radius="md" />
@@ -90,12 +93,8 @@ function EditList({ id }: { id: string }) {
 
   if (state.status === 'error') {
     return (
-      <FormShell title="Edit list" onBack={goBack}>
-        <ErrorState
-          title="We couldn’t load this list"
-          body={state.error.message}
-          onRetry={state.retry}
-        />
+      <FormShell title={t('form.editTitle')} onBack={goBack}>
+        <ErrorState title={t('form.loadError')} body={state.error.message} onRetry={state.retry} />
       </FormShell>
     )
   }
@@ -103,14 +102,14 @@ function EditList({ id }: { id: string }) {
   // Only the owner edits name and description (rules enforce the same).
   if (state.status === 'missing' || state.role !== 'owner') {
     return (
-      <FormShell title="Edit list" onBack={goBack}>
+      <FormShell title={t('form.editTitle')} onBack={goBack}>
         <ErrorState
           icon="list"
-          title="You can’t edit this list"
-          body="It doesn’t exist any more, or only its owner can change it."
+          title={t('form.cantEdit')}
+          body={t('form.cantEditBody')}
           secondary={
             <ButtonLink to="/lists" variant="primary" icon="list">
-              Go to lists
+              {t('form.goLists')}
             </ButtonLink>
           }
         />
@@ -144,11 +143,12 @@ function FormShell({
   onBack: () => void
   children: ReactNode
 }) {
+  const { t } = useTranslation(['lists', 'common'])
   return (
     <section className={styles.page} aria-labelledby="list-form-title">
-      <title>{`${title} · Movietime`}</title>
+      <title>{t('form.pageTitle', { title })}</title>
       <Button variant="ghost" icon="chevron-left" className={styles.back} onClick={onBack}>
-        Back
+        {t('common:actions.back')}
       </Button>
       <h1 id="list-form-title" className={styles.title}>
         {title}

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { imageUrl } from '../../api/tmdb'
 import type { ListItem } from '../../types/list'
@@ -20,13 +21,15 @@ interface ListItemsProps {
   onRemove: (item: ListItem) => void
 }
 
-const typeLabel = (item: ListItem) => (item.mediaType === 'movie' ? 'Movie' : 'Series')
-
 /** Items of a list as a poster grid or as rows, with "Added by" and the note. */
 export default function ListItems({ items, view, editable, onEditNote, onRemove }: ListItemsProps) {
+  const { t } = useTranslation(['lists', 'library'])
+  const typeLabel = (item: ListItem) =>
+    t(item.mediaType === 'movie' ? 'library:movie' : 'library:series')
+
   if (view === 'grid') {
     return (
-      <PosterGrid label="Titles in this list">
+      <PosterGrid label={t('items.titlesIn')}>
         {items.map((item) => (
           <li key={item.key} className={styles.gridItem}>
             <PosterCard
@@ -41,14 +44,16 @@ export default function ListItems({ items, view, editable, onEditNote, onRemove 
             <div className={styles.gridFooter}>
               <div className={styles.gridText}>
                 {item.addedBy.name && (
-                  <span className={styles.by}>Added by {item.addedBy.name}</span>
+                  <span className={styles.by}>
+                    {t('items.addedBy', { name: item.addedBy.name })}
+                  </span>
                 )}
                 {item.note && <p className={styles.note}>“{item.note}”</p>}
               </div>
               {/* Always visible (not on hover), so it works on touch screens too. */}
               {editable && (
                 <Menu
-                  label={`Actions for ${item.title}`}
+                  label={t('items.actions', { title: item.title })}
                   align="right"
                   triggerClassName={buttonClass('ghost', 'sm', {
                     iconOnly: true,
@@ -57,12 +62,12 @@ export default function ListItems({ items, view, editable, onEditNote, onRemove 
                   trigger={<Icon name="more" size={18} />}
                   items={[
                     {
-                      label: item.note ? 'Edit note' : 'Add note',
+                      label: t(item.note ? 'items.editNote' : 'items.addNote'),
                       icon: 'edit',
                       onSelect: () => onEditNote(item),
                     },
                     {
-                      label: 'Remove from list',
+                      label: t('items.remove'),
                       icon: 'trash',
                       danger: true,
                       onSelect: () => onRemove(item),
@@ -78,7 +83,7 @@ export default function ListItems({ items, view, editable, onEditNote, onRemove 
   }
 
   return (
-    <ul className={styles.rows} aria-label="Titles in this list">
+    <ul className={styles.rows} aria-label={t('items.titlesIn')}>
       {items.map((item) => {
         const href = mediaHref(item.mediaType, item.tmdbId)
         const poster = imageUrl(item.posterPath, 'w185')
@@ -97,7 +102,11 @@ export default function ListItems({ items, view, editable, onEditNote, onRemove 
                 <Link to={href}>{item.title}</Link>
               </h3>
               <span className={styles.by}>
-                {[typeLabel(item), item.year, item.addedBy.name && `Added by ${item.addedBy.name}`]
+                {[
+                  typeLabel(item),
+                  item.year,
+                  item.addedBy.name && t('items.addedBy', { name: item.addedBy.name }),
+                ]
                   .filter(Boolean)
                   .join(' · ')}
               </span>
@@ -110,12 +119,14 @@ export default function ListItems({ items, view, editable, onEditNote, onRemove 
               <div className={styles.rowActions}>
                 <IconButton
                   icon="edit"
-                  label={`${item.note ? 'Edit' : 'Add'} note for ${item.title}`}
+                  label={t(item.note ? 'items.editNoteFor' : 'items.addNoteFor', {
+                    title: item.title,
+                  })}
                   onClick={() => onEditNote(item)}
                 />
                 <IconButton
                   icon="trash"
-                  label={`Remove ${item.title}`}
+                  label={t('items.removeTitle', { title: item.title })}
                   onClick={() => onRemove(item)}
                 />
               </div>
