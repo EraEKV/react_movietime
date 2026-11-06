@@ -14,24 +14,30 @@ This document has two parts:
 
 ```
 src/
-├── api/            tmdb.ts: TMDB client, endpoint builders, ApiError
+├── shared/         no business meaning; must not import from the rest of src (ESLint rule)
+│   ├── ui/         UI kit: Button, Dialog, Menu, Field, Tabs, Toast, Skeleton, Avatar, …
+│   ├── hooks/      useFetch, useRequest, useSubscription, useDebouncedValue, useMediaQuery,
+│   │               useOnlineStatus, useForm, useTimedState, useTmdbLanguage
+│   ├── lib/        cx, format, relativeTime, validation, rovingFocus, redirect, notice, rating
+│   ├── api/        tmdb.ts: TMDB client, endpoint builders, ApiError
+│   ├── i18n/       i18next setup, languages list, Intl helpers (JSON lives in `public/locales/`)
+│   ├── styles/     global.css, design tokens, themes
+│   └── types/      Option, RequestStatus, Language, ThemePreference
 ├── services/       firebase.ts, authService, profileService, libraryService,
 │                   listsService, sharingService, plannerService
 ├── storage/        localStorage modules (guest library, preferences)
 ├── store/          store.ts, hooks.ts (typed useAppDispatch / useAppSelector),
 │                   authSlice, librarySlice, preferencesSlice, listeners.ts
 ├── types/          TMDB responses, Firestore documents, shared types
-├── hooks/          useFetch, useSubscription, useAuth, useLibrary, useLists, usePlanner,
-│                   useDashboardStats, useDebouncedValue, useOnlineStatus, …
-├── components/     reusable UI, one folder per component + CSS Module
+├── hooks/          hooks with app data: useAuth, useLibrary, useLists, usePlanner,
+│                   useSharing, useDashboardStats, useTheme, …
+├── components/     app components, one folder per component + CSS Module
 │   ├── auth/       ProtectedRoute, GuestRoute, UserMenu, GoogleButton
-│   ├── form/       TextField, PasswordField, SelectField, FormError
-│   └── …
+│   ├── Layout/     Header, TabBar, LanguageMenu, ProfileLayout
+│   └── …           Planner, Library, ListCard, PosterCard, Dashboard, …
 ├── pages/          one file per route
-├── i18n/           i18next setup, languages list, Intl helpers (the JSON lives in `public/locales/`)
-├── styles/         global.css, design tokens, themes
 ├── sw.ts           service worker (Workbox)
-└── utils/          pure functions: media, filters, schedule, stats, validation, firebaseErrors
+└── utils/          pure domain functions: media, filters, schedule, stats, calendar, sharing
 ```
 
 Rule of thumb: **pages and components render and handle events; hooks connect React state to
@@ -40,15 +46,15 @@ React.**
 
 ### Design system and styles
 
-- **Tokens** (`styles/tokens.css`): every colour and shadow has a dark and a light value under
+- **Tokens** (`shared/styles/tokens.css`): every colour and shadow has a dark and a light value under
   `[data-theme='dark']` / `[data-theme='light']`; spacing (`--space-1…16`, 4/8 scale), radius,
   layout and z-index tokens are theme-independent. Dark is the default.
 - **Theme switch = one attribute.** `<html data-theme>` swaps every colour at once; components
   only ever write `var(--token)`, never a hex value. An inline script in `index.html` applies the
   saved theme before the first paint, so there is no flash of the wrong theme.
-- `styles/global.css`: motion (`--dur-fast/base/slow`, `--ease-out`, zeroed under
+- `shared/styles/global.css`: motion (`--dur-fast/base/slow`, `--ease-out`, zeroed under
   `prefers-reduced-motion`), `prefers-contrast: more`, base element styles, the focus ring.
-- `styles/typography.module.css`: the type scale (Unbounded for display text, Onest for UI);
+- `shared/styles/typography.module.css`: the type scale (Unbounded for display text, Onest for UI);
   component modules reuse it with `composes:`.
 - Base components (`Button`, `IconButton`, `ButtonLink`, `TextField`, `Textarea`, `SelectField`,
   `Chip`, `Tabs`, `SegmentedControl`, `Card`, `PosterCard`, `RatingBadge`, `Skeleton`,
@@ -185,7 +191,7 @@ navigating to a fresh copy starts with fresh state. `ShareDialog` only talks thr
 ### Internationalization
 
 - Dictionaries are plain JSON files in `public/locales/<lang>/<namespace>.json`, not part of the JS
-  bundle. `src/i18n/index.ts` initialises i18next **before the first render** (`main.tsx`) with the
+  bundle. `src/shared/i18n/index.ts` initialises i18next **before the first render** (`main.tsx`) with the
   current language and the `common` namespace (plus `home` on `/`), fetched in parallel. A small
   backend module turns "language + namespace" into `fetch('/locales/<lang>/<ns>.json?v=<build id>')`.
   The build id (`__BUILD_ID__`, `vite.config.ts`) is in the URL because files in `public/` keep
@@ -198,13 +204,13 @@ navigating to a fresh copy starts with fresh state. `ShareDialog` only talks thr
 - The language lives in the `preferences` slice. A listener calls `setLanguage()`, i18next loads the
   dictionaries of the namespaces in use and only then switches — the screen changes once, with no
   flash of keys and no reload. `<html lang>` follows from i18next's `languageChanged`.
-- Types: `src/i18n/i18next.d.ts` imports the English JSON from `public/locales`, so `t('nav.hme')` fails the build.
+- Types: `src/shared/i18n/i18next.d.ts` imports the English JSON from `public/locales`, so `t('nav.hme')` fails the build.
   `npm run check:locales` checks that ru and kk have exactly the keys of en (no fallback language is
   loaded, to keep the first load small).
 - Plurals use i18next's `_one/_few/_many/_other` keys; Russian has all four, English two, Kazakh
   nouns stay singular after numbers.
 - Dates, numbers, relative time and language names go through `Intl` with the current locale
-  (`utils/format`, `calendar`, `relativeTime`). Chrome ships no Kazakh data, so `i18n/intl.ts`
+  (`shared/lib/format`, `calendar`, `relativeTime`). Chrome ships no Kazakh data, so `shared/i18n/intl.ts`
   falls back to Kazakh month/weekday tables and Russian number rules there.
 - Option lists that live in constants (`SORT_OPTIONS`, statuses) use `translatedOption()`: the label
   is a getter, looked up on each render.
