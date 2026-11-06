@@ -8,9 +8,10 @@ export const DEFAULT_PREFERENCES: Preferences = { theme: 'system', language: 'en
 const THEMES: readonly ThemePreference[] = ['light', 'dark', 'system']
 const LANGUAGES: readonly Language[] = ['en', 'ru', 'kk']
 
-const isTheme = (value: unknown): value is ThemePreference =>
+export const isTheme = (value: unknown): value is ThemePreference =>
   THEMES.some((theme) => theme === value)
-const isLanguage = (value: unknown): value is Language => LANGUAGES.some((lang) => lang === value)
+export const isLanguage = (value: unknown): value is Language =>
+  LANGUAGES.some((lang) => lang === value)
 
 /** Reads saved preferences; unknown or corrupted values fall back to the defaults one by one. */
 export function loadPreferences(): Preferences {

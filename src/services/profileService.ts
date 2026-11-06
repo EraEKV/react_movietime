@@ -11,6 +11,7 @@ import {
 } from 'firebase/firestore'
 import type { UserProfile } from '../types/auth'
 import type { Preferences } from '../types/preferences'
+import { isLanguage, isTheme } from '../storage/preferencesStorage'
 import { db } from './firestore'
 
 const profileRef = (uid: string) => doc(db, 'users', uid)
@@ -26,19 +27,31 @@ function toProfile(data: DocumentData): UserProfile {
     email: String(data.email ?? ''),
     photoURL: typeof data.photoURL === 'string' ? data.photoURL : null,
     providers: Array.isArray(data.providers) ? data.providers.map(String) : [],
-    settings: data.settings,
+    settings: isSettings(data.settings) ? (data.settings as Preferences) : null,
     createdAt: toIso(data.createdAt),
     updatedAt: toIso(data.updatedAt),
   }
 }
 
+/** Same limit as the rules and the settings form. */
+export const MAX_NAME = 40
+
 function fallbackName(user: User): string {
-  return user.displayName?.trim() || user.email?.split('@')[0] || 'Movie fan'
+  const name = user.displayName?.trim() || user.email?.split('@')[0] || 'Movie fan'
+  return name.slice(0, MAX_NAME)
 }
+
+const isSettings = (value: unknown): boolean =>
+  typeof value === 'object' &&
+  value !== null &&
+  isTheme((value as Record<string, unknown>).theme) &&
+  isLanguage((value as Record<string, unknown>).language)
 
 /**
  * Creates `users/{uid}` on the first sign-in; on later sign-ins refreshes the fields that come
- * from the auth provider (a Google photo can change). Name and settings stay the user's own.
+ * from the auth provider (a Google photo can change). Name and settings stay the user's own:
+ * `settings` (this device's choice) is written only when the account has none yet —
+ * otherwise the account wins and the preferences listener applies it on this device.
  */
 export async function ensureProfile(user: User, settings: Preferences): Promise<void> {
   const ref = profileRef(user.uid)
@@ -50,8 +63,15 @@ export async function ensureProfile(user: User, settings: Preferences): Promise<
   }
 
   const snapshot = await getDoc(ref)
-  if (snapshot.exists()) {
-    await updateDoc(ref, fromAuth)
+  const data = snapshot.data()
+  if (data) {
+    const name = typeof data.displayName === 'string' ? data.displayName.trim() : ''
+    await updateDoc(ref, {
+      ...fromAuth,
+      // Older documents may lack settings or carry a name the rules no longer accept.
+      ...(!isSettings(data.settings) && { settings }),
+      ...((name.length < 1 || name.length > MAX_NAME) && { displayName: fallbackName(user) }),
+    })
     return
   }
   await setDoc(ref, {
@@ -79,9 +99,10 @@ export function watchProfile(
   )
 }
 
+/** Saves the name or the settings. Resolves when the server has accepted the change. */
 export async function updateUserProfile(
   uid: string,
-  changes: Partial<Pick<UserProfile, 'displayName' | 'settings'>>,
+  changes: { displayName?: string; settings?: Preferences },
 ): Promise<void> {
   await updateDoc(profileRef(uid), { ...changes, updatedAt: serverTimestamp() })
 }

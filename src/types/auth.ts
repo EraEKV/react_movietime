@@ -1,4 +1,4 @@
-import type { Language, ThemePreference } from './preferences'
+import type { Preferences } from './preferences'
 
 /** Sign-in methods Movietime offers; Firebase calls them provider ids. */
 export type AuthProvider = 'password' | 'google.com'
@@ -30,7 +30,8 @@ export interface UserProfile {
   email: string
   photoURL: string | null
   providers: string[]
-  settings: { theme: ThemePreference; language: Language }
+  /** null when the document has none (older accounts) or an unknown value. */
+  settings: Preferences | null
   createdAt: string | null
   updatedAt: string | null
 }
