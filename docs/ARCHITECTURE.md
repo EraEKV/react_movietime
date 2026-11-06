@@ -104,11 +104,11 @@ React.**
   library                       LibraryPage          (lazy)
   library/:mediaKey/edit        LibraryEditPage      (lazy)
   watchlist/*                   → redirect to /library (midterm links)
+  lists/:id                     ListPage             (lazy; public: owner / editor / viewer / link visitor)
   planner/:planId               PlanPage             (owner / member / link)
   <Route element={<ProtectedRoute />}>
-    lists                       ListsPage            (lazy)
+    lists                       ListsPage            (lazy; My lists + Shared with me)
     lists/new, lists/:id/edit   ListFormPage         (lazy, edit = owner only)
-    lists/:id                   ListPage             (lazy; link visitors arrive with sharing)
     planner                     PlannerPage          (lazy)
     planner/new                 PlanCreatePage
     dashboard                   DashboardPage        (lazy)
@@ -120,6 +120,26 @@ React.**
 Lazy pages are wrapped in one `<Suspense fallback={<PageLoader />}>` inside `Layout`, so the
 header stays visible while a chunk loads. React Router runs navigations in a transition, so after
 the first load a page switch keeps the old page on screen until the new chunk is ready.
+
+### Sharing and roles in the UI
+
+`/lists/:id` is outside `ProtectedRoute`, so a shared link opens for guests. The page doesn't
+decide access: it opens the list document, and if the rules refuse, it shows the same 404 as
+for a missing list (plus a hint to sign in or verify the email). When the read succeeds,
+`roleOf(list, user)` (utils/sharing) picks the actions, mirroring the rules:
+
+| Role         | Actions on the page                                         |
+| ------------ | ----------------------------------------------------------- |
+| owner        | Add titles, Share (ShareDialog), Edit, Delete               |
+| editor       | Add titles, item notes / remove, Leave list                 |
+| viewer       | Read-only Banner, Leave list                                |
+| link visitor | Banner; _Copy to my lists_ (signed in) or _Sign in to copy_ |
+
+`useList` waits for the session to be restored and keys its listener by user + verification,
+so a member never sees a false "not found" while auth loads, and the listener reopens with new
+credentials after sign-in or email verification. `ListPage` renders `<ListView key={id}>`, so
+navigating to a fresh copy starts with fresh state. `ShareDialog` only talks through callbacks
+(`useSharing`), so the same dialog will serve plans.
 
 ### Code splitting
 
@@ -137,7 +157,7 @@ and the sign-in thunks load the profile service with `await import(...)`. Before
 whole app was one 1 019 kB chunk. `build.chunkSizeWarningLimit` is 600 because the only chunk
 above 500 kB is the lazily loaded Firestore SDK: cutting it with Rolldown `codeSplitting` groups
 builds, but breaks the SDK's module init order at runtime. First-load JS (main + preloaded
-chunks) is ~478 kB; the bundler names the shared chunk after one of its modules, so its file name
+chunks) is ~479 kB (Home's "Shared with you" section is its own lazy chunk); the bundler names the shared chunk after one of its modules, so its file name
 (`firebaseErrors-*.js`) says little about its content.
 
 ### State map

@@ -1,6 +1,6 @@
 // Pure helpers for lists: limits, validation, snapshots and the cover collage.
 import type { LibraryMedia } from '../types/library'
-import type { ListDraft, ListItem, ListMedia, ListRole, TitleList } from '../types/list'
+import type { ListDraft, ListItem, ListMedia, ListRole } from '../types/list'
 import type { MediaSummary } from '../types/media'
 import { getYear, pluralize } from './format'
 
@@ -96,21 +96,6 @@ export function coversOf(items: Pick<ListItem, 'posterPath' | 'position'>[]): st
 export function coversAfterAdd(current: string[], added: ListMedia[]): string[] {
   const fresh = added.map((m) => m.posterPath).filter((p): p is string => Boolean(p))
   return [...new Set([...fresh.toReversed(), ...current])].slice(0, LIST_COVERS)
-}
-
-/**
- * The current user's role. Phase 6 only has owners; member roles and link access come
- * with sharing, but the decision already lives in one place.
- */
-export function roleOf(
-  list: TitleList,
-  user: { uid: string; email: string | null } | null,
-): ListRole | null {
-  if (user && list.ownerUid === user.uid) return 'owner'
-  const email = user?.email?.toLowerCase()
-  const memberRole = email ? list.roles[email] : undefined
-  if (memberRole) return memberRole
-  return list.visibility === 'link' ? 'link' : null
 }
 
 export const canEditItems = (role: ListRole | null) => role === 'owner' || role === 'editor'

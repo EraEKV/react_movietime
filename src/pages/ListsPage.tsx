@@ -1,4 +1,5 @@
 import { useLocation } from 'react-router'
+import Banner from '../components/Banner/Banner'
 import ButtonLink from '../components/ButtonLink/ButtonLink'
 import EmptyState from '../components/EmptyState/EmptyState'
 import ErrorState from '../components/EmptyState/ErrorState'
@@ -7,7 +8,7 @@ import ListCardSkeleton from '../components/ListCard/ListCardSkeleton'
 import ListGrid from '../components/ListCard/ListGrid'
 import SectionHeader from '../components/SectionHeader/SectionHeader'
 import Toast from '../components/Toast/Toast'
-import { useMyLists } from '../hooks/useLists'
+import { useMyLists, useSharedLists } from '../hooks/useLists'
 import { useTimedState } from '../hooks/useTimedState'
 import { titlesCount } from '../utils/lists'
 import { noticeFromState } from '../utils/notice'
@@ -17,6 +18,7 @@ const SKELETONS = 3
 
 export default function ListsPage() {
   const lists = useMyLists()
+  const shared = useSharedLists()
   const location = useLocation()
   // "Deleted …" from the list page, passed through history state.
   const [notice] = useTimedState<string>(5000, noticeFromState(location.state))
@@ -96,9 +98,68 @@ export default function ListsPage() {
         <SectionHeader id="my-lists" title="My lists" />
         {body}
       </section>
-      {/* "Shared with me" arrives with sharing (memberEmails array-contains query). */}
+      <section aria-labelledby="shared-lists">
+        <SectionHeader id="shared-lists" title="Shared with me" />
+        <SharedLists shared={shared} />
+      </section>
 
       {notice && <Toast icon="check">{notice}</Toast>}
     </section>
+  )
+}
+
+function SharedLists({ shared }: { shared: ReturnType<typeof useSharedLists> }) {
+  // Rules give member access only to verified emails, so there is nothing to query yet.
+  if (shared.needsVerification) {
+    return (
+      <Banner
+        tone="warning"
+        action={
+          <ButtonLink to="/verify-email" size="sm">
+            Verify email
+          </ButtonLink>
+        }
+      >
+        Confirm your email to see lists friends share with you.
+      </Banner>
+    )
+  }
+  if (shared.status === 'error') {
+    return (
+      <ErrorState
+        title="We couldn’t load shared lists"
+        body={shared.error.message}
+        onRetry={shared.retry}
+        headingLevel="h3"
+      />
+    )
+  }
+  if (shared.status !== 'success') {
+    return (
+      <div aria-busy="true" aria-label="Loading shared lists">
+        <ListGrid>
+          <li>
+            <ListCardSkeleton />
+          </li>
+        </ListGrid>
+      </div>
+    )
+  }
+  if (shared.data.length === 0) {
+    return (
+      <p className={styles.sharedEmpty}>
+        When a friend shares a list with {shared.email}, it shows up here.
+      </p>
+    )
+  }
+  const email = shared.email ?? ''
+  return (
+    <ListGrid label="Shared with me">
+      {shared.data.map((list) => (
+        <li key={list.id}>
+          <ListCard list={list} role={list.roles[email] ?? 'viewer'} />
+        </li>
+      ))}
+    </ListGrid>
   )
 }

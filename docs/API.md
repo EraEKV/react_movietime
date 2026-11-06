@@ -130,22 +130,34 @@ read as estimates.
 | `restoreItem(listId, item, covers)`                | `Promise<void>`        | "Undo": same note, position, author and `addedAt`          |
 | `updateItemNote(listId, mediaKey, note)`           | `Promise<void>`        | ≤ 200 characters                                           |
 | `listsContaining(listIds, mediaKey)`               | `Promise<Set<string>>` | One `getDoc` per list, for the "Add to list" checkboxes    |
+| `watchSharedLists(email, onData, onError)`         | `unsubscribe`          | `memberEmails array-contains email`, `updatedAt` desc      |
+| `copyList(source, author)`                         | `Promise<string>` (id) | New private list first, then items in batches of 400       |
 
-`watchSharedLists` and `copyList` come with sharing (phase 7).
+### `sharingService.ts` ✅
 
-### `sharingService.ts` 🚧
+Works for both collections: `collection` is `"lists"` or `"plans"` (only lists have a UI so far).
+Loaded with `import()` from `hooks/useSharing.ts`. Every change is **one** `updateDoc`, so
+`roles` and `memberEmails` never disagree. Emails contain dots, so a member's role is addressed
+with `new FieldPath('roles', email)`: the string path `"roles.dan@gmail.com"` would mean
+`roles → dan@gmail → com`.
 
-Works for both collections: `kind` is `"lists"` or `"plans"`.
+| Function                                                  | Returns         | Notes                                                             |
+| --------------------------------------------------------- | --------------- | ----------------------------------------------------------------- |
+| `setVisibility(collection, id, "private" \| "link")`      | `Promise<void>` | Owner only (rules)                                                |
+| `addMember(collection, id, roles, email, role, ownEmail)` | `Promise<void>` | `validateInvite` again, lowercase; role + `arrayUnion(email)`     |
+| `changeRole(collection, id, email, role)`                 | `Promise<void>` | Owner only                                                        |
+| `removeMember(collection, id, email)`                     | `Promise<void>` | `deleteField()` on the role + `arrayRemove(email)`                |
+| `leave(collection, id, ownEmail)`                         | `Promise<void>` | Same write as `removeMember`; rules (`isLeaving`) allow only self |
 
-| Function                                       | Returns                                             | Notes                               |
-| ---------------------------------------------- | --------------------------------------------------- | ----------------------------------- |
-| `setVisibility(kind, id, "private" \| "link")` | `Promise<void>`                                     | Owner only                          |
-| `addMember(kind, id, email, role)`             | `Promise<void>`                                     | Validates email, can't add yourself |
-| `changeRole(kind, id, email, role)`            | `Promise<void>`                                     |                                     |
-| `removeMember(kind, id, email)`                | `Promise<void>`                                     |                                     |
-| `leave(kind, id, email)`                       | `Promise<void>`                                     | A member removes themselves         |
-| `getRole(doc, user)`                           | `"owner" \| "editor" \| "viewer" \| "link" \| null` | Pure, for the UI                    |
-| `shareUrl(kind, id)`                           | string                                              | `https://…/lists/{id}`              |
+Pure helpers in `utils/sharing.ts`:
+
+| Function                                     | Returns                                             | Notes                                                   |
+| -------------------------------------------- | --------------------------------------------------- | ------------------------------------------------------- |
+| `roleOf(doc, user)`                          | `"owner" \| "editor" \| "viewer" \| "link" \| null` | Mirrors the rules: member roles need a verified email   |
+| `validateInvite(email, { ownEmail, roles })` | error text \| `null`                                | Format, not yourself, not already a member, ≤ 20 people |
+| `normalizeEmail(email)`                      | string                                              | `trim().toLowerCase()`                                  |
+| `membersOf(doc)`                             | `Member[]`                                          | Editors first, then by email                            |
+| `shareUrl(collection, id)`                   | string                                              | `https://…/lists/{id}` (`/planner/{id}` for plans)      |
 
 ### `plannerService.ts` 🚧
 

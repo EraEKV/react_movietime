@@ -25,6 +25,19 @@ service cloud.firestore {
         && request.resource.data.roles.keys().toSet() == resource.data.roles.keys().toSet().difference(me);
     }
 
+    // Sharing fields of a list or plan as the owner writes them: roles and memberEmails
+    // describe the same people, roles are only editor/viewer, at most 20 members, and the
+    // owner can't add their own email (they already have full access).
+    function validSharing(d) {
+      return d.visibility in ['private', 'link']
+        && d.roles is map
+        && d.memberEmails is list
+        && d.memberEmails.size() <= 20
+        && d.roles.keys().toSet() == d.memberEmails.toSet()
+        && d.roles.values().hasOnly(['editor', 'viewer'])
+        && !(request.auth.token.get('email', '').lower() in d.memberEmails);
+    }
+
     // A library entry as the app writes it. The document id must be "<mediaType>_<tmdbId>",
     // so the same title can't be stored twice under different ids.
     function validLibraryEntry(mediaKey) {
@@ -52,9 +65,7 @@ service cloud.firestore {
         && d.name is string && d.name.size() >= 1 && d.name.size() <= 60
         && d.description is string && d.description.size() <= 300
         && d.emoji is string && d.emoji.size() <= 16
-        && d.visibility in ['private', 'link']
-        && d.roles is map
-        && d.memberEmails is list
+        && validSharing(d)
         && d.itemCount is int && d.itemCount >= 0
         && d.covers is list && d.covers.size() <= 4;
     }
@@ -89,7 +100,10 @@ service cloud.firestore {
 
     // ---------- lists ----------
     match /lists/{listId} {
-      allow read: if canRead(resource.data);
+      // get = open one document by id (a shared link works for anyone). list = queries:
+      // only for owners and members, so nobody can enumerate every public list.
+      allow get: if canRead(resource.data);
+      allow list: if isOwner(resource.data) || isMember(resource.data);
       allow create: if isOwner(request.resource.data) && validList()
         && request.resource.data.itemCount == 0;
       allow update: if (isOwner(resource.data)
@@ -111,10 +125,12 @@ service cloud.firestore {
 
     // ---------- plans ----------
     match /plans/{planId} {
-      allow read: if canRead(resource.data);
-      allow create: if isOwner(request.resource.data);
+      allow get: if canRead(resource.data);
+      allow list: if isOwner(resource.data) || isMember(resource.data);
+      allow create: if isOwner(request.resource.data) && validSharing(request.resource.data);
       allow update: if (isOwner(resource.data)
-                        && request.resource.data.ownerUid == resource.data.ownerUid)
+                        && request.resource.data.ownerUid == resource.data.ownerUid
+                        && validSharing(request.resource.data))
                     || (isEditor(resource.data)
                         && onlyChanges(['doneUnits', 'nextDate', 'endDate', 'status', 'updatedAt']))
                     || isLeaving();

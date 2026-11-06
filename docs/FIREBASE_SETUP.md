@@ -95,6 +95,19 @@ the emulator code. Rule changes reload in the emulator without a restart. The em
 require composite indexes, so `firebase deploy --only firestore:indexes` is still needed for
 the real project.
 
+Shared access needs a **verified** email. In the Auth emulator no email is sent: the
+verification links are kept in its outbox and work when opened.
+
+```bash
+# after "Send verification email" in the app (or accounts:sendOobCode via REST):
+curl -s http://127.0.0.1:9099/emulator/v1/projects/demo-movietime/oobCodes
+# open the "oobLink" of the VERIFY_EMAIL entry, then press "I've verified" in the app
+```
+
+To try roles by hand, use three verified accounts in three browser profiles (or one normal and
+one private window per account): the owner invites the others as editor and viewer, then turns
+the link on and opens it in a window without an account.
+
 ## 6. Vercel
 
 **Project → Settings → Environment Variables:** add every `VITE_FIREBASE_*` variable and

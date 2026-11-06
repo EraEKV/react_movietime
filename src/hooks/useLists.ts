@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import type * as ListsService from '../services/listsService'
 import type { ListAuthor, ListItem, ListRole, TitleList } from '../types/list'
-import { roleOf } from '../utils/lists'
+import { normalizeEmail, roleOf } from '../utils/sharing'
 import { useAuth } from './useAuth'
 import { useSubscription } from './useSubscription'
 
@@ -37,6 +37,22 @@ export function useMyLists() {
   })
 }
 
+/**
+ * Lists other people shared with the signed-in user, live. Idle for guests and for
+ * unverified emails: the rules grant member access only to verified emails, so the query
+ * would be rejected anyway. `needsVerification` lets the page explain that.
+ */
+export function useSharedLists() {
+  const { user } = useAuth()
+  const email = user?.emailVerified && user.email ? normalizeEmail(user.email) : null
+  const lists = useSubscription<TitleList[]>(
+    email && `shared-lists:${email}`,
+    async (onData, onError) =>
+      (await loadListsService()).watchSharedLists(email ?? '', onData, onError),
+  )
+  return { ...lists, email, needsVerification: Boolean(user && !user.emailVerified) }
+}
+
 export type ListState =
   | { status: 'loading'; retry: () => void }
   | { status: 'error'; error: Error; retry: () => void }
@@ -59,14 +75,19 @@ const isPermissionDenied = (error: Error) =>
  * header renders as soon as the list arrives, items fill in after.
  */
 export function useList(id: string): ListState {
-  const { user } = useAuth()
-  const list = useSubscription<TitleList | null>(`list:${id}`, async (onData, onError) =>
-    (await loadListsService()).watchList(id, onData, onError),
+  const { user, status } = useAuth()
+  // The page is public (link visitors), so it opens before Firebase restores the session.
+  // Waiting for auth and keying by who is reading avoids a wrong "not found" for a member
+  // and reopens the listener with the new credentials after sign-in or email verification.
+  const reader = user ? `${user.uid}:${user.emailVerified ? 'v' : 'u'}` : 'guest'
+  const list = useSubscription<TitleList | null>(
+    status === 'loading' ? null : `list:${id}:${reader}`,
+    async (onData, onError) => (await loadListsService()).watchList(id, onData, onError),
   )
   // Items are read only after the list is known to exist, so a missing list gives one
   // clean "not found" instead of a second permission error from the items query.
   const items = useSubscription<ListItem[]>(
-    list.status === 'success' && list.data ? `items:${id}` : null,
+    list.status === 'success' && list.data ? `items:${id}:${reader}` : null,
     async (onData, onError) => (await loadListsService()).watchListItems(id, onData, onError),
   )
 

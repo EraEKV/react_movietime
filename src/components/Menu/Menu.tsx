@@ -1,4 +1,12 @@
-import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from 'react'
+import {
+  useEffect,
+  useId,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type ReactNode,
+} from 'react'
 import { Link } from 'react-router'
 import { cx } from '../../utils/cx'
 import { nextIndexForKey } from '../../utils/rovingFocus'
@@ -44,12 +52,26 @@ export default function Menu({
   header,
 }: MenuProps) {
   const [open, setOpen] = useState(false)
+  const [up, setUp] = useState(false)
   const wrapRef = useRef<HTMLDivElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
   const listRef = useRef<HTMLDivElement>(null)
   const menuId = useId()
 
   const menuItems = () => listRef.current?.querySelectorAll<HTMLElement>('[role^="menuitem"]') ?? []
+
+  // Opens upwards when it would be cut off below: by the window, or by a scrolling
+  // ancestor such as a dialog body. useLayoutEffect measures before the browser paints,
+  // so the menu never flashes in the wrong place.
+  useLayoutEffect(() => {
+    const menu = listRef.current
+    if (!open || !menu) return setUp(false)
+    const rect = menu.getBoundingClientRect()
+    const box = clippingRect(menu)
+    const button = buttonRef.current?.getBoundingClientRect()
+    const spaceAbove = button ? button.top - box.top : 0
+    setUp(rect.bottom > box.bottom && spaceAbove > box.bottom - (button?.bottom ?? 0))
+  }, [open])
 
   // Opening moves focus into the menu, so arrow keys work right away.
   useEffect(() => {
@@ -104,7 +126,7 @@ export default function Menu({
           id={menuId}
           role="menu"
           aria-label={label}
-          className={cx(styles.menu, align === 'right' && styles.right)}
+          className={cx(styles.menu, align === 'right' && styles.right, up && styles.up)}
           onKeyDown={handleKeyDown}
         >
           {header && <div className={styles.header}>{header}</div>}
@@ -152,4 +174,16 @@ export default function Menu({
       )}
     </div>
   )
+}
+
+/** The visible area the menu must fit in: the nearest scrolling ancestor, or the window. */
+function clippingRect(element: HTMLElement): { top: number; bottom: number } {
+  for (let node = element.parentElement; node; node = node.parentElement) {
+    const { overflowY } = getComputedStyle(node)
+    if (overflowY === 'auto' || overflowY === 'scroll' || overflowY === 'hidden') {
+      const rect = node.getBoundingClientRect()
+      return { top: rect.top, bottom: rect.bottom }
+    }
+  }
+  return { top: 0, bottom: window.innerHeight }
 }

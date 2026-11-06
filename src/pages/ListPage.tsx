@@ -1,10 +1,12 @@
 import { useMemo, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router'
 import AddTitlesDialog from '../components/AddTitles/AddTitlesDialog'
+import AvatarStack from '../components/AvatarStack/AvatarStack'
 import { RoleBadge, VisibilityBadge } from '../components/Badge/ListBadges'
 import Banner from '../components/Banner/Banner'
 import Button from '../components/Button/Button'
 import { buttonClass } from '../components/Button/variants'
+import ButtonLink from '../components/ButtonLink/ButtonLink'
 import Dialog from '../components/Dialog/Dialog'
 import EmptyState from '../components/EmptyState/EmptyState'
 import ErrorState from '../components/EmptyState/ErrorState'
@@ -13,15 +15,20 @@ import ListItems from '../components/ListItems/ListItems'
 import NoteDialog from '../components/ListItems/NoteDialog'
 import Menu from '../components/Menu/Menu'
 import SegmentedControl from '../components/SegmentedControl/SegmentedControl'
+import ShareDialog from '../components/ShareDialog/ShareDialog'
 import Skeleton from '../components/Skeleton/Skeleton'
 import SkeletonGrid from '../components/Skeleton/SkeletonGrid'
 import Toast from '../components/Toast/Toast'
+import { useAuth } from '../hooks/useAuth'
 import { loadListsService, useList, useListAuthor } from '../hooks/useLists'
+import { useSharing } from '../hooks/useSharing'
 import { useTimedState } from '../hooks/useTimedState'
-import type { ListItem, ListMedia, TitleList } from '../types/list'
+import type { ListItem, ListMedia, ListRole, TitleList } from '../types/list'
 import { listErrorMessage, OFFLINE_MESSAGE } from '../utils/listErrors'
 import { noticeFromState } from '../utils/notice'
 import { canEditItems, coversAfterAdd, coversOf, titlesCount } from '../utils/lists'
+import { loginPath } from '../utils/redirect'
+import { memberName, membersOf, ROLE_LABELS } from '../utils/sharing'
 import NotFoundPage from './NotFoundPage'
 import styles from './ListPage.module.css'
 
@@ -34,10 +41,18 @@ interface Notice {
 
 export default function ListPage() {
   const { id = '' } = useParams()
+  // A key per list: "Copy to my lists" navigates to the new copy on the same route, and the
+  // copy must start with fresh page state (and show the notice passed with it).
+  return <ListView key={id} id={id} />
+}
+
+function ListView({ id }: { id: string }) {
   const location = useLocation()
   const navigate = useNavigate()
+  const { user } = useAuth()
   const state = useList(id)
   const author = useListAuthor()
+  const sharing = useSharing('lists', state.status === 'ready' ? state.list : null)
 
   const [view, setView] = useState<'grid' | 'rows'>('grid')
   const [picking, setPicking] = useState(false)
@@ -45,6 +60,11 @@ export default function ListPage() {
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState<string | null>(null)
+  const [shareOpen, setShareOpen] = useState(false)
+  const [confirmLeave, setConfirmLeave] = useState(false)
+  const [leaving, setLeaving] = useState(false)
+  const [leaveError, setLeaveError] = useState<string | null>(null)
+  const [copying, setCopying] = useState(false)
   const passedNotice = noticeFromState(location.state)
   const [toast, showToast, hideToast] = useTimedState<Notice>(
     TOAST_MS,
@@ -55,18 +75,29 @@ export default function ListPage() {
   // A Set for "Already in list" lookups in the picker: O(1) per search result.
   const existing = useMemo(() => new Set(items?.map((item) => item.key)), [items])
 
-  // Deleting removes the list locally first, so the snapshot says "missing" before the
-  // batch finishes; keep the skeleton up instead of flashing "not found".
-  if (state.status === 'loading' || (deleting && state.status === 'missing')) {
+  // Deleting (or leaving) changes the list locally first, so the snapshot says "missing"
+  // before the write finishes; keep the skeleton up instead of flashing "not found".
+  if (state.status === 'loading' || ((deleting || leaving) && state.status === 'missing')) {
     return <ListPageSkeleton />
   }
 
   if (state.status === 'missing') {
+    // The same page for "deleted", "wrong link" and "no access": a stranger can't tell them
+    // apart. The hint covers the two cases where the visitor can fix it themselves.
+    const hint = !user
+      ? ' If it was shared with you, sign in with the invited email.'
+      : !user.emailVerified
+        ? ' If it was shared with you, confirm your email first: shared access needs a verified address.'
+        : ''
     return (
       <NotFoundPage
         title="This list doesn’t exist"
-        text="It may have been deleted, or the link is wrong. Private lists open only for their owner and members."
-        secondary={{ to: '/lists', label: 'Go to lists', icon: 'list' }}
+        text={`It may have been deleted, or the link is wrong. Private lists open only for their owner and members.${hint}`}
+        secondary={
+          user
+            ? { to: '/lists', label: 'Go to lists', icon: 'list' }
+            : { to: loginPath(location.pathname), label: 'Sign in', icon: 'user' }
+        }
       />
     )
   }
@@ -136,6 +167,74 @@ export default function ListPage() {
     }
   }
 
+  async function handleLeave() {
+    if (!navigator.onLine) return setLeaveError(OFFLINE_MESSAGE)
+    setLeaving(true)
+    setLeaveError(null)
+    try {
+      await sharing.leave()
+      navigate('/lists', { replace: true, state: { notice: `You left “${list.name}”` } })
+    } catch (error) {
+      setLeaving(false)
+      setLeaveError(listErrorMessage(error))
+    }
+  }
+
+  async function handleCopy() {
+    if (!author) return
+    if (!navigator.onLine) return showToast({ text: OFFLINE_MESSAGE })
+    setCopying(true)
+    try {
+      const copyId = await (await loadListsService()).copyList(list, author)
+      navigate(`/lists/${copyId}`, { state: { notice: `Copied “${list.name}” to your lists` } })
+    } catch (error) {
+      setCopying(false)
+      showToast({ text: listErrorMessage(error) })
+    }
+  }
+
+  // Members' names are shown to the people on the list; a link visitor sees only the owner.
+  const members = role === 'link' ? [] : membersOf(list)
+  const people = [list.ownerName, ...members.map((m) => memberName(m.email))]
+
+  let actions
+  if (role === 'owner') {
+    actions = (
+      <>
+        <Button variant="primary" icon="plus" onClick={() => setPicking(true)}>
+          Add titles
+        </Button>
+        <Button icon="share" onClick={() => setShareOpen(true)}>
+          Share
+        </Button>
+        <OwnerMenu list={list} onDelete={() => setConfirmDelete(true)} />
+      </>
+    )
+  } else if (role === 'editor' || role === 'viewer') {
+    actions = (
+      <>
+        {role === 'editor' && (
+          <Button variant="primary" icon="plus" onClick={() => setPicking(true)}>
+            Add titles
+          </Button>
+        )}
+        <MemberMenu onLeave={() => setConfirmLeave(true)} />
+      </>
+    )
+  } else if (user) {
+    actions = (
+      <Button variant="primary" icon="copy" loading={copying} onClick={() => void handleCopy()}>
+        Copy to my lists
+      </Button>
+    )
+  } else {
+    actions = (
+      <ButtonLink to={loginPath(location.pathname)} variant="primary" icon="copy">
+        Sign in to copy
+      </ButtonLink>
+    )
+  }
+
   let body
   if (state.itemsError) {
     body = (
@@ -191,7 +290,11 @@ export default function ListPage() {
         </Banner>
       )}
       {role === 'link' && (
-        <Banner>You’re viewing a shared link. Only the owner and editors can change it.</Banner>
+        <Banner>
+          {user
+            ? 'You’re viewing a shared link. Copy it to your lists to make changes.'
+            : 'You’re viewing a shared link. Sign in to copy it to your lists.'}
+        </Banner>
       )}
 
       <header className={styles.header}>
@@ -204,19 +307,15 @@ export default function ListPage() {
           </h1>
           {list.description && <p className={styles.description}>{list.description}</p>}
           <div className={styles.meta}>
+            {people.length > 1 && <AvatarStack people={people} />}
+            <span>{peopleLine(list.ownerName, members, role)}</span>
             <RoleBadge role={role} />
-            <VisibilityBadge visibility={list.visibility} members={list.memberEmails.length} />
-            {role !== 'owner' && <span>by {list.ownerName}</span>}
+            {role === 'owner' && (
+              <VisibilityBadge visibility={list.visibility} members={list.memberEmails.length} />
+            )}
           </div>
         </div>
-        {editable && (
-          <div className={styles.actions}>
-            <Button variant="primary" icon="plus" onClick={() => setPicking(true)}>
-              Add titles
-            </Button>
-            {role === 'owner' && <OwnerMenu list={list} onDelete={() => setConfirmDelete(true)} />}
-          </div>
-        )}
+        <div className={styles.actions}>{actions}</div>
       </header>
 
       <section aria-labelledby="list-items-title" className={styles.items}>
@@ -287,6 +386,56 @@ export default function ListPage() {
         )}
       </Dialog>
 
+      {role === 'owner' && (
+        <ShareDialog
+          open={shareOpen}
+          onClose={() => setShareOpen(false)}
+          name={list.name}
+          url={sharing.url}
+          owner={{
+            name: author?.name ?? list.ownerName,
+            email: user?.email ?? null,
+            photoUrl: user?.photoURL ?? null,
+          }}
+          visibility={list.visibility}
+          roles={list.roles}
+          onVisibilityChange={sharing.setVisibility}
+          onInvite={sharing.invite}
+          onRoleChange={sharing.changeRole}
+          onRemove={sharing.remove}
+        />
+      )}
+
+      <Dialog
+        open={confirmLeave}
+        onClose={() => !leaving && setConfirmLeave(false)}
+        title={`Leave “${list.name}”?`}
+        footer={
+          <>
+            <Button variant="ghost" onClick={() => setConfirmLeave(false)} disabled={leaving}>
+              Cancel
+            </Button>
+            <Button
+              variant="danger-solid"
+              icon="logout"
+              loading={leaving}
+              onClick={() => void handleLeave()}
+            >
+              Leave list
+            </Button>
+          </>
+        }
+      >
+        <p>
+          You’ll lose access to this list. To come back, ask {list.ownerName} to invite you again.
+        </p>
+        {leaveError && (
+          <Banner tone="warning" icon="alert">
+            {leaveError}
+          </Banner>
+        )}
+      </Dialog>
+
       {toast && (
         <Toast
           icon={toast.undo ? undefined : 'check'}
@@ -317,6 +466,32 @@ function OwnerMenu({ list, onDelete }: { list: TitleList; onDelete: () => void }
       ]}
     />
   )
+}
+
+function MemberMenu({ onLeave }: { onLeave: () => void }) {
+  return (
+    <Menu
+      label="More list actions"
+      align="right"
+      triggerClassName={buttonClass('secondary', 'md', { iconOnly: true })}
+      trigger={<Icon name="more" size={20} />}
+      items={[{ label: 'Leave list', icon: 'logout', danger: true, onSelect: onLeave }]}
+    />
+  )
+}
+
+/** "Owner: Erasyl · dana (editor) · timur (viewer)", or just "by Erasyl" for a link visitor. */
+function peopleLine(
+  ownerName: string,
+  members: { email: string; role: keyof typeof ROLE_LABELS }[],
+  role: ListRole,
+): string {
+  if (role === 'link') return `by ${ownerName}`
+  const shown = members
+    .slice(0, 3)
+    .map((m) => `${memberName(m.email)} (${ROLE_LABELS[m.role].toLowerCase()})`)
+  const more = members.length - shown.length
+  return [`Owner: ${ownerName}`, ...shown, ...(more > 0 ? [`${more} more`] : [])].join(' · ')
 }
 
 function ListPageSkeleton() {
