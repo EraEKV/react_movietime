@@ -9,6 +9,7 @@ import Icon from '../Icon/Icon'
 import IconButton from '../IconButton/IconButton'
 import Logo from '../Logo/Logo'
 import HeaderSearch from './HeaderSearch'
+import LanguageMenu from './LanguageMenu'
 import styles from './Layout.module.css'
 import { isNavItemActive, MAIN_NAV } from './navigation'
 
@@ -63,6 +64,7 @@ export default function Header() {
             label={t(nextTheme === 'dark' ? 'header.toDark' : 'header.toLight')}
             onClick={toggleTheme}
           />
+          <LanguageMenu />
           <UserMenu />
         </div>
       </div>

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
 import { useAuth } from '../../hooks/useAuth'
 import { resendVerification } from '../../store/authSlice'
@@ -17,9 +18,10 @@ interface ResendVerificationProps {
  */
 export default function ResendVerification({
   size = 'sm',
-  label = 'Resend email',
+  label,
   onResult,
 }: ResendVerificationProps) {
+  const { t } = useTranslation('profile')
   const { pending } = useAuth()
   const dispatch = useAppDispatch()
   const [sent, setSent] = useState(false)
@@ -31,7 +33,7 @@ export default function ResendVerification({
       setSent(true)
       onResult({ ok: true })
     } else {
-      onResult({ ok: false, message: result.payload?.message ?? 'Couldn’t send the email.' })
+      onResult({ ok: false, message: result.payload?.message ?? t('resend.failed') })
     }
   }
 
@@ -43,7 +45,7 @@ export default function ResendVerification({
       disabled={sent}
       onClick={() => void handleClick()}
     >
-      {sent ? 'Email sent' : label}
+      {sent ? t('resend.sent') : (label ?? t('resend.label'))}
     </Button>
   )
 }

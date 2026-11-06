@@ -1,3 +1,6 @@
+import { currentLocale } from '../../i18n'
+import { formatDateWith } from '../../i18n/intl'
+import { useTranslation } from 'react-i18next'
 import { useMediaQuery } from '../../hooks/useMediaQuery'
 import type { AuthUser, UserProfile } from '../../types/auth'
 import Avatar from '../Avatar/Avatar'
@@ -12,7 +15,7 @@ const PROVIDER_LABELS: Record<string, string> = {
 }
 
 const memberSince = (iso: string) =>
-  new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' }).format(new Date(iso))
+  formatDateWith(new Date(iso), { month: 'long', year: 'numeric' }, currentLocale())
 
 interface ProfileHeaderProps {
   user: AuthUser
@@ -26,8 +29,9 @@ interface ProfileHeaderProps {
  * profile only shows the badge.
  */
 export default function ProfileHeader({ user, profile, loading }: ProfileHeaderProps) {
+  const { t } = useTranslation('profile')
   const wide = useMediaQuery('(min-width: 768px)')
-  const name = profile?.displayName || user.displayName || user.email || 'Movie fan'
+  const name = profile?.displayName || user.displayName || user.email || t('movieFan')
   // providerData of the signed-in user: the methods this account can actually sign in with.
   const methods = user.providers.map((p) => PROVIDER_LABELS[p] ?? p)
 
@@ -43,26 +47,28 @@ export default function ProfileHeader({ user, profile, loading }: ProfileHeaderP
             <span>{user.email}</span>
             {user.emailVerified ? (
               <Badge tone="success" icon="check">
-                Verified
+                {t('verified')}
               </Badge>
             ) : (
-              <Badge icon="alert">Not verified</Badge>
+              <Badge icon="alert">{t('notVerified')}</Badge>
             )}
           </p>
           {/* A div: the loading skeleton is a block element, not allowed inside <p>. */}
           <div className={styles.meta}>
-            {methods.length > 0 && <span>Signed in with {methods.join(' and ')}</span>}
+            {methods.length > 0 && (
+              <span>{t('signedInWith', { methods: methods.join(t('and')) })}</span>
+            )}
             <span>
               {loading ? (
                 <Skeleton width={150} height={14} />
               ) : profile?.createdAt ? (
-                `Member since ${memberSince(profile.createdAt)}`
+                t('memberSince', { date: memberSince(profile.createdAt) })
               ) : null}
             </span>
           </div>
         </div>
         <ButtonLink to="/profile/settings" icon="settings" className={styles.settingsLink}>
-          Settings
+          {t('settingsLink')}
         </ButtonLink>
       </header>
     </>
