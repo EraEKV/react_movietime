@@ -1,0 +1,24 @@
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: 32px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-pill, 999px);
+  background: var(--surface-raised);
+  color: var(--warning);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* The icon alone carries it on narrow screens (the title and the hidden text name it). */
+.text {
+  display: none;
+}
+
+@media (min-width: 560px) {
+  .text {
+    display: inline;
+  }
+}
