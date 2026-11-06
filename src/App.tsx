@@ -1,3 +1,4 @@
+import { lazy } from 'react'
 import { Navigate, Route, Routes } from 'react-router'
 import AuthLayout from './components/auth/AuthLayout'
 import GuestRoute from './components/auth/GuestRoute'
@@ -5,15 +6,19 @@ import ProtectedRoute from './components/auth/ProtectedRoute'
 import Layout from './components/Layout/Layout'
 import WatchlistProvider from './context/WatchlistProvider'
 import LoginPage from './pages/LoginPage'
-import CatalogPage from './pages/CatalogPage'
 import NotFoundPage from './pages/NotFoundPage'
-import ProfilePage from './pages/ProfilePage'
-import SeriesPage from './pages/SeriesPage'
 import SignupPage from './pages/SignupPage'
 import VerifyEmailPage from './pages/VerifyEmailPage'
-import WatchlistAddPage from './pages/WatchlistAddPage'
-import WatchlistEditPage from './pages/WatchlistEditPage'
-import WatchlistPage from './pages/WatchlistPage'
+
+// Each lazy() page becomes its own JS chunk, downloaded the first time its route renders.
+// The <Suspense> boundary that shows a skeleton meanwhile lives in Layout, around <Outlet>,
+// so the header and tab bar stay on screen. Auth screens and 404 are small and stay eager.
+const CatalogPage = lazy(() => import('./pages/CatalogPage'))
+const SeriesPage = lazy(() => import('./pages/SeriesPage'))
+const WatchlistPage = lazy(() => import('./pages/WatchlistPage'))
+const WatchlistAddPage = lazy(() => import('./pages/WatchlistAddPage'))
+const WatchlistEditPage = lazy(() => import('./pages/WatchlistEditPage'))
+const ProfilePage = lazy(() => import('./pages/ProfilePage'))
 
 export default function App() {
   return (
