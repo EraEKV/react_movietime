@@ -5,6 +5,15 @@ import { join } from 'node:path'
 import { afterEach, beforeAll, vi } from 'vitest'
 import { initI18n } from '../i18n'
 
+// jsdom has no matchMedia; "no match" means the dark default.
+window.matchMedia ??= (query: string) =>
+  ({
+    matches: false,
+    media: query,
+    addEventListener: () => {},
+    removeEventListener: () => {},
+  }) as unknown as MediaQueryList
+
 const LOCALES = join(process.cwd(), 'public', 'locales')
 
 // Dictionaries are fetched over HTTP in the app; tests read the same files from disk.
