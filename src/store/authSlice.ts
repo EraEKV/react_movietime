@@ -1,7 +1,6 @@
 import { createAsyncThunk, createSlice, type PayloadAction } from '@reduxjs/toolkit'
 import type { User } from 'firebase/auth'
 import * as authService from '../services/authService'
-import { ensureProfile } from '../services/profileService'
 import type { AuthError, AuthStatus, AuthUser } from '../types/auth'
 import { toAuthError } from '../utils/firebaseErrors'
 import type { RootState } from './store'
@@ -32,6 +31,9 @@ const createAuthThunk = createAsyncThunk.withTypes<{
 async function syncProfile(user: User, state: RootState) {
   const { theme, language } = state.preferences
   try {
+    // Dynamic import: the Firestore SDK is downloaded only when someone actually signs in,
+    // not on every page load (see services/firestore.ts).
+    const { ensureProfile } = await import('../services/profileService')
     await ensureProfile(user, { theme, language })
   } catch (error) {
     console.warn('Could not save the profile', error)
