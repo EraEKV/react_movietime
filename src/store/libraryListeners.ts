@@ -1,3 +1,4 @@
+import i18n from '../i18n'
 import { isAnyOf, TaskAbortError } from '@reduxjs/toolkit'
 import {
   clearGuestLibrary,
@@ -20,8 +21,6 @@ import {
   selectLibraryEntries,
 } from './librarySlice'
 import type { AppDispatch, RootState } from './store'
-
-const pluralTitles = (n: number) => `${n} ${n === 1 ? 'title' : 'titles'}`
 
 /**
  * Library side effects. Reducers stay pure; everything that talks to Firestore or
@@ -68,7 +67,7 @@ export function registerLibraryListeners(getState: () => RootState, dispatch: Ap
               api.dispatch(
                 libraryNoticeShown({
                   tone: 'success',
-                  text: `${pluralTitles(added)} from this device synced to your account`,
+                  text: i18n.t('notice.synced', { count: added }),
                 }),
               )
             }

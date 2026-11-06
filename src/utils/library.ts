@@ -97,19 +97,19 @@ export function progressRatio(entry: LibraryEntry): number | null {
 export type LibrarySort = 'updated' | 'score' | 'title' | 'year' | 'rating'
 
 export const LIBRARY_SORTS: Option<LibrarySort>[] = [
-  { value: 'updated', label: 'Recently updated' },
-  { value: 'score', label: 'Your score' },
-  { value: 'title', label: 'Title A–Z' },
-  { value: 'year', label: 'Year' },
-  { value: 'rating', label: 'TMDB rating' },
+  translatedOption('updated', 'library:sort.updated'),
+  translatedOption('score', 'library:sort.score'),
+  translatedOption('title', 'library:sort.title'),
+  translatedOption('year', 'library:sort.year'),
+  translatedOption('rating', 'library:sort.rating'),
 ]
 
 export type LibraryTypeFilter = 'all' | MediaType
 
 export const LIBRARY_TYPES: Option<LibraryTypeFilter>[] = [
-  { value: 'all', label: 'Movies & series' },
-  { value: 'movie', label: 'Movies' },
-  { value: 'tv', label: 'Series' },
+  translatedOption('all', 'library:types.all'),
+  translatedOption('movie', 'library:types.movie'),
+  translatedOption('tv', 'library:types.tv'),
 ]
 
 export type StatusFilter = LibraryStatus | 'all'

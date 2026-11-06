@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { useLibrary, useLibraryEntry } from '../../hooks/useLibrary'
 import { useTimedState } from '../../hooks/useTimedState'
 import type { LibraryMedia } from '../../types/library'
@@ -22,6 +23,7 @@ interface UndoToast {
  * with Edit and Remove. Every change offers Undo in a toast.
  */
 export default function LibraryButton({ media }: { media: LibraryMedia }) {
+  const { t } = useTranslation('library')
   const key = mediaKey(media.mediaType, media.tmdbId)
   const entry = useLibraryEntry(key)
   const { status, add, update, remove, restore } = useLibrary()
@@ -38,7 +40,7 @@ export default function LibraryButton({ media }: { media: LibraryMedia }) {
     // and "Add" would overwrite an existing entry's score and notes.
     control = (
       <Button icon="bookmark" loading disabled>
-        Library
+        {t('button.loading')}
       </Button>
     )
   } else if (!entry) {
@@ -48,10 +50,10 @@ export default function LibraryButton({ media }: { media: LibraryMedia }) {
         icon="plus"
         onClick={() => {
           void add(media, 'plan')
-          showToast({ text: 'Added to library as Plan to watch', undo: () => void remove(key) })
+          showToast({ text: t('button.added'), undo: () => void remove(key) })
         }}
       >
-        Add to library
+        {t('button.add')}
       </Button>
     )
   } else {
@@ -65,21 +67,21 @@ export default function LibraryButton({ media }: { media: LibraryMedia }) {
           if (option.value === previous) return
           void update(key, { status: option.value })
           showToast({
-            text: `Moved to ${option.label}`,
+            text: t('button.movedTo', { status: option.label }),
             undo: () => void update(key, { status: previous }),
           })
         },
       })),
       { kind: 'divider' },
-      { label: 'Edit entry…', icon: 'edit', to: `/library/${key}/edit` },
+      { label: t('button.edit'), icon: 'edit', to: `/library/${key}/edit` },
       {
-        label: 'Remove from library',
+        label: t('button.remove'),
         icon: 'trash',
         danger: true,
         onSelect: () => {
           void remove(key).then((removed) => {
             if (removed) {
-              showToast({ text: 'Removed from library', undo: () => void restore(removed) })
+              showToast({ text: t('button.removed'), undo: () => void restore(removed) })
             }
           })
         },
@@ -87,7 +89,7 @@ export default function LibraryButton({ media }: { media: LibraryMedia }) {
     ]
     control = (
       <Menu
-        label={`Library status: ${statusLabel(entry.status)}`}
+        label={t('button.status', { status: statusLabel(entry.status) })}
         triggerClassName={buttonClass('secondary', 'md')}
         trigger={
           <>

@@ -219,5 +219,9 @@
     "title": "The projector’s off for a moment",
     "text": "You’re offline. Your library and planned sessions saved on this device still work — anything you change will sync when you reconnect.",
     "retry": "Retry"
+  },
+  "notice": {
+    "synced_one": "{{count}} title from this device synced to your account",
+    "synced_other": "{{count}} titles from this device synced to your account"
   }
 }

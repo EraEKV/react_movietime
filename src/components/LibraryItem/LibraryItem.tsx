@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { imageUrl } from '../../api/tmdb'
 import type { LibraryEntry, LibraryStatus } from '../../types/library'
@@ -23,6 +24,7 @@ interface LibraryItemProps {
 
 /** One library row: poster, title, status, score, series progress, note and actions. */
 export default function LibraryItem({ entry, onStatusChange, onRemove }: LibraryItemProps) {
+  const { t } = useTranslation('library')
   const href = mediaHref(entry.mediaType, entry.tmdbId)
   const poster = imageUrl(entry.posterPath, 'w185')
   const progress = progressRatio(entry)
@@ -47,7 +49,7 @@ export default function LibraryItem({ entry, onStatusChange, onRemove }: Library
             <Link to={href}>{entry.title}</Link>
           </h3>
           <span className={styles.meta}>
-            {[entry.mediaType === 'movie' ? 'Movie' : 'Series', entry.year]
+            {[t(entry.mediaType === 'movie' ? 'movie' : 'series'), entry.year]
               .filter(Boolean)
               .join(' · ')}
           </span>
@@ -68,7 +70,7 @@ export default function LibraryItem({ entry, onStatusChange, onRemove }: Library
           <div className={styles.progress}>
             <ProgressBar
               value={progress ?? 0}
-              label={`Progress of ${entry.title}`}
+              label={t('item.progress', { title: entry.title })}
               caption={[
                 episodeCode(entry.progress.season, entry.progress.episode),
                 progress !== null && `${Math.round(progress * 100)}%`,
@@ -85,7 +87,7 @@ export default function LibraryItem({ entry, onStatusChange, onRemove }: Library
       {/* Wide screens: the status select and icon buttons are visible right away. */}
       <div className={styles.actions}>
         <SelectField
-          label={`Status of ${entry.title}`}
+          label={t('item.status', { title: entry.title })}
           hideLabel
           className={styles.status}
           value={entry.status}
@@ -95,8 +97,8 @@ export default function LibraryItem({ entry, onStatusChange, onRemove }: Library
         <Link
           to={editHref}
           className={buttonClass('ghost', 'md', { iconOnly: true })}
-          aria-label={`Edit ${entry.title}`}
-          title={`Edit ${entry.title}`}
+          aria-label={t('item.edit', { title: entry.title })}
+          title={t('item.edit', { title: entry.title })}
         >
           <Icon name="edit" size={20} />
         </Link>
@@ -104,19 +106,23 @@ export default function LibraryItem({ entry, onStatusChange, onRemove }: Library
           <Link
             to={planHref}
             className={buttonClass('ghost', 'md', { iconOnly: true })}
-            aria-label={`Plan watching ${entry.title}`}
-            title={`Plan watching ${entry.title}`}
+            aria-label={t('item.plan', { title: entry.title })}
+            title={t('item.plan', { title: entry.title })}
           >
             <Icon name="calendar" size={20} />
           </Link>
         )}
-        <IconButton icon="trash" label={`Remove ${entry.title}`} onClick={() => onRemove(entry)} />
+        <IconButton
+          icon="trash"
+          label={t('item.remove', { title: entry.title })}
+          onClick={() => onRemove(entry)}
+        />
       </div>
 
       {/* Phones: the same actions in one menu, so the row stays readable. */}
       <div className={styles.menu}>
         <Menu
-          label={`Actions for ${entry.title}`}
+          label={t('item.actions', { title: entry.title })}
           align="right"
           triggerClassName={buttonClass('ghost', 'md', { iconOnly: true })}
           trigger={<Icon name="more" size={20} />}
@@ -128,11 +134,16 @@ export default function LibraryItem({ entry, onStatusChange, onRemove }: Library
               onSelect: () => onStatusChange(entry, option.value),
             })),
             { kind: 'divider' },
-            { label: 'Edit', icon: 'edit', to: editHref },
+            { label: t('item.editShort'), icon: 'edit', to: editHref },
             ...(planHref
-              ? [{ label: 'Plan watching', icon: 'calendar' as const, to: planHref }]
+              ? [{ label: t('item.planShort'), icon: 'calendar' as const, to: planHref }]
               : []),
-            { label: 'Remove', icon: 'trash', danger: true, onSelect: () => onRemove(entry) },
+            {
+              label: t('item.removeShort'),
+              icon: 'trash',
+              danger: true,
+              onSelect: () => onRemove(entry),
+            },
           ]}
         />
       </div>
