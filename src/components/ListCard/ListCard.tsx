@@ -2,6 +2,8 @@ import { Link } from 'react-router'
 import { imageUrl } from '../../api/tmdb'
 import type { ListRole, TitleList } from '../../types/list'
 import { LIST_COVERS, titlesCount } from '../../utils/lists'
+import { memberName } from '../../utils/sharing'
+import AvatarStack from '../AvatarStack/AvatarStack'
 import { RoleBadge, VisibilityBadge } from '../Badge/ListBadges'
 import styles from './ListCard.module.css'
 
@@ -16,6 +18,7 @@ export default function ListCard({ list, role }: ListCardProps) {
   // Always four cells, empty ones stay as sunken tiles.
   const cells = Array.from({ length: LIST_COVERS }, (_, i) => list.covers[i] ?? null)
   const count = titlesCount(list.itemCount)
+  const people = [list.ownerName, ...list.memberEmails.map(memberName)]
 
   return (
     <Link to={`/lists/${list.id}`} className={styles.card}>
@@ -36,6 +39,7 @@ export default function ListCard({ list, role }: ListCardProps) {
           ) : (
             <VisibilityBadge visibility={list.visibility} members={list.memberEmails.length} />
           )}
+          {list.memberEmails.length > 0 && <AvatarStack people={people} size={24} />}
         </div>
       </div>
     </Link>

@@ -21,3 +21,11 @@
   color: var(--text-muted);
   font-variant-numeric: tabular-nums;
 }
+
+.sharedEmpty {
+  padding: var(--space-5);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-md);
+  color: var(--text-muted);
+  overflow-wrap: anywhere;
+}

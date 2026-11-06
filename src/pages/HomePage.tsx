@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react'
 import { endpoints } from '../api/tmdb'
 import ContinueWatching from '../components/Home/ContinueWatching'
 import HeatmapTeaser from '../components/Home/HeatmapTeaser'
@@ -8,6 +9,10 @@ import { useAuth } from '../hooks/useAuth'
 import { useFetch } from '../hooks/useFetch'
 import type { Paginated, SeriesListItem } from '../types/tmdb'
 import styles from '../components/Home/Home.module.css'
+
+// Lazy: list cards aren't needed for the first paint, and most visitors have no shared
+// lists. Its own Suspense with no fallback, so loading it never blanks the page.
+const SharedWithYou = lazy(() => import('../components/Home/SharedWithYou'))
 
 /**
  * Landing page. Guests get the pitch; signed-in users get their evening first.
@@ -38,6 +43,11 @@ export default function HomePage() {
       )}
       <TrendingSection series={trendingSeries} />
       <HeatmapTeaser />
+      {user && (
+        <Suspense fallback={null}>
+          <SharedWithYou />
+        </Suspense>
+      )}
     </div>
   )
 }
