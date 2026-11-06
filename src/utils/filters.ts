@@ -26,33 +26,35 @@ interface SortOption extends Option<SortValue> {
 const dateField = (mediaType: MediaType) =>
   mediaType === 'movie' ? 'primary_release_date' : 'first_air_date'
 
+// Object.assign adds `params` to the option itself: spreading it would copy the label once,
+// at module load, and the select would never change language.
+const withParams = (
+  option: ReturnType<typeof translatedOption<SortValue>>,
+  params: SortOption['params'],
+): SortOption => Object.assign(option, { params })
+
 export const SORT_OPTIONS: SortOption[] = [
-  {
-    ...translatedOption('popular', 'catalog:sort.popular'),
-    params: () => ({ sortBy: 'popularity.desc' }),
-  },
+  withParams(translatedOption('popular', 'catalog:sort.popular'), () => ({
+    sortBy: 'popularity.desc',
+  })),
   // Without a vote threshold "top rated" is full of titles with a single 10/10 vote.
-  {
-    ...translatedOption('top-rated', 'catalog:sort.topRated'),
-    params: () => ({ sortBy: 'vote_average.desc', minVotes: 200 }),
-  },
-  {
-    ...translatedOption('most-voted', 'catalog:sort.mostVoted'),
-    params: () => ({ sortBy: 'vote_count.desc' }),
-  },
+  withParams(translatedOption('top-rated', 'catalog:sort.topRated'), () => ({
+    sortBy: 'vote_average.desc',
+    minVotes: 200,
+  })),
+  withParams(translatedOption('most-voted', 'catalog:sort.mostVoted'), () => ({
+    sortBy: 'vote_count.desc',
+  })),
   // TMDB has announced titles dated years ahead — cap at today and skip unknown ones.
-  {
-    ...translatedOption('newest', 'catalog:sort.newest'),
-    params: (mediaType) => ({
-      sortBy: `${dateField(mediaType)}.desc`,
-      releasedBefore: today(),
-      minVotes: 10,
-    }),
-  },
-  {
-    ...translatedOption('oldest', 'catalog:sort.oldest'),
-    params: (mediaType) => ({ sortBy: `${dateField(mediaType)}.asc`, minVotes: 10 }),
-  },
+  withParams(translatedOption('newest', 'catalog:sort.newest'), (mediaType) => ({
+    sortBy: `${dateField(mediaType)}.desc`,
+    releasedBefore: today(),
+    minVotes: 10,
+  })),
+  withParams(translatedOption('oldest', 'catalog:sort.oldest'), (mediaType) => ({
+    sortBy: `${dateField(mediaType)}.asc`,
+    minVotes: 10,
+  })),
 ]
 
 export const DEFAULT_SORT: SortValue = 'popular'

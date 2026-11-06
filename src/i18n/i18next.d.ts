@@ -2,6 +2,7 @@ import 'i18next'
 import type auth from './locales/en/auth.json'
 import type catalog from './locales/en/catalog.json'
 import type common from './locales/en/common.json'
+import type dashboard from './locales/en/dashboard.json'
 import type home from './locales/en/home.json'
 import type library from './locales/en/library.json'
 import type lists from './locales/en/lists.json'
@@ -16,6 +17,7 @@ declare module 'i18next' {
       common: typeof common
       auth: typeof auth
       catalog: typeof catalog
+      dashboard: typeof dashboard
       home: typeof home
       library: typeof library
       lists: typeof lists
