@@ -189,7 +189,7 @@ export const updateLibraryEntry =
     return dispatch(
       persist(
         () => dispatch(guestEntrySaved(next)),
-        (service, uid) => service.updateEntry(uid, key, changes, completed),
+        (service, uid) => service.updateEntry(uid, entry, changes, completed),
       ),
     )
   }
