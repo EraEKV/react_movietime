@@ -135,7 +135,7 @@ read as estimates.
 
 ### `sharingService.ts` ✅
 
-Works for both collections: `collection` is `"lists"` or `"plans"` (only lists have a UI so far).
+Works for both collections: `collection` is `"lists"` or `"plans"`; the same `ShareDialog` serves both.
 Loaded with `import()` from `hooks/useSharing.ts`. Every change is **one** `updateDoc`, so
 `roles` and `memberEmails` never disagree. Emails contain dots, so a member's role is addressed
 with `new FieldPath('roles', email)`: the string path `"roles.dan@gmail.com"` would mean
@@ -159,29 +159,38 @@ Pure helpers in `utils/sharing.ts`:
 | `membersOf(doc)`                             | `Member[]`                                          | Editors first, then by email                            |
 | `shareUrl(collection, id)`                   | string                                              | `https://…/lists/{id}` (`/planner/{id}` for plans)      |
 
-### `plannerService.ts` 🚧
+### `plannerService.ts` ✅
 
-| Function                                                            | Returns           | Notes                                                 |
-| ------------------------------------------------------------------- | ----------------- | ----------------------------------------------------- |
-| `loadSeriesEpisodes(tvId, { from, signal })`                        | `Promise<Unit[]>` | Batched seasons from TMDB, skips specials and unaired |
-| `loadListMovies(listId)`                                            | `Promise<Unit[]>` | Movies of a list with runtimes                        |
-| `createPlan(user, { kind, media, sourceListId, options, units })`   | `Promise<string>` | Plan + sessions + library + activity                  |
-| `watchMyPlans(uid, callback)` / `watchSharedPlans(email, callback)` | `unsubscribe`     |                                                       |
-| `watchPlan(planId, callback)`                                       | `unsubscribe`     |                                                       |
-| `watchSessions(planId, { from, to }, callback)`                     | `unsubscribe`     | Date range for the calendar                           |
-| `completeSession(planId, sessionId, user)`                          | `Promise<void>`   | Batch, see DATA_MODEL                                 |
-| `rescheduleSession(planId, sessionId, newDate, { shiftLater })`     | `Promise<void>`   |                                                       |
-| `skipSession(planId, sessionId)`                                    | `Promise<void>`   |                                                       |
-| `deletePlan(planId)`                                                | `Promise<void>`   |                                                       |
+Loaded with `import()` from `hooks/usePlanner.ts` (`loadPlannerService`). Every write that
+changes more than one document is one batch (see DATA_MODEL, "Business operations").
 
-Pure helpers in `src/utils/schedule.ts` (unit tested on their own):
+| Function                                              | Returns                                | Notes                                                                      |
+| ----------------------------------------------------- | -------------------------------------- | -------------------------------------------------------------------------- |
+| `loadSeriesEpisodes(tvId, signal?)`                   | `{ media, units }`                     | `/tv/{id}`, then seasons in batches of 20 in parallel; no specials/unaired |
+| `loadListMovies(listId, signal?)`                     | `{ name, posterPath, units, skipped }` | List items in order, `/movie/{id}` per movie for runtime; series skipped   |
+| `createPlan(owner, draft, color)`                     | `Promise<string>` (id)                 | Plan + sessions + library + activity, chunks of 400 writes                 |
+| `watchMyPlans(uid, …)` / `watchSharedPlans(email, …)` | `unsubscribe`                          | `ownerUid ==` / `memberEmails array-contains`, `orderBy('nextDate')`       |
+| `watchPlan(id, …)`                                    | `unsubscribe`                          | `null` when missing                                                        |
+| `watchSessions(planId, { from, to } \| null, …)`      | `unsubscribe`                          | `date >= from && date <= to` (single-field index) or all sessions          |
+| `completeSession(plan, session, by)`                  | `Promise<void>`                        | Session + plan + **marker's** library + activity in one batch              |
+| `skipSession(plan, session, by)`                      | `Promise<void>`                        | Skipped + copy at the end on the next plan weekday                         |
+| `undoSession(plan, session)`                          | `Promise<void>`                        | Back to pending; deletes a skip's pending copy                             |
+| `rescheduleSession(plan, session, date, shiftLater)`  | `Promise<void>`                        | Moves later pending sessions by the same days when asked                   |
+| `deletePlan(id)`                                      | `Promise<void>`                        | Sessions in batches, the plan last                                         |
 
-| Function                                   | Description                                                                                           |
-| ------------------------------------------ | ----------------------------------------------------------------------------------------------------- |
-| `buildSchedule(units, options)`            | Splits units into sessions of `perSession` and assigns dates on the allowed weekdays from `startDate` |
-| `shiftSessions(sessions, fromIndex, days)` | Moves later sessions, keeping them on allowed weekdays                                                |
-| `planSummary(sessions)`                    | `{ sessions, minutes, endDate }` for the preview                                                      |
-| `toIcs(plan, sessions)`                    | iCalendar text for export                                                                             |
+Pure helpers in `src/utils/schedule.ts` and `src/utils/calendar.ts` (no React, no Firestore).
+Days are `"YYYY-MM-DD"` in local time; day math runs on UTC dates, so DST never shifts a day.
+
+| Function                                                          | Description                                                                                      |
+| ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `buildSchedule(units, { startDate, weekdays, time, perSession })` | Sessions of `perSession` units on the chosen weekdays from `startDate`; `[]` without weekdays    |
+| `scheduleProblem(options)`                                        | Error text for the stepper (no weekdays, bad time…) or `null`                                    |
+| `shiftSessions(sessions, id, date, shiftLater)`                   | `{ id, date }[]` changes: the moved session and, optionally, later pending ones by the same days |
+| `planDates(sessions)` / `planSummary(sessions, weekdays)`         | `nextDate`/`endDate`; sessions, minutes, nights a week, first and finish date                    |
+| `nextSlot(after, weekdays)`                                       | First allowed weekday after a day (where a skip's copy goes)                                     |
+| `unitsLabel(units)`                                               | `S2E5`, `S2E5–E6`, `S2E13–S3E1`, or movie titles                                                 |
+| `toIcs(name, events, now)`                                        | iCalendar text (RFC 5545: escaping, 75-octet folding, CRLF); times converted to UTC per day      |
+| `monthGrid(month)`, `addDays`, `weekdayOf`, `localToday`          | Calendar-day helpers (`utils/calendar.ts`)                                                       |
 
 ## localStorage: `src/storage/`
 
@@ -224,7 +233,10 @@ Thunks call the services above; reducers stay pure. The store only holds seriali
 | `useTimedState(ms, initial?)`                           |   ✅   | A value that clears itself (undo toasts)                                                      |
 | `useMyLists()` / `useList(id)`                          |   ✅   | My lists; one list + items + current role (`missing` for no access)                           |
 | `useTitleSearch(query)`                                 |   ✅   | Debounced movie + series search for the "Add titles" picker                                   |
-| `usePlanner()` / `usePlan(id)`                          |   🚧   | Plans, sessions in range, actions                                                             |
+| `usePlans()` / `usePlanner(month)` / `useUpcoming()`    |   ✅   | Mine + shared plans; sessions of the month grid and today; today + tomorrow for Home/header   |
+| `usePlan(id)` / `usePlanActions()`                      |   ✅   | One plan + sessions + role (`missing` for no access); complete, skip, undo, reschedule        |
+| `usePlanSource(pick)`                                   |   ✅   | Episodes of a series or movies of a list for the stepper (aborts on change)                   |
+| `useMediaQuery(query)`                                  |   ✅   | `matchMedia` via `useSyncExternalStore` (calendar / agenda switch)                            |
 | `useDashboardStats(period)`                             |   🚧   | Memoized statistics and breakdowns                                                            |
 | `useTheme()` / `useLanguage()`                          |   🚧   | Current value + setter                                                                        |
 | `useOnlineStatus()`                                     |   🚧   | `true` / `false` from `online` / `offline` events                                             |

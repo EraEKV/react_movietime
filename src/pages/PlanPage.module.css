@@ -1,0 +1,119 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.back {
+  align-self: flex-start;
+  margin-left: calc(-1 * var(--space-3));
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--space-4) var(--space-6);
+}
+
+.poster {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 80px;
+  aspect-ratio: 2 / 3;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--surface-sunken);
+  color: var(--text-muted);
+  box-shadow: var(--shadow-2);
+}
+
+.poster img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.heading {
+  display: flex;
+  flex: 1 1 260px;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.kickerRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.dot {
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.kicker {
+  composes: overline from '../styles/typography.module.css';
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.title {
+  composes: displayL from '../styles/typography.module.css';
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.progress {
+  max-width: 480px;
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.weeks {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.week {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.sessions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 768px) {
+  .poster {
+    width: 112px;
+  }
+
+  .header {
+    align-items: center;
+  }
+}

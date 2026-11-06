@@ -1,4 +1,6 @@
+import { lazy, Suspense } from 'react'
 import { Link, useLocation } from 'react-router'
+import { useAuth } from '../../hooks/useAuth'
 import { useTheme } from '../../hooks/useTheme'
 import UserMenu from '../auth/UserMenu'
 import { buttonClass } from '../Button/variants'
@@ -9,11 +11,15 @@ import HeaderSearch from './HeaderSearch'
 import styles from './Layout.module.css'
 import { isNavItemActive, MAIN_NAV } from './navigation'
 
+// Separate chunk: the planner hooks and Firestore aren't part of the first paint.
+const TonightChip = lazy(() => import('./TonightChip'))
+
 /** Desktop (≥1024): logo, main nav, search, theme, account. Below: compact bar, nav moves to the TabBar. */
 export default function Header() {
   const { pathname } = useLocation()
   const { theme, toggleTheme } = useTheme()
   const nextTheme = theme === 'dark' ? 'light' : 'dark'
+  const { user } = useAuth()
 
   return (
     <header className={styles.header}>
@@ -35,6 +41,11 @@ export default function Header() {
         </nav>
 
         <div className={styles.tools}>
+          {user && (
+            <Suspense fallback={null}>
+              <TonightChip />
+            </Suspense>
+          )}
           <HeaderSearch />
           {/* state asks the catalog to focus its search field: one tap to start typing. */}
           <Link

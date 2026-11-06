@@ -14,6 +14,7 @@ import Icon from '../components/Icon/Icon'
 import ListItems from '../components/ListItems/ListItems'
 import NoteDialog from '../components/ListItems/NoteDialog'
 import Menu from '../components/Menu/Menu'
+import MarathonCard from '../components/Planner/MarathonCard'
 import SegmentedControl from '../components/SegmentedControl/SegmentedControl'
 import ShareDialog from '../components/ShareDialog/ShareDialog'
 import Skeleton from '../components/Skeleton/Skeleton'
@@ -193,6 +194,8 @@ function ListView({ id }: { id: string }) {
     }
   }
 
+  const movieCount = items?.filter((item) => item.mediaType === 'movie').length ?? 0
+
   // Members' names are shown to the people on the list; a link visitor sees only the owner.
   const members = role === 'link' ? [] : membersOf(list)
   const people = [list.ownerName, ...members.map((m) => memberName(m.email))]
@@ -317,6 +320,11 @@ function ListView({ id }: { id: string }) {
         </div>
         <div className={styles.actions}>{actions}</div>
       </header>
+
+      {/* Members can plan the list's movies; the plan is theirs, the list stays as it is. */}
+      {user && role !== 'link' && movieCount > 0 && (
+        <MarathonCard listId={list.id} movies={movieCount} />
+      )}
 
       <section aria-labelledby="list-items-title" className={styles.items}>
         <div className={styles.toolbar}>

@@ -23,6 +23,9 @@ const LibraryEditPage = lazy(() => import('./pages/LibraryEditPage'))
 const ListsPage = lazy(() => import('./pages/ListsPage'))
 const ListPage = lazy(() => import('./pages/ListPage'))
 const ListFormPage = lazy(() => import('./pages/ListFormPage'))
+const PlannerPage = lazy(() => import('./pages/PlannerPage'))
+const CreatePlanPage = lazy(() => import('./pages/CreatePlanPage'))
+const PlanPage = lazy(() => import('./pages/PlanPage'))
 const ProfileLayout = lazy(() => import('./components/Layout/ProfileLayout'))
 const ProfilePage = lazy(() => import('./pages/ProfilePage'))
 const OfflinePage = lazy(() => import('./pages/OfflinePage'))
@@ -69,6 +72,7 @@ export default function App() {
         {/* Public on purpose: a shared link opens for guests too (read-only). What each
               visitor may see and do is decided by Firestore rules; the page only follows. */}
         <Route path="lists/:id" element={<ListPage />} />
+        <Route path="planner/:id" element={<PlanPage />} />
 
         <Route element={<ProtectedRoute />}>
           {/* Your lists, creating and editing need an account. "new" is a static segment,
@@ -78,16 +82,11 @@ export default function App() {
             <Route path="new" element={<ListFormPage />} />
             <Route path=":id/edit" element={<ListFormPage />} />
           </Route>
-          <Route
-            path="planner"
-            element={
-              <ComingSoonPage
-                title="Planner"
-                icon="calendar"
-                body="Turn a series or a list into a schedule of viewing nights with a finish date."
-              />
-            }
-          />
+          {/* "new" is static, so it wins over the public "planner/:id" above. */}
+          <Route path="planner">
+            <Route index element={<PlannerPage />} />
+            <Route path="new" element={<CreatePlanPage />} />
+          </Route>
           <Route
             path="dashboard"
             element={

@@ -163,9 +163,10 @@ Top-level, not under `users/`, because lists are shared between users.
 | `ownerUid`, `ownerName`               | string                                                                 |                                       |
 | `title`                               | string                                                                 | "Breaking Bad — season 2"             |
 | `kind`                                | `"series" \| "list"`                                                   | A series, or the movies of a list     |
-| `media`                               | `MediaSummary` \| null                                                 | When `kind = "series"`                |
+| `media`                               | library media snapshot \| null                                         | When `kind = "series"`                |
 | `sourceListId`                        | string \| null                                                         | When `kind = "list"`                  |
 | `options`                             | `{ startDate, weekdays, time, perSession, from: { season, episode } }` | `weekdays`: 0 = Sun … 6 = Sat         |
+| `color`                               | number 1–6                                                             | `--plan-N` token, in creation order   |
 | `totalUnits`                          | number                                                                 | Episodes or movies in the plan        |
 | `doneUnits`                           | number                                                                 |                                       |
 | `totalMinutes`                        | number                                                                 |                                       |
@@ -177,31 +178,41 @@ Top-level, not under `users/`, because lists are shared between users.
 
 ### `plans/{planId}/sessions/{sessionId}`: session
 
-| Field     | Type                                                | Notes                          |
-| --------- | --------------------------------------------------- | ------------------------------ |
-| `index`   | number                                              | Order inside the plan          |
-| `date`    | string `"YYYY-MM-DD"`                               |                                |
-| `time`    | string `"HH:mm"`                                    |                                |
-| `units`   | `{ mediaKey, title, season?, episode?, runtime }[]` | Episodes, or one movie         |
-| `minutes` | number                                              | Sum of runtimes                |
-| `status`  | `"pending" \| "done" \| "skipped"`                  |                                |
-| `doneAt`  | Timestamp \| null                                   |                                |
-| `doneBy`  | `{ uid, name }` \| null                             | Who marked it in a shared plan |
+| Field     | Type                                                              | Notes                       |
+| --------- | ----------------------------------------------------------------- | --------------------------- |
+| `index`   | number                                                            | Order inside the plan       |
+| `date`    | string `"YYYY-MM-DD"`                                             |                             |
+| `time`    | string `"HH:mm"`                                                  |                             |
+| `units`   | `{ mediaKey, title, season, episode, ordinal, runtime, media }[]` | 1–10 episodes, or one movie |
+| `minutes` | number                                                            | Sum of runtimes             |
+| `status`  | `"pending" \| "done" \| "skipped"`                                |                             |
+| `doneAt`  | Timestamp \| null                                                 |                             |
+| `doneBy`  | `{ uid, name }` \| null                                           | Who marked (or skipped) it  |
+| `copyOf`  | string \| null                                                    | Set on the copy a skip adds |
+
+Unit fields: `season` / `episode` are `null` for movies; `ordinal` is the episode's position in
+the series (regular seasons, the same count as library `progress.watchedEpisodes`); `media` is
+the movie's snapshot for the library (null for episodes, the plan's `media` covers the series).
+Specials (season 0), episodes without an air date and episodes airing after today are never
+planned. Series in a list are left out of a movie marathon.
 
 A plan is written with a batch. One Firestore batch holds at most 500 writes, so a large plan
-(for example a 900-episode series at 1 episode per session) is written in chunks of 400
-sessions.
+(for example a 900-episode series at 1 episode per session) is written in chunks of 400 writes.
+The first chunk holds the plan, the library entries, the activity record and the first
+sessions; session rules check the plan with `getAfter()`, which sees it as it will be after the
+batch, so the plan and its sessions can be created together.
 
 ## Business operations
 
-| Operation          | Writes (one batch)                                                                                                                       |
-| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| Create plan        | `plans/{id}` + N `sessions` + library entry upsert (`status: "watching"`) + activity                                                     |
-| Complete session   | session `status: "done"` · plan `doneUnits += n`, `nextDate` · library `progress` (and `status: "completed"` on the last one) · activity |
-| Reschedule session | session `date` (+ every later pending session shifted by the same days) · plan `nextDate`, `endDate`                                     |
-| Skip session       | session `status: "skipped"` · a new session with the same units after the last one · plan `endDate`                                      |
-| Delete plan        | plan + all sessions                                                                                                                      |
-| Copy list          | new `lists/{id}` owned by the current user + copied items                                                                                |
+| Operation          | Writes (one batch)                                                                                                                                                                                                                                |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Create plan        | `plans/{id}` + N `sessions` + library upsert (series → `watching`; marathon movies not in the library → `plan`) + activity `plan.create`                                                                                                          |
+| Complete session   | session `done` + `doneBy` · plan `doneUnits`, `nextDate`, `endDate`, `status` · **the marker's own** library (series progress, only forward; `completed` when the plan finishes; a movie → `completed`) · activity `session.done` (+ `plan.done`) |
+| Undo               | session back to `pending` · for a skip, its pending copy is deleted · plan counters. Library progress is not rolled back                                                                                                                          |
+| Reschedule session | session `date` (+ every later pending session shifted by the same days) · plan `nextDate`, `endDate`                                                                                                                                              |
+| Skip session       | session `skipped` + `doneBy` · a copy with the same units (`copyOf`) on the next plan weekday after the last session · plan `endDate`                                                                                                             |
+| Delete plan        | all sessions, then the plan in the last batch (library entries stay)                                                                                                                                                                              |
+| Copy list          | new `lists/{id}` owned by the current user + copied items                                                                                                                                                                                         |
 
 ## Sharing and roles
 
@@ -222,8 +233,11 @@ The owner's access comes from `ownerUid`. Members are stored on the shared docum
 - Access by email requires `email_verified == true`. Otherwise anyone could register an
   email/password account with someone else's address and get their shared access. Google
   accounts are always verified; email/password users verify through the link sent at signup.
-- The owner may change any field (validated by `validList()`); an editor only `itemCount`,
-  `covers` and `updatedAt` (adding or removing items).
+- The owner may change any field (validated by `validList()` / `validPlan()`); a list editor
+  only `itemCount`, `covers` and `updatedAt` (adding or removing items), a plan editor only the
+  progress fields `doneUnits`, `nextDate`, `endDate`, `status`, `updatedAt`.
+- In a shared plan everyone keeps their own library: when an editor marks a session, the
+  editor's library moves, never the owner's (rules only let a user write their own library).
 - Link visibility (`visibility == "link"`) allows **read** for anyone, including guests.
   It never allows writes.
 
@@ -326,22 +340,38 @@ service cloud.firestore {
     }
 
     // ---------- plans ----------
+    // validPlan: known fields only, title 1–120, a series plan has `media`, a list plan
+    // `sourceListId`, 1–7 weekdays, colour 1–6, 1–5000 units, validPlanProgress, validSharing.
+    // validPlanProgress: 0 ≤ doneUnits ≤ totalUnits, nextDate null or a day, status enum.
     match /plans/{planId} {
       allow get: if canRead(resource.data);
       allow list: if isOwner(resource.data) || isMember(resource.data);
-      allow create: if isOwner(request.resource.data) && validSharing(request.resource.data);
+      allow create: if isOwner(request.resource.data) && validPlan()
+        && request.resource.data.doneUnits == 0;
       allow update: if (isOwner(resource.data)
                         && request.resource.data.ownerUid == resource.data.ownerUid
-                        && validSharing(request.resource.data))
+                        && validPlan())
                     || (isEditor(resource.data)
-                        && onlyChanges(['doneUnits', 'nextDate', 'endDate', 'status', 'updatedAt']))
+                        && onlyChanges(['doneUnits', 'nextDate', 'endDate', 'status', 'updatedAt'])
+                        && validPlanProgress(request.resource.data))
                     || isLeaving();
       allow delete: if isOwner(resource.data);
 
       match /sessions/{sessionId} {
         function plan() { return get(/databases/$(database)/documents/plans/$(planId)).data; }
+        // getAfter(): the plan as it will be after the batch (created in the same batch).
+        function planAfter() { return getAfter(/databases/$(database)/documents/plans/$(planId)).data; }
+        function canEdit(p) { return isOwner(p) || isEditor(p); }
         allow read: if canRead(plan());
-        allow write: if isOwner(plan()) || isEditor(plan());
+        // validSession: known fields, day "YYYY-MM-DD", time "HH:mm", 1–10 units, status enum.
+        // validDoneBy: "marked by" names yourself, or stays as it was.
+        allow create: if canEdit(planAfter()) && validSession() && validDoneBy(null);
+        allow update: if canEdit(planAfter()) && validSession() && validDoneBy(resource.data)
+          && request.resource.data.units == resource.data.units
+          && request.resource.data.index == resource.data.index;
+        // The owner deletes; an editor only the copy a skip added (Undo).
+        allow delete: if isOwner(plan())
+          || (isEditor(plan()) && resource.data.get('copyOf', null) != null);
       }
     }
   }
@@ -374,6 +404,12 @@ Notes:
   removes titles but can't rename, share or delete; viewer and stranger can't write; the
   unverified member is a stranger; a guest reads by link only; members leave only themselves;
   invalid sharing (mismatched roles, unknown role, own email, 21 members) is rejected.
+- Plans have their own emulator run: the owner creates a plan with its sessions, library entry
+  and activity in one batch; invalid plans and sessions are rejected; an editor marks, skips,
+  undoes and moves sessions and writes only their own library; an editor can't name someone
+  else in "marked by", change what a session contains, rename, re-share or delete; viewers,
+  unverified members, strangers and guests can't write; a guest reads plan and sessions by link
+  only; members leave on their own; the owner deletes the plan with its sessions.
 
 ## Composite indexes
 

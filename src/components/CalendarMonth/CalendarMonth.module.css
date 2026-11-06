@@ -1,0 +1,97 @@
+.calendar {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  border-top: 1px solid var(--border);
+  border-left: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.weekday {
+  padding: var(--space-2);
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.day {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  min-height: 116px;
+  padding: 6px;
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.outside {
+  background: var(--surface-sunken);
+}
+
+.number {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.outside .number {
+  color: var(--text-disabled);
+}
+
+.today .number {
+  background: var(--gradient-brand);
+  color: var(--on-accent);
+}
+
+.more {
+  align-self: flex-start;
+  padding: 0 4px;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.more:hover {
+  text-decoration: underline;
+}
+
+@media (pointer: coarse) {
+  .more {
+    min-height: 44px;
+  }
+}
+
+/* Preview size (the stepper's "first weeks"). */
+.small .day {
+  min-height: 56px;
+  padding: 4px;
+}
+
+.small .weekday {
+  padding: var(--space-1) var(--space-2);
+}
+
+@media (min-width: 1280px) {
+  .day {
+    min-height: 124px;
+  }
+
+  .small .day {
+    min-height: 72px;
+  }
+}

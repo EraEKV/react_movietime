@@ -163,6 +163,9 @@ export const endpoints = {
   seriesDetails: (id: Id) =>
     buildPath(`/tv/${id}`, { append_to_response: 'credits,videos,recommendations' }),
 
+  /** Just the movie (runtime, genres): the planner needs one per list item. */
+  movieSummary: (id: Id) => buildPath(`/movie/${id}`),
+
   movieDetails: (id: Id) =>
     buildPath(`/movie/${id}`, { append_to_response: 'credits,videos,recommendations' }),
 

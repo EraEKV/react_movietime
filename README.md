@@ -47,11 +47,15 @@ Legend: ✅ implemented, 🚧 in progress.
 - ✅ **Sharing**: share a list by link (read-only, works for guests) or add friends by email
   as **editor** or **viewer**; change roles, remove access with undo, leave a list, copy a
   shared list to your own. "Shared with me" on the Lists and Home pages. Access is enforced by
-  Firestore security rules (member access needs a verified email). Plans reuse the same
-  service and rules in the planner phase.
-- 🚧 **Watch Planner**: generate a schedule of viewing sessions from a series' episodes or a
-  list of movies, then complete, reschedule or skip sessions. Your library progress updates
-  automatically. Export to `.ics`.
+  Firestore security rules (member access needs a verified email). Plans are shared the same
+  way.
+- ✅ **Watch Planner**: turn a series (from your last watched episode, the start or any episode)
+  or a list of movies into viewing sessions on the weekdays and time you pick, with a live
+  preview of sessions, hours and the finish date. Month calendar (agenda on phones), "Today"
+  with _Mark as watched_, plans by week with mark / reschedule (optionally shifting later
+  sessions) / skip / undo, `.ics` export, sharing with editors and viewers. Marking a session
+  moves your library progress and completes the title on the last one. "Up next" on Home and a
+  "Tonight" chip in the header.
 - 🚧 **Dashboard**: statistics and breakdowns of your library and plans, with filters and
   links to the matching records.
 - 🚧 **Profile**: account info, activity, settings.

@@ -1,0 +1,95 @@
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    'when status'
+    'what what'
+    'actions actions';
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  box-shadow: var(--shadow-1);
+}
+
+.today {
+  border-color: var(--accent);
+}
+
+.skipped {
+  opacity: 0.72;
+}
+
+.when,
+.what {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.when strong {
+  font-size: 14px;
+}
+
+.muted {
+  color: var(--text-muted);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.units {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.when {
+  grid-area: when;
+}
+
+.what {
+  grid-area: what;
+}
+
+.status {
+  grid-area: status;
+  justify-self: end;
+  align-self: start;
+}
+
+.actions {
+  grid-area: actions;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+@media (min-width: 768px) {
+  .row {
+    grid-template-columns: 200px minmax(0, 1fr) auto auto;
+    grid-template-areas: 'when what status actions';
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .status {
+    align-self: center;
+  }
+
+  .actions {
+    justify-content: flex-end;
+    min-width: 200px;
+  }
+}
+
+/* Touch: the small session buttons get the full 44px target (HIG minimum default). */
+@media (pointer: coarse) {
+  .actions button {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}

@@ -19,6 +19,7 @@ import Section from '../Section/Section'
 import TitleHero from '../TitleHero/TitleHero'
 import Trailer from '../Trailer/Trailer'
 import LibraryButton from '../LibraryButton/LibraryButton'
+import PlanWatchingButton from '../Planner/PlanWatchingButton'
 import DetailsSkeleton from '../DetailsSkeleton/DetailsSkeleton'
 
 const MAX_CAST = 12
@@ -99,6 +100,7 @@ export default function SeriesDetails({ seriesId }: { seriesId: string }) {
         actions={
           <>
             <LibraryButton media={seriesMedia} />
+            <PlanWatchingButton seriesId={series.id} />
             <AddToListButton media={libraryToListMedia(seriesMedia)} />
           </>
         }
