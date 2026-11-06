@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
-import PosterGrid from '../../../components/PosterCard/PosterGrid'
-import PosterSkeleton from './PosterSkeleton'
+import PosterGrid from './PosterGrid'
+import PosterSkeleton from '../../shared/ui/Skeleton/PosterSkeleton'
 
 /** Loading state in the exact shape of the poster grid. */
 export default function SkeletonGrid({ count = 20, label }: { count?: number; label?: string }) {

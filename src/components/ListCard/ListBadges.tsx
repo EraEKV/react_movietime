@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
-import type { ListRole, ListVisibility } from '../../../types/list'
-import type { IconName } from '../Icon/icons'
-import Badge from './Badge'
+import type { ListRole, ListVisibility } from '../../types/list'
+import type { IconName } from '../../shared/ui/Icon/icons'
+import Badge from '../../shared/ui/Badge/Badge'
 
 const ROLE_ICONS: Record<ListRole, IconName> = {
   owner: 'user',

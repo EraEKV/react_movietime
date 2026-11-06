@@ -5,7 +5,7 @@ import type { ListRole, TitleList } from '../../types/list'
 import { LIST_COVERS, titlesCount } from '../../utils/lists'
 import { memberName } from '../../utils/sharing'
 import AvatarStack from '../../shared/ui/AvatarStack/AvatarStack'
-import { RoleBadge, VisibilityBadge } from '../../shared/ui/Badge/ListBadges'
+import { RoleBadge, VisibilityBadge } from './ListBadges'
 import styles from './ListCard.module.css'
 
 interface ListCardProps {
