@@ -1,5 +1,6 @@
 import {
   createUserWithEmailAndPassword,
+  getRedirectResult,
   GoogleAuthProvider,
   onIdTokenChanged,
   reload,
@@ -7,11 +8,13 @@ import {
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
   signInWithPopup,
+  signInWithRedirect,
   signOut,
   updateProfile,
   type User,
 } from 'firebase/auth'
 import type { AuthUser } from '../types/auth'
+import { currentEnvironment, markRedirectStarted, shouldRedirect } from '../utils/signInMode'
 import { auth } from './firebase'
 
 // Thin wrappers over Firebase Auth. Components never import 'firebase/auth' directly:
@@ -59,14 +62,39 @@ export async function signInWithEmail(email: string, password: string): Promise<
 }
 
 /**
- * Popup, not redirect: redirect sign-in needs the auth domain to match the app's domain
- * (third-party storage is blocked on the Vercel domain), the popup works everywhere.
+ * Google sign-in. Desktop browsers use a popup. Phones and the installed app use a redirect:
+ * a popup there is blocked or opens inside the app (iPhone), without a proper account
+ * chooser. A redirect leaves the page, so this resolves to 'redirecting' and the result is
+ * picked up on return by `finishGoogleRedirect`. Redirect needs `authDomain` to be the app's
+ * own domain (the /__/auth proxy in vercel.json), see docs/FIREBASE_SETUP.md.
  */
-export async function signInWithGoogle(): Promise<User> {
+export async function signInWithGoogle(): Promise<User | 'redirecting'> {
   const provider = new GoogleAuthProvider()
   provider.setCustomParameters({ prompt: 'select_account' })
-  const { user } = await signInWithPopup(auth, provider)
-  return user
+  if (shouldRedirect(currentEnvironment())) return redirectToGoogle(provider)
+  try {
+    const { user } = await signInWithPopup(auth, provider)
+    return user
+  } catch (error) {
+    // A desktop browser that blocks popups still gets in.
+    if (isErrorCode(error, 'auth/popup-blocked')) return redirectToGoogle(provider)
+    throw error
+  }
+}
+
+async function redirectToGoogle(provider: GoogleAuthProvider): Promise<'redirecting'> {
+  markRedirectStarted()
+  await signInWithRedirect(auth, provider)
+  return 'redirecting'
+}
+
+const isErrorCode = (error: unknown, code: string) =>
+  typeof error === 'object' && error !== null && 'code' in error && error.code === code
+
+/** After coming back from Google: the signed-in user, or null when nothing was pending. */
+export async function finishGoogleRedirect(): Promise<User | null> {
+  const result = await getRedirectResult(auth)
+  return result?.user ?? null
 }
 
 export function signOutUser(): Promise<void> {
