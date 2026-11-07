@@ -122,7 +122,7 @@ Both themes follow the system setting and can be switched in the header.
 
 ## Getting started
 
-Requirements: Node.js 20+, a free
+Requirements: Node.js 24 (`.nvmrc`), a free
 [TMDB API Read Access Token](https://www.themoviedb.org/settings/api) and a Firebase project
 (see [docs/FIREBASE_SETUP.md](docs/FIREBASE_SETUP.md)).
 
@@ -164,7 +164,7 @@ no Firebase and no environment variables.
 ### Continuous integration
 
 GitHub Actions (`.github/workflows/ci.yml`) runs on every push and on pull requests to `main`,
-on Node 22 (`.nvmrc`). It needs no secrets: the build works without `VITE_*` values, Vercel
+on Node 24 (`.nvmrc`). It needs no secrets: the build works without `VITE_*` values, Vercel
 injects them for the real deployment. Steps, in order:
 
 1. `npm ci`
