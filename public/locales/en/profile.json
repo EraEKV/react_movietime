@@ -62,7 +62,19 @@
     "language": "Language",
     "languageNote": "Applies at once and is saved to your account.",
     "footer": "Movietime · Data from TMDB",
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "notifications": "Notifications",
+    "push": {
+      "label": "Push notifications on this device",
+      "hint": "Get a notice when a friend shares a list or plan with you or changes your access. Works even when Movietime is closed.",
+      "failed": "Couldn’t change this. Check your connection and try again.",
+      "blocked": {
+        "unsupported": "This browser doesn’t support push notifications.",
+        "needs-install": "On iPhone and iPad, add Movietime to the Home Screen first, then open it from there and turn this on.",
+        "unconfigured": "Push notifications aren’t set up for this version of the app.",
+        "denied": "Notifications are blocked for this site. Allow them in the browser’s site settings, then come back."
+      }
+    }
   },
   "name": {
     "label": "Display name",

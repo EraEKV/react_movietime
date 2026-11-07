@@ -7,6 +7,8 @@ interface ImportMetaEnv {
   readonly VITE_FIREBASE_MESSAGING_SENDER_ID?: string
   readonly VITE_FIREBASE_APP_ID?: string
   readonly VITE_FIREBASE_MEASUREMENT_ID?: string
+  /** Public VAPID key for Web Push (the private one stays on the server). */
+  readonly VITE_VAPID_PUBLIC_KEY?: string
   /** 'true' connects the dev server to the local Firebase emulators. */
   readonly VITE_USE_EMULATORS?: string
 }
