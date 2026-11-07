@@ -1,5 +1,6 @@
 import type * as SharingService from '../services/sharingService'
 import type { MemberRole, Shareable, SharedCollection, Visibility } from '../types/sharing'
+import i18n from '../shared/i18n'
 import { inviteUrl } from '../utils/invite'
 import { shareUrl } from '../utils/sharing'
 import { useAuth } from './useAuth'
@@ -32,8 +33,19 @@ export function useSharing(collection: SharedCollection, shared: Shareable | nul
         ownerName: shared?.ownerName ?? '',
         title,
       }),
-    changeRole: async (email: string, role: MemberRole) =>
-      (await loadSharingService()).changeRole(collection, id, email, role),
+    sendInviteEmail: async (email: string) => {
+      const { sendInviteEmail } = await import('../services/mailService')
+      return sendInviteEmail(collection, id, email, i18n.language)
+    },
+    changeRole: async (email: string, role: MemberRole) => {
+      await (await loadSharingService()).changeRole(collection, id, email, role)
+      // The mail is a courtesy: the role is already saved, so a failure is not an error.
+      void import('../services/mailService')
+        .then(({ sendRoleChangeEmail }) =>
+          sendRoleChangeEmail(collection, id, email, i18n.language),
+        )
+        .catch((error: unknown) => console.warn('Could not send the role email', error))
+    },
     remove: async (email: string) =>
       (await loadSharingService()).removeMember(collection, id, email),
     leave: async () => {

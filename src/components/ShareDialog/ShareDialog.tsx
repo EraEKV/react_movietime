@@ -32,6 +32,8 @@ export interface ShareDialogProps {
   url: string
   /** Invite link for one email (sign-up with the email prefilled, then this list or plan). */
   inviteLink: (email: string) => string
+  /** Emails the invite link through the server; omit to hide the button. */
+  onSendInvite?: (email: string) => Promise<void>
   owner: { name: string; email: string | null; photoUrl: string | null }
   visibility: Visibility
   roles: Record<string, MemberRole>
@@ -71,6 +73,7 @@ export default function ShareDialog(props: ShareDialogProps) {
 function ShareDialogBody({
   url,
   inviteLink,
+  onSendInvite,
   name,
   owner,
   visibility,
@@ -203,6 +206,7 @@ function ShareDialogBody({
           key={linkFor}
           email={linkFor}
           url={inviteLink(linkFor)}
+          onSend={onSendInvite && (() => onSendInvite(linkFor))}
           name={name}
           ownerName={owner.name}
           onDismiss={() => setLinkFor(null)}

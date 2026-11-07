@@ -56,6 +56,9 @@
     "new": "New list"
   },
   "inviteLink": {
+    "send": "Send email",
+    "sent": "Email sent",
+    "sendFailed": "Couldn’t send the email. Copy the link instead.",
     "title": "Send {{email}} the link",
     "hint": "If they have no account yet, the link opens sign-up with this email filled in and then takes them to “{{name}}”. Access appears once they verify the email.",
     "copy": "Copy invite link",

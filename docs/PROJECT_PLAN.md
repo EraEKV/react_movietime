@@ -136,8 +136,9 @@ Lists and plans can be shared in two ways at the same time:
   not check whether the email has an account (that would let anyone probe which emails are
   registered), so the notification waits for the verified email. For people outside the app the
   share dialog offers an invite link (`/signup?invite=…&email=…`; copy, Web Share, mailto) that
-  leads through sign-up and email verification to the list or plan. Automatic email is not
-  sent: it needs a domain or a mail server, which the project does not have.
+  leads through sign-up and email verification to the list or plan. The dialog can also email
+  that link (Resend, see "Email" in docs/FIREBASE_SETUP.md); a member whose role changes gets
+  an email too, and a new account gets a one-time welcome email.
 - The friend sees the shared item under **"Shared with me"** as soon as they sign in with that
   email. No invitation backend is needed.
 - Roles are stored on the document (`roles: { "friend@gmail.com": "editor" }` plus a

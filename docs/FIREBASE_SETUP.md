@@ -129,7 +129,28 @@ the link on and opens it in a window without an account.
 `VITE_TMDB_TOKEN` for Production, Preview and Development, then **redeploy**. Vite inlines
 `VITE_*` variables at build time, so an old build doesn't see new values.
 
-## 7. Checklist
+## 7. Email (Resend)
+
+Invitations, role-change notices and the welcome email are sent by Vercel functions in
+`api/` through [Resend](https://resend.com). The browser never sees the key.
+
+1. In Resend, add your domain (**Domains → Add domain**) and put the SPF and DKIM records it
+   shows into your DNS. Until the domain is **Verified**, Resend delivers only to the owner of
+   the Resend account.
+2. Create an API key (**API Keys**, sending access).
+3. In Vercel add `RESEND_API_KEY` and `RESEND_FROM` (for example
+   `Movietime <invites@avleron.com>`, an address on the verified domain), then redeploy. The
+   functions also read `VITE_FIREBASE_API_KEY` and `VITE_FIREBASE_PROJECT_ID`, which are already
+   there for the build.
+4. Deploy the rules again (`firebase deploy --only firestore:rules`): `users/{uid}` gained the
+   optional `welcomedAt` field.
+
+The functions verify the caller's Firebase ID token and read Firestore with it, so the
+security rules apply: invites and role-change notices go only to members of a list or plan the
+caller owns, and the welcome email only to the caller's own verified address. `npm run dev`
+does not serve `api/`; use `npx vercel dev` to try it locally.
+
+## 8. Checklist
 
 - [ ] Project created, web app registered
 - [ ] `.env.local` filled
@@ -139,4 +160,5 @@ the link on and opens it in a window without an account.
 - [ ] Firestore created in production mode
 - [ ] Rules and indexes deployed
 - [ ] Env variables in Vercel, redeployed
+- [ ] Resend domain verified, `RESEND_API_KEY` and `RESEND_FROM` in Vercel
 - [ ] Sign up, sign in with Google, sign out on the deployed site
