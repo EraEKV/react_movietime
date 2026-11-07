@@ -1,4 +1,4 @@
-import webPush from 'web-push'
+import * as webPush from 'web-push'
 import { adminDb, SUBSCRIPTIONS } from './_lib/admin.js'
 import { json } from './_lib/firebase.js'
 import { isLocale } from './_lib/layout.js'
