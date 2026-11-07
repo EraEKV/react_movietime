@@ -89,3 +89,50 @@ self.addEventListener('message', (event) => {
   if (event.data?.type === 'SKIP_WAITING') void self.skipWaiting()
 })
 self.addEventListener('activate', (event) => event.waitUntil(self.clients.claim()))
+
+// Web Push (api/push-notify). The payload is JSON: { title, body, url, tag }. `tag` makes a
+// newer notice about the same list replace the older one instead of stacking.
+interface PushPayload {
+  title?: string
+  body?: string
+  url?: string
+  tag?: string
+}
+
+self.addEventListener('push', (event) => {
+  let payload: PushPayload
+  try {
+    payload = (event.data?.json() ?? {}) as PushPayload
+  } catch {
+    payload = { title: event.data?.text() }
+  }
+  event.waitUntil(
+    self.registration.showNotification(payload.title || 'Movietime', {
+      body: payload.body,
+      tag: payload.tag,
+      icon: '/icons/icon-192.png',
+      data: { url: payload.url || '/' },
+    }),
+  )
+})
+
+// A tap opens the list: reuse an open window of the app when there is one.
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close()
+  const target = new URL(
+    (event.notification.data as { url?: string })?.url || '/',
+    self.location.origin,
+  )
+  event.waitUntil(
+    (async () => {
+      const windows = await self.clients.matchAll({ type: 'window', includeUncontrolled: true })
+      const open = windows.find((w) => new URL(w.url).origin === target.origin)
+      if (open) {
+        await open.focus()
+        if ('navigate' in open) await open.navigate(target.href)
+      } else {
+        await self.clients.openWindow(target.href)
+      }
+    })(),
+  )
+})
