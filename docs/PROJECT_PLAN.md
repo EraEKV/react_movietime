@@ -80,7 +80,7 @@ Full schemas: [DATA_MODEL.md](DATA_MODEL.md).
 
 ### 3.3 Authentication
 
-- Firebase Authentication with **Email/Password** and **Google** (`signInWithPopup`).
+- Firebase Authentication with **Email/Password** and **Google** (popup on desktop, redirect on phones and in the installed app).
 - Signup validation: valid email, password ≥ 8 characters with at least one number and one
   special character, password confirmation, display name.
 - After email signup a verification email is sent. Verification is required to receive shared
