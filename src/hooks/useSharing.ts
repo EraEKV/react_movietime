@@ -34,11 +34,18 @@ export function useSharing(collection: SharedCollection, shared: Shareable | nul
         title,
       }),
     sendInviteEmail: async (email: string) => {
-      const { sendInviteEmail } = await import('../services/inviteMailService')
+      const { sendInviteEmail } = await import('../services/mailService')
       return sendInviteEmail(collection, id, email, i18n.language)
     },
-    changeRole: async (email: string, role: MemberRole) =>
-      (await loadSharingService()).changeRole(collection, id, email, role),
+    changeRole: async (email: string, role: MemberRole) => {
+      await (await loadSharingService()).changeRole(collection, id, email, role)
+      // The mail is a courtesy: the role is already saved, so a failure is not an error.
+      void import('../services/mailService')
+        .then(({ sendRoleChangeEmail }) =>
+          sendRoleChangeEmail(collection, id, email, i18n.language),
+        )
+        .catch((error: unknown) => console.warn('Could not send the role email', error))
+    },
     remove: async (email: string) =>
       (await loadSharingService()).removeMember(collection, id, email),
     leave: async () => {
