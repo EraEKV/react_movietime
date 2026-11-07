@@ -1,5 +1,6 @@
 import type * as SharingService from '../services/sharingService'
 import type { MemberRole, Shareable, SharedCollection, Visibility } from '../types/sharing'
+import i18n from '../shared/i18n'
 import { inviteUrl } from '../utils/invite'
 import { shareUrl } from '../utils/sharing'
 import { useAuth } from './useAuth'
@@ -32,6 +33,10 @@ export function useSharing(collection: SharedCollection, shared: Shareable | nul
         ownerName: shared?.ownerName ?? '',
         title,
       }),
+    sendInviteEmail: async (email: string) => {
+      const { sendInviteEmail } = await import('../services/inviteMailService')
+      return sendInviteEmail(collection, id, email, i18n.language)
+    },
     changeRole: async (email: string, role: MemberRole) =>
       (await loadSharingService()).changeRole(collection, id, email, role),
     remove: async (email: string) =>

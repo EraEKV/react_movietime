@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useTimedState } from '../../shared/hooks/useTimedState'
 import Button from '../../shared/ui/Button/Button'
@@ -14,6 +14,8 @@ interface InviteLinkProps {
   name: string
   ownerName: string
   onDismiss: () => void
+  /** Sends the invite by email from the server; omit to hide the button. */
+  onSend?: () => Promise<void>
 }
 
 /**
@@ -21,11 +23,20 @@ interface InviteLinkProps {
  * sheet, or a prefilled email). Sending is left to the owner on purpose: there is no mail
  * server, and the app never checks whether the address belongs to an account.
  */
-export default function InviteLink({ email, url, name, ownerName, onDismiss }: InviteLinkProps) {
+export default function InviteLink({
+  email,
+  url,
+  name,
+  ownerName,
+  onDismiss,
+  onSend,
+}: InviteLinkProps) {
   const { t } = useTranslation('sharing', { keyPrefix: 'inviteLink' })
   const [copied, showCopied] = useTimedState<'copied' | 'manual'>(2500)
   const fieldRef = useRef<HTMLInputElement>(null)
   const values = { email, name, owner: ownerName || 'A friend', url }
+  const [sending, setSending] = useState(false)
+  const [sendResult, setSendResult] = useState<'sent' | 'failed' | null>(null)
   const canShare = typeof navigator.share === 'function'
 
   async function handleCopy() {
@@ -35,6 +46,20 @@ export default function InviteLink({ email, url, name, ownerName, onDismiss }: I
     } catch {
       fieldRef.current?.select()
       showCopied('manual')
+    }
+  }
+
+  async function handleSend() {
+    if (!onSend) return
+    setSending(true)
+    setSendResult(null)
+    try {
+      await onSend()
+      setSendResult('sent')
+    } catch {
+      setSendResult('failed')
+    } finally {
+      setSending(false)
     }
   }
 
@@ -66,7 +91,22 @@ export default function InviteLink({ email, url, name, ownerName, onDismiss }: I
           {copied === 'copied' ? t('copied') : t('copy')}
         </Button>
       </div>
+      {sendResult === 'failed' && (
+        <p className={styles.note} role="alert">
+          {t('sendFailed')}
+        </p>
+      )}
       <div className={styles.inviteActions}>
+        {onSend && (
+          <Button
+            variant="primary"
+            icon={sendResult === 'sent' ? 'check' : undefined}
+            loading={sending}
+            onClick={() => void handleSend()}
+          >
+            {sendResult === 'sent' ? t('sent') : t('send')}
+          </Button>
+        )}
         {canShare && (
           <Button icon="share" onClick={() => void handleShare()}>
             {t('share')}
@@ -83,7 +123,7 @@ export default function InviteLink({ email, url, name, ownerName, onDismiss }: I
         </Button>
       </div>
       <span className="sr-only" aria-live="polite">
-        {copied === 'copied' ? t('copied') : ''}
+        {sendResult === 'sent' ? t('sent') : copied === 'copied' ? t('copied') : ''}
       </span>
     </section>
   )

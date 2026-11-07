@@ -393,6 +393,7 @@ function ListView({ id }: { id: string }) {
           name={list.name}
           url={sharing.url}
           inviteLink={sharing.inviteLink}
+          onSendInvite={sharing.sendInviteEmail}
           owner={{
             name: author?.name ?? list.ownerName,
             email: user?.email ?? null,

@@ -429,6 +429,7 @@ function PlanView({ id }: { id: string }) {
           name={plan.title}
           url={sharing.url}
           inviteLink={sharing.inviteLink}
+          onSendInvite={sharing.sendInviteEmail}
           owner={{
             name: author?.name ?? plan.ownerName,
             email: user?.email ?? null,
