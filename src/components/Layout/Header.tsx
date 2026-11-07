@@ -18,7 +18,7 @@ import { isNavItemActive, MAIN_NAV } from './navigation'
 const TonightChip = lazy(() => import('./TonightChip'))
 const NotificationBell = lazy(() => import('../Notifications/NotificationBell'))
 
-/** Desktop (≥1024): logo, main nav, search, theme, account. Below: compact bar, nav moves to the TabBar. */
+/** From 768px: logo, main nav (icons only below 1024), search, theme, account. Below: compact bar, nav moves to the TabBar. */
 export default function Header() {
   const { t } = useTranslation()
   const { pathname } = useLocation()
@@ -40,7 +40,8 @@ export default function Header() {
               aria-current={isNavItemActive(item, pathname) ? 'page' : undefined}
               className={styles.navLink}
             >
-              {t(item.label)}
+              <Icon name={item.icon} size={20} className={styles.navIcon} />
+              <span className={styles.navLabel}>{t(item.label)}</span>
             </Link>
           ))}
         </nav>
