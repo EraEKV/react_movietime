@@ -107,17 +107,61 @@
   min-width: 0;
 }
 
-@media (min-width: 1024px) {
+/* The phone layout (compact bar + bottom tab bar) ends at 767px; from 768px the header
+   carries the navigation. */
+@media (min-width: 768px) {
   .header {
     height: var(--header-height);
   }
 
   .headerInner {
-    gap: var(--space-6);
+    gap: var(--space-3);
   }
 
   .nav {
     display: flex;
+  }
+
+  .tools {
+    gap: var(--space-1);
+  }
+}
+
+/* 768–1023px: six labels don't fit next to the tools, so the nav shows icons only
+   (the label stays for screen readers and as a tooltip). */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .navLink {
+    width: 40px;
+    justify-content: center;
+    padding: 0;
+  }
+
+  .navLabel {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .navLink[aria-current='page']::after {
+    left: 8px;
+    right: 8px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .headerInner {
+    gap: var(--space-6);
+  }
+
+  .tools {
+    gap: var(--space-2);
+  }
+
+  .navIcon {
+    display: none;
   }
 }
 
@@ -168,7 +212,7 @@
   margin-bottom: var(--space-5);
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 768px) {
   .main {
     padding-top: var(--space-10);
     padding-bottom: var(--space-16);
@@ -242,7 +286,7 @@
   outline-offset: -4px;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 768px) {
   .shell {
     padding-bottom: 0;
   }

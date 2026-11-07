@@ -4,7 +4,7 @@ import Icon from '../../shared/ui/Icon/Icon'
 import styles from './Layout.module.css'
 import { isNavItemActive, TAB_BAR_NAV } from './navigation'
 
-/** Bottom navigation on phones and tablets (< 1024px). */
+/** Bottom navigation on phones (< 768px). */
 export default function TabBar() {
   const { t } = useTranslation()
   const { pathname } = useLocation()

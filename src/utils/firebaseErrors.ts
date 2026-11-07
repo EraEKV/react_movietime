@@ -15,6 +15,7 @@ const MESSAGES: Record<string, TranslationKey> = {
   'auth/network-request-failed': 'errors.noConnection',
   'auth/popup-closed-by-user': 'errors.popupClosed',
   'auth/popup-blocked': 'errors.popupBlocked',
+  'app/google-redirect-incomplete': 'errors.googleIncomplete',
   'auth/unauthorized-domain': 'errors.unauthorizedDomain',
   'auth/account-exists-with-different-credential': 'errors.accountExists',
   'auth/requires-recent-login': 'errors.recentLogin',

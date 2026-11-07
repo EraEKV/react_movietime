@@ -17,7 +17,7 @@ export function isNavItemActive(item: NavItem, pathname: string): boolean {
   )
 }
 
-// Desktop header (≥ 1024px). Profile and Dashboard live in the avatar menu there.
+// Header nav (≥ 768px). Profile and Dashboard live in the avatar menu there.
 export const MAIN_NAV: NavItem[] = [
   { to: '/', label: 'nav.home', icon: 'home' },
   { to: '/movies', label: 'nav.movies', icon: 'film' },
@@ -27,7 +27,7 @@ export const MAIN_NAV: NavItem[] = [
   { to: '/planner', label: 'nav.planner', icon: 'calendar' },
 ]
 
-// Bottom tab bar (< 1024px): five sections, so related routes share one tab.
+// Bottom tab bar (< 768px): five sections, so related routes share one tab.
 export const TAB_BAR_NAV: NavItem[] = [
   { to: '/', label: 'nav.home', icon: 'home' },
   { to: '/series', label: 'nav.discover', icon: 'compass', alsoActiveOn: ['/movies'] },
