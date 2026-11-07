@@ -150,7 +150,27 @@ security rules apply: invites and role-change notices go only to members of a li
 caller owns, and the welcome email only to the caller's own verified address. `npm run dev`
 does not serve `api/`; use `npx vercel dev` to try it locally.
 
-## 8. Checklist
+## 8. Push notifications
+
+A friend gets a push (even with Movietime closed) when you share a list or plan with them or
+change their role. Each person turns it on in **Settings → Notifications**; the browser asks for
+permission only then.
+
+1. Keys: `npx web-push generate-vapid-keys`. Put the public key in `VITE_VAPID_PUBLIC_KEY` (it is
+   inlined into the build, so redeploy) and the private key in `VAPID_PRIVATE_KEY`. Also set
+   `VAPID_SUBJECT` (`mailto:invites@avleron.com`).
+2. Subscriptions are stored in `pushSubscriptions/{id}`, a collection no client can read (see
+   `firestore.rules`): only the server may look up someone else's browsers. The server therefore
+   needs **Firebase Admin**: Firebase console → Project settings → Service accounts → _Generate
+   new private key_, then paste the whole JSON, as one line, into the Vercel variable
+   `FIREBASE_SERVICE_ACCOUNT`. Never commit this file.
+3. Deploy the rules again and redeploy the app.
+
+Notes: it works only on the deployed site (https) with the service worker registered, not under
+`npm run dev`. On iPhone and iPad push needs the app added to the Home Screen (iOS 16.4+). A
+subscription that the browser reports as gone (404/410) is deleted on the next push.
+
+## 9. Checklist
 
 - [ ] Project created, web app registered
 - [ ] `.env.local` filled
@@ -160,5 +180,6 @@ does not serve `api/`; use `npx vercel dev` to try it locally.
 - [ ] Firestore created in production mode
 - [ ] Rules and indexes deployed
 - [ ] Env variables in Vercel, redeployed
+- [ ] VAPID keys and `FIREBASE_SERVICE_ACCOUNT` in Vercel (push), rules deployed
 - [ ] Resend domain verified, `RESEND_API_KEY` and `RESEND_FROM` in Vercel
 - [ ] Sign up, sign in with Google, sign out on the deployed site
