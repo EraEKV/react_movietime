@@ -13,8 +13,8 @@ import { normalizeEmail, validateInvite } from '../utils/sharing'
 import { db } from './firestore'
 import { addSharedNotice } from './notificationsService'
 
-// Sharing for lists and plans (docs/DATA_MODEL.md, "Sharing and roles"). There is no
-// invitation server: the owner writes the friend's email into the document, and the rules
+// Sharing for lists and plans (docs/DATA_MODEL.md, "Sharing and roles"). Access needs no
+// server: the owner writes the friend's email into the document, and the rules
 // read the signed-in user's email from the ID token. Every change is one write, so
 // `roles` and `memberEmails` can never disagree; adding someone also writes an in-app
 // notification in the same batch (notificationsService).

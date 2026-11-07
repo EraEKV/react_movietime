@@ -70,8 +70,10 @@ with an editor / viewer role.
   person gets a bell notification (unread counter, live) with _Open_, _Mark as read_ and
   _Decline_ (leave). For people who may not have an account, the share dialog gives an invite
   link (copy, the phone's share sheet, or a prefilled email) that opens sign-up with the email
-  filled in and then the list or plan. The app never checks whether an account exists, and
-  there is no mail server: the notification waits for the verified email.
+  filled in and then the list or plan, or can be emailed from the dialog (Resend, a Vercel
+  function in `api/`). A role change is emailed to the member as well, and a new account gets
+  a one-time welcome email. The app never checks whether an account exists: the notification
+  waits for the verified email.
 - ✅ **Profile**: account info, counters and an activity feed; settings for display name, theme
   and language.
 - ✅ **Languages**: English, Русский, Қазақша from the header menu or the settings. The choice is

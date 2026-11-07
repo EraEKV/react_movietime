@@ -85,16 +85,17 @@ export interface MediaSummary {
 
 ### `users/{uid}`: profile
 
-| Field               | Type                            | Notes                            |
-| ------------------- | ------------------------------- | -------------------------------- |
-| `displayName`       | string                          | 1–40 chars                       |
-| `email`             | string                          | lowercase, from Auth             |
-| `photoURL`          | string \| null                  | Google avatar                    |
-| `providers`         | string[]                        | `["password"]`, `["google.com"]` |
-| `settings.theme`    | `"light" \| "dark" \| "system"` |                                  |
-| `settings.language` | `"en" \| "ru" \| "kk"`          |                                  |
-| `createdAt`         | Timestamp                       |                                  |
-| `updatedAt`         | Timestamp                       |                                  |
+| Field               | Type                            | Notes                              |
+| ------------------- | ------------------------------- | ---------------------------------- |
+| `displayName`       | string                          | 1–40 chars                         |
+| `email`             | string                          | lowercase, from Auth               |
+| `photoURL`          | string \| null                  | Google avatar                      |
+| `providers`         | string[]                        | `["password"]`, `["google.com"]`   |
+| `settings.theme`    | `"light" \| "dark" \| "system"` |                                    |
+| `settings.language` | `"en" \| "ru" \| "kk"`          |                                    |
+| `createdAt`         | Timestamp                       |                                    |
+| `updatedAt`         | Timestamp                       |                                    |
+| `welcomedAt`        | Timestamp \| absent             | Set once the welcome email is sent |
 
 Created on first sign-in (`ensureProfile`). `settings` is written from the device only when the
 account has none; afterwards the account wins and a listener applies it on every device
