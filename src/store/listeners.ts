@@ -2,7 +2,8 @@ import { isAnyOf, TaskAbortError } from '@reduxjs/toolkit'
 import { loadAuthService } from '../services/loadAuthService'
 import { setLanguage } from '../shared/i18n'
 import { savePreferences } from '../storage/preferencesStorage'
-import { authChanged } from './authSlice'
+import { authChanged, completeGoogleRedirect } from './authSlice'
+import { redirectPending } from '../utils/signInMode'
 import { startAppListening } from './listenerMiddleware'
 import {
   languageChanged,
@@ -122,4 +123,6 @@ export async function startAuthSync(dispatch: AppDispatch) {
   onAuthChange((user) => {
     dispatch(authChanged(user ? toAuthUser(user) : null))
   })
+  // Back from Google after a redirect sign-in (phones, installed app): finish it.
+  if (redirectPending()) void dispatch(completeGoogleRedirect())
 }

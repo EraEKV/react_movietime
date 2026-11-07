@@ -3,6 +3,7 @@ import type { User } from 'firebase/auth'
 import type { AuthError, AuthStatus, AuthUser } from '../types/auth'
 import { loadAuthService } from '../services/loadAuthService'
 import { toAuthError } from '../utils/firebaseErrors'
+import { takeRedirectMark } from '../utils/signInMode'
 import type { RootState } from './store'
 
 /** Which button started the request, so only that one shows a spinner. */
@@ -79,8 +80,32 @@ export const signInWithGoogle = createAuthThunk(
     try {
       const authService = await loadAuthService()
       const user = await authService.signInWithGoogle()
+      // A redirect leaves the page: the spinner stays until the browser navigates away, and
+      // the result is handled by completeGoogleRedirect when the app loads again.
+      if (user === 'redirecting') return await new Promise<never>(() => {})
       await syncProfile(user, getState())
       return authService.toAuthUser(user)
+    } catch (error) {
+      return rejectWithValue(toAuthError(error))
+    }
+  },
+)
+
+/**
+ * First thing after the app loads again from Google: finishes the redirect sign-in, creates
+ * the profile like the popup flow does, or reports the failure on the form. `pending` stays
+ * 'google' meanwhile, so the login page doesn't redirect before the profile exists.
+ * Does nothing (and doesn't touch Firebase) unless a redirect was started on this device.
+ */
+export const completeGoogleRedirect = createAuthThunk(
+  'auth/google/redirect',
+  async (_: void, { getState, rejectWithValue }) => {
+    if (!takeRedirectMark()) return null
+    try {
+      const authService = await loadAuthService()
+      const user = await authService.finishGoogleRedirect()
+      if (user) await syncProfile(user, getState())
+      return user ? authService.toAuthUser(user) : null
     } catch (error) {
       return rejectWithValue(toAuthError(error))
     }
@@ -185,6 +210,23 @@ const authSlice = createSlice({
           state.error = action.payload ?? toAuthError(action.error)
         })
     }
+
+    // Not in SIGN_IN_THUNKS: with no redirect pending the result is null and must not sign anyone out.
+    builder
+      .addCase(completeGoogleRedirect.pending, (state) => {
+        state.pending = 'google'
+      })
+      .addCase(completeGoogleRedirect.fulfilled, (state, action) => {
+        state.pending = null
+        if (action.payload) {
+          state.user = action.payload
+          state.status = 'authenticated'
+        }
+      })
+      .addCase(completeGoogleRedirect.rejected, (state, action) => {
+        state.pending = null
+        state.error = action.payload ?? toAuthError(action.error)
+      })
 
     builder
       .addCase(signOut.pending, (state) => {

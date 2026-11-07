@@ -46,9 +46,24 @@ domain, Google sign-in on the deployed site fails with `auth/unauthorized-domain
 Vercel preview deployments get random domains, so Google sign-in only works on production and
 on localhost. Email/password works everywhere.
 
-**Why popup and not redirect:** `signInWithRedirect` relies on third-party storage between the
-app domain and `*.firebaseapp.com`, which modern browsers block when the app isn't on Firebase
-Hosting. `signInWithPopup` doesn't have this problem.
+**Popup on desktop, redirect on phones and in the installed app.** A popup in an installed
+iPhone app is blocked or opens inside the app without an account chooser, so phones and the
+installed app use `signInWithRedirect`. Redirect relies on third-party storage between the app
+domain and `*.firebaseapp.com`, which browsers block unless both are the same site. The fix is
+Firebase's "proxy" option: `vercel.json` forwards `/__/auth/*` to
+`https://<project-id>.firebaseapp.com/__/auth/*`, and the app uses its own domain as
+`authDomain`. This needs a Vercel domain only, not a custom one. Setup for production, in this order:
+
+1. **Google Cloud Console → APIs & Services → Credentials → OAuth 2.0 Client IDs** (the "Web
+   client (auto created by Google Service)"): under **Authorized redirect URIs** add
+   `https://react-movietime.vercel.app/__/auth/handler` (keep the existing
+   `https://<project-id>.firebaseapp.com/__/auth/handler`).
+2. Deploy the `vercel.json` rewrite (merge to `main`).
+3. In Vercel set `VITE_FIREBASE_AUTH_DOMAIN=react-movietime.vercel.app` (Production) and redeploy.
+   Doing this before step 1 breaks Google sign-in with `redirect_uri_mismatch`, popup included.
+
+Locally keep `<project-id>.firebaseapp.com` (or leave it as is): desktop uses the popup, which
+works with it. Vercel preview deployments are not supported for Google sign-in.
 
 **Optional, Authentication → Templates:** set the sender name and the email verification /
 password reset texts.

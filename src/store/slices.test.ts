@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type { AuthUser } from '../types/auth'
 import type { LibraryEntry } from '../types/library'
 import { createEntry } from '../utils/library'
-import authSlice, { authChanged, authErrorCleared } from './authSlice'
+import authSlice, { authChanged, authErrorCleared, completeGoogleRedirect } from './authSlice'
 import librarySlice, {
   accountLibraryLoading,
   guestEntryRemoved,
@@ -47,6 +47,34 @@ describe('authSlice', () => {
       error: { code: 'x' } as never,
     }
     expect(authSlice.reducer(state, authErrorCleared()).error).toBeNull()
+  })
+})
+
+describe('authSlice: Google redirect result', () => {
+  const signedIn = authSlice.reducer(undefined, authChanged(user))
+
+  it('keeps the form busy while the result is being finished', () => {
+    const state = authSlice.reducer(signedIn, completeGoogleRedirect.pending('id'))
+    expect(state.pending).toBe('google')
+  })
+
+  it('signs in with the returned user', () => {
+    const state = authSlice.reducer(undefined, completeGoogleRedirect.fulfilled(user, 'id'))
+    expect(state).toMatchObject({ user, status: 'authenticated', pending: null })
+  })
+
+  it('does not sign anyone out when no redirect was pending', () => {
+    const state = authSlice.reducer(signedIn, completeGoogleRedirect.fulfilled(null, 'id'))
+    expect(state).toMatchObject({ user, status: 'authenticated', pending: null })
+  })
+
+  it('reports a failure on the form', () => {
+    const error = { code: 'auth/account-exists-with-different-credential', message: 'x' }
+    const state = authSlice.reducer(
+      undefined,
+      completeGoogleRedirect.rejected(null, 'id', undefined, error),
+    )
+    expect(state).toMatchObject({ pending: null, error })
   })
 })
 

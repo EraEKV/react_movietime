@@ -86,16 +86,17 @@ offline support.
 
 ### `authService.ts`
 
-| Function                                            | Returns         | Notes                                                                          |
-| --------------------------------------------------- | --------------- | ------------------------------------------------------------------------------ |
-| `signUpWithEmail({ email, password, displayName })` | `Promise<User>` | Creates the user, sets the name, sends verification email, creates the profile |
-| `signInWithEmail({ email, password })`              | `Promise<User>` |                                                                                |
-| `signInWithGoogle()`                                | `Promise<User>` | `signInWithPopup` + `GoogleAuthProvider`                                       |
-| `signOutUser()`                                     | `Promise<void>` |                                                                                |
-| `sendVerificationEmail()`                           | `Promise<void>` |                                                                                |
-| `resetPassword(email)`                              | `Promise<void>` |                                                                                |
-| `onAuthChange(callback)`                            | `unsubscribe`   | Wraps `onIdTokenChanged`, so `email_verified` updates after verification       |
-| `reloadUser()`                                      | `Promise<User>` | Refreshes the token after the user verifies                                    |
+| Function                                            | Returns                          | Notes                                                                                 |
+| --------------------------------------------------- | -------------------------------- | ------------------------------------------------------------------------------------- |
+| `signUpWithEmail({ email, password, displayName })` | `Promise<User>`                  | Creates the user, sets the name, sends verification email, creates the profile        |
+| `signInWithEmail({ email, password })`              | `Promise<User>`                  |                                                                                       |
+| `signInWithGoogle()`                                | `Promise<User \| 'redirecting'>` | Popup on desktop; redirect on phones and in the installed app (`utils/signInMode.ts`) |
+| `finishGoogleRedirect()`                            | `Promise<User \| null>`          | `getRedirectResult` after coming back; called only if a redirect was started          |
+| `signOutUser()`                                     | `Promise<void>`                  |                                                                                       |
+| `sendVerificationEmail()`                           | `Promise<void>`                  |                                                                                       |
+| `resetPassword(email)`                              | `Promise<void>`                  |                                                                                       |
+| `onAuthChange(callback)`                            | `unsubscribe`                    | Wraps `onIdTokenChanged`, so `email_verified` updates after verification              |
+| `reloadUser()`                                      | `Promise<User>`                  | Refreshes the token after the user verifies                                           |
 
 `authService.updateDisplayName(name)` → `Promise<void>`: Firebase Auth `updateProfile`. The
 `auth/updateDisplayName` thunk runs it together with `updateUserProfile`, then puts the name into
