@@ -46,3 +46,13 @@ export async function sendWelcomeEmail(locale: string): Promise<boolean> {
   const data = await post('send-welcome', { locale })
   return data.reason !== 'no-profile'
 }
+
+/** Pushes "shared with you" / "your role changed" to the member's subscribed browsers. */
+export async function sendPushNotice(
+  collection: Collection,
+  id: string,
+  email: string,
+  kind: 'shared' | 'role',
+): Promise<void> {
+  await post('push-notify', { collection, id, email, kind })
+}
