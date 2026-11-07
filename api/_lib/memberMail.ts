@@ -1,5 +1,5 @@
 import { Resend } from 'resend'
-import { bearer, json, readEnv, readDoc, verifyToken } from './firebase.js'
+import { bearer, json, readEnv, readDoc, verifyToken, type MailEnv } from './firebase.js'
 import { isLocale, type Locale } from './layout.js'
 import type { Role } from './templates.js'
 
@@ -12,7 +12,7 @@ import type { Role } from './templates.js'
 const TARGET_ID = /^[A-Za-z0-9_-]{1,64}$/
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
-export interface MemberMailContext {
+export interface MemberContext {
   locale: Locale
   owner: string
   name: string
@@ -23,10 +23,13 @@ export interface MemberMailContext {
   openUrl: string
 }
 
-export async function sendMemberMail(
+/**
+ * Checks the request and returns who is being told about what, or the Response to send
+ * back instead (bad input, not signed in, not the owner, address not a member).
+ */
+export async function resolveMember(
   request: Request,
-  build: (context: MemberMailContext) => { subject: string; text: string; html: string },
-): Promise<Response> {
+): Promise<{ env: MailEnv; context: MemberContext } | Response> {
   const env = readEnv()
   if (!env) return json({ error: 'not-configured' }, 503)
 
@@ -69,19 +72,31 @@ export async function sendMemberMail(
   signup.searchParams.set('email', email)
   const open = new URL(collection === 'lists' ? `/lists/${id}` : `/planner/${id}`, origin)
 
-  const message = build({
-    locale: isLocale(input.locale) ? input.locale : 'en',
-    owner: fields.ownerName?.stringValue || '',
-    name: fields.name?.stringValue || fields.title?.stringValue || '',
-    role: fields.roles?.mapValue?.fields?.[email]?.stringValue === 'editor' ? 'editor' : 'viewer',
-    email,
-    signupUrl: signup.href,
-    openUrl: open.href,
-  })
+  return {
+    env,
+    context: {
+      locale: isLocale(input.locale) ? input.locale : 'en',
+      owner: fields.ownerName?.stringValue || '',
+      name: fields.name?.stringValue || fields.title?.stringValue || '',
+      role: fields.roles?.mapValue?.fields?.[email]?.stringValue === 'editor' ? 'editor' : 'viewer',
+      email,
+      signupUrl: signup.href,
+      openUrl: open.href,
+    },
+  }
+}
+
+export async function sendMemberMail(
+  request: Request,
+  build: (context: MemberContext) => { subject: string; text: string; html: string },
+): Promise<Response> {
+  const resolved = await resolveMember(request)
+  if (resolved instanceof Response) return resolved
+  const { env, context } = resolved
   const { error } = await new Resend(env.resendKey).emails.send({
     from: env.from,
-    to: [email],
-    ...message,
+    to: [context.email],
+    ...build(context),
   })
   if (error) return json({ error: 'send-failed' }, 502)
   return json({ ok: true })
