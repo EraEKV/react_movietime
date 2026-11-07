@@ -100,12 +100,16 @@ export const signInWithGoogle = createAuthThunk(
 export const completeGoogleRedirect = createAuthThunk(
   'auth/google/redirect',
   async (_: void, { getState, rejectWithValue }) => {
-    if (!takeRedirectMark()) return null
+    if (!takeRedirectMark()) return null // Nothing was started here: not an error.
     try {
       const authService = await loadAuthService()
       const user = await authService.finishGoogleRedirect()
-      if (user) await syncProfile(user, getState())
-      return user ? authService.toAuthUser(user) : null
+      // A redirect was started but nothing came back (storage blocked between the app and
+      // the auth domain, or the result landed in another browser context): say so instead
+      // of leaving the login page as if nothing had happened.
+      if (!user) return rejectWithValue(toAuthError({ code: 'app/google-redirect-incomplete' }))
+      await syncProfile(user, getState())
+      return authService.toAuthUser(user)
     } catch (error) {
       return rejectWithValue(toAuthError(error))
     }

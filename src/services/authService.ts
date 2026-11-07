@@ -91,10 +91,16 @@ async function redirectToGoogle(provider: GoogleAuthProvider): Promise<'redirect
 const isErrorCode = (error: unknown, code: string) =>
   typeof error === 'object' && error !== null && 'code' in error && error.code === code
 
-/** After coming back from Google: the signed-in user, or null when nothing was pending. */
+/**
+ * After coming back from Google: the signed-in user, or null when the redirect left no
+ * result. Firebase can complete the redirect by itself while the SDK starts and then has no
+ * separate result to give, so the current user is checked before giving up.
+ */
 export async function finishGoogleRedirect(): Promise<User | null> {
   const result = await getRedirectResult(auth)
-  return result?.user ?? null
+  if (result?.user) return result.user
+  await auth.authStateReady()
+  return auth.currentUser
 }
 
 export function signOutUser(): Promise<void> {
