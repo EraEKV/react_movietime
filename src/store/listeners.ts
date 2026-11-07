@@ -110,6 +110,44 @@ export function registerPreferenceListeners(getState: () => RootState) {
     },
   })
 
+  /**
+   * The welcome email, once per account: when a verified user shows up (email verified, or a
+   * Google sign-in). The server keeps the real "already sent" mark; the localStorage flag
+   * only saves a request on every page load. The profile may not be written yet right after a
+   * first Google sign-in, so "no profile" is retried a few times.
+   */
+  startAppListening({
+    predicate: (_action, current, previous) => {
+      const user = current.auth.user
+      return (
+        current.auth.status !== 'loading' &&
+        user?.emailVerified === true &&
+        (previous.auth.user?.uid !== user.uid || previous.auth.user.emailVerified === false)
+      )
+    },
+    effect: async (_action, api) => {
+      api.cancelActiveListeners()
+      const uid = api.getState().auth.user?.uid
+      if (!uid) return
+      const key = `movietime.welcomed.${uid}`
+      try {
+        if (localStorage.getItem(key)) return
+        const { sendWelcomeEmail } = await api.pause(import('../services/mailService'))
+        for (let attempt = 0; attempt < 3; attempt++) {
+          if (await api.pause(sendWelcomeEmail(api.getState().preferences.language))) {
+            localStorage.setItem(key, '1')
+            return
+          }
+          await api.delay(3000)
+        }
+      } catch (error) {
+        // Offline, or the mail server isn't set up: try again on the next visit.
+        if (!(error instanceof TaskAbortError))
+          console.warn('Could not send the welcome email', error)
+      }
+    },
+  })
+
   applyToDocument(getState())
 }
 
