@@ -172,6 +172,13 @@ service cloud.firestore {
         && request.resource.data.readAt == request.time;
     }
 
+    // ---------- push subscriptions ----------
+    // Written and read only by the server (Firebase Admin, api/push*.ts), never by a client:
+    // a subscription ties an email to a browser, and the app never reveals which emails exist.
+    match /pushSubscriptions/{id} {
+      allow read, write: if false;
+    }
+
     // ---------- lists ----------
     match /lists/{listId} {
       // get = open one document by id (a shared link works for anyone). list = queries:

@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router'
 import Badge from '../shared/ui/Badge/Badge'
 import Button from '../shared/ui/Button/Button'
 import Card from '../shared/ui/Card/Card'
+import PushSettings from '../components/Settings/PushSettings'
 import ResendVerification from '../components/Settings/ResendVerification'
 import RadioCards from '../shared/ui/RadioCards/RadioCards'
 import SegmentedControl from '../shared/ui/SegmentedControl/SegmentedControl'
@@ -119,6 +120,15 @@ export default function SettingsPage() {
             />
             <p className={styles.note}>{t('settings.languageNote')}</p>
           </div>
+        </div>
+      </Card>
+
+      <Card as="section" aria-labelledby="notifications-title">
+        <div className={styles.section}>
+          <h2 id="notifications-title" className={styles.sectionTitle}>
+            {t('settings.notifications')}
+          </h2>
+          <PushSettings />
         </div>
       </Card>
 

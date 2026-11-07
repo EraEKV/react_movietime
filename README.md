@@ -72,7 +72,8 @@ with an editor / viewer role.
   link (copy, the phone's share sheet, or a prefilled email) that opens sign-up with the email
   filled in and then the list or plan, or can be emailed from the dialog (Resend, a Vercel
   function in `api/`). A role change is emailed to the member as well, and a new account gets
-  a one-time welcome email. The app never checks whether an account exists: the notification
+  a one-time welcome email. Push notifications (Settings → Notifications, Web Push) tell a friend
+  about a share or a role change even when the app is closed. The app never checks whether an account exists: the notification
   waits for the verified email.
 - ✅ **Profile**: account info, counters and an activity feed; settings for display name, theme
   and language.

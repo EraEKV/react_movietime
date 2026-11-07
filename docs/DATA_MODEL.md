@@ -102,6 +102,20 @@ account has none; afterwards the account wins and a listener applies it on every
 (guests keep preferences in `localStorage` only). `localStorage` stays the first-paint cache.
 The settings page changes `displayName` (also in Firebase Auth) and `settings`.
 
+### `pushSubscriptions/{sha256(endpoint)}`: push subscription
+
+One document per browser that turned push on (Settings → Notifications). Written and read only by
+the server (Firebase Admin, `api/push*.ts`); the rules deny every client, because the document
+ties an email to a browser.
+
+| Field          | Type                   | Notes                                                 |
+| -------------- | ---------------------- | ----------------------------------------------------- |
+| `uid`          | string                 | Who subscribed; only they can remove it               |
+| `email`        | string                 | Verified, lowercase; how a sender finds the recipient |
+| `locale`       | `"en" \| "ru" \| "kk"` | Language of the notification text                     |
+| `subscription` | `{ endpoint, keys }`   | The browser's `PushSubscription`                      |
+| `createdAt`    | Timestamp              |                                                       |
+
 ### `users/{uid}/library/{mediaKey}`: library entry
 
 | Field                                                                          | Type                                               | Notes                                             |

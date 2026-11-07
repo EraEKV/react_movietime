@@ -40,6 +40,30 @@ registerRoute(
   ),
 )
 
+// What the precache leaves out is stored the first time it is used. Both URL kinds are
+// versioned (hashed file names; dictionaries carry ?v=<build>), so cache-first never serves
+// an outdated file, and old entries just age out.
+registerRoute(
+  ({ url, sameOrigin }) => sameOrigin && url.pathname.startsWith('/assets/'),
+  new CacheFirst({
+    cacheName: 'app-chunks',
+    plugins: [
+      new CacheableResponsePlugin({ statuses: [200] }),
+      new ExpirationPlugin({ maxEntries: 120, maxAgeSeconds: 30 * DAY, purgeOnQuotaError: true }),
+    ],
+  }),
+)
+registerRoute(
+  ({ url, sameOrigin }) => sameOrigin && url.pathname.startsWith('/locales/'),
+  new CacheFirst({
+    cacheName: 'dictionaries',
+    plugins: [
+      new CacheableResponsePlugin({ statuses: [200] }),
+      new ExpirationPlugin({ maxEntries: 60, maxAgeSeconds: 30 * DAY, purgeOnQuotaError: true }),
+    ],
+  }),
+)
+
 // TMDB API: the network wins, so data stays fresh; when it fails the last answer (up to a
 // day old) is served. The timeout makes a flaky connection fall back quickly.
 registerRoute(
@@ -89,3 +113,50 @@ self.addEventListener('message', (event) => {
   if (event.data?.type === 'SKIP_WAITING') void self.skipWaiting()
 })
 self.addEventListener('activate', (event) => event.waitUntil(self.clients.claim()))
+
+// Web Push (api/push-notify). The payload is JSON: { title, body, url, tag }. `tag` makes a
+// newer notice about the same list replace the older one instead of stacking.
+interface PushPayload {
+  title?: string
+  body?: string
+  url?: string
+  tag?: string
+}
+
+self.addEventListener('push', (event) => {
+  let payload: PushPayload
+  try {
+    payload = (event.data?.json() ?? {}) as PushPayload
+  } catch {
+    payload = { title: event.data?.text() }
+  }
+  event.waitUntil(
+    self.registration.showNotification(payload.title || 'Movietime', {
+      body: payload.body,
+      tag: payload.tag,
+      icon: '/icons/icon-192.png',
+      data: { url: payload.url || '/' },
+    }),
+  )
+})
+
+// A tap opens the list: reuse an open window of the app when there is one.
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close()
+  const target = new URL(
+    (event.notification.data as { url?: string })?.url || '/',
+    self.location.origin,
+  )
+  event.waitUntil(
+    (async () => {
+      const windows = await self.clients.matchAll({ type: 'window', includeUncontrolled: true })
+      const open = windows.find((w) => new URL(w.url).origin === target.origin)
+      if (open) {
+        await open.focus()
+        if ('navigate' in open) await open.navigate(target.href)
+      } else {
+        await self.clients.openWindow(target.href)
+      }
+    })(),
+  )
+})

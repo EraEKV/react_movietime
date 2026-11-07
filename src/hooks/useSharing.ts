@@ -10,6 +10,21 @@ const loadSharingService = (): Promise<typeof SharingService> =>
   import('../services/sharingService')
 
 /**
+ * Push to the member's browsers. A courtesy like the emails: the access is already saved,
+ * so a missing server setup or an offline moment is only logged.
+ */
+function notifyPush(
+  collection: SharedCollection,
+  id: string,
+  email: string,
+  kind: 'shared' | 'role',
+) {
+  void import('../services/mailService')
+    .then(({ sendPushNotice }) => sendPushNotice(collection, id, email, kind))
+    .catch((error: unknown) => console.warn('Could not send the push notice', error))
+}
+
+/**
  * Sharing actions for one list or plan, bound to the signed-in user. Written for both
  * collections; only lists have a UI so far. Each action resolves when the server accepts
  * the write and rejects with the Firestore error (permission-denied, offline…).
@@ -26,19 +41,24 @@ export function useSharing(collection: SharedCollection, shared: Shareable | nul
     inviteLink: (email: string) => inviteUrl(collection, id, email),
     setVisibility: async (visibility: Visibility) =>
       (await loadSharingService()).setVisibility(collection, id, visibility),
-    invite: async (email: string, role: MemberRole) =>
-      (await loadSharingService()).addMember(collection, id, roles, email, role, {
+    invite: async (email: string, role: MemberRole) => {
+      await (
+        await loadSharingService()
+      ).addMember(collection, id, roles, email, role, {
         ownEmail,
         ownerUid: shared?.ownerUid ?? '',
         ownerName: shared?.ownerName ?? '',
         title,
-      }),
+      })
+      notifyPush(collection, id, email, 'shared')
+    },
     sendInviteEmail: async (email: string) => {
       const { sendInviteEmail } = await import('../services/mailService')
       return sendInviteEmail(collection, id, email, i18n.language)
     },
     changeRole: async (email: string, role: MemberRole) => {
       await (await loadSharingService()).changeRole(collection, id, email, role)
+      notifyPush(collection, id, email, 'role')
       // The mail is a courtesy: the role is already saved, so a failure is not an error.
       void import('../services/mailService')
         .then(({ sendRoleChangeEmail }) =>
