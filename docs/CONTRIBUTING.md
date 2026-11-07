@@ -71,7 +71,7 @@ Breaking changes: add `!` after the type (`feat(library)!: …`) and a `BREAKING
 
 ## Continuous integration
 
-`.github/workflows/ci.yml` runs on every push and on pull requests to `main` (Node 22 from
+`.github/workflows/ci.yml` runs on every push and on pull requests to `main` (Node 24 from
 `.nvmrc`, no secrets needed). It runs the same checks you run before a pull request, in this
 order: `npm ci`, `npm run typecheck`, `npm run lint`, Prettier over tracked files,
 `npm run check:locales`, `npm run test:coverage`, `npm run build`. The coverage report is kept
