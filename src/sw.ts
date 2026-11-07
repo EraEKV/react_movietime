@@ -40,6 +40,30 @@ registerRoute(
   ),
 )
 
+// What the precache leaves out is stored the first time it is used. Both URL kinds are
+// versioned (hashed file names; dictionaries carry ?v=<build>), so cache-first never serves
+// an outdated file, and old entries just age out.
+registerRoute(
+  ({ url, sameOrigin }) => sameOrigin && url.pathname.startsWith('/assets/'),
+  new CacheFirst({
+    cacheName: 'app-chunks',
+    plugins: [
+      new CacheableResponsePlugin({ statuses: [200] }),
+      new ExpirationPlugin({ maxEntries: 120, maxAgeSeconds: 30 * DAY, purgeOnQuotaError: true }),
+    ],
+  }),
+)
+registerRoute(
+  ({ url, sameOrigin }) => sameOrigin && url.pathname.startsWith('/locales/'),
+  new CacheFirst({
+    cacheName: 'dictionaries',
+    plugins: [
+      new CacheableResponsePlugin({ statuses: [200] }),
+      new ExpirationPlugin({ maxEntries: 60, maxAgeSeconds: 30 * DAY, purgeOnQuotaError: true }),
+    ],
+  }),
+)
+
 // TMDB API: the network wins, so data stays fresh; when it fails the last answer (up to a
 // day old) is served. The timeout makes a flaky connection fall back quickly.
 registerRoute(
