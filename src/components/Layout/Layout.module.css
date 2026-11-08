@@ -194,6 +194,30 @@
   }
 }
 
+/* The search that replaces the bar below 1180px: covers the header, so it works at any width. */
+.searchOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0 var(--page-gutter);
+  background: var(--bg);
+}
+
+.searchOverlayField {
+  flex: 1;
+  min-width: 0;
+}
+
+@media (min-width: 1180px) {
+  /* The inline field is there; an overlay left open while resizing would hide the nav. */
+  .searchOverlay {
+    display: none;
+  }
+}
+
 /* ---------- Main + footer ---------- */
 .main {
   flex: 1;

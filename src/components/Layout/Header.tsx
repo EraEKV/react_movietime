@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router'
 import { useAuth } from '../../hooks/useAuth'
 import { useTheme } from '../../hooks/useTheme'
@@ -8,7 +8,7 @@ import { buttonClass } from '../../shared/ui/Button/variants'
 import Icon from '../../shared/ui/Icon/Icon'
 import IconButton from '../../shared/ui/IconButton/IconButton'
 import Logo from '../../shared/ui/Logo/Logo'
-import HeaderSearch from './HeaderSearch'
+import HeaderSearch, { HeaderSearchOverlay } from './HeaderSearch'
 import OfflinePill from '../Pwa/OfflinePill'
 import LanguageMenu from './LanguageMenu'
 import styles from './Layout.module.css'
@@ -25,6 +25,13 @@ export default function Header() {
   const { theme, toggleTheme } = useTheme()
   const nextTheme = theme === 'dark' ? 'light' : 'dark'
   const { user } = useAuth()
+  const [searchOpen, setSearchOpen] = useState(false)
+  const searchButton = useRef<HTMLButtonElement>(null)
+
+  function closeSearch() {
+    setSearchOpen(false)
+    searchButton.current?.focus()
+  }
 
   return (
     <header className={styles.header}>
@@ -54,15 +61,17 @@ export default function Header() {
             </Suspense>
           )}
           <HeaderSearch />
-          {/* state asks the catalog to focus its search field: one tap to start typing. */}
-          <Link
-            to="/series"
-            state={{ focusSearch: true }}
+          {/* Below 1180px: opens the search over the header (the inline field needs the room). */}
+          <button
+            ref={searchButton}
+            type="button"
             className={buttonClass('ghost', 'md', { iconOnly: true, className: styles.mobileOnly })}
             aria-label={t('header.search')}
+            aria-expanded={searchOpen}
+            onClick={() => setSearchOpen(true)}
           >
             <Icon name="search" size={20} />
-          </Link>
+          </button>
           <IconButton
             icon={theme === 'dark' ? 'sun' : 'moon'}
             label={t(nextTheme === 'dark' ? 'header.toDark' : 'header.toLight')}
@@ -78,6 +87,7 @@ export default function Header() {
           <UserMenu />
         </div>
       </div>
+      {searchOpen && <HeaderSearchOverlay onClose={closeSearch} />}
     </header>
   )
 }
