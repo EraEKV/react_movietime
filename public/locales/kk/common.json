@@ -32,7 +32,14 @@
     "toDark": "Қараңғы тақырыпқа ауысу",
     "language": "Тіл: {{name}}",
     "tonight": "Бүгін",
-    "tonightLabel": "Бүгін {{time}}: {{title}}, {{units}}. Жоспарларды ашу"
+    "tonightLabel": "Бүгін {{time}}: {{title}}, {{units}}. Жоспарларды ашу",
+    "searching": "Іздеу жүріп жатыр",
+    "results": "Іздеу нәтижелері",
+    "noResults": "«{{query}}» бойынша ештеңе табылмады.",
+    "searchFailed": "Іздеу мүмкін болмады. Байланысты тексеріңіз.",
+    "allResults": "Барлық нәтижелер",
+    "resultCount_one": "{{count}} нәтиже",
+    "resultCount_other": "{{count}} нәтиже"
   },
   "verify": {
     "text": "Ортақ тізімдер мен жоспарларды пайдалану үшін <strong>{{email}}</strong> поштасын растаңыз.",

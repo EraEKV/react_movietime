@@ -2,6 +2,11 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router'
 import { describe, expect, it, vi } from 'vitest'
+
+// The cards have their own tests; here the search itself is under test, with no network.
+vi.mock('./HeaderSearchResults', () => ({
+  default: ({ query }: { query: string }) => <p>cards for {query}</p>,
+}))
 import { HeaderSearchOverlay } from './HeaderSearch'
 
 function Where() {
@@ -29,6 +34,12 @@ describe('HeaderSearchOverlay', () => {
     await userEvent.type(field, 'breaking bad{Enter}')
     expect(screen.getByRole('status')).toHaveTextContent('/series?q=breaking+bad')
     expect(onClose).toHaveBeenCalled()
+  })
+
+  it('shows the cards for what is typed', async () => {
+    setup('/')
+    await userEvent.type(screen.getByRole('searchbox'), 'dune')
+    expect(screen.getByText('cards for dune')).toBeInTheDocument()
   })
 
   it('searches movies on a movies page', async () => {

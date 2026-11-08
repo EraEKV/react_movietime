@@ -218,6 +218,141 @@
   }
 }
 
+/* ---------- Header search results (cards under the field) ---------- */
+.search {
+  position: relative;
+}
+
+.searchResults {
+  z-index: var(--z-menu);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-2);
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-2);
+}
+
+/* Under the field in the bar (from 1180px). */
+.popover {
+  position: absolute;
+  top: calc(100% + var(--space-2));
+  right: 0;
+  width: min(420px, calc(100vw - 2 * var(--space-4)));
+  border-radius: var(--radius-lg);
+}
+
+/* Below 1180px: spans the width under the header, scrolls if the screen is short. */
+.sheet {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  max-height: calc(100dvh - var(--header-height-mobile) - var(--space-4));
+  overflow-y: auto;
+  border-width: 0 0 1px;
+  padding: var(--space-2) var(--page-gutter);
+}
+
+.resultsList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.resultLink {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--touch-min);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+}
+
+.resultLink:hover {
+  background: var(--surface-hover);
+}
+
+.resultPoster {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 36px;
+  height: 54px;
+  overflow: hidden;
+  border-radius: var(--radius-xs);
+  background: var(--surface-sunken);
+  color: var(--text-subtle);
+}
+
+.resultPoster img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.resultText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.resultText strong {
+  overflow: hidden;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.resultText span {
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.resultSkeleton {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+}
+
+.resultsHint {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin: 0;
+  padding: var(--space-3);
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.resultsAll {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: var(--space-1);
+  min-height: var(--touch-min);
+  padding: 0 var(--space-3);
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.resultsAll:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 /* ---------- Main + footer ---------- */
 .main {
   flex: 1;

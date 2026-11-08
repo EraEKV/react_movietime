@@ -4,6 +4,7 @@ import { createSearchParams, useLocation, useNavigate } from 'react-router'
 import fieldStyles from '../../shared/ui/Field/Field.module.css'
 import Button from '../../shared/ui/Button/Button'
 import Icon from '../../shared/ui/Icon/Icon'
+import HeaderSearchResults from './HeaderSearchResults'
 import styles from './Layout.module.css'
 
 /**
@@ -15,7 +16,7 @@ function useHeaderSearch(onDone?: () => void) {
   const id = useId()
   const navigate = useNavigate()
   const { pathname } = useLocation()
-  const catalog = pathname.startsWith('/movies') ? '/movies' : '/series'
+  const catalog: '/movies' | '/series' = pathname.startsWith('/movies') ? '/movies' : '/series'
   const [text, setText] = useState('')
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -28,22 +29,54 @@ function useHeaderSearch(onDone?: () => void) {
   }
 
   const label = t(catalog === '/movies' ? 'header.searchMovies' : 'header.searchSeries')
-  return { id, text, setText, handleSubmit, label }
+  return { id, text, setText, handleSubmit, label, catalog }
 }
 
 /** The field in the bar itself: from 1180px, where there is room for it. */
 export default function HeaderSearch() {
   const { t } = useTranslation()
-  const { id, text, setText, handleSubmit, label } = useHeaderSearch()
+  const [open, setOpen] = useState(false)
+  const { id, text, setText, handleSubmit, label, catalog } = useHeaderSearch(() => setOpen(false))
+  const input = useRef<HTMLInputElement>(null)
+
+  function close() {
+    setText('')
+    setOpen(false)
+  }
+
+  function handleKeyDown(event: KeyboardEvent<HTMLFormElement>) {
+    if (event.key === 'Escape') {
+      setOpen(false)
+      input.current?.blur()
+    } else if (event.key === 'ArrowDown') {
+      // From the field into the cards (HeaderSearchResults moves between them).
+      const first = event.currentTarget.querySelector<HTMLAnchorElement>('a')
+      if (first) {
+        event.preventDefault()
+        first.focus()
+      }
+    }
+  }
 
   return (
-    <form role="search" className={styles.search} onSubmit={handleSubmit}>
+    <form
+      role="search"
+      className={styles.search}
+      onSubmit={handleSubmit}
+      onKeyDown={handleKeyDown}
+      onFocus={() => setOpen(true)}
+      onBlur={(event) => {
+        // Focus moving to a card inside the form keeps the panel; leaving the form closes it.
+        if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false)
+      }}
+    >
       <label htmlFor={id} className="sr-only">
         {label}
       </label>
       <div className={fieldStyles.control}>
         <Icon name="search" size={18} className={fieldStyles.leading} />
         <input
+          ref={input}
           id={id}
           type="search"
           value={text}
@@ -52,6 +85,15 @@ export default function HeaderSearch() {
           autoComplete="off"
         />
       </div>
+      {open && (
+        <HeaderSearchResults
+          query={text}
+          catalog={catalog}
+          variant="popover"
+          onPick={close}
+          onExitUp={() => input.current?.focus()}
+        />
+      )}
     </form>
   )
 }
@@ -63,13 +105,20 @@ export default function HeaderSearch() {
  */
 export function HeaderSearchOverlay({ onClose }: { onClose: () => void }) {
   const { t } = useTranslation()
-  const { id, text, setText, handleSubmit, label } = useHeaderSearch(onClose)
+  const { id, text, setText, handleSubmit, label, catalog } = useHeaderSearch(onClose)
   const input = useRef<HTMLInputElement>(null)
 
   useEffect(() => input.current?.focus(), [])
 
-  function handleKeyDown(event: KeyboardEvent) {
+  function handleKeyDown(event: KeyboardEvent<HTMLFormElement>) {
     if (event.key === 'Escape') onClose()
+    else if (event.key === 'ArrowDown') {
+      const first = event.currentTarget.querySelector<HTMLAnchorElement>('a')
+      if (first) {
+        event.preventDefault()
+        first.focus()
+      }
+    }
   }
 
   return (
@@ -98,6 +147,13 @@ export function HeaderSearchOverlay({ onClose }: { onClose: () => void }) {
       <Button variant="ghost" onClick={onClose}>
         {t('actions.cancel')}
       </Button>
+      <HeaderSearchResults
+        query={text}
+        catalog={catalog}
+        variant="sheet"
+        onPick={onClose}
+        onExitUp={() => input.current?.focus()}
+      />
     </form>
   )
 }

@@ -32,7 +32,16 @@
     "toDark": "Включить тёмную тему",
     "language": "Язык: {{name}}",
     "tonight": "Сегодня",
-    "tonightLabel": "Сегодня в {{time}}: {{title}}, {{units}}. Открыть планы"
+    "tonightLabel": "Сегодня в {{time}}: {{title}}, {{units}}. Открыть планы",
+    "searching": "Идёт поиск",
+    "results": "Результаты поиска",
+    "noResults": "По запросу «{{query}}» ничего не найдено.",
+    "searchFailed": "Не получилось выполнить поиск. Проверьте соединение.",
+    "allResults": "Все результаты",
+    "resultCount_one": "{{count}} результат",
+    "resultCount_few": "{{count}} результата",
+    "resultCount_many": "{{count}} результатов",
+    "resultCount_other": "{{count}} результата"
   },
   "verify": {
     "text": "Подтвердите <strong>{{email}}</strong>, чтобы пользоваться общими списками и планами.",
