@@ -7,7 +7,11 @@
   margin: 0 calc(var(--page-gutter) * -1);
   padding: var(--space-1) var(--page-gutter) var(--space-2);
   overflow-x: auto;
-  scroll-snap-type: x mandatory;
+  /* Snapping is a touch nicety. `mandatory` forces every scroll to end on a card, which cuts a
+     trackpad's momentum short, so touch gets the gentle `proximity` and desktop none at all.
+     `contain` stops the row's edge from chaining into the browser's back/forward swipe. */
+  scroll-snap-type: x proximity;
+  overscroll-behavior-x: contain;
   scroll-padding-inline: var(--page-gutter);
   scrollbar-width: thin;
   list-style: none;
@@ -24,5 +28,11 @@
     margin: 0;
     padding-inline: 0;
     scroll-padding-inline: 0;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .row {
+    scroll-snap-type: none;
   }
 }
