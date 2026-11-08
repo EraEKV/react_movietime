@@ -44,6 +44,12 @@ describe('pickRegion', () => {
     expect(pickRegion(data, null, 'kk')).toBe('KZ')
   })
 
+  it('sends Kazakh to Russia when Kazakhstan has no data', () => {
+    const noKz = { results: { DE: { link: 'de' }, RU: { link: 'ru' } } } satisfies WatchProviders
+    expect(pickRegion(noKz, null, 'kk')).toBe('RU')
+    expect(pickRegion(noKz, null, 'en')).toBe('DE')
+  })
+
   it('falls back to the first available country, or the default when there is no data', () => {
     expect(pickRegion(data, null, 'ru')).toBe('DE')
     expect(pickRegion(undefined, null, 'ru')).toBe('RU')
@@ -55,6 +61,11 @@ describe('regionOptions', () => {
     const options = regionOptions(data, 'FR', 'en')
     expect(options.map((o) => o.value).toSorted()).toEqual(['DE', 'FR', 'KZ', 'US'])
     expect(options.find((o) => o.value === 'DE')?.label).toBe('Germany')
+  })
+
+  it('always lists Kazakhstan, even when TMDB has no data for it', () => {
+    const noKz = { results: { DE: { link: 'de' } } } satisfies WatchProviders
+    expect(regionOptions(noKz, 'DE', 'en').map((o) => o.value)).toContain('KZ')
   })
 
   it('has Kazakh names without Intl data', () => {

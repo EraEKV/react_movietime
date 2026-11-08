@@ -1,11 +1,11 @@
 import { Trans, useTranslation } from 'react-i18next'
-import { Suspense, useEffect } from 'react'
+import { useEffect } from 'react'
 import { Link, Outlet, useLocation } from 'react-router'
 import { useSystemThemeSync } from '../../hooks/useTheme'
 import VerifyEmailBanner from '../auth/VerifyEmailBanner'
 import LibraryNotice from '../Library/LibraryNotice'
-import PageLoader from '../../shared/ui/PageLoader/PageLoader'
 import Header from './Header'
+import PageSuspense from './PageSuspense'
 import styles from './Layout.module.css'
 import TabBar from './TabBar'
 
@@ -33,11 +33,11 @@ export default function Layout() {
           <VerifyEmailBanner />
         </div>
         {/* Lazy pages suspend while their chunk downloads. The boundary is here, not around
-            <Routes>, so only the page area shows the skeleton. Router navigations run in a
-            transition, so later page switches keep the old page until the new one is ready. */}
-        <Suspense fallback={<PageLoader />}>
+            <Routes>, so only the page area shows the skeleton, and it is keyed by the path
+            so every navigation shows it (see PageSuspense). */}
+        <PageSuspense>
           <Outlet />
-        </Suspense>
+        </PageSuspense>
       </main>
 
       <footer className={styles.footer}>

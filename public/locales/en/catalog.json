@@ -147,6 +147,7 @@
     "none": "No streaming information for this title yet.",
     "noneHere": "Not available from the services we know in this country. Try another country.",
     "seeAll": "All options for this country",
-    "credit": "Streaming data by"
+    "credit": "Streaming data by",
+    "noData": "We have no streaming data for this country yet. Try another country."
   }
 }
