@@ -93,7 +93,7 @@
     "badSeriesLink": "This link doesn’t point to a series",
     "badMovieId": "“{{id}}” is not a valid movie id. Check the link, or find the movie in the catalog.",
     "badSeriesId": "“{{id}}” is not a valid series id. Check the link, or find the series in the catalog.",
-    "pageTitle": "{{title}} · Movietime",
+    "pageTitle": "{{title}} · Avleron",
     "releaseDate": "Release date",
     "originalLanguage": "Original language",
     "country": "Country",

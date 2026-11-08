@@ -1,5 +1,5 @@
 {
-  "pageTitle": "Lists · Movietime",
+  "pageTitle": "Lists · Avleron",
   "title": "Lists",
   "new": "New list",
   "myLists": "My lists",
@@ -28,7 +28,7 @@
     "cantEdit": "You can’t edit this list",
     "cantEditBody": "It doesn’t exist any more, or only its owner can change it.",
     "goLists": "Go to lists",
-    "pageTitle": "{{title}} · Movietime",
+    "pageTitle": "{{title}} · Avleron",
     "name": "Name",
     "namePlaceholder": "e.g. Weeknight comfort",
     "nameHint": "Up to {{max}} characters.",
@@ -65,7 +65,7 @@
     "notFound": "This list no longer exists."
   },
   "page": {
-    "pageTitle": "{{title}} · Movietime",
+    "pageTitle": "{{title}} · Avleron",
     "missingTitle": "This list doesn’t exist",
     "missingBody": "It may have been deleted, or the link is wrong. Private lists open only for their owner and members.",
     "hintGuest": " If it was shared with you, sign in with the invited email.",

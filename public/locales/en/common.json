@@ -20,9 +20,9 @@
   },
   "layout": {
     "skip": "Skip to content",
-    "about": "About Movietime",
+    "about": "About Avleron",
     "footer": "Movie and series data from <tmdb>TMDB</tmdb>. This product uses the TMDB API but is not endorsed or certified by TMDB.",
-    "homeLink": "Movietime, home"
+    "homeLink": "Avleron, home"
   },
   "header": {
     "search": "Search",
@@ -86,7 +86,7 @@
     "playTrailer": "Play trailer: {{name}}",
     "people": "{{people}}: {{names}}",
     "done": " (done)",
-    "pageTitle": "{{title}} · Movietime"
+    "pageTitle": "{{title}} · Avleron"
   },
   "title": {
     "genres": "Genres",
@@ -191,7 +191,7 @@
     "recentLogin": "Sign in again to continue.",
     "permissionDenied": "You don’t have access to this.",
     "unavailable": "The server can’t be reached. Check your connection and try again.",
-    "googleIncomplete": "Google sign-in didn’t finish. In the installed app, open Movietime in your browser and try again."
+    "googleIncomplete": "Google sign-in didn’t finish. In the installed app, open Avleron in your browser and try again."
   },
   "validation": {
     "emailRequired": "Enter your email.",
@@ -215,10 +215,10 @@
     "text": "The page you’re looking for was moved, deleted, or never existed. Check the link, or head back to something you know.",
     "home": "Go home",
     "library": "Go to library",
-    "pageTitle": "{{title}} · Movietime"
+    "pageTitle": "{{title}} · Avleron"
   },
   "offline": {
-    "pageTitle": "Offline · Movietime",
+    "pageTitle": "Offline · Avleron",
     "title": "The projector’s off for a moment",
     "text": "You’re offline. Your library and planned sessions saved on this device still work — anything you change will sync when you reconnect.",
     "retry": "Retry"
@@ -230,7 +230,7 @@
   "pwa": {
     "status": "Offline",
     "statusLabel": "You’re offline. Saved content is still available.",
-    "updateReady": "A new version of Movietime is ready.",
+    "updateReady": "A new version of Avleron is ready.",
     "reload": "Reload",
     "offlineReady": "Ready to work offline."
   }

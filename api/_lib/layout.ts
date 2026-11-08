@@ -74,7 +74,7 @@ export function renderEmail(input: LayoutInput): string {
 <tr><td align="center" style="padding:32px 16px;">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;">
     <tr><td style="padding:0 0 24px 4px;font-family:${DISPLAY};font-size:18px;font-weight:600;color:${C.text};">
-      <span style="display:inline-block;width:12px;height:12px;border-radius:4px;background:${C.teal};background-image:linear-gradient(100deg,#01b4e4,#90cea1);margin-right:8px;"></span>Movietime
+      <span style="display:inline-block;width:12px;height:12px;border-radius:4px;background:${C.teal};background-image:linear-gradient(100deg,#01b4e4,#90cea1);margin-right:8px;"></span>Avleron
     </td></tr>
     <tr><td style="background:${C.surface};border:1px solid ${C.border};border-radius:12px;padding:32px 24px;">
       <div style="font-family:${SANS};font-size:11px;line-height:16px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:${C.accent};">${escapeHtml(kicker)}</div>

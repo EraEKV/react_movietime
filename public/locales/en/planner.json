@@ -1,5 +1,5 @@
 {
-  "pageTitle": "Planner · Movietime",
+  "pageTitle": "Planner · Avleron",
   "title": "Planner",
   "show": {
     "all": "All plans",
@@ -11,7 +11,7 @@
   "loadError": "We couldn’t load your plans",
   "loadErrorBody": "Your sessions are safe. Check your connection and try again.",
   "emptyTitle": "Nothing planned yet",
-  "emptyBody": "Turn a series or a list into a schedule: pick your evenings and Movietime works out the finish date.",
+  "emptyBody": "Turn a series or a list into a schedule: pick your evenings and Avleron works out the finish date.",
   "create": "Create a plan",
   "browseSeries": "Browse series",
   "today": "Today",
@@ -123,7 +123,7 @@
     "preview": "Preview"
   },
   "new": {
-    "pageTitle": "New watch plan · Movietime",
+    "pageTitle": "New watch plan · Avleron",
     "heading": "New watch plan",
     "created": "Plan created · {{sessions}}",
     "listError": "We couldn’t load this list",
@@ -196,7 +196,7 @@
   },
   "marathon": {
     "title": "Plan a movie marathon",
-    "body": "{{movies}}, one per evening on the days you pick. Movietime works out the finish date.",
+    "body": "{{movies}}, one per evening on the days you pick. Avleron works out the finish date.",
     "plan": "Plan it"
   },
   "watching": "Plan watching",

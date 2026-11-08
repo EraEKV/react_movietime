@@ -19,9 +19,7 @@ describe('InviteLink', () => {
     expect(screen.getByDisplayValue(props.url)).toBeInTheDocument()
     const href = screen.getByRole('link', { name: 'Email' }).getAttribute('href') ?? ''
     expect(href.startsWith('mailto:dan%40example.com?subject=')).toBe(true)
-    expect(decodeURIComponent(href)).toContain(
-      'Era invited you to “Weeknight comfort” on Movietime',
-    )
+    expect(decodeURIComponent(href)).toContain('Era invited you to “Weeknight comfort” on Avleron')
     expect(decodeURIComponent(href)).toContain(props.url)
   })
 

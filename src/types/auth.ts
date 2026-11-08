@@ -1,6 +1,6 @@
 import type { Preferences } from '../shared/types/preferences'
 
-/** Sign-in methods Movietime offers; Firebase calls them provider ids. */
+/** Sign-in methods Avleron offers; Firebase calls them provider ids. */
 export type AuthProvider = 'password' | 'google.com'
 
 /**

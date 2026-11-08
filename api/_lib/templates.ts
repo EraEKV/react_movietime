@@ -4,8 +4,8 @@ import { renderEmail, type Locale } from './layout.js'
 
 export type Role = 'editor' | 'viewer'
 
-const who = (owner: string) => owner.slice(0, 80) || 'Movietime'
-const what = (name: string) => name.slice(0, 120) || 'Movietime'
+const who = (owner: string) => owner.slice(0, 80) || 'Avleron'
+const what = (name: string) => name.slice(0, 120) || 'Avleron'
 
 interface Mail {
   subject: string
@@ -18,33 +18,33 @@ interface Mail {
 const INVITE = {
   en: {
     kicker: 'Invitation',
-    subject: (o: string, n: string) => `${o} invited you to “${n}” on Movietime`,
+    subject: (o: string, n: string) => `${o} invited you to “${n}” on Avleron`,
     title: (o: string, n: string) => `${o} invited you to “${n}”`,
     role: { editor: 'You can add and change titles.', viewer: 'You can view it.' },
     hint: 'Sign up or sign in with this address and verify it. The invitation opens right away.',
     button: 'Open invitation',
     fallback: 'Button not working? Open this link:',
-    footer: 'You got this email because someone invited you on Movietime.',
+    footer: 'You got this email because someone invited you on Avleron.',
   },
   ru: {
     kicker: 'Приглашение',
-    subject: (o: string, n: string) => `${o} приглашает вас в «${n}» на Movietime`,
+    subject: (o: string, n: string) => `${o} приглашает вас в «${n}» на Avleron`,
     title: (o: string, n: string) => `${o} приглашает вас в «${n}»`,
     role: { editor: 'Вы сможете добавлять и менять фильмы.', viewer: 'Вы сможете смотреть.' },
     hint: 'Зарегистрируйтесь или войдите с этой почтой и подтвердите адрес — приглашение откроется сразу.',
     button: 'Открыть приглашение',
     fallback: 'Кнопка не работает? Откройте ссылку:',
-    footer: 'Вы получили это письмо, потому что вас пригласили в Movietime.',
+    footer: 'Вы получили это письмо, потому что вас пригласили в Avleron.',
   },
   kk: {
     kicker: 'Шақыру',
-    subject: (o: string, n: string) => `${o} сізді Movietime-дағы «${n}» тізіміне шақырды`,
+    subject: (o: string, n: string) => `${o} сізді Avleron-дағы «${n}» тізіміне шақырды`,
     title: (o: string, n: string) => `${o} сізді «${n}» тізіміне шақырды`,
     role: { editor: 'Сіз фильмдерді қосып, өзгерте аласыз.', viewer: 'Сіз қарай аласыз.' },
     hint: 'Осы поштамен тіркеліңіз немесе кіріңіз де, мекенжайды растаңыз — шақыру бірден ашылады.',
     button: 'Шақыруды ашу',
     fallback: 'Түйме жұмыс істемей ме? Сілтемені ашыңыз:',
-    footer: 'Бұл хатты сізді Movietime-ға шақырғандықтан алдыңыз.',
+    footer: 'Бұл хатты сізді Avleron-ға шақырғандықтан алдыңыз.',
   },
 } satisfies Record<Locale, unknown>
 
@@ -82,7 +82,7 @@ const ROLE_CHANGED = {
     role: { editor: 'You can now add and change titles.', viewer: 'You can now view it.' },
     button: 'Open it',
     fallback: 'Button not working? Open this link:',
-    footer: 'You got this email because you have access to a shared list on Movietime.',
+    footer: 'You got this email because you have access to a shared list on Avleron.',
   },
   ru: {
     kicker: 'Доступ изменён',
@@ -94,7 +94,7 @@ const ROLE_CHANGED = {
     },
     button: 'Открыть',
     fallback: 'Кнопка не работает? Откройте ссылку:',
-    footer: 'Вы получили это письмо, потому что у вас есть доступ к общему списку в Movietime.',
+    footer: 'Вы получили это письмо, потому что у вас есть доступ к общему списку в Avleron.',
   },
   kk: {
     kicker: 'Қолжетімділік өзгерді',
@@ -106,7 +106,7 @@ const ROLE_CHANGED = {
     },
     button: 'Ашу',
     fallback: 'Түйме жұмыс істемей ме? Сілтемені ашыңыз:',
-    footer: 'Бұл хатты Movietime-дағы ортақ тізімге қолжетімділігіңіз бар болғандықтан алдыңыз.',
+    footer: 'Бұл хатты Avleron-дағы ортақ тізімге қолжетімділігіңіз бар болғандықтан алдыңыз.',
   },
 } satisfies Record<Locale, unknown>
 
@@ -136,7 +136,7 @@ export function roleChangedEmail(
 const WELCOME = {
   en: {
     kicker: 'Welcome',
-    subject: 'Welcome to Movietime',
+    subject: 'Welcome to Avleron',
     title: (n: string) => `Welcome, ${n}`,
     intro: 'Your email is verified. An evening here usually goes like this:',
     steps: [
@@ -144,12 +144,12 @@ const WELCOME = {
       'Turn saved titles into a schedule in Planner.',
       'Watch, rate episodes and track your progress.',
     ],
-    button: 'Open Movietime',
-    footer: 'You got this email because you signed up for Movietime.',
+    button: 'Open Avleron',
+    footer: 'You got this email because you signed up for Avleron.',
   },
   ru: {
     kicker: 'Добро пожаловать',
-    subject: 'Добро пожаловать в Movietime',
+    subject: 'Добро пожаловать в Avleron',
     title: (n: string) => `Добро пожаловать, ${n}`,
     intro: 'Почта подтверждена. Обычный вечер здесь выглядит так:',
     steps: [
@@ -157,12 +157,12 @@ const WELCOME = {
       'Составьте расписание просмотров в планировщике.',
       'Смотрите, оценивайте серии и следите за прогрессом.',
     ],
-    button: 'Открыть Movietime',
-    footer: 'Вы получили это письмо, потому что зарегистрировались в Movietime.',
+    button: 'Открыть Avleron',
+    footer: 'Вы получили это письмо, потому что зарегистрировались в Avleron.',
   },
   kk: {
     kicker: 'Қош келдіңіз',
-    subject: 'Movietime-ға қош келдіңіз',
+    subject: 'Avleron-ға қош келдіңіз',
     title: (n: string) => `Қош келдіңіз, ${n}`,
     intro: 'Пошта расталды. Мұндағы әдеттегі кеш былай өтеді:',
     steps: [
@@ -170,14 +170,14 @@ const WELCOME = {
       'Жоспарлаушыда көру кестесін құрыңыз.',
       'Қараңыз, серияларды бағалаңыз және барысын қадағалаңыз.',
     ],
-    button: 'Movietime ашу',
-    footer: 'Бұл хатты Movietime-ға тіркелгендіктен алдыңыз.',
+    button: 'Avleron ашу',
+    footer: 'Бұл хатты Avleron-ға тіркелгендіктен алдыңыз.',
   },
 } satisfies Record<Locale, unknown>
 
 export function welcomeEmail(locale: Locale, p: { name: string; url: string }): Mail {
   const c = WELCOME[locale]
-  const title = c.title(p.name.slice(0, 40) || 'Movietime')
+  const title = c.title(p.name.slice(0, 40) || 'Avleron')
   return {
     subject: c.subject,
     text: `${title}\n\n${c.intro}\n${c.steps.map((s, i) => `${i + 1}. ${s}`).join('\n')}\n\n${p.url}\n`,

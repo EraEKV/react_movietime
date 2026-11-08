@@ -1,5 +1,5 @@
 {
-  "pageTitle": "Списки · Movietime",
+  "pageTitle": "Списки · Avleron",
   "title": "Списки",
   "new": "Новый список",
   "myLists": "Мои списки",
@@ -30,7 +30,7 @@
     "cantEdit": "Этот список нельзя изменить",
     "cantEditBody": "Его больше нет, или изменить его может только владелец.",
     "goLists": "К спискам",
-    "pageTitle": "{{title}} · Movietime",
+    "pageTitle": "{{title}} · Avleron",
     "name": "Название",
     "namePlaceholder": "Например, «Уютный вечер»",
     "nameHint": "До {{max}} символов.",
@@ -67,7 +67,7 @@
     "notFound": "Этого списка больше нет."
   },
   "page": {
-    "pageTitle": "{{title}} · Movietime",
+    "pageTitle": "{{title}} · Avleron",
     "missingTitle": "Такого списка нет",
     "missingBody": "Возможно, его удалили или ссылка неверна. Личные списки открываются только владельцу и участникам.",
     "hintGuest": " Если вам дали доступ, войдите с почтой, на которую пришло приглашение.",
