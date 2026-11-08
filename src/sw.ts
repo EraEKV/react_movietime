@@ -131,7 +131,7 @@ self.addEventListener('push', (event) => {
     payload = { title: event.data?.text() }
   }
   event.waitUntil(
-    self.registration.showNotification(payload.title || 'Movietime', {
+    self.registration.showNotification(payload.title || 'Avleron', {
       body: payload.body,
       tag: payload.tag,
       icon: '/icons/icon-192.png',

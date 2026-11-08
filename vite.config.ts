@@ -29,8 +29,8 @@ export default defineConfig({
         maximumFileSizeToCacheInBytes: 2 * 1024 * 1024,
       },
       manifest: {
-        name: 'Movietime',
-        short_name: 'Movietime',
+        name: 'Avleron',
+        short_name: 'Avleron',
         description: 'Discover movies and series, track what you watch and plan watching together.',
         lang: 'en',
         start_url: '/',

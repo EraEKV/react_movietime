@@ -1,5 +1,5 @@
 {
-  "pageTitle": "Тізімдер · Movietime",
+  "pageTitle": "Тізімдер · Avleron",
   "title": "Тізімдер",
   "new": "Жаңа тізім",
   "myLists": "Менің тізімдерім",
@@ -28,7 +28,7 @@
     "cantEdit": "Бұл тізімді өзгертуге болмайды",
     "cantEditBody": "Ол енді жоқ немесе оны тек иесі өзгерте алады.",
     "goLists": "Тізімдерге",
-    "pageTitle": "{{title}} · Movietime",
+    "pageTitle": "{{title}} · Avleron",
     "name": "Атауы",
     "namePlaceholder": "Мысалы, «Жайлы кеш»",
     "nameHint": "{{max}} таңбаға дейін.",
@@ -65,7 +65,7 @@
     "notFound": "Бұл тізім енді жоқ."
   },
   "page": {
-    "pageTitle": "{{title}} · Movietime",
+    "pageTitle": "{{title}} · Avleron",
     "missingTitle": "Мұндай тізім жоқ",
     "missingBody": "Ол жойылған болуы мүмкін немесе сілтеме қате. Жеке тізімдерді тек иесі мен қатысушылар аша алады.",
     "hintGuest": " Егер сізге рұқсат берілген болса, шақыру жіберілген поштамен кіріңіз.",

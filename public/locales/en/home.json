@@ -1,5 +1,5 @@
 {
-  "pageTitle": "Movietime · plan what you watch together",
+  "pageTitle": "Avleron · plan what you watch together",
   "heading": "Home",
   "hero": {
     "kicker": "Your evening programme",
@@ -50,10 +50,10 @@
     "mark": "Mark watched"
   },
   "about": {
-    "pageTitle": "About · Movietime",
-    "kicker": "About Movietime",
+    "pageTitle": "About · Avleron",
+    "kicker": "About Avleron",
     "title": "A personal cinema schedule for you and your friends",
-    "lead": "Movietime helps you discover movies and series, keep a library of what you watch, and plan viewing nights that actually happen. Discover → save → plan → watch → track.",
+    "lead": "Avleron helps you discover movies and series, keep a library of what you watch, and plan viewing nights that actually happen. Discover → save → plan → watch → track.",
     "features": "Features",
     "heatmapTitle": "Episode heatmap",
     "heatmapText": "Every episode of a series, coloured by rating. Spot the strong seasons and the slumps before you commit.",
@@ -61,6 +61,6 @@
     "plannerText": "Pick a series or a list, choose your evenings, and get a schedule with a finish date.",
     "sharingTitle": "Sharing",
     "sharingText": "Share lists and plans by link, or invite friends as editors or viewers. Everyone marks progress together.",
-    "credit": "Movie and series data and images are provided by <tmdb>TMDB</tmdb>. Movietime uses the TMDB API but is not endorsed or certified by TMDB."
+    "credit": "Movie and series data and images are provided by <tmdb>TMDB</tmdb>. Avleron uses the TMDB API but is not endorsed or certified by TMDB."
   }
 }

@@ -1,5 +1,5 @@
 {
-  "pageTitle": "Library · Movietime",
+  "pageTitle": "Library · Avleron",
   "title": "Library",
   "guestBanner": "Saved on this device. Sign in to sync across your phone and laptop.",
   "signIn": "Sign in",
@@ -63,7 +63,7 @@
     "missingTitle": "This title isn’t in your library",
     "missingBody": "It may have been removed, possibly on another device or in another tab.",
     "goLibrary": "Go to library",
-    "pageTitle": "Edit {{title}} · Movietime",
+    "pageTitle": "Edit {{title}} · Avleron",
     "confirmTitle": "Remove “{{title}}”?",
     "confirmBody": "Your status, score, notes and progress for this title will be deleted.",
     "remove": "Remove"

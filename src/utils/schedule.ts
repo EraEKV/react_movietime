@@ -229,7 +229,7 @@ export function toIcs(calendarName: string, events: IcsEvent[], now: Date): stri
   const lines = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
-    'PRODID:-//Movietime//Planner//EN',
+    'PRODID:-//Avleron//Planner//EN',
     'CALSCALE:GREGORIAN',
     'METHOD:PUBLISH',
     `X-WR-CALNAME:${escapeText(calendarName)}`,

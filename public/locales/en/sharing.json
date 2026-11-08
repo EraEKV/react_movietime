@@ -13,7 +13,7 @@
     "invitePlaceholder": "friend@example.com",
     "role": "Role",
     "invite": "Invite",
-    "inviteNote": "Your friend gets access after signing in to Movietime with this exact email and confirming it.",
+    "inviteNote": "Your friend gets access after signing in to Avleron with this exact email and confirming it.",
     "offline": "You’re offline. Connect to send the invite.",
     "people": "People with access",
     "you": "{{name}} (you)",
@@ -68,8 +68,8 @@
     "email": "Email",
     "dismiss": "Hide",
     "menu": "Invite link",
-    "mailSubject": "{{owner}} invited you to “{{name}}” on Movietime",
-    "mailBody": "Hi!\n\n{{owner}} gave you access to “{{name}}” on Movietime. Sign up or sign in with {{email}}, verify the address, and it opens right away:\n\n{{url}}\n",
-    "shareText": "{{owner}} invited you to “{{name}}” on Movietime"
+    "mailSubject": "{{owner}} invited you to “{{name}}” on Avleron",
+    "mailBody": "Hi!\n\n{{owner}} gave you access to “{{name}}” on Avleron. Sign up or sign in with {{email}}, verify the address, and it opens right away:\n\n{{url}}\n",
+    "shareText": "{{owner}} invited you to “{{name}}” on Avleron"
   }
 }

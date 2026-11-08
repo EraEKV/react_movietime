@@ -34,8 +34,8 @@ export function pushMessage(
 ) {
   return {
     title: TITLE[locale][kind](
-      p.owner.slice(0, 80) || 'Movietime',
-      p.name.slice(0, 120) || 'Movietime',
+      p.owner.slice(0, 80) || 'Avleron',
+      p.name.slice(0, 120) || 'Avleron',
     ),
     body: ROLE[locale][p.role],
     url: p.path,

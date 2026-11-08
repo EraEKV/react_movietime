@@ -1,5 +1,5 @@
 {
-  "pageTitle": "Profile · Movietime",
+  "pageTitle": "Profile · Avleron",
   "loadError": "Couldn’t load your profile",
   "creating": "Your profile is being created. Sign out and in again if this stays.",
   "accountNav": "Account",
@@ -46,7 +46,7 @@
     "finished": "Finished the plan"
   },
   "settings": {
-    "pageTitle": "Settings · Movietime",
+    "pageTitle": "Settings · Avleron",
     "title": "Settings",
     "account": "Account",
     "email": "Email",
@@ -61,16 +61,16 @@
     "system": "System",
     "language": "Language",
     "languageNote": "Applies at once and is saved to your account.",
-    "footer": "Movietime · Data from TMDB",
+    "footer": "Avleron · Data from TMDB",
     "signOut": "Sign out",
     "notifications": "Notifications",
     "push": {
       "label": "Push notifications on this device",
-      "hint": "Get a notice when a friend shares a list or plan with you or changes your access. Works even when Movietime is closed.",
+      "hint": "Get a notice when a friend shares a list or plan with you or changes your access. Works even when Avleron is closed.",
       "failed": "Couldn’t change this. Check your connection and try again.",
       "blocked": {
         "unsupported": "This browser doesn’t support push notifications.",
-        "needs-install": "On iPhone and iPad, add Movietime to the Home Screen first, then open it from there and turn this on.",
+        "needs-install": "On iPhone and iPad, add Avleron to the Home Screen first, then open it from there and turn this on.",
         "unconfigured": "Push notifications aren’t set up for this version of the app.",
         "denied": "Notifications are blocked for this site. Allow them in the browser’s site settings, then come back."
       }

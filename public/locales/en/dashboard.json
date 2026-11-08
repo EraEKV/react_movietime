@@ -8,7 +8,7 @@
   },
   "loading": "Loading",
   "welcomeTitle": "Your stats start with your first title",
-  "welcomeBody": "Add a few movies or series to your library and Movietime will chart what you watch, when and how you rate it.",
+  "welcomeBody": "Add a few movies or series to your library and Avleron will chart what you watch, when and how you rate it.",
   "welcomeAction": "Add your first titles",
   "libraryError": "Couldn’t load your library",
   "retryBody": "Check your connection and try again.",
