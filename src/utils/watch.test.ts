@@ -45,7 +45,7 @@ describe('pickRegion', () => {
   })
 
   it('sends Kazakh to Russia when Kazakhstan has no data', () => {
-    const noKz = { results: { DE: data.results.DE, RU: data.results.US } } satisfies WatchProviders
+    const noKz = { results: { DE: { link: 'de' }, RU: { link: 'ru' } } } satisfies WatchProviders
     expect(pickRegion(noKz, null, 'kk')).toBe('RU')
     expect(pickRegion(noKz, null, 'en')).toBe('DE')
   })
@@ -64,7 +64,7 @@ describe('regionOptions', () => {
   })
 
   it('always lists Kazakhstan, even when TMDB has no data for it', () => {
-    const noKz = { results: { DE: data.results.DE } } satisfies WatchProviders
+    const noKz = { results: { DE: { link: 'de' } } } satisfies WatchProviders
     expect(regionOptions(noKz, 'DE', 'en').map((o) => o.value)).toContain('KZ')
   })
 
