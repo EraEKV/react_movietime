@@ -9,6 +9,16 @@ import type { WatchProvider, WatchProviders, WatchRegion } from '../types/tmdb'
 /** A country guessed from the interface language until the person picks one. */
 export const DEFAULT_REGION: Record<Language, string> = { en: 'US', ru: 'RU', kk: 'KZ' }
 
+/**
+ * Countries to try, in order, when there is no saved choice. Kazakh falls back to Russia:
+ * TMDB (JustWatch) has no data for Kazakhstan, and a neighbour's services beat a country
+ * picked alphabetically.
+ */
+const PREFERRED_REGIONS: Record<Language, string[]> = { en: ['US'], ru: ['RU'], kk: ['KZ', 'RU'] }
+
+/** Always in the picker, even when TMDB has nothing for it, so people can see it is missing. */
+const ALWAYS_LISTED = ['KZ']
+
 /** Offer kinds in the order they are shown: the cheapest way to watch first. */
 export const OFFER_KINDS = ['flatrate', 'free', 'ads', 'rent', 'buy'] as const
 export type OfferKind = (typeof OFFER_KINDS)[number]
@@ -38,22 +48,24 @@ export function pickRegion(
 ): string {
   const codes = Object.keys(data?.results ?? {})
   if (saved) return saved
-  const fallback = DEFAULT_REGION[language]
-  return codes.includes(fallback) || codes.length === 0
-    ? fallback
-    : (codes.toSorted()[0] ?? fallback)
+  const preferred = PREFERRED_REGIONS[language].find((code) => codes.includes(code))
+  if (preferred) return preferred
+  return codes.length === 0
+    ? DEFAULT_REGION[language]
+    : (codes.toSorted()[0] ?? DEFAULT_REGION[language])
 }
 
 /**
  * Country options for the picker, named in the interface language: every country TMDB has
- * data for, plus the chosen one (it may have no data, and it must stay selectable).
+ * data for, Kazakhstan (it has none, but should be visible), and the chosen one (it may have
+ * no data, and it must stay selectable).
  */
 export function regionOptions(
   data: WatchProviders | undefined,
   selected: string,
   locale = currentLocale(),
 ): Option<string>[] {
-  const codes = new Set([...Object.keys(data?.results ?? {}), selected])
+  const codes = new Set([...Object.keys(data?.results ?? {}), ...ALWAYS_LISTED, selected])
   return [...codes]
     .map((code) => ({ value: code, label: regionNameWith(code, locale) }))
     .toSorted((a, b) => a.label.localeCompare(b.label, locale))
