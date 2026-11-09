@@ -142,7 +142,7 @@ export interface Translations {
 
 /** /tv/{id}?append_to_response=credits,videos,recommendations,translations */
 export interface SeriesDetails extends SeriesBase {
-  credits: { cast: CastMember[] }
+  credits: { cast: CastMember[]; crew: CrewMember[] }
   videos: { results: Video[] }
   recommendations: Paginated<SeriesListItem>
   translations?: Translations

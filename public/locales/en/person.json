@@ -60,5 +60,16 @@
     "title": "Nothing matches these filters",
     "body": "Try another role or type."
   },
-  "listLabel": "Filmography of {{name}}"
+  "listLabel": "Filmography of {{name}}",
+  "jobs": {
+    "creator": "Creator",
+    "director": "Director",
+    "writer": "Writer",
+    "cinematography": "Cinematography",
+    "music": "Music",
+    "editing": "Editing",
+    "producer": "Producer"
+  },
+  "crewLabel": "Key crew",
+  "profileLink": "{{name}}: profile"
 }

@@ -207,3 +207,62 @@ export function biographyOf(person: Pick<PersonDetails, 'biography' | 'translati
   const english = person.translations?.translations.find((item) => item.iso_639_1 === 'en')
   return english?.data.biography?.trim() ?? ''
 }
+
+/** Crew jobs worth a link on a title page, in the order they are shown. */
+export type KeyJob =
+  'creator' | 'director' | 'writer' | 'cinematography' | 'music' | 'editing' | 'producer'
+
+const KEY_JOB: Record<string, KeyJob> = {
+  Creator: 'creator',
+  Director: 'director',
+  Writer: 'writer',
+  Screenplay: 'writer',
+  Screenstory: 'writer',
+  Story: 'writer',
+  Teleplay: 'writer',
+  Novel: 'writer',
+  'Director of Photography': 'cinematography',
+  'Original Music Composer': 'music',
+  Editor: 'editing',
+  Producer: 'producer',
+}
+
+const KEY_JOB_ORDER: KeyJob[] = [
+  'creator',
+  'director',
+  'writer',
+  'cinematography',
+  'music',
+  'editing',
+  'producer',
+]
+
+export interface KeyCrewMember {
+  id: number
+  name: string
+  jobs: KeyJob[]
+}
+
+/**
+ * The people a visitor looks for first: one entry per person with their key jobs merged
+ * ("Screenplay" and "Story" are both `writer`), most important job first. Other jobs
+ * (gaffer, caterer…) are left out. A person is listed once even with five credits.
+ */
+export function keyCrew(
+  crew: { id: number; name: string; job: string }[],
+  limit = 10,
+): KeyCrewMember[] {
+  const people = new Map<number, KeyCrewMember>()
+  for (const member of crew) {
+    const job = KEY_JOB[member.job]
+    if (!job) continue
+    const person = people.get(member.id) ?? { id: member.id, name: member.name, jobs: [] }
+    if (!person.jobs.includes(job)) person.jobs.push(job)
+    people.set(member.id, person)
+  }
+  const rank = (job: KeyJob) => KEY_JOB_ORDER.indexOf(job)
+  return [...people.values()]
+    .map((person) => ({ ...person, jobs: [...person.jobs].sort((a, b) => rank(a) - rank(b)) }))
+    .sort((a, b) => rank(a.jobs[0] ?? 'producer') - rank(b.jobs[0] ?? 'producer'))
+    .slice(0, limit)
+}

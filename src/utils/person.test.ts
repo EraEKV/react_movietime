@@ -8,6 +8,7 @@ import {
   crewRole,
   filterWorks,
   isoDay,
+  keyCrew,
   knownFor,
   seenProgress,
   sortUpcoming,
@@ -275,5 +276,36 @@ describe('biographyOf', () => {
   it('falls back to English, and to nothing', () => {
     expect(biographyOf({ biography: '  ', translations: english })).toBe('English bio')
     expect(biographyOf({ biography: '' })).toBe('')
+  })
+})
+
+describe('keyCrew', () => {
+  const member = (id: number, job: string) => ({ id, name: `Person ${id}`, job })
+
+  it('lists a person once with their jobs merged, writer jobs counted as one', () => {
+    const crew = keyCrew([
+      member(1, 'Director'),
+      member(1, 'Screenplay'),
+      member(1, 'Story'),
+      member(1, 'Producer'),
+    ])
+    expect(crew).toEqual([{ id: 1, name: 'Person 1', jobs: ['director', 'writer', 'producer'] }])
+  })
+
+  it('ignores jobs that are not key ones', () => {
+    expect(keyCrew([member(1, 'Gaffer'), member(2, 'Catering')])).toEqual([])
+  })
+
+  it('orders people by their most important job and respects the limit', () => {
+    const crew = keyCrew(
+      [member(1, 'Producer'), member(2, 'Original Music Composer'), member(3, 'Director')],
+      2,
+    )
+    expect(crew.map((p) => p.id)).toEqual([3, 2])
+  })
+
+  it('puts series creators first', () => {
+    const crew = keyCrew([member(1, 'Director'), member(2, 'Creator')])
+    expect(crew.map((p) => p.id)).toEqual([2, 1])
   })
 })

@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { ApiError, endpoints } from '../../shared/api/tmdb'
 import { useFetch } from '../../shared/hooks/useFetch'
+import { keyCrew } from '../../utils/person'
 import { useGenres } from '../../hooks/useGenres'
 import type { CrewMember, MovieDetails as MovieDetailsData } from '../../types/tmdb'
 import { formatDate, formatMoney, formatRuntime, getYear } from '../../shared/lib/format'
@@ -13,6 +14,7 @@ import AddToListButton from '../AddToList/AddToListButton'
 import BackButton from '../../shared/ui/BackButton/BackButton'
 import ButtonLink from '../../shared/ui/ButtonLink/ButtonLink'
 import CastList from '../CastList/CastList'
+import CrewList from '../CrewList/CrewList'
 import DetailsSkeleton from '../DetailsSkeleton/DetailsSkeleton'
 import ErrorState from '../../shared/ui/EmptyState/ErrorState'
 import FactTiles from '../../shared/ui/FactTiles/FactTiles'
@@ -35,6 +37,7 @@ function directorsOf(crew: CrewMember[]): string | null {
 
 export default function MovieDetails({ movieId }: { movieId: string }) {
   const { t } = useTranslation('catalog')
+  const { t: tPerson } = useTranslation('person')
   // One request: details + credits + videos + recommendations via append_to_response.
   const {
     status,
@@ -68,6 +71,7 @@ export default function MovieDetails({ movieId }: { movieId: string }) {
     )
   }
 
+  const crew = keyCrew(movie.credits.crew)
   const cast = movie.credits.cast.slice(0, MAX_CAST)
   const trailer = pickTrailer(movie.videos.results)
   const recommendations = movie.recommendations.results.slice(0, MAX_RECOMMENDATIONS).map(fromMovie)
@@ -132,6 +136,12 @@ export default function MovieDetails({ movieId }: { movieId: string }) {
       {trailer && (
         <Section title={t('details.trailer')}>
           <Trailer video={trailer} title={movie.title} />
+        </Section>
+      )}
+
+      {crew.length > 0 && (
+        <Section title={tPerson('crewLabel')}>
+          <CrewList crew={crew} />
         </Section>
       )}
 

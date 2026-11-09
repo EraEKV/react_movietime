@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next'
 
 import { ApiError, endpoints } from '../../shared/api/tmdb'
 import { useFetch } from '../../shared/hooks/useFetch'
+import { keyCrew } from '../../utils/person'
 import { useGenres } from '../../hooks/useGenres'
 import type { SeriesDetails as SeriesDetailsData } from '../../types/tmdb'
 import { useTmdbLanguage } from '../../shared/hooks/useTmdbLanguage'
@@ -14,6 +15,7 @@ import AddToListButton from '../AddToList/AddToListButton'
 import BackButton from '../../shared/ui/BackButton/BackButton'
 import ButtonLink from '../../shared/ui/ButtonLink/ButtonLink'
 import CastList from '../CastList/CastList'
+import CrewList from '../CrewList/CrewList'
 import ErrorState from '../../shared/ui/EmptyState/ErrorState'
 import MediaGrid from '../MediaGrid/MediaGrid'
 import EpisodeHeatmap from '../EpisodeHeatmap/EpisodeHeatmap'
@@ -31,6 +33,7 @@ const MAX_RECOMMENDATIONS = 10
 
 export default function SeriesDetails({ seriesId }: { seriesId: string }) {
   const { t } = useTranslation(['catalog', 'common'])
+  const { t: tPerson } = useTranslation('person')
   // One request: details + credits + videos + recommendations via append_to_response.
   const {
     status,
@@ -64,6 +67,10 @@ export default function SeriesDetails({ seriesId }: { seriesId: string }) {
     )
   }
 
+  const crew = keyCrew([
+    ...series.created_by.map((creator) => ({ ...creator, job: 'Creator' })),
+    ...series.credits.crew,
+  ])
   const cast = series.credits.cast.slice(0, MAX_CAST)
   const trailer = pickTrailer(series.videos.results)
   const seasons = sortSeasons(series.seasons)
@@ -132,6 +139,12 @@ export default function SeriesDetails({ seriesId }: { seriesId: string }) {
       {trailer && (
         <Section title={t('details.trailer')}>
           <Trailer video={trailer} title={series.name} />
+        </Section>
+      )}
+
+      {crew.length > 0 && (
+        <Section title={tPerson('crewLabel')}>
+          <CrewList crew={crew} />
         </Section>
       )}
 
