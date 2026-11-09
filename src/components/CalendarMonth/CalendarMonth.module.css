@@ -95,3 +95,20 @@
     min-height: 72px;
   }
 }
+
+/* Drag and drop: the chip is the handle, the day it hovers over lights up. */
+.draggable {
+  min-width: 0;
+  cursor: grab;
+  /* Lets a vertical swipe scroll the page; the drag starts after a short hold. */
+  touch-action: manipulation;
+}
+
+.lifted {
+  opacity: 0.4;
+}
+
+.over {
+  background: var(--surface-selected);
+  box-shadow: inset 0 0 0 2px var(--accent);
+}

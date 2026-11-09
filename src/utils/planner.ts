@@ -1,9 +1,9 @@
 import i18n from '../shared/i18n'
 // Pure planner helpers: TMDB episodes → plan units, colours, labels, roles. No React.
 import type { LibraryMedia, SeriesProgress } from '../types/library'
-import type { Plan, PlanColor, PlanRole, PlanUnit, Weekday } from '../types/plan'
+import type { Plan, PlanColor, PlanDraft, PlanRole, PlanUnit, Weekday } from '../types/plan'
 import type { RawSeason } from '../types/tmdb'
-import { WEEK_ORDER, weekdayShort } from './calendar'
+import { WEEK_ORDER, weekdayOf, weekdayShort } from './calendar'
 import { watchedUpTo, type SeasonSize } from './library'
 import { mediaKey } from './media'
 
@@ -93,6 +93,19 @@ export const canEditSessions = (role: PlanRole) => role === 'owner' || role === 
 export const unitWord = (plan: Pick<Plan, 'kind'>, count: number) =>
   i18n.t(plan.kind === 'series' ? 'count.episodes' : 'count.movies', { count })
 
+/** A single movie on one evening: a plan of one session, no recurrence. */
+export function moviePlanDraft(media: LibraryMedia, date: string, time: string): PlanDraft {
+  return {
+    title: media.title.slice(0, 120),
+    kind: 'movie',
+    media: null,
+    sourceListId: null,
+    // The weekday is only there to satisfy the schedule: one unit makes one session.
+    options: { startDate: date, weekdays: [weekdayOf(date)], time, perSession: 1, from: null },
+    units: [movieToUnit(media)],
+  }
+}
+
 /** Poster of a session: the movie's own, or the series'. */
 export const sessionPoster = (plan: Pick<Plan, 'media'>, units: PlanUnit[]) =>
   units[0]?.media?.posterPath ?? plan.media?.posterPath ?? null
@@ -146,4 +159,12 @@ export function defaultPlanTitle(
   return i18n
     .t('planner:defaultTitle.from', { name, code: `S${first.season}E${first.episode}` })
     .slice(0, 120)
+}
+
+/** 17:00 … 23:30 every half hour, plus the current value if it's something else. */
+export function timeOptions(current: string) {
+  const times: string[] = []
+  for (let h = 17; h <= 23; h++) times.push(`${h}:00`, `${h}:30`)
+  if (!times.includes(current)) times.push(current)
+  return times.toSorted().map((t) => ({ value: t, label: t }))
 }

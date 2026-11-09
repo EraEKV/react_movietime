@@ -199,6 +199,14 @@
     "body": "{{movies}}, one per evening on the days you pick. Avleron works out the finish date.",
     "plan": "Plan it"
   },
+  "moved": "{{title}} moved to {{date}}.",
+  "movie": {
+    "button": "Plan watching",
+    "title": "Plan {{title}}",
+    "date": "Day",
+    "submit": "Add to planner",
+    "created": "{{title}} is in your planner."
+  },
   "watching": "Plan watching",
   "nights_one": "{{count}} night",
   "nights_other": "{{count}} nights",

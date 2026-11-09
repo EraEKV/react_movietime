@@ -13,10 +13,12 @@ import SessionChip from '../components/SessionChip/SessionChip'
 import Skeleton from '../shared/ui/Skeleton/Skeleton'
 import Toast from '../shared/ui/Toast/Toast'
 import { useMediaQuery } from '../shared/hooks/useMediaQuery'
-import { usePlanner } from '../hooks/usePlanner'
+import { useAuth } from '../hooks/useAuth'
+import { usePlanActions, usePlanner } from '../hooks/usePlanner'
 import { useTimedState } from '../shared/hooks/useTimedState'
 import type { Plan, PlannedSession } from '../types/plan'
 import {
+  formatDay,
   formatMonth,
   localToday,
   monthKey,
@@ -27,7 +29,8 @@ import {
   type MonthRef,
 } from '../utils/calendar'
 import { noticeFromState } from '../shared/lib/notice'
-import { sessionPoster } from '../utils/planner'
+import { canEditSessions, planErrorMessage, sessionPoster } from '../utils/planner'
+import { roleOf } from '../utils/sharing'
 import { unitsLabel } from '../utils/schedule'
 import styles from './PlannerPage.module.css'
 
@@ -40,7 +43,7 @@ const SHOWS = [
 
 const chipTitle = (plan: Plan) => plan.media?.title ?? plan.title
 
-function toItem({ plan, session }: PlannedSession): CalendarItem {
+function toItem({ plan, session }: PlannedSession, editable = false): CalendarItem {
   return {
     key: `${plan.id}/${session.id}`,
     date: session.date,
@@ -51,6 +54,7 @@ function toItem({ plan, session }: PlannedSession): CalendarItem {
     status: session.status,
     posterPath: sessionPoster(plan, session.units),
     to: `/planner/${plan.id}`,
+    movable: editable && session.status === 'pending',
   }
 }
 
@@ -75,6 +79,8 @@ export default function PlannerPage() {
   // An invalid ?month= falls back to the current month instead of an error.
   const month: MonthRef = parseMonthKey(params.get('month')) ?? monthOf(localToday())
   const { plans, grid, today, visible, todays } = usePlanner(month)
+  const { user } = useAuth()
+  const actions = usePlanActions()
   const show: Show = SHOWS.some((s) => s.value === params.get('show'))
     ? (params.get('show') as Show) // checked against SHOWS on the line above
     : 'all'
@@ -174,6 +180,24 @@ export default function PlannerPage() {
     </div>
   )
 
+  // Drop on another day: that one session moves, later ones stay (the plan page's
+  // Reschedule can shift them too).
+  async function moveSession(key: string, date: string) {
+    const found = monthSessions?.find((s) => `${s.plan.id}/${s.session.id}` === key)
+    if (!found) return
+    try {
+      await actions.reschedule(found.plan, found.session, date, false)
+      showToast({
+        text: t('moved', {
+          title: chipTitle(found.plan),
+          date: formatDay(date, { weekday: 'short', month: 'short', day: 'numeric' }),
+        }),
+      })
+    } catch (error) {
+      showToast({ text: planErrorMessage(error), error: true })
+    }
+  }
+
   let schedule
   if (visible.status === 'error') {
     schedule = (
@@ -194,7 +218,11 @@ export default function PlannerPage() {
         days={grid}
         today={today}
         compact={!desktop}
-        items={monthSessions.map(toItem)}
+        items={monthSessions.map((item) => {
+          const role = roleOf(item.plan, user)
+          return toItem(item, role !== null && canEditSessions(role))
+        })}
+        onMove={(key, date) => void moveSession(key, date)}
       />
     )
   } else {

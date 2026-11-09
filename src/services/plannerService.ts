@@ -144,7 +144,7 @@ function toPlan(id: string, data: DocumentData): Plan {
     roles: toRoles(data.roles),
     memberEmails: strings(data.memberEmails),
     title: String(data.title ?? ''),
-    kind: data.kind === 'list' ? 'list' : 'series',
+    kind: data.kind === 'list' || data.kind === 'movie' ? data.kind : 'series',
     media: toMedia(data.media),
     sourceListId: typeof data.sourceListId === 'string' ? data.sourceListId : null,
     options: toOptions(data.options),
@@ -620,17 +620,28 @@ export async function rescheduleSession(
   session: PlanSession,
   date: string,
   shiftLater: boolean,
+  time?: string,
 ) {
   const all = await loadSessions(plan.id)
   const changes = shiftSessions(all, session.id, date, shiftLater)
-  if (changes.length === 0) return
+  // Only the time changed: the day stays, so shiftSessions has nothing to move.
+  const retimed = time !== undefined && time !== session.time
+  if (changes.length === 0 && !retimed) return
   const moved = new Map(changes.map((c) => [c.id, c.date]))
   const sessions = all.map((s) => ({ ...s, date: moved.get(s.id) ?? s.date }))
   const totals = planTotals(plan, sessions)
 
   const writes: ((batch: WriteBatch) => void)[] = changes.map(
-    (c) => (b) => b.update(sessionRef(plan.id, c.id), { date: c.date }),
+    (c) => (b) =>
+      b.update(sessionRef(plan.id, c.id), {
+        date: c.date,
+        // The time is the moved session's own; shifted ones keep theirs.
+        ...(retimed && c.id === session.id && { time }),
+      }),
   )
+  if (retimed && changes.every((c) => c.id !== session.id)) {
+    writes.push((b) => b.update(sessionRef(plan.id, session.id), { time }))
+  }
   writes.push((b) => b.update(planRef(plan.id), totals))
   await commitInChunks(writes)
 }
