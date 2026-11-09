@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useLocation, useNavigate, useSearchParams } from 'react-router'
 import AddToListDialog from '../components/AddToList/AddToListDialog'
 import Button from '../shared/ui/Button/Button'
+import ButtonLink from '../shared/ui/ButtonLink/ButtonLink'
 import EmptyState from '../shared/ui/EmptyState/EmptyState'
 import ErrorState from '../shared/ui/EmptyState/ErrorState'
 import FilterBar from '../components/FilterBar/FilterBar'
@@ -153,13 +154,27 @@ export default function CatalogPage({ mediaType }: { mediaType: MediaType }) {
               // Lists need an account; guests use the title page's "Add to list" (→ sign in).
               isAuthenticated
                 ? (item) => (
-                    <IconButton
-                      icon="list"
-                      label={t('addToList', { title: item.title })}
-                      variant="secondary"
-                      size="sm"
-                      onClick={() => setListFor(item)}
-                    />
+                    <>
+                      <IconButton
+                        icon="list"
+                        label={t('addToList', { title: item.title })}
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => setListFor(item)}
+                      />
+                      {/* The planner schedules series only for now; movies join with their own sessions. */}
+                      {item.mediaType === 'tv' && (
+                        <ButtonLink
+                          to={`/planner/new?series=${item.id}`}
+                          variant="secondary"
+                          size="sm"
+                          icon="calendar"
+                          aria-label={t('planWatching', { title: item.title })}
+                          title={t('planWatching', { title: item.title })}
+                          iconOnly
+                        />
+                      )}
+                    </>
                   )
                 : undefined
             }

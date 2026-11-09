@@ -24,6 +24,7 @@
   "results": "Results",
   "errorKept": "{{message}} Your filters are kept.",
   "addToList": "Add {{title}} to a list",
+  "planWatching": "Plan watching {{title}}",
   "empty": {
     "searchTitle": "Nothing found for “{{query}}”",
     "searchBody": "Check the spelling or try the original title.",
