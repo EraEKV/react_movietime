@@ -2,7 +2,7 @@
 
 ## Branches
 
-`main` is production: every push is deployed to https://react-movietime.vercel.app by Vercel.
+`main` is production: every push is deployed (and `vercel.json` allows deployments from `main` only) to https://react-movietime.vercel.app by Vercel.
 
 | Change                                                | Where                         |
 | ----------------------------------------------------- | ----------------------------- |
