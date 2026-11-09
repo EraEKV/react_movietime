@@ -32,7 +32,14 @@
     "toDark": "Switch to dark theme",
     "language": "Language: {{name}}",
     "tonight": "Tonight",
-    "tonightLabel": "Tonight at {{time}}: {{title}}, {{units}}. Open planner"
+    "tonightLabel": "Tonight at {{time}}: {{title}}, {{units}}. Open planner",
+    "searching": "Searching",
+    "results": "Search results",
+    "noResults": "No titles for “{{query}}”.",
+    "searchFailed": "Couldn’t search. Check your connection.",
+    "allResults": "All results",
+    "resultCount_one": "{{count}} result",
+    "resultCount_other": "{{count}} results"
   },
   "verify": {
     "text": "Verify <strong>{{email}}</strong> to use shared lists and plans.",
