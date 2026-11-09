@@ -87,5 +87,14 @@
     "progressCaption_few": "{{done}} из {{count}} серий",
     "progressCaption_many": "{{done}} из {{count}} серий",
     "progressCaption_other": "{{done}} из {{count}} серий"
+  },
+  "reorder": {
+    "handle": "Переместить «{{title}}»",
+    "instructions": "Нажмите пробел, чтобы взять название, стрелки, чтобы переместить, пробел, чтобы отпустить, или Escape для отмены.",
+    "pickedUp": "Взято: {{title}}.",
+    "movedTo": "«{{title}}» на месте {{place}}.",
+    "dropped": "«{{title}}» поставлено на место {{place}}.",
+    "cancelled": "Перемещение «{{title}}» отменено.",
+    "hint": "Тяните за ручку, чтобы расставить приоритеты. Порядок сохраняется сам."
   }
 }

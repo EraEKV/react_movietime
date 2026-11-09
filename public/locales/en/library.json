@@ -85,5 +85,14 @@
     "progress": "Series progress",
     "progressCaption_one": "{{done}} of {{count}} episode",
     "progressCaption_other": "{{done}} of {{count}} episodes"
+  },
+  "reorder": {
+    "handle": "Reorder {{title}}",
+    "instructions": "Press space to pick up the title, arrow keys to move it, space to drop it or Escape to cancel.",
+    "pickedUp": "Picked up {{title}}.",
+    "movedTo": "{{title}} moved to place {{place}}.",
+    "dropped": "{{title}} dropped at place {{place}}.",
+    "cancelled": "Moving {{title}} cancelled.",
+    "hint": "Drag the handle to set your priorities. Your order is saved automatically."
   }
 }
