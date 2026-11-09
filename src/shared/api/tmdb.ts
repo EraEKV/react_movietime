@@ -2,9 +2,10 @@ import i18n from '../i18n'
 import { languageInfo } from '../i18n/languages'
 import type { Language } from '../types/preferences'
 
-const BASE_URL = 'https://api.themoviedb.org/3'
+// Our own proxy (api/tmdb on Vercel, a Vite proxy in dev) adds the token on the server, so
+// the app works where api.themoviedb.org itself is blocked and no secret ships to browsers.
+const BASE_URL = '/api/tmdb'
 const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p'
-const TOKEN = import.meta.env.VITE_TMDB_TOKEN
 
 // TMDB reports more pages than it serves: any page above 500 returns an error.
 export const MAX_PAGE = 500
@@ -63,14 +64,11 @@ export async function tmdbGet<T>(
   { signal }: { signal?: AbortSignal } = {},
 ): Promise<T> {
   const url = `${BASE_URL}${/[?&]language=/.test(path) ? path : withLanguage(path)}`
-  if (!TOKEN) {
-    throw new ApiError('TMDB token is missing. Set VITE_TMDB_TOKEN in .env.local.', 401)
-  }
 
   let response: Response
   try {
     response = await fetch(url, {
-      headers: { Authorization: `Bearer ${TOKEN}`, Accept: 'application/json' },
+      headers: { Accept: 'application/json' },
       signal,
     })
   } catch (error) {
