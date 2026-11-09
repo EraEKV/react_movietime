@@ -81,7 +81,8 @@ export default function Select<V extends string>({
     const button = buttonRef.current
     const list = listRef.current
     if (!open || isPhone || !button || !list) return setPlacement(null)
-    const rect = button.getBoundingClientRect()
+    // Match the visible box (the Field's .control around the trigger), not just the button.
+    const rect = (wrapRef.current?.parentElement ?? button).getBoundingClientRect()
     const wanted = Math.min(list.scrollHeight + 2, MAX_LIST)
     const below = window.innerHeight - rect.bottom - GAP - EDGE
     const above = rect.top - GAP - EDGE
