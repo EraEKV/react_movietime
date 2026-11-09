@@ -14,6 +14,14 @@ window.matchMedia ??= (query: string) =>
     removeEventListener: () => {},
   }) as unknown as MediaQueryList
 
+// jsdom has no modal <dialog> API; a plain `open` attribute is enough for the tests.
+HTMLDialogElement.prototype.showModal ??= function showModal(this: HTMLDialogElement) {
+  this.setAttribute('open', '')
+}
+HTMLDialogElement.prototype.close ??= function close(this: HTMLDialogElement) {
+  this.removeAttribute('open')
+}
+
 const LOCALES = join(process.cwd(), 'public', 'locales')
 
 // Dictionaries are fetched over HTTP in the app; tests read the same files from disk.
