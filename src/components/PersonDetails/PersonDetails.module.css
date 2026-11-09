@@ -1,5 +1,6 @@
 .page {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-8);
 }
 
@@ -7,8 +8,9 @@
 
 .hero {
   display: grid;
+  /* Without an explicit track the column grows to the longest line of the biography. */
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-5);
-  justify-items: start;
 }
 
 @media (min-width: 768px) {
@@ -20,6 +22,7 @@
 }
 
 .photo {
+  justify-self: start;
   width: 140px;
   aspect-ratio: 2 / 3;
   overflow: hidden;
