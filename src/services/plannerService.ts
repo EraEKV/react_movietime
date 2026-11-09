@@ -1,4 +1,5 @@
 import i18n from '../shared/i18n'
+import { requestSync } from './calendarService'
 import {
   collection,
   doc,
@@ -490,6 +491,7 @@ export async function createPlan(
   for (const s of sessions) writes.push((b) => b.set(doc(sessionsCol(ref.id)), sessionDoc(s)))
 
   await commitInChunks(writes)
+  requestSync(ref.id) // copy the change to Google Calendar, if connected
   return ref.id
 }
 
@@ -560,6 +562,7 @@ export async function completeSession(
   })
   if (finished) addActivity(batch, by.uid, { type: 'plan.done', title: plan.title, refId: plan.id })
   await batch.commit()
+  requestSync(plan.id) // copy the change to Google Calendar, if connected
 }
 
 /**
@@ -593,6 +596,7 @@ export async function skipSession(plan: Plan, session: PlanSession, by: PlanPers
   batch.set(copyRef, copy)
   batch.update(planRef(plan.id), planTotals(plan, sessions))
   await batch.commit()
+  requestSync(plan.id) // copy the change to Google Calendar, if connected
 }
 
 /**
@@ -612,6 +616,7 @@ export async function undoSession(plan: Plan, session: PlanSession) {
   if (copy) batch.delete(sessionRef(plan.id, copy.id))
   batch.update(planRef(plan.id), planTotals(plan, sessions))
   await batch.commit()
+  requestSync(plan.id) // copy the change to Google Calendar, if connected
 }
 
 /** Moves a session (and, with `shiftLater`, every later pending one by the same days). */
@@ -644,6 +649,7 @@ export async function rescheduleSession(
   }
   writes.push((b) => b.update(planRef(plan.id), totals))
   await commitInChunks(writes)
+  requestSync(plan.id) // copy the change to Google Calendar, if connected
 }
 
 /**
@@ -656,4 +662,5 @@ export async function deletePlan(id: string): Promise<void> {
   const writes: ((batch: WriteBatch) => void)[] = snap.docs.map((d) => (b) => b.delete(d.ref))
   writes.push((b) => b.delete(planRef(id)))
   await commitInChunks(writes)
+  requestSync(id) // copy the change to Google Calendar, if connected
 }

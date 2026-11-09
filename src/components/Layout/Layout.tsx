@@ -1,6 +1,7 @@
 import { Trans, useTranslation } from 'react-i18next'
 import { useEffect } from 'react'
 import { Link, Outlet, useLocation } from 'react-router'
+import { useCalendarAutoSync } from '../../hooks/useCalendarSync'
 import { useSystemThemeSync } from '../../hooks/useTheme'
 import VerifyEmailBanner from '../auth/VerifyEmailBanner'
 import LibraryNotice from '../Library/LibraryNotice'
@@ -13,6 +14,7 @@ export default function Layout() {
   const { t } = useTranslation()
   const { pathname } = useLocation()
   useSystemThemeSync()
+  useCalendarAutoSync()
 
   // Syncs the browser's scroll position (an external system) with the route:
   // opening another page starts at the top. Filter/page changes keep the same pathname.
