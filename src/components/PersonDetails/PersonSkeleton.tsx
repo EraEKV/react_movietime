@@ -18,7 +18,7 @@ export default function PersonSkeleton({ label }: { label: string }) {
           <Skeleton height={96} radius="md" />
         </div>
       </div>
-      <SkeletonGrid count={10} label={label} />
+      <SkeletonGrid count={10} />
     </div>
   )
 }

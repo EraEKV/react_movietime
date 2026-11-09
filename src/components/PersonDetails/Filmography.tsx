@@ -100,7 +100,7 @@ export default function Filmography({ name, works, today, statuses }: Filmograph
     <Section title={t('filmography')}>
       <div className={styles.list}>
         <div className={styles.controls}>
-          {roleOptions.length > 1 && (
+          {roleOptions.length > 2 && (
             <div className={styles.control}>
               <SegmentedControl
                 label={t('filters.role')}
