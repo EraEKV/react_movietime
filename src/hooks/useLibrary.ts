@@ -1,6 +1,7 @@
 import {
   addToLibrary,
   removeFromLibrary,
+  reorderLibrary,
   restoreLibraryEntry,
   selectLibraryEntries,
   selectLibraryEntry,
@@ -35,6 +36,7 @@ export function useLibrary() {
     update: (key: MediaKey, changes: LibraryChanges) => dispatch(updateLibraryEntry(key, changes)),
     remove: (key: MediaKey) => dispatch(removeFromLibrary(key)),
     restore: (entry: LibraryEntry) => dispatch(restoreLibraryEntry(entry)),
+    reorder: (movedKey: MediaKey, overKey: MediaKey) => dispatch(reorderLibrary(movedKey, overKey)),
   }
 }
 

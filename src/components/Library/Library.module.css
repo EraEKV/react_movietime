@@ -18,3 +18,39 @@
   flex-direction: column;
   gap: var(--space-3);
 }
+
+/* Sortable rows (sort "My order"). */
+.row {
+  position: relative;
+  border-radius: var(--radius-md);
+}
+
+/* The lifted row floats above its neighbours. */
+.dragging {
+  z-index: 2;
+  box-shadow: var(--shadow-3);
+}
+
+/* touch-action: none lets a finger drag the handle instead of scrolling the page. */
+.handle {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--text-subtle);
+  cursor: grab;
+  touch-action: none;
+}
+
+.handle:hover {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+
+.dragging .handle {
+  cursor: grabbing;
+}

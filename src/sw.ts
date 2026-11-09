@@ -67,7 +67,7 @@ registerRoute(
 // TMDB API: the network wins, so data stays fresh; when it fails the last answer (up to a
 // day old) is served. The timeout makes a flaky connection fall back quickly.
 registerRoute(
-  ({ url }) => url.hostname === 'api.themoviedb.org',
+  ({ url, sameOrigin }) => sameOrigin && url.pathname.startsWith('/api/tmdb/'),
   new NetworkFirst({
     cacheName: 'tmdb-api',
     networkTimeoutSeconds: 5,

@@ -118,18 +118,19 @@ ties an email to a browser.
 
 ### `users/{uid}/library/{mediaKey}`: library entry
 
-| Field                                                                          | Type                                               | Notes                                             |
-| ------------------------------------------------------------------------------ | -------------------------------------------------- | ------------------------------------------------- |
-| `mediaType`, `tmdbId`, `title`, `posterPath`, `year`, `genreIds`, `tmdbRating` | `MediaSummary`                                     | Snapshot so lists render without TMDB             |
-| `runtime`                                                                      | number \| null                                     | Movie runtime or average episode runtime, minutes |
-| `totalEpisodes`                                                                | number \| null                                     | Series only                                       |
-| `status`                                                                       | `"plan" \| "watching" \| "completed" \| "dropped"` |                                                   |
-| `score`                                                                        | number (1–10) \| null                              |                                                   |
-| `notes`                                                                        | string                                             | ≤ 500 chars                                       |
-| `progress`                                                                     | `{ season, episode, watchedEpisodes }` \| null     | Series only; last watched episode                 |
-| `addedAt`                                                                      | Timestamp                                          |                                                   |
-| `updatedAt`                                                                    | Timestamp                                          |                                                   |
-| `completedAt`                                                                  | Timestamp \| null                                  | Set when status becomes `completed`               |
+| Field                                                                          | Type                                               | Notes                                                                          |
+| ------------------------------------------------------------------------------ | -------------------------------------------------- | ------------------------------------------------------------------------------ |
+| `mediaType`, `tmdbId`, `title`, `posterPath`, `year`, `genreIds`, `tmdbRating` | `MediaSummary`                                     | Snapshot so lists render without TMDB                                          |
+| `runtime`                                                                      | number \| null                                     | Movie runtime or average episode runtime, minutes                              |
+| `totalEpisodes`                                                                | number \| null                                     | Series only                                                                    |
+| `status`                                                                       | `"plan" \| "watching" \| "completed" \| "dropped"` |                                                                                |
+| `score`                                                                        | number (1–10) \| null                              |                                                                                |
+| `notes`                                                                        | string                                             | ≤ 500 chars                                                                    |
+| `progress`                                                                     | `{ season, episode, watchedEpisodes }` \| null     | Series only; last watched episode                                              |
+| `addedAt`                                                                      | Timestamp                                          |                                                                                |
+| `updatedAt`                                                                    | Timestamp                                          |                                                                                |
+| `completedAt`                                                                  | Timestamp \| null                                  | Set when status becomes `completed`                                            |
+| `order`                                                                        | number \| null                                     | Place in the user's own order ("My order" sort); written by drag-and-drop only |
 
 Guests: the same objects in `localStorage` under `movietime.library.v1`.
 

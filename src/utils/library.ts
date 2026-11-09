@@ -5,7 +5,7 @@ import type { LibraryChanges, LibraryEntry, LibraryMedia, LibraryStatus } from '
 import type { MovieBase, SeriesBase } from '../types/tmdb'
 import { getYear } from '../shared/lib/format'
 import { mediaKey } from './media'
-import type { MediaType } from '../types/media'
+import type { MediaKey, MediaType } from '../types/media'
 
 export const LIBRARY_STATUSES: Option<LibraryStatus>[] = [
   translatedOption('plan', 'status.plan'),
@@ -68,6 +68,7 @@ export function createEntry(media: LibraryMedia, status: LibraryStatus, now: str
     addedAt: now,
     updatedAt: now,
     completedAt: status === 'completed' ? now : null,
+    order: null,
   }
 }
 
@@ -94,9 +95,10 @@ export function progressRatio(entry: LibraryEntry): number | null {
 
 /* ---------- Search, filters, sort (pure, used by the memoized selector) ---------- */
 
-export type LibrarySort = 'updated' | 'score' | 'title' | 'year' | 'rating'
+export type LibrarySort = 'manual' | 'updated' | 'score' | 'title' | 'year' | 'rating'
 
 export const LIBRARY_SORTS: Option<LibrarySort>[] = [
+  translatedOption('manual', 'library:sort.manual'),
   translatedOption('updated', 'library:sort.updated'),
   translatedOption('score', 'library:sort.score'),
   translatedOption('title', 'library:sort.title'),
@@ -127,7 +129,18 @@ const byTitle = (a: LibraryEntry, b: LibraryEntry) => a.title.localeCompare(b.ti
 const nullableDesc = (a: number | string | null, b: number | string | null) =>
   a === b ? 0 : a === null ? 1 : b === null ? -1 : a < b ? 1 : -1
 
+/** The user's own order first; titles never moved follow, newest added on top. */
+const byManualOrder = (a: LibraryEntry, b: LibraryEntry) =>
+  a.order === b.order
+    ? b.addedAt.localeCompare(a.addedAt)
+    : a.order === null
+      ? 1
+      : b.order === null
+        ? -1
+        : a.order - b.order
+
 const SORTERS: Record<LibrarySort, (a: LibraryEntry, b: LibraryEntry) => number> = {
+  manual: byManualOrder,
   updated: (a, b) => b.updatedAt.localeCompare(a.updatedAt),
   score: (a, b) => nullableDesc(a.score, b.score) || byTitle(a, b),
   title: byTitle,
@@ -162,4 +175,34 @@ export function watchedUpTo(seasons: SeasonSize[], season: number, episode: numb
     .filter((s) => s.season_number > 0 && s.season_number < season)
     .reduce((sum, s) => sum + s.episode_count, 0)
   return before + episode
+}
+
+/** One title's new place in the manual order. */
+export interface OrderUpdate {
+  key: MediaKey
+  order: number
+}
+
+/**
+ * Moves `movedKey` to where `overKey` is (the usual drag-and-drop result: dropping
+ * downwards lands after the target, upwards before it) and returns only the entries whose
+ * place changed. Works on the whole library, so it is right even when the screen shows
+ * a filtered part of it.
+ */
+export function reorderUpdates(
+  entries: LibraryEntry[],
+  movedKey: MediaKey,
+  overKey: MediaKey,
+): OrderUpdate[] {
+  const ordered = entries.toSorted(byManualOrder)
+  const from = ordered.findIndex((e) => e.key === movedKey)
+  const to = ordered.findIndex((e) => e.key === overKey)
+  if (from === -1 || to === -1 || from === to) return []
+
+  const next = ordered.slice()
+  const [moved] = next.splice(from, 1)
+  if (moved) next.splice(to, 0, moved)
+  return next.flatMap((entry, index) =>
+    entry.order === index ? [] : [{ key: entry.key, order: index }],
+  )
 }

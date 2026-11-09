@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next'
+import type { ReactNode } from 'react'
 import { Link } from 'react-router'
 import { imageUrl } from '../../shared/api/tmdb'
 import type { LibraryEntry, LibraryStatus } from '../../types/library'
@@ -20,10 +21,20 @@ interface LibraryItemProps {
   entry: LibraryEntry
   onStatusChange: (entry: LibraryEntry, status: LibraryStatus) => void
   onRemove: (entry: LibraryEntry) => void
+  /** Drag handle of the sortable list; set only while sorting by "My order". */
+  handle?: ReactNode
+  /** 1-based place in the user's own order, shown next to the handle. */
+  position?: number
 }
 
 /** One library row: poster, title, status, score, series progress, note and actions. */
-export default function LibraryItem({ entry, onStatusChange, onRemove }: LibraryItemProps) {
+export default function LibraryItem({
+  entry,
+  onStatusChange,
+  onRemove,
+  handle,
+  position,
+}: LibraryItemProps) {
   const { t } = useTranslation('library')
   const href = mediaHref(entry.mediaType, entry.tmdbId)
   const poster = imageUrl(entry.posterPath, 'w185')
@@ -34,6 +45,13 @@ export default function LibraryItem({ entry, onStatusChange, onRemove }: Library
 
   return (
     <article className={cx(styles.item, entry.status === 'dropped' && styles.dropped)}>
+      {handle && (
+        <div className={styles.reorder}>
+          {handle}
+          {position !== undefined && <span className={styles.position}>{position}</span>}
+        </div>
+      )}
+
       {/* Decorative duplicate of the title link: hidden from keyboard and screen readers. */}
       <Link to={href} className={styles.poster} tabIndex={-1} aria-hidden="true">
         {poster ? (

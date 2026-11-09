@@ -34,7 +34,11 @@ function readJson(key: string): unknown {
 
 export function loadGuestLibrary(): LibraryEntry[] {
   const parsed = readJson(LIBRARY_KEY)
-  return Array.isArray(parsed) ? parsed.filter(isEntry) : []
+  if (!Array.isArray(parsed)) return []
+  // Entries saved before manual ordering existed have no `order` field.
+  return parsed
+    .filter(isEntry)
+    .map((entry) => ({ ...entry, order: typeof entry.order === 'number' ? entry.order : null }))
 }
 
 export function saveGuestLibrary(entries: LibraryEntry[]): void {
@@ -80,6 +84,7 @@ function fromLegacy(value: unknown): LibraryEntry | null {
     addedAt,
     updatedAt: typeof value.updatedAt === 'string' ? value.updatedAt : addedAt,
     completedAt: status === 'completed' ? addedAt : null,
+    order: null,
   }
 }
 

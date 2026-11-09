@@ -36,7 +36,7 @@ types in `src/types/`.
 
 | Function / endpoint builder                     | Status | Request                                                                                      |
 | ----------------------------------------------- | :----: | -------------------------------------------------------------------------------------------- |
-| `tmdbGet(path, { signal })`                     |   ✅   | `GET https://api.themoviedb.org/3{path}` with Bearer token                                   |
+| `tmdbGet(path, { signal })`                     |   ✅   | `GET /api/tmdb{path}`: our proxy adds the token and forwards to `api.themoviedb.org/3`       |
 | `buildPath(path, params)`                       |   ✅   | Builds a path + query string, skips empty values                                             |
 | `imageUrl(path, size)`                          |   ✅   | `https://image.tmdb.org/t/p/{size}{path}`                                                    |
 | `endpoints.genres(mediaType)`                   |   ✅   | `/genre/{movie,tv}/list`                                                                     |
@@ -129,6 +129,7 @@ notes and progress don't count), `list.create` (createList, so copies too), `pla
 | `watchLibrary(uid, onData, onError)`        | `unsubscribe`                 | `onSnapshot` on the whole library; pending server times estimated |
 | `addEntry(uid, entry)`                      | `Promise<void>`               | Doc id = media key; `addedAt`/`updatedAt` = `serverTimestamp()`   |
 | `updateEntry(uid, key, changes, completed)` | `Promise<void>`               | `completed`: `'set'` / `'clear'` / `'keep'` for `completedAt`     |
+| `setOrders(uid, updates)`                   | `Promise<void>`               | Writes only `order` for the moved titles in atomic batches        |
 | `restoreEntry(uid, entry)`                  | `Promise<void>`               | "Undo" after a removal, keeps the original dates                  |
 | `removeEntry(uid, key)`                     | `Promise<void>`               |                                                                   |
 | `mergeGuestLibrary(uid, entries)`           | `Promise<{ added, skipped }>` | Batches of 400; entries already in the account win                |
