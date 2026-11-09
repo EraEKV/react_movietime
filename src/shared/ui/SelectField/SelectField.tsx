@@ -3,9 +3,9 @@ import type { Option } from '../../types/common'
 import Field from '../Field/Field'
 import { hintId } from '../Field/hintId'
 import styles from '../Field/Field.module.css'
-import Icon from '../Icon/Icon'
+import Select from '../Select/Select'
 
-/** Labelled, controlled native <select> (native = proper mobile pickers and a11y for free). */
+/** Labelled, controlled select: a listbox popup on desktop, a bottom sheet on phones. */
 interface SelectFieldProps<V extends string> {
   label: string
   value: V
@@ -31,12 +31,6 @@ export default function SelectField<V extends string>({
 }: SelectFieldProps<V>) {
   const id = useId()
 
-  function handleChange(raw: string) {
-    // Map back to the typed option instead of casting the DOM string.
-    const option = options.find((o) => o.value === raw)
-    if (option) onChange(option.value)
-  }
-
   return (
     <Field
       id={id}
@@ -48,20 +42,15 @@ export default function SelectField<V extends string>({
       className={className}
     >
       <div className={styles.control}>
-        <select
+        <Select
           id={id}
+          label={label}
           value={value}
-          onChange={(e) => handleChange(e.target.value)}
+          options={options}
+          onChange={onChange}
           disabled={disabled}
           aria-describedby={hint || error ? hintId(id) : undefined}
-        >
-          {options.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
-        <Icon name="chevron-down" size={18} className={styles.chevron} />
+        />
       </div>
     </Field>
   )
