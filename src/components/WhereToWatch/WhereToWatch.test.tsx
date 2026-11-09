@@ -32,7 +32,7 @@ describe('WhereToWatch', () => {
 
   it('shows the providers of the default country in groups, with the JustWatch credit', () => {
     render(<WhereToWatch providers={data} />)
-    expect(screen.getByRole('combobox', { name: 'Country' })).toHaveValue('US')
+    expect(screen.getByRole('combobox', { name: 'Country' })).toHaveTextContent('United States')
     expect(screen.getByText('Netflix')).toBeInTheDocument()
     expect(screen.getByRole('region', { name: 'Stream' })).toBeInTheDocument()
     expect(screen.getByRole('region', { name: 'Rent' })).toBeInTheDocument()
@@ -49,7 +49,8 @@ describe('WhereToWatch', () => {
 
   it('switches the country and remembers it', async () => {
     render(<WhereToWatch providers={data} />)
-    await userEvent.selectOptions(screen.getByRole('combobox', { name: 'Country' }), 'DE')
+    await userEvent.click(screen.getByRole('combobox', { name: 'Country' }))
+    await userEvent.click(screen.getByRole('option', { name: 'Germany' }))
     expect(screen.getByText('Amazon')).toBeInTheDocument()
     expect(screen.queryByText('Netflix')).not.toBeInTheDocument()
     expect(localStorage.getItem(WATCH_REGION_KEY)).toBe('DE')
