@@ -231,6 +231,26 @@ Days are `"YYYY-MM-DD"` in local time; day math runs on UTC dates, so DST never 
 | `toIcs(name, events, now)`                                        | iCalendar text (RFC 5545: escaping, 75-octet folding, CRLF); times converted to UTC per day      |
 | `monthGrid(month)`, `addDays`, `weekdayOf`, `localToday`          | Calendar-day helpers (`utils/calendar.ts`)                                                       |
 
+## Google Calendar: `api/google-calendar/*`, `src/services/calendarService.ts`
+
+One-way copy of the Planner to the user's primary Google Calendar (scope `calendar.events`).
+Server functions (all take `Authorization: Bearer <Firebase ID token>`):
+
+| Endpoint                            | What it does                                                                                         |
+| ----------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `GET /api/google-calendar`          | `{ configured, connected, status, lastSyncAt }`                                                      |
+| `POST /api/google-calendar`         | `{ url }`: Google's consent screen (offline access, signed `state`, valid 10 minutes)                |
+| `GET /api/google-calendar/callback` | Google returns here; stores the encrypted refresh token; redirects to `/profile/settings?calendar=…` |
+| `POST /api/google-calendar/sync`    | `{ planId \| "all", timeZone }`: makes the calendar match the plans; safe to repeat                  |
+| `DELETE /api/google-calendar`       | Deletes the events the app made, revokes the grant at Google, removes the link                       |
+
+What is copied: pending sessions of active plans from yesterday to 90 days ahead, as events with the
+plan and episodes in the title, the session's time and length, in the browser's time zone. Done and
+skipped sessions, finished plans and deleted plans are removed from the calendar. The browser calls
+`requestSync(planId)` (debounced) after each plan change and `syncNow("all")` once when the app opens.
+An event deleted by hand in Google Calendar comes back on the next sync; edits made there are
+overwritten. Setup: `docs/FIREBASE_SETUP.md`, "Google Calendar".
+
 ## Statistics: `src/utils/stats.ts` ✅
 
 Pure functions for the dashboard; inputs are library entries and `PlannedSession`s.

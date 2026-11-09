@@ -102,6 +102,24 @@ account has none; afterwards the account wins and a listener applies it on every
 (guests keep preferences in `localStorage` only). `localStorage` stays the first-paint cache.
 The settings page changes `displayName` (also in Firebase Auth) and `settings`.
 
+### `calendarLinks/{uid}`: Google Calendar link
+
+One document per user who connected Google Calendar (Settings → Google Calendar). Written and read
+only by the server (Firebase Admin, `api/google-calendar/*`); the rules deny every client, because
+the document holds a key to the user's calendar.
+
+| Field          | Type                | Notes                                                               |
+| -------------- | ------------------- | ------------------------------------------------------------------- |
+| `refreshToken` | string              | AES-256-GCM, key `CALENDAR_TOKEN_KEY`; never leaves the server      |
+| `status`       | `"ok" \| "revoked"` | `revoked` after Google answers `invalid_grant`; the user reconnects |
+| `connectedAt`  | Timestamp           |                                                                     |
+| `lastSyncAt`   | Timestamp \| null   | Last successful sync                                                |
+| `timeZone`     | string              | IANA zone of the browser that synced last                           |
+
+Nothing about the events is stored: each event carries `movietimeApp`, `movietimePlanId`,
+`movietimeSessionId` and `movietimeHash` as private extended properties, and its id is derived from
+the user and the session, so a sync compares the calendar with the plans and converges.
+
 ### `pushSubscriptions/{sha256(endpoint)}`: push subscription
 
 One document per browser that turned push on (Settings → Notifications). Written and read only by

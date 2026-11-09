@@ -185,3 +185,27 @@ subscription that the browser reports as gone (404/410) is deleted on the next p
 - [ ] VAPID keys and `FIREBASE_SERVICE_ACCOUNT` in Vercel (push), rules deployed
 - [ ] Resend domain verified, `RESEND_API_KEY` and `RESEND_FROM` in Vercel
 - [ ] Sign up, sign in with Google, sign out on the deployed site
+
+## Google Calendar sync
+
+Copies the Planner to the user's Google Calendar (Settings → Google Calendar). Free: the Calendar
+API needs no billing.
+
+1. [Google Cloud console](https://console.cloud.google.com), project `movietime-c83d7` → _APIs &
+   Services_ → _Library_ → enable **Google Calendar API**.
+2. _Google Auth Platform_ → _Branding_: app name, support email, home page `https://avleron.com`,
+   privacy policy `https://avleron.com/privacy`, authorized domain `avleron.com`.
+3. _Data Access_ → add the scope `…/auth/calendar.events`.
+4. _Clients_ → create a **Web application** client with the redirect URIs
+   `https://avleron.com/api/google-calendar/callback` and
+   `http://localhost:3000/api/google-calendar/callback` (for `vercel dev`).
+5. _Audience_ → **Publish app**. In _Testing_ a refresh token lasts 7 days and syncing silently stops.
+   Without Google's verification the consent screen says "Google hasn't verified this app" and the
+   app works for up to 100 users, which is enough here.
+6. Vercel variables: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `CALENDAR_TOKEN_KEY`
+   (`openssl rand -base64 32`), and, when the site is served from more than one host,
+   `GOOGLE_REDIRECT_URI` (the exact registered URI). Also `FIREBASE_SERVICE_ACCOUNT` (see Push).
+7. Deploy the rules (`firebase deploy --only firestore:rules`) and redeploy the app.
+
+The functions don't run under `npm run dev`; the Settings card hides itself there. Use `vercel dev`
+(port 3000) to try the flow locally.
