@@ -26,10 +26,13 @@ export function upstreamUrl(pathname: string, search: string): string | null {
 export function proxyTarget(requestUrl: string): string | null {
   const url = new URL(requestUrl)
   const path = url.searchParams.get('path')
-  if (path === null) return upstreamUrl(url.pathname, url.search)
-  url.searchParams.delete('path')
-  const query = url.searchParams.toString()
-  return upstreamUrl(`${PREFIX}/${path}`, query ? `?${query}` : '')
+  if (path !== null) {
+    url.searchParams.delete('path')
+    const query = url.searchParams.toString()
+    const fromParam = upstreamUrl(`${PREFIX}/${path}`, query ? `?${query}` : '')
+    if (fromParam) return fromParam
+  }
+  return upstreamUrl(url.pathname, url.search)
 }
 
 /** The token lives in Vercel env: TMDB_TOKEN, or the VITE_TMDB_TOKEN the project already has. */

@@ -5,7 +5,7 @@
       "source": "/__/auth/:path*",
       "destination": "https://movietime-c83d7.firebaseapp.com/__/auth/:path*"
     },
-    { "source": "/api/tmdb/:path+", "destination": "/api/tmdb?path=:path+" },
+    { "source": "/api/tmdb/:path*", "destination": "/api/tmdb?path=:path*" },
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ],
   "git": {

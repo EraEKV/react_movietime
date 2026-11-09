@@ -42,6 +42,12 @@ describe('proxyTarget', () => {
     expect(proxyTarget(`${base}/configuration`)).toBe('https://api.themoviedb.org/3/configuration')
   })
 
+  it('falls back to the URL when the parameter is not a real path', () => {
+    expect(proxyTarget(`${base}/genre/tv/list?path=:path*&language=en-US`)).toBe(
+      'https://api.themoviedb.org/3/genre/tv/list?language=en-US',
+    )
+  })
+
   it.each(['', '?path=', '?path=../movie', '?path=//evil.com', '?path=movie/550.json'])(
     'rejects %s',
     (query) => {
