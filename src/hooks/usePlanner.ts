@@ -219,7 +219,12 @@ export function usePlanActions() {
       run((s) => s.completeSession(plan, session, by())),
     skip: (plan: Plan, session: PlanSession) => run((s) => s.skipSession(plan, session, by())),
     undo: (plan: Plan, session: PlanSession) => run((s) => s.undoSession(plan, session)),
-    reschedule: (plan: Plan, session: PlanSession, date: string, shiftLater: boolean) =>
-      run((s) => s.rescheduleSession(plan, session, date, shiftLater)),
+    reschedule: (
+      plan: Plan,
+      session: PlanSession,
+      date: string,
+      shiftLater: boolean,
+      time?: string,
+    ) => run((s) => s.rescheduleSession(plan, session, date, shiftLater, time)),
   }
 }

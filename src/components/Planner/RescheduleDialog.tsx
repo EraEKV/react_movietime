@@ -7,16 +7,18 @@ import Button from '../../shared/ui/Button/Button'
 import Checkbox from '../../shared/ui/Checkbox/Checkbox'
 import DatePicker from '../DatePicker/DatePicker'
 import Dialog from '../../shared/ui/Dialog/Dialog'
+import SelectField from '../../shared/ui/SelectField/SelectField'
+import { timeOptions } from '../../utils/planner'
 
 interface RescheduleDialogProps {
   session: PlanSession
   sessions: PlanSession[]
   today: string
-  onMove: (date: string, shiftLater: boolean) => Promise<void>
+  onMove: (date: string, shiftLater: boolean, time: string) => Promise<void>
   onClose: () => void
 }
 
-/** Pick a new day; optionally move every later pending session by the same number of days. */
+/** Pick a new day and time; optionally move every later pending session by the same number of days. */
 export default function RescheduleDialog({
   session,
   sessions,
@@ -26,6 +28,7 @@ export default function RescheduleDialog({
 }: RescheduleDialogProps) {
   const { t } = useTranslation(['planner', 'common'])
   const [date, setDate] = useState(session.date < today ? today : session.date)
+  const [time, setTime] = useState(session.time)
   const [shiftLater, setShiftLater] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -40,7 +43,7 @@ export default function RescheduleDialog({
     setSaving(true)
     setError(null)
     try {
-      await onMove(date, shiftLater && later > 0)
+      await onMove(date, shiftLater && later > 0, time)
       onClose()
     } catch (e) {
       setSaving(false)
@@ -61,7 +64,7 @@ export default function RescheduleDialog({
           <Button
             variant="primary"
             loading={saving}
-            disabled={date === session.date}
+            disabled={date === session.date && time === session.time}
             onClick={() => void move()}
           >
             {t('move.submit')}
@@ -76,6 +79,12 @@ export default function RescheduleDialog({
         today={today}
         min={today}
         marked={marked}
+      />
+      <SelectField
+        label={t('schedule.time')}
+        value={time}
+        options={timeOptions(time)}
+        onChange={setTime}
       />
       {later > 0 && (
         <Checkbox

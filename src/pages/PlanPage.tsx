@@ -406,9 +406,9 @@ function PlanView({ id }: { id: string }) {
           sessions={sessions}
           today={today}
           onClose={() => setMoving(null)}
-          onMove={async (date, shiftLater) => {
+          onMove={async (date, shiftLater, time) => {
             try {
-              await actions.reschedule(plan, moving, date, shiftLater)
+              await actions.reschedule(plan, moving, date, shiftLater, time)
               showToast({
                 text: t('plan.moved', {
                   units: unitsLabel(moving.units),
