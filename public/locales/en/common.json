@@ -159,7 +159,10 @@
     "today": "today",
     "hasSession": "has a session",
     "previousMonth": "Previous month",
-    "nextMonth": "Next month"
+    "nextMonth": "Next month",
+    "dragStart": "Picked up {{title}}.",
+    "dragEnd": "{{title}} moved to {{day}}.",
+    "dragCancel": "Moving {{title}} cancelled."
   },
   "count": {
     "titles_one": "{{count}} title",

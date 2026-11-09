@@ -159,7 +159,10 @@
     "today": "бүгін",
     "hasSession": "сеанс бар",
     "previousMonth": "Алдыңғы ай",
-    "nextMonth": "Келесі ай"
+    "nextMonth": "Келесі ай",
+    "dragStart": "«{{title}}» алынды.",
+    "dragEnd": "«{{title}}» {{day}} күніне жылжытылды.",
+    "dragCancel": "«{{title}}» жылжыту тоқтатылды."
   },
   "count": {
     "titles_one": "{{count}} туынды",

@@ -167,7 +167,10 @@
     "today": "сегодня",
     "hasSession": "есть сеанс",
     "previousMonth": "Предыдущий месяц",
-    "nextMonth": "Следующий месяц"
+    "nextMonth": "Следующий месяц",
+    "dragStart": "«{{title}}» поднят.",
+    "dragEnd": "«{{title}}» перенесён на {{day}}.",
+    "dragCancel": "Перенос «{{title}}» отменён."
   },
   "count": {
     "titles_one": "{{count}} тайтл",
