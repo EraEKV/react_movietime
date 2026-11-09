@@ -48,6 +48,8 @@ export interface SeasonSummary {
 }
 
 export interface CastMember {
+  /** The person's TMDB id: links to /person/:id. */
+  id: number
   credit_id: string
   name: string
   profile_path: string | null
@@ -55,6 +57,7 @@ export interface CastMember {
 }
 
 export interface CrewMember {
+  id: number
   credit_id: string
   name: string
   job: string
@@ -130,7 +133,7 @@ export interface SeriesBase extends SeriesSummary {
 export interface Translation {
   iso_639_1: string
   iso_3166_1: string
-  data: { overview?: string }
+  data: { overview?: string; biography?: string }
 }
 
 export interface Translations {
@@ -199,3 +202,46 @@ export interface RawSeason {
 
 /** /tv/{id}?append_to_response=season/1,season/2,… puts each season under its own key. */
 export type SeasonsBatchResponse = Partial<Record<`season/${number}`, RawSeason>>
+
+/** One line of /person/{id}/combined_credits: a movie or a series the person worked on. */
+export interface PersonCredit {
+  id: number
+  media_type: 'movie' | 'tv'
+  /** Movies have `title` and `release_date`, series `name` and `first_air_date`. */
+  title?: string
+  name?: string
+  release_date?: string
+  first_air_date?: string
+  poster_path: string | null
+  popularity: number
+  vote_average: number
+  genre_ids: number[]
+  credit_id: string
+}
+
+export interface PersonCastCredit extends PersonCredit {
+  /** Empty for talk shows and the like. */
+  character?: string
+  /** Series only: how many episodes the person appears in. */
+  episode_count?: number
+}
+
+export interface PersonCrewCredit extends PersonCredit {
+  /** "Director", "Screenplay", "Producer"… */
+  job: string
+  department: string
+}
+
+/** /person/{id}?append_to_response=combined_credits,translations */
+export interface PersonDetails {
+  id: number
+  name: string
+  biography: string
+  birthday: string | null
+  deathday: string | null
+  place_of_birth: string | null
+  profile_path: string | null
+  known_for_department: string
+  combined_credits: { cast: PersonCastCredit[]; crew: PersonCrewCredit[] }
+  translations?: Translations
+}

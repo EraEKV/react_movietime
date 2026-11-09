@@ -193,6 +193,11 @@ export const endpoints = {
       include_video_language: videoLanguages(language),
     }),
 
+  // Biography, birth data and the whole filmography in one request. `translations` gives the
+  // English biography when TMDB has none in the current language.
+  person: (id: Id) =>
+    buildPath(`/person/${id}`, { append_to_response: 'combined_credits,translations' }),
+
   season: (id: Id, seasonNumber: number) => buildPath(`/tv/${id}/season/${seasonNumber}`),
 
   // Up to MAX_APPEND seasons with all their episodes in a single request.
