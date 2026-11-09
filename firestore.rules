@@ -217,7 +217,8 @@ service cloud.firestore {
     }
 
     // A plan as the owner writes it: known fields only, a series plan carries the series
-    // snapshot, a list plan the source list id; colour 1–6; and validSharing().
+    // snapshot, a list plan the source list id, a movie plan has a single unit; colour 1–6;
+    // and validSharing().
     function validPlan() {
       let d = request.resource.data;
       return d.keys().hasOnly(['ownerUid', 'ownerName', 'title', 'kind', 'media', 'sourceListId',
@@ -225,7 +226,8 @@ service cloud.firestore {
           'status', 'visibility', 'roles', 'memberEmails', 'createdAt', 'updatedAt'])
         && d.ownerName is string && d.ownerName.size() <= 80
         && d.title is string && d.title.size() >= 1 && d.title.size() <= 120
-        && ((d.kind == 'series' && d.media is map) || (d.kind == 'list' && d.sourceListId is string))
+        && ((d.kind == 'series' && d.media is map) || (d.kind == 'list' && d.sourceListId is string)
+            || (d.kind == 'movie' && d.totalUnits == 1))
         && d.options is map && d.options.weekdays is list
         && d.options.weekdays.size() >= 1 && d.options.weekdays.size() <= 7
         && d.color is int && d.color >= 1 && d.color <= 6
