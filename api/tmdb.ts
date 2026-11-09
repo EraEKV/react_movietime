@@ -11,7 +11,16 @@ export async function GET(request: Request): Promise<Response> {
   if (!token) return json({ status_message: 'The TMDB token is not configured.' }, 503)
 
   const target = proxyTarget(request.url)
-  if (!target) return json({ status_message: 'Not a TMDB path.' }, 400)
+  if (!target) {
+    // Temporary: what the function sees after Vercel's routing, to fix the rewrite.
+    const seen = Object.fromEntries(
+      ['x-matched-path', 'x-vercel-original-path', 'x-forwarded-uri', 'x-invoke-path'].map((h) => [
+        h,
+        request.headers.get(h),
+      ]),
+    )
+    return json({ status_message: 'Not a TMDB path.', url: request.url, seen }, 400)
+  }
 
   let upstream: Response
   try {
