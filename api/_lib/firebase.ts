@@ -48,7 +48,10 @@ export const bearer = (request: Request) =>
   request.headers.get('authorization')?.replace(/^Bearer /, '') ?? ''
 
 /** Who is calling: Firebase checks the token's signature and expiry. */
-export async function verifyToken(env: MailEnv, idToken: string): Promise<Caller | null> {
+export async function verifyToken(
+  env: Pick<MailEnv, 'apiKey'>,
+  idToken: string,
+): Promise<Caller | null> {
   const response = await fetch(
     `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${env.apiKey}`,
     {
