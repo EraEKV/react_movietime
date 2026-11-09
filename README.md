@@ -188,7 +188,7 @@ project, which is handy for trying security rules without touching production da
 
 | Name                                | Required | Description                                    |
 | ----------------------------------- | :------: | ---------------------------------------------- |
-| `VITE_TMDB_TOKEN`                   |   yes    | TMDB API Read Access Token (sent as Bearer)    |
+| `TMDB_TOKEN`                        |   yes    | TMDB read access token, used by the TMDB proxy |
 | `VITE_FIREBASE_API_KEY`             |   yes    | Firebase web app config                        |
 | `VITE_FIREBASE_AUTH_DOMAIN`         |   yes    | `<project-id>.firebaseapp.com`                 |
 | `VITE_FIREBASE_PROJECT_ID`          |   yes    |                                                |

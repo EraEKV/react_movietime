@@ -126,8 +126,10 @@ the link on and opens it in a window without an account.
 ## 6. Vercel
 
 **Project → Settings → Environment Variables:** add every `VITE_FIREBASE_*` variable and
-`VITE_TMDB_TOKEN` for Production, Preview and Development, then **redeploy**. Vite inlines
-`VITE_*` variables at build time, so an old build doesn't see new values.
+`TMDB_TOKEN` (the TMDB read access token, server only: the `api/tmdb` function adds it to
+requests, so it never reaches the browser) for Production, Preview and Development, then
+**redeploy**. Vite inlines `VITE_*` variables at build time, so an old build doesn't see new
+values. An existing `VITE_TMDB_TOKEN` keeps working as a fallback for the function.
 
 ## 7. Email (Resend)
 

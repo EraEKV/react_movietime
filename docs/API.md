@@ -36,7 +36,7 @@ types in `src/types/`.
 
 | Function / endpoint builder                     | Status | Request                                                                                      |
 | ----------------------------------------------- | :----: | -------------------------------------------------------------------------------------------- |
-| `tmdbGet(path, { signal })`                     |   ✅   | `GET https://api.themoviedb.org/3{path}` with Bearer token                                   |
+| `tmdbGet(path, { signal })`                     |   ✅   | `GET /api/tmdb{path}`: our proxy adds the token and forwards to `api.themoviedb.org/3`       |
 | `buildPath(path, params)`                       |   ✅   | Builds a path + query string, skips empty values                                             |
 | `imageUrl(path, size)`                          |   ✅   | `https://image.tmdb.org/t/p/{size}{path}`                                                    |
 | `endpoints.genres(mediaType)`                   |   ✅   | `/genre/{movie,tv}/list`                                                                     |
