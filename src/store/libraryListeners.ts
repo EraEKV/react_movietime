@@ -15,6 +15,7 @@ import {
   guestEntryRemoved,
   guestEntrySaved,
   guestLibraryLoaded,
+  guestOrderChanged,
   libraryNoticeShown,
   librarySyncFailed,
   librarySyncRetried,
@@ -98,7 +99,7 @@ export function registerLibraryListeners(getState: () => RootState, dispatch: Ap
 
   // Guest changes are mirrored to localStorage.
   startAppListening({
-    matcher: isAnyOf(guestEntrySaved, guestEntryRemoved),
+    matcher: isAnyOf(guestEntrySaved, guestEntryRemoved, guestOrderChanged),
     effect: (_action, api) => {
       if (api.getState().library.source === 'guest') {
         saveGuestLibrary(selectLibraryEntries(api.getState()))

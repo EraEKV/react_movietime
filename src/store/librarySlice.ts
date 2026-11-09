@@ -8,7 +8,14 @@ import type * as LibraryService from '../services/libraryService'
 import type { LibraryChanges, LibraryEntry, LibraryMedia, LibraryStatus } from '../types/library'
 import type { MediaKey } from '../types/media'
 import { errorMessage } from '../utils/firebaseErrors'
-import { applyChanges, createEntry, filterLibrary, type LibraryQuery } from '../utils/library'
+import {
+  applyChanges,
+  createEntry,
+  filterLibrary,
+  reorderUpdates,
+  type LibraryQuery,
+  type OrderUpdate,
+} from '../utils/library'
 import type { AppThunk, RootState } from './store'
 
 /**
@@ -69,6 +76,12 @@ const librarySlice = createSlice({
     // Guest writes change the store directly; a listener mirrors them to localStorage.
     guestEntrySaved: libraryAdapter.setOne,
     guestEntryRemoved: libraryAdapter.removeOne,
+    guestOrderChanged(state, action: PayloadAction<OrderUpdate[]>) {
+      libraryAdapter.updateMany(
+        state,
+        action.payload.map(({ key, order }) => ({ id: key, changes: { order } })),
+      )
+    },
     libraryNoticeShown(state, action: PayloadAction<LibraryNotice>) {
       state.notice = action.payload
     },
@@ -86,6 +99,7 @@ export const {
   librarySyncRetried,
   guestEntrySaved,
   guestEntryRemoved,
+  guestOrderChanged,
   libraryNoticeShown,
   libraryNoticeDismissed,
 } = librarySlice.actions
@@ -190,6 +204,23 @@ export const updateLibraryEntry =
       persist(
         () => dispatch(guestEntrySaved(next)),
         (service, uid) => service.updateEntry(uid, entry, changes, completed),
+      ),
+    )
+  }
+
+/**
+ * Drag-and-drop result: `movedKey` takes the place of `overKey` in the user's own order.
+ * Only the titles whose place changed are written.
+ */
+export const reorderLibrary =
+  (movedKey: MediaKey, overKey: MediaKey): AppThunk =>
+  (dispatch, getState) => {
+    const updates = reorderUpdates(selectLibraryEntries(getState()), movedKey, overKey)
+    if (updates.length === 0) return Promise.resolve()
+    return dispatch(
+      persist(
+        () => dispatch(guestOrderChanged(updates)),
+        (service, uid) => service.setOrders(uid, updates),
       ),
     )
   }
