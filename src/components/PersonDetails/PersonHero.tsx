@@ -66,7 +66,9 @@ export default function PersonHero({ person }: { person: PersonDetails }) {
             <>
               <div className={`${styles.bioText} ${folded ? styles.clamped : ''}`}>
                 {paragraphs.map((paragraph, index) => (
-                  <p key={index}>{paragraph}</p>
+                  <p key={index} className={styles.paragraph}>
+                    {paragraph}
+                  </p>
                 ))}
               </div>
               {biography.length > LONG_BIO && (

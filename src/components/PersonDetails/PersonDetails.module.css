@@ -94,7 +94,7 @@
   gap: var(--space-3);
 }
 
-.bioText p {
+.paragraph {
   composes: body from '../../shared/styles/typography.module.css';
 }
 
