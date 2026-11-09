@@ -92,7 +92,9 @@ function toDocument(
     score: entry.score,
     notes: entry.notes,
     progress: entry.progress,
-    order: entry.order,
+    // Only written once the title has been moved, so ordinary saves keep working with
+    // rules that predate the field.
+    ...(entry.order !== null && { order: entry.order }),
     ...dates,
   }
 }
