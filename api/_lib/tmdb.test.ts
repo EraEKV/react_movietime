@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { upstreamUrl } from './tmdb'
+import { proxyTarget, upstreamUrl } from './tmdb'
 
 describe('upstreamUrl', () => {
   it('maps a proxy path and its query onto the TMDB v3 API', () => {
@@ -23,4 +23,22 @@ describe('upstreamUrl', () => {
   ])('rejects %s', (pathname) => {
     expect(upstreamUrl(pathname, '')).toBeNull()
   })
+})
+
+describe('proxyTarget', () => {
+  const base = 'https://www.avleron.com/api/tmdb'
+
+  it('rebuilds the TMDB URL from the rewritten request', () => {
+    expect(proxyTarget(`${base}?path=discover/movie&page=2&sort_by=popularity.desc`)).toBe(
+      'https://api.themoviedb.org/3/discover/movie?page=2&sort_by=popularity.desc',
+    )
+    expect(proxyTarget(`${base}?path=movie/550`)).toBe('https://api.themoviedb.org/3/movie/550')
+  })
+
+  it.each(['', '?path=', '?path=../movie', '?path=//evil.com', '?path=movie/550.json'])(
+    'rejects %s',
+    (query) => {
+      expect(proxyTarget(`${base}${query}`)).toBeNull()
+    },
+  )
 })
