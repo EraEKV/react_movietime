@@ -22,7 +22,8 @@
     "skip": "Мазмұнға өту",
     "about": "Avleron туралы",
     "footer": "Фильмдер мен сериалдар туралы деректер — <tmdb>TMDB</tmdb>. Бұл өнім TMDB API-ын пайдаланады, бірақ TMDB оны мақұлдамаған және сертификаттамаған.",
-    "homeLink": "Avleron, басты бет"
+    "homeLink": "Avleron, басты бет",
+    "privacy": "Құпиялылық"
   },
   "header": {
     "search": "Іздеу",

@@ -22,7 +22,8 @@
     "skip": "Перейти к содержимому",
     "about": "О Avleron",
     "footer": "Данные о фильмах и сериалах — <tmdb>TMDB</tmdb>. Этот продукт использует TMDB API, но не одобрен и не сертифицирован TMDB.",
-    "homeLink": "Avleron, на главную"
+    "homeLink": "Avleron, на главную",
+    "privacy": "Конфиденциальность"
   },
   "header": {
     "search": "Поиск",

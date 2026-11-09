@@ -62,5 +62,38 @@
     "sharingTitle": "Sharing",
     "sharingText": "Share lists and plans by link, or invite friends as editors or viewers. Everyone marks progress together.",
     "credit": "Movie and series data and images are provided by <tmdb>TMDB</tmdb>. Avleron uses the TMDB API but is not endorsed or certified by TMDB."
+  },
+  "privacy": {
+    "pageTitle": "Privacy policy · Avleron",
+    "kicker": "Privacy policy",
+    "title": "What Avleron stores and why",
+    "updated": "Last updated: 9 November 2026",
+    "lead": "Avleron is a personal movie and series planner. This page lists the data it keeps, who sees it and how to remove it.",
+    "sections": {
+      "data": {
+        "title": "Data we store",
+        "text": "Your account (email address, display name, sign-in method), your library, lists, watch plans and sessions, activity log and settings. It is kept in Firebase (Google Cloud) under your account and is readable only by you and by people you share a list or plan with."
+      },
+      "calendar": {
+        "title": "Google Calendar",
+        "text": "If you connect Google Calendar, Avleron asks for one permission: to create, change and delete events (calendar.events). It uses it only to copy your upcoming watch sessions into your primary calendar and to keep them up to date. It never reads, changes or deletes events it did not create, and the data from your calendar is not shown to anyone, shared or used for advertising. Avleron's use of information received from Google APIs follows the Google API Services User Data Policy, including the Limited Use requirements."
+      },
+      "tokens": {
+        "title": "Calendar access token",
+        "text": "The token that lets the server update your calendar is stored encrypted on the server and is never sent to the browser. Disconnecting in Settings revokes it at Google and deletes it, and removes the events Avleron created. You can also revoke access any time at myaccount.google.com/permissions."
+      },
+      "third": {
+        "title": "Other services",
+        "text": "Movie and series data come from TMDB; requests go through our server, which adds the access key, so TMDB does not see your account. Emails (invitations, welcome message) are sent through Resend. Push notifications use the push service of your browser."
+      },
+      "delete": {
+        "title": "Deleting your data",
+        "text": "You can delete lists, plans and library entries in the app at any time. To delete the whole account, contact us using the address below and we will remove it."
+      },
+      "contact": {
+        "title": "Contact",
+        "text": "Questions about privacy: open an issue at github.com/EraEKV/react_movietime."
+      }
+    }
   }
 }

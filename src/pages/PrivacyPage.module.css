@@ -1,0 +1,43 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  max-width: 720px;
+}
+
+.intro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.kicker {
+  composes: overline from '../shared/styles/typography.module.css';
+}
+
+.title {
+  composes: displayL from '../shared/styles/typography.module.css';
+  text-wrap: balance;
+}
+
+.lead {
+  composes: bodyL from '../shared/styles/typography.module.css';
+  color: var(--text-muted);
+}
+
+.muted {
+  color: var(--text-subtle);
+  font-size: 13px;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.heading {
+  font-size: 18px;
+  line-height: 26px;
+  font-weight: 600;
+}

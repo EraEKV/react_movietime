@@ -19,6 +19,7 @@ const LoginPage = lazy(() => import('./pages/LoginPage'))
 const SignupPage = lazy(() => import('./pages/SignupPage'))
 const VerifyEmailPage = lazy(() => import('./pages/VerifyEmailPage'))
 const AboutPage = lazy(() => import('./pages/AboutPage'))
+const PrivacyPage = lazy(() => import('./pages/PrivacyPage'))
 const CatalogPage = lazy(() => import('./pages/CatalogPage'))
 const MoviePage = lazy(() => import('./pages/MoviePage'))
 const SeriesPage = lazy(() => import('./pages/SeriesPage'))
@@ -63,6 +64,7 @@ export default function App() {
         <Route element={<Layout />}>
           <Route index element={<HomePage />} />
           <Route path="about" element={<AboutPage />} />
+          <Route path="privacy" element={<PrivacyPage />} />
 
           {/* One CatalogPage for both catalogs. Different keys make React mount a new
               instance on Movies ⇄ Series instead of reusing the old one's state. */}

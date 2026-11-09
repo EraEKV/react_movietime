@@ -43,6 +43,7 @@ export default function Layout() {
       <footer className={styles.footer}>
         <p>
           <Link to="/about">{t('layout.about')}</Link> ·{' '}
+          <Link to="/privacy">{t('layout.privacy')}</Link> ·{' '}
           {/* Trans puts a real link inside a translated sentence: <tmdb>…</tmdb> in the text. */}
           <Trans
             i18nKey="layout.footer"

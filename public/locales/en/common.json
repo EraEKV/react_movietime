@@ -22,7 +22,8 @@
     "skip": "Skip to content",
     "about": "About Avleron",
     "footer": "Movie and series data from <tmdb>TMDB</tmdb>. This product uses the TMDB API but is not endorsed or certified by TMDB.",
-    "homeLink": "Avleron, home"
+    "homeLink": "Avleron, home",
+    "privacy": "Privacy"
   },
   "header": {
     "search": "Search",
