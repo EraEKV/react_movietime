@@ -1,7 +1,8 @@
-import { json } from '../_lib/firebase.js'
-import { tmdbToken, upstreamUrl } from '../_lib/tmdb.js'
+import { json } from './_lib/firebase.js'
+import { proxyTarget, tmdbToken } from './_lib/tmdb.js'
 
-// GET /api/tmdb/<any TMDB v3 path>?<query>: forwards the request with the server's token.
+// GET /api/tmdb/<any TMDB v3 path>?<query>, which vercel.json rewrites to
+// /api/tmdb?path=<path>&<query>: forwards the request with the server's token.
 // Successful answers are cached at Vercel's edge for a few minutes, so the same page opened
 // by many people costs TMDB one request.
 
@@ -9,8 +10,7 @@ export async function GET(request: Request): Promise<Response> {
   const token = tmdbToken()
   if (!token) return json({ status_message: 'The TMDB token is not configured.' }, 503)
 
-  const { pathname, search } = new URL(request.url)
-  const target = upstreamUrl(pathname, search)
+  const target = proxyTarget(request.url)
   if (!target) return json({ status_message: 'Not a TMDB path.' }, 400)
 
   let upstream: Response
