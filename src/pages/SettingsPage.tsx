@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router'
 import Badge from '../shared/ui/Badge/Badge'
 import Button from '../shared/ui/Button/Button'
 import Card from '../shared/ui/Card/Card'
+import CalendarSettings from '../components/Settings/CalendarSettings'
 import PushSettings from '../components/Settings/PushSettings'
 import ResendVerification from '../components/Settings/ResendVerification'
 import RadioCards from '../shared/ui/RadioCards/RadioCards'
@@ -131,6 +132,8 @@ export default function SettingsPage() {
           <PushSettings />
         </div>
       </Card>
+
+      <CalendarSettings />
 
       <div className={styles.footer}>
         <span className={styles.version}>{t('settings.footer')}</span>

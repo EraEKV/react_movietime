@@ -74,6 +74,27 @@
         "unconfigured": "Push notifications aren’t set up for this version of the app.",
         "denied": "Notifications are blocked for this site. Allow them in the browser’s site settings, then come back."
       }
+    },
+    "calendar": {
+      "title": "Google Calendar",
+      "hint": "Copies your upcoming watch sessions (the next 90 days) to your Google Calendar. One way: changes made in Google Calendar don’t come back.",
+      "connect": "Connect Google Calendar",
+      "reconnect": "Connect again",
+      "syncNow": "Sync now",
+      "disconnect": "Disconnect",
+      "lastSync": "Last synced {{time}}",
+      "neverSynced": "Not synced yet. Sessions appear in your calendar within a few seconds.",
+      "revoked": "Access was revoked or has expired. Connect again to resume syncing.",
+      "failed": "Couldn’t do that. Check your connection and try again.",
+      "result": {
+        "connected": "Google Calendar is connected. Your sessions are being copied.",
+        "denied": "Access wasn’t granted. Allow Avleron to edit events when Google asks.",
+        "error": "Couldn’t connect Google Calendar. Try again."
+      },
+      "confirm": {
+        "title": "Disconnect Google Calendar?",
+        "text": "The events Avleron added to your calendar will be removed. Your plans stay as they are."
+      }
     }
   },
   "name": {

@@ -84,3 +84,9 @@
   color: var(--text-subtle);
   font-size: 13px;
 }
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
