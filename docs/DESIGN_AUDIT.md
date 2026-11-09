@@ -18,6 +18,7 @@ the light theme and long Russian or Kazakh strings still need a manual pass.
 ## Open
 
 P1
+
 1. Hover actions on cards. The design puts Add and Plan on every PosterCard. Only the catalog has
    them (List and Plan). Missing in Trending, Library, list items and recommendations. The catalog
    has no Add to library. Needs a decision: what Add means per card, and whether movies get Plan
@@ -25,14 +26,10 @@ P1
 2. Touch targets under 44px: the Toast action (36), inline buttons in Field (32), SelectField (40),
    Chip (32; only `a.link` grows on `pointer: coarse`). Fix with `@media (pointer: coarse)`.
 
-P2
-3. Heatmap best/worst mark uses `font-size: 9px`; the minimum is 11px.
-4. `SelectField.module.css` uses `--surface-2`, which is not a token (use `--surface-sunken` or
-   `--surface-raised`), and a hex colour inside the arrow data URL (use a mask with `currentColor`).
-5. Spacing off the 4/8 scale: `10px 0` in Field and Select, `gap: 10px` in Logo,
-   `margin-top: 26px` in ShareDialog, `7px` in Notifications, `0 5px` in CounterBadge.
-6. `text-transform: uppercase` outside `overline`: SelectField, CalendarMonth weekday heads,
-   WhereToWatch, TitleHero. Check whether each is a kicker; remove it where it is not.
+P2 3. Heatmap best/worst mark uses `font-size: 9px`; the minimum is 11px. 4. `SelectField.module.css` uses `--surface-2`, which is not a token (use `--surface-sunken` or
+`--surface-raised`), and a hex colour inside the arrow data URL (use a mask with `currentColor`). 5. Spacing off the 4/8 scale: `10px 0` in Field and Select, `gap: 10px` in Logo,
+`margin-top: 26px` in ShareDialog, `7px` in Notifications, `0 5px` in CounterBadge. 6. `text-transform: uppercase` outside `overline`: SelectField, CalendarMonth weekday heads,
+WhereToWatch, TitleHero. Check whether each is a kicker; remove it where it is not.
 
 ## Left as is
 
