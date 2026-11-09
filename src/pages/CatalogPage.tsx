@@ -9,6 +9,7 @@ import ErrorState from '../shared/ui/EmptyState/ErrorState'
 import FilterBar from '../components/FilterBar/FilterBar'
 import IconButton from '../shared/ui/IconButton/IconButton'
 import MediaGrid from '../components/MediaGrid/MediaGrid'
+import PlanMovieDialog from '../components/Planner/PlanMovieDialog'
 import Pagination from '../shared/ui/Pagination/Pagination'
 import SearchBar from '../shared/ui/SearchBar/SearchBar'
 import SegmentedControl from '../shared/ui/SegmentedControl/SegmentedControl'
@@ -63,6 +64,7 @@ export default function CatalogPage({ mediaType }: { mediaType: MediaType }) {
   const { isAuthenticated } = useAuth()
   // One dialog for the whole grid: the card only says which title was picked.
   const [listFor, setListFor] = useState<MediaSummary | null>(null)
+  const [planFor, setPlanFor] = useState<MediaSummary | null>(null)
 
   // TMDB can't combine text search with discover filters, so a query switches the endpoint.
   const searchMode = query !== ''
@@ -162,8 +164,7 @@ export default function CatalogPage({ mediaType }: { mediaType: MediaType }) {
                         size="sm"
                         onClick={() => setListFor(item)}
                       />
-                      {/* The planner schedules series only for now; movies join with their own sessions. */}
-                      {item.mediaType === 'tv' && (
+                      {item.mediaType === 'tv' ? (
                         <ButtonLink
                           to={`/planner/new?series=${item.id}`}
                           variant="secondary"
@@ -172,6 +173,14 @@ export default function CatalogPage({ mediaType }: { mediaType: MediaType }) {
                           aria-label={t('planWatching', { title: item.title })}
                           title={t('planWatching', { title: item.title })}
                           iconOnly
+                        />
+                      ) : (
+                        <IconButton
+                          icon="calendar"
+                          label={t('planWatching', { title: item.title })}
+                          variant="secondary"
+                          size="sm"
+                          onClick={() => setPlanFor(item)}
                         />
                       )}
                     </>
@@ -192,6 +201,12 @@ export default function CatalogPage({ mediaType }: { mediaType: MediaType }) {
         </div>
       )}
 
+      {planFor && (
+        <PlanMovieDialog
+          media={{ ...summaryToListMedia(planFor), runtime: null, totalEpisodes: null }}
+          onClose={() => setPlanFor(null)}
+        />
+      )}
       {listFor && (
         <AddToListDialog media={summaryToListMedia(listFor)} onClose={() => setListFor(null)} />
       )}

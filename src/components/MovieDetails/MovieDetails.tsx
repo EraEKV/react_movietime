@@ -17,6 +17,7 @@ import DetailsSkeleton from '../DetailsSkeleton/DetailsSkeleton'
 import ErrorState from '../../shared/ui/EmptyState/ErrorState'
 import FactTiles from '../../shared/ui/FactTiles/FactTiles'
 import LibraryButton from '../LibraryButton/LibraryButton'
+import PlanMovieButton from '../Planner/PlanMovieButton'
 import MediaGrid from '../MediaGrid/MediaGrid'
 import Section from '../../shared/ui/Section/Section'
 import TitleHero from '../TitleHero/TitleHero'
@@ -107,6 +108,7 @@ export default function MovieDetails({ movieId }: { movieId: string }) {
         ].filter((fact) => fact.value)}
         actions={
           <>
+            <PlanMovieButton media={movieMedia} />
             <LibraryButton media={movieMedia} />
             <AddToListButton media={libraryToListMedia(movieMedia)} />
           </>
