@@ -28,6 +28,7 @@ const base = {
   status: 'completed',
   score: null,
   notes: '',
+  order: null,
   progress: null,
   addedAt: '2026-01-01T10:00:00Z',
   updatedAt: '2026-01-01T10:00:00Z',

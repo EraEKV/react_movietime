@@ -44,6 +44,8 @@ export interface LibraryEntry extends LibraryMedia {
   addedAt: string
   updatedAt: string
   completedAt: string | null
+  /** Place in the user's own order (0 = first); null until the title is first moved. */
+  order: number | null
 }
 
 /** What the user can change on an entry. */

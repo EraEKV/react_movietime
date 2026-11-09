@@ -14,7 +14,7 @@ import {
   type Unsubscribe,
 } from 'firebase/firestore'
 import type { LibraryChanges, LibraryEntry, SeriesProgress } from '../types/library'
-import { isLibraryStatus } from '../utils/library'
+import { isLibraryStatus, type OrderUpdate } from '../utils/library'
 import { parseMediaKey } from '../utils/media'
 import { logActivity } from './activityService'
 import { db } from './firestore'
@@ -67,6 +67,7 @@ function toEntry(id: string, data: DocumentData): LibraryEntry | null {
     addedAt: toIso(data.addedAt) ?? now,
     updatedAt: toIso(data.updatedAt) ?? now,
     completedAt: toIso(data.completedAt),
+    order: typeof data.order === 'number' ? data.order : null,
   }
 }
 
@@ -91,6 +92,7 @@ function toDocument(
     score: entry.score,
     notes: entry.notes,
     progress: entry.progress,
+    order: entry.order,
     ...dates,
   }
 }
@@ -176,6 +178,20 @@ export function updateEntry(
     })
   }
   return saved
+}
+
+/**
+ * Saves new places in the manual order in one atomic batch. Only `order` is written:
+ * updatedAt stays, so "Recently updated" isn't shuffled by a drag.
+ */
+export async function setOrders(uid: string, updates: OrderUpdate[]): Promise<void> {
+  for (let i = 0; i < updates.length; i += BATCH_LIMIT) {
+    const batch = writeBatch(db)
+    for (const { key, order } of updates.slice(i, i + BATCH_LIMIT)) {
+      batch.update(entryRef(uid, key), { order })
+    }
+    await batch.commit()
+  }
 }
 
 export function removeEntry(uid: string, key: string): Promise<void> {

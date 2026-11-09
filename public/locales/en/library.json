@@ -14,6 +14,7 @@
   "rows": "Rows",
   "grid": "Grid",
   "sort": {
+    "manual": "My order",
     "updated": "Recently updated",
     "score": "Your score",
     "title": "Title A–Z",
