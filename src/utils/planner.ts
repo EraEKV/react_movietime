@@ -160,3 +160,11 @@ export function defaultPlanTitle(
     .t('planner:defaultTitle.from', { name, code: `S${first.season}E${first.episode}` })
     .slice(0, 120)
 }
+
+/** 17:00 … 23:30 every half hour, plus the current value if it's something else. */
+export function timeOptions(current: string) {
+  const times: string[] = []
+  for (let h = 17; h <= 23; h++) times.push(`${h}:00`, `${h}:30`)
+  if (!times.includes(current)) times.push(current)
+  return times.toSorted().map((t) => ({ value: t, label: t }))
+}
