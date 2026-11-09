@@ -1,6 +1,6 @@
 import type { LibraryStatus } from '../types/library'
 import type { MediaKey, MediaType } from '../types/media'
-import type { PersonCastCredit, PersonCredit, PersonCrewCredit } from '../types/tmdb'
+import type { PersonCastCredit, PersonCredit, PersonCrewCredit, PersonDetails } from '../types/tmdb'
 import { mediaKey } from './media'
 
 /** What a person did on a title. `other` is every crew job outside the three filters. */
@@ -196,4 +196,14 @@ export function seenProgress(
     else if (status === 'plan') planned++
   }
   return { seen, planned, total: released.length }
+}
+
+/**
+ * The biography in the current language, or the English one when TMDB has none
+ * (most Kazakh profiles). Comes from the same request: the person appends `translations`.
+ */
+export function biographyOf(person: Pick<PersonDetails, 'biography' | 'translations'>): string {
+  if (person.biography.trim()) return person.biography.trim()
+  const english = person.translations?.translations.find((item) => item.iso_639_1 === 'en')
+  return english?.data.biography?.trim() ?? ''
 }

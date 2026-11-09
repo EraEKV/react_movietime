@@ -3,6 +3,7 @@ import type { LibraryStatus } from '../types/library'
 import type { MediaKey } from '../types/media'
 import type { PersonCastCredit, PersonCrewCredit } from '../types/tmdb'
 import {
+  biographyOf,
   buildFilmography,
   crewRole,
   filterWorks,
@@ -259,5 +260,20 @@ describe('seenProgress', () => {
 
   it('is empty-safe', () => {
     expect(seenProgress([], new Map())).toEqual({ seen: 0, planned: 0, total: 0 })
+  })
+})
+
+describe('biographyOf', () => {
+  const english = {
+    translations: [{ iso_639_1: 'en', iso_3166_1: 'US', data: { biography: ' English bio ' } }],
+  }
+
+  it('prefers the biography in the current language', () => {
+    expect(biographyOf({ biography: 'Өмірбаян', translations: english })).toBe('Өмірбаян')
+  })
+
+  it('falls back to English, and to nothing', () => {
+    expect(biographyOf({ biography: '  ', translations: english })).toBe('English bio')
+    expect(biographyOf({ biography: '' })).toBe('')
   })
 })
