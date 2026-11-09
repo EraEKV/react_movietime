@@ -144,7 +144,7 @@ function toPlan(id: string, data: DocumentData): Plan {
     roles: toRoles(data.roles),
     memberEmails: strings(data.memberEmails),
     title: String(data.title ?? ''),
-    kind: data.kind === 'list' ? 'list' : 'series',
+    kind: data.kind === 'list' || data.kind === 'movie' ? data.kind : 'series',
     media: toMedia(data.media),
     sourceListId: typeof data.sourceListId === 'string' ? data.sourceListId : null,
     options: toOptions(data.options),

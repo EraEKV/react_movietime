@@ -6,8 +6,8 @@ import type { Shareable, ShareRole } from './sharing'
 // "YYYY-MM-DD" strings in the user's local time zone and times are "HH:mm": a day in a
 // schedule is not a moment in time, and strings sort and compare correctly in queries.
 
-/** A series, or the movies of a list. */
-export type PlanKind = 'series' | 'list'
+/** A series, the movies of a list, or one movie on one evening. */
+export type PlanKind = 'series' | 'list' | 'movie'
 export type PlanStatus = 'active' | 'done' | 'archived'
 export type SessionStatus = 'pending' | 'done' | 'skipped'
 
