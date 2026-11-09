@@ -129,6 +129,7 @@ notes and progress don't count), `list.create` (createList, so copies too), `pla
 | `watchLibrary(uid, onData, onError)`        | `unsubscribe`                 | `onSnapshot` on the whole library; pending server times estimated |
 | `addEntry(uid, entry)`                      | `Promise<void>`               | Doc id = media key; `addedAt`/`updatedAt` = `serverTimestamp()`   |
 | `updateEntry(uid, key, changes, completed)` | `Promise<void>`               | `completed`: `'set'` / `'clear'` / `'keep'` for `completedAt`     |
+| `setOrders(uid, updates)`                   | `Promise<void>`               | Writes only `order` for the moved titles in atomic batches        |
 | `restoreEntry(uid, entry)`                  | `Promise<void>`               | "Undo" after a removal, keeps the original dates                  |
 | `removeEntry(uid, key)`                     | `Promise<void>`               |                                                                   |
 | `mergeGuestLibrary(uid, entries)`           | `Promise<{ added, skipped }>` | Batches of 400; entries already in the account win                |
