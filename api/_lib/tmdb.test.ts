@@ -35,6 +35,13 @@ describe('proxyTarget', () => {
     expect(proxyTarget(`${base}?path=movie/550`)).toBe('https://api.themoviedb.org/3/movie/550')
   })
 
+  it('reads the path from the URL when the rewrite parameter is absent', () => {
+    expect(proxyTarget(`${base}/discover/movie?page=2&language=en-US`)).toBe(
+      'https://api.themoviedb.org/3/discover/movie?page=2&language=en-US',
+    )
+    expect(proxyTarget(`${base}/configuration`)).toBe('https://api.themoviedb.org/3/configuration')
+  })
+
   it.each(['', '?path=', '?path=../movie', '?path=//evil.com', '?path=movie/550.json'])(
     'rejects %s',
     (query) => {

@@ -18,13 +18,15 @@ export function upstreamUrl(pathname: string, search: string): string | null {
 }
 
 /**
- * The function's own URL → the TMDB URL. vercel.json rewrites `/api/tmdb/discover/movie?page=2`
- * to `/api/tmdb?path=discover/movie&page=2` (a catch-all file only matched one path segment on
- * Vercel), so the path comes back out of the `path` parameter and the rest is TMDB's query.
+ * The request URL → the TMDB URL. On Vercel the function may see either the rewritten URL
+ * (`/api/tmdb?path=discover/movie&page=2`, from vercel.json) or the original one
+ * (`/api/tmdb/discover/movie?page=2`), so both are understood: a `path` parameter wins,
+ * otherwise the path is read from the pathname.
  */
 export function proxyTarget(requestUrl: string): string | null {
   const url = new URL(requestUrl)
-  const path = url.searchParams.get('path') ?? ''
+  const path = url.searchParams.get('path')
+  if (path === null) return upstreamUrl(url.pathname, url.search)
   url.searchParams.delete('path')
   const query = url.searchParams.toString()
   return upstreamUrl(`${PREFIX}/${path}`, query ? `?${query}` : '')
