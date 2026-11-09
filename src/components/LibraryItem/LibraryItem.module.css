@@ -136,3 +136,22 @@
   width: 168px;
   margin-right: var(--space-1);
 }
+
+/* Drag handle + the title's place in the user's own order. */
+.reorder {
+  display: flex;
+  flex-shrink: 0;
+  flex-direction: column;
+  align-items: center;
+  align-self: stretch;
+  justify-content: center;
+  gap: var(--space-1);
+  margin: calc(var(--space-1) * -1) 0 calc(var(--space-1) * -1) calc(var(--space-1) * -1);
+}
+
+.position {
+  color: var(--text-subtle);
+  font-size: 13px;
+  line-height: 18px;
+  font-variant-numeric: tabular-nums;
+}

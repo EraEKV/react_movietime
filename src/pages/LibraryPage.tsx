@@ -6,6 +6,7 @@ import ButtonLink from '../shared/ui/ButtonLink/ButtonLink'
 import EmptyState from '../shared/ui/EmptyState/EmptyState'
 import ErrorState from '../shared/ui/EmptyState/ErrorState'
 import LibraryGrid from '../components/Library/LibraryGrid'
+import SortableLibrary from '../components/Library/SortableLibrary'
 import LibrarySkeleton from '../components/Library/LibrarySkeleton'
 import LibraryItem from '../components/LibraryItem/LibraryItem'
 import Pagination from '../shared/ui/Pagination/Pagination'
@@ -46,7 +47,7 @@ interface UndoToast {
 export default function LibraryPage() {
   const { t } = useTranslation(['library', 'common'])
   const dispatch = useAppDispatch()
-  const { entries, status, error, isGuest, update, remove, restore } = useLibrary()
+  const { entries, status, error, isGuest, update, remove, restore, reorder } = useLibrary()
   const filters = useLibraryFilters()
   const { query, view } = filters
   // Memoized selectors: counts and the filtered list are recomputed only when entries or
@@ -76,7 +77,10 @@ export default function LibraryPage() {
   // Derived during render: no state to keep in sync.
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
   const page = Math.min(filters.page, totalPages) // e.g. after removing the last item of a page
-  const visible = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+  // "My order" shows everything on one page: a drag can't cross a page boundary.
+  const manual = query.sort === 'manual'
+  const visible = manual ? filtered : filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+  const sortable = manual && view === 'rows'
 
   const tabs: TabItem<StatusFilter>[] = [
     { value: 'all', label: t('all'), count: counts.all },
@@ -146,6 +150,21 @@ export default function LibraryPage() {
       <>
         {view === 'grid' ? (
           <LibraryGrid entries={visible} />
+        ) : sortable ? (
+          <SortableLibrary
+            entries={visible}
+            className={styles.list}
+            onReorder={(movedKey, overKey) => void reorder(movedKey, overKey)}
+            renderItem={(entry, handle, position) => (
+              <LibraryItem
+                entry={entry}
+                onStatusChange={handleStatusChange}
+                onRemove={handleRemove}
+                handle={handle}
+                position={position}
+              />
+            )}
+          />
         ) : (
           <ul className={styles.list}>
             {visible.map((entry) => (
@@ -160,7 +179,9 @@ export default function LibraryPage() {
             ))}
           </ul>
         )}
-        <Pagination page={page} totalPages={totalPages} onPageChange={handlePageChange} />
+        {!manual && (
+          <Pagination page={page} totalPages={totalPages} onPageChange={handlePageChange} />
+        )}
       </>
     )
   }
@@ -244,6 +265,10 @@ export default function LibraryPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {sortable && status === 'ready' && filtered.length > 0 && (
+        <p className={styles.hint}>{t('reorder.hint')}</p>
       )}
 
       <div id="library-results" role="tabpanel" aria-labelledby="library-title">
