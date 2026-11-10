@@ -150,7 +150,9 @@
     "continue": "Continue",
     "submit": "Create plan · {{sessions}}",
     "collectionError": "We couldn’t load the collection",
-    "emptyCollection": "None of this collection’s films are out yet, so there’s nothing to plan."
+    "emptyCollection": "None of this collection’s films are out yet, so there’s nothing to plan.",
+    "personError": "We couldn’t load this director’s films",
+    "emptyPerson": "None of this person’s directed films are out yet, so there’s nothing to plan."
   },
   "source": {
     "what": "What to plan",

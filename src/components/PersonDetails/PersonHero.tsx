@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { formatDate } from '../../shared/lib/format'
 import Button from '../../shared/ui/Button/Button'
+import ButtonLink from '../../shared/ui/ButtonLink/ButtonLink'
 import type { PersonDetails } from '../../types/tmdb'
 import { biographyOf } from '../../utils/person'
 import PersonPhoto from '../PersonPhoto/PersonPhoto'
@@ -15,7 +16,13 @@ type KnownDepartment = (typeof KNOWN_DEPARTMENTS)[number]
 const isKnownDepartment = (value: string): value is KnownDepartment =>
   (KNOWN_DEPARTMENTS as readonly string[]).includes(value)
 
-export default function PersonHero({ person }: { person: PersonDetails }) {
+interface PersonHeroProps {
+  person: PersonDetails
+  /** Films this person directed that are out; a marathon needs at least two. */
+  marathonFilms?: number
+}
+
+export default function PersonHero({ person, marathonFilms = 0 }: PersonHeroProps) {
   const { t } = useTranslation('person')
   const [expanded, setExpanded] = useState(false)
   const biography = biographyOf(person)
@@ -56,6 +63,14 @@ export default function PersonHero({ person }: { person: PersonDetails }) {
               </div>
             ))}
           </dl>
+        )}
+
+        {marathonFilms >= 2 && (
+          <div className={styles.actions}>
+            <ButtonLink to={`/planner/new?person=${person.id}`} variant="primary" icon="calendar">
+              {t('planMarathon', { count: marathonFilms })}
+            </ButtonLink>
+          </div>
         )}
 
         <section className={styles.bio} aria-label={t('biography')}>
