@@ -112,5 +112,37 @@
     "label": "Resend email",
     "sent": "Email sent",
     "failed": "Couldn’t send the email."
+  },
+  "avatar": {
+    "title": "Your avatar",
+    "label": "Avatar",
+    "note": "A photo or an emoji. You see it in the header and on your profile.",
+    "change": "Change avatar",
+    "remove": "Use initials",
+    "tabs": "Avatar type",
+    "emojiTab": "Emoji + color",
+    "photoTab": "Photo",
+    "color": "Color",
+    "emoji": "Emoji",
+    "colors": {
+      "default": "Default",
+      "plan-1": "Sky",
+      "plan-2": "Iris",
+      "plan-3": "Rose",
+      "plan-4": "Sand",
+      "plan-5": "Slate",
+      "plan-6": "Apricot"
+    },
+    "photo": {
+      "intro": "Choose a photo, then drag and zoom it into the circle. It is made small and saved to your profile.",
+      "choose": "Choose a photo",
+      "another": "Choose another photo",
+      "cropLabel": "Photo position. Drag it, or use the arrow keys to move and plus and minus to zoom.",
+      "cropHint": "Drag the photo to move it.",
+      "zoom": "Zoom",
+      "notImage": "This file is not an image this browser can open. Try a JPG, PNG or WebP.",
+      "tooBig": "This photo is too big. Choose one under 15 MB.",
+      "tooLarge": "The photo is too detailed to save. Zoom in on a simpler part or choose another one."
+    }
   }
 }
