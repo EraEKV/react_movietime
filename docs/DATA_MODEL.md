@@ -90,6 +90,7 @@ export interface MediaSummary {
 | `displayName`       | string                          | 1–40 chars                                                                                                                |
 | `email`             | string                          | lowercase, from Auth                                                                                                      |
 | `photoURL`          | string \| null                  | Google avatar                                                                                                             |
+| `avatar`            | map \| absent                   | The avatar chosen in settings: `{ kind: "emoji", emoji, color }` or `{ kind: "photo", photo }` (see below)                |
 | `providers`         | string[]                        | `["password"]`, `["google.com"]`                                                                                          |
 | `settings.theme`    | `"light" \| "dark" \| "system"` |                                                                                                                           |
 | `settings.language` | `"en" \| "ru" \| "kk"`          |                                                                                                                           |
@@ -98,6 +99,13 @@ export interface MediaSummary {
 | `welcomedAt`        | Timestamp \| absent             | Set once the welcome email is sent                                                                                        |
 | `icsToken`          | string \| absent                | 32 URL-safe characters (192 random bits): the secret in the calendar subscription link; absent until the user creates one |
 | `icsTimeZone`       | string \| absent                | IANA name of the device that made the link (`Asia/Almaty`); sessions are wall-clock times, so the feed needs it           |
+
+`avatar` wins over the Google `photoURL`, which wins over the initials. `emoji` is 1–16 characters
+and `color` one of `default`, `plan-1` … `plan-6` (the design system's plan tokens, shown as a tint
+of the colour on the surface). `photo` is a 256 × 256 square cropped in the app, written as a
+`data:image/webp;base64,…` (or `jpeg`) URL of at most 40 000 characters, around 10–20 KB, so no
+storage bucket is needed. Only the signed-in user sees their own avatar: lists and plans store
+names and emails, so other people see initials.
 
 Created on first sign-in (`ensureProfile`). `settings` is written from the device only when the
 account has none; afterwards the account wins and a listener applies it on every device
