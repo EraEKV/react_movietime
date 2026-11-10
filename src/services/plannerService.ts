@@ -710,13 +710,19 @@ export async function reorderFilms(plan: Plan, order: string[]): Promise<void> {
 }
 
 /**
- * Deletes a plan with its sessions (sub-collections aren't deleted with the parent). The
+ * Deletes a plan with its sessions, likes and proposals (sub-collections aren't deleted with the parent). The
  * plan goes in the last batch: session rules read it, so it must outlive them.
  * Library entries stay — they are the user's history, not part of the plan.
  */
 export async function deletePlan(id: string): Promise<void> {
-  const snap = await getDocs(sessionsCol(id))
-  const writes: ((batch: WriteBatch) => void)[] = snap.docs.map((d) => (b) => b.delete(d.ref))
+  const parts = await Promise.all([
+    getDocs(sessionsCol(id)),
+    getDocs(collection(db, 'plans', id, 'likes')),
+    getDocs(collection(db, 'plans', id, 'proposals')),
+  ])
+  const writes: ((batch: WriteBatch) => void)[] = parts.flatMap((snap) =>
+    snap.docs.map((d) => (b: WriteBatch) => b.delete(d.ref)),
+  )
   writes.push((b) => b.delete(planRef(id)))
   await commitInChunks(writes)
 }

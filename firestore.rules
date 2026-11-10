@@ -302,6 +302,68 @@ service cloud.firestore {
         allow delete: if isOwner(plan())
           || (isEditor(plan()) && resource.data.get('copyOf', null) != null);
       }
+
+      // ---- Shared marathon: 👍 and film suggestions (movie marathons only) ----
+      // The owner and every member with a verified email take part, viewers too. The ids hold
+      // the person (<sessionId>_<uid>): one like and one suggestion per person per session.
+      function marathon() { return get(/databases/$(database)/documents/plans/$(planId)).data; }
+      function takesPart() {
+        return marathon().kind == 'list' && (isOwner(marathon()) || isMember(marathon()));
+      }
+      function sessionIsPending(sessionId) {
+        return get(/databases/$(database)/documents/plans/$(planId)/sessions/$(sessionId)).data.status == 'pending';
+      }
+      function validFilmKey(v) { return v is string && v.matches('movie:[0-9]+'); }
+      function validFilm(u) {
+        return u is map
+          && u.keys().hasOnly(['mediaKey', 'title', 'season', 'episode', 'ordinal', 'runtime', 'media'])
+          && validFilmKey(u.mediaKey)
+          && u.title is string && u.title.size() >= 1 && u.title.size() <= 300
+          && u.season == null && u.episode == null && u.ordinal == null
+          && u.runtime is int && u.runtime >= 0 && u.runtime <= 1000
+          && (u.media == null || (u.media is map && u.media.size() <= 20));
+      }
+
+      match /likes/{likeId} {
+        allow read: if canRead(marathon());
+        allow create, update: if takesPart()
+          && likeId == request.resource.data.sessionId + '_' + uid()
+          && request.resource.data.keys().hasOnly(['sessionId', 'uid', 'name', 'mediaKey', 'createdAt'])
+          && request.resource.data.uid == uid()
+          && request.resource.data.name is string && request.resource.data.name.size() <= 80
+          && validFilmKey(request.resource.data.mediaKey)
+          && request.resource.data.createdAt == request.time
+          && sessionIsPending(request.resource.data.sessionId);
+        // My own like, or any like for the owner (clearing after a swap, deleting the plan).
+        allow delete: if signedIn() && (resource.data.uid == uid() || isOwner(marathon()));
+      }
+
+      match /proposals/{proposalId} {
+        allow read: if isOwner(marathon()) || isMember(marathon());
+        // The author writes (and rewrites) their own suggestion: always open again.
+        allow create, update: if takesPart()
+          && proposalId == request.resource.data.sessionId + '_' + uid()
+          && request.resource.data.keys().hasOnly(['sessionId', 'by', 'unit', 'replaces', 'status',
+              'createdAt', 'decidedAt'])
+          && request.resource.data.by is map
+          && request.resource.data.by.keys().hasOnly(['uid', 'name'])
+          && request.resource.data.by.uid == uid()
+          && request.resource.data.by.name is string && request.resource.data.by.name.size() <= 80
+          && validFilm(request.resource.data.unit)
+          && validFilmKey(request.resource.data.replaces)
+          && request.resource.data.unit.mediaKey != request.resource.data.replaces
+          && request.resource.data.status == 'pending'
+          && request.resource.data.createdAt == request.time
+          && request.resource.data.decidedAt == null
+          && sessionIsPending(request.resource.data.sessionId);
+        // The owner answers an open suggestion; nothing else about it changes.
+        allow update: if isOwner(marathon())
+          && resource.data.status == 'pending'
+          && onlyChanges(['status', 'decidedAt'])
+          && request.resource.data.status in ['accepted', 'rejected']
+          && request.resource.data.decidedAt == request.time;
+        allow delete: if signedIn() && (resource.data.by.uid == uid() || isOwner(marathon()));
+      }
     }
   }
 }

@@ -230,6 +230,34 @@ The first chunk holds the plan, the library entries, the activity record and the
 sessions; session rules check the plan with `getAfter()`, which sees it as it will be after the
 batch, so the plan and its sessions can be created together.
 
+### `plans/{planId}/likes/{sessionId}_{uid}`: 👍 on a marathon film
+
+Movie marathons only (`kind = "list"`). The id holds the person, so one person has one like per
+session.
+
+| Field       | Type      | Notes                                                                   |
+| ----------- | --------- | ----------------------------------------------------------------------- |
+| `sessionId` | string    | The session the film sits in                                            |
+| `uid`       | string    | Who liked                                                               |
+| `name`      | string    | Their display name                                                      |
+| `mediaKey`  | string    | The film at the time: after a reorder or a swap the like stops counting |
+| `createdAt` | Timestamp |                                                                         |
+
+### `plans/{planId}/proposals/{sessionId}_{uid}`: film suggestion
+
+A member suggests another film for a pending session; the owner accepts or rejects. One open
+suggestion per person per session (a new one replaces the old).
+
+| Field       | Type                                    | Notes                                                         |
+| ----------- | --------------------------------------- | ------------------------------------------------------------- |
+| `sessionId` | string                                  |                                                               |
+| `by`        | `{ uid, name }`                         | The author                                                    |
+| `unit`      | unit                                    | The suggested film (same shape as a session unit, a movie)    |
+| `replaces`  | string                                  | `mediaKey` of the film it was made against; stale if it moved |
+| `status`    | `"pending" \| "accepted" \| "rejected"` | Only the owner changes it                                     |
+| `createdAt` | Timestamp                               |                                                               |
+| `decidedAt` | Timestamp \| null                       |                                                               |
+
 ### `notifications/{notificationId}`: in-app notification
 
 Written by the owner in the same batch as the sharing change; read by the person whose
@@ -256,16 +284,19 @@ from `null` to `request.time`. Query: `where toEmail == me orderBy createdAt des
 
 ## Business operations
 
-| Operation          | Writes (one batch)                                                                                                                                                                                                                                |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Create plan        | `plans/{id}` + N `sessions` + library upsert (series → `watching`; marathon movies not in the library → `plan`) + activity `plan.create`                                                                                                          |
-| Complete session   | session `done` + `doneBy` · plan `doneUnits`, `nextDate`, `endDate`, `status` · **the marker's own** library (series progress, only forward; `completed` when the plan finishes; a movie → `completed`) · activity `session.done` (+ `plan.done`) |
-| Undo               | session back to `pending` · for a skip, its pending copy is deleted · plan counters. Library progress is not rolled back                                                                                                                          |
-| Reschedule session | session `date` (+ every later pending session shifted by the same days) · plan `nextDate`, `endDate`                                                                                                                                              |
-| Reorder films      | pending sessions of a `list` plan swap their `units` and `minutes` (dates and times stay); plan counters are unchanged. Owner and editor                                                                                                          |
-| Skip session       | session `skipped` + `doneBy` · a copy with the same units (`copyOf`) on the next plan weekday after the last session · plan `endDate`                                                                                                             |
-| Delete plan        | all sessions, then the plan in the last batch (library entries stay)                                                                                                                                                                              |
-| Copy list          | new `lists/{id}` owned by the current user + copied items                                                                                                                                                                                         |
+| Operation           | Writes (one batch)                                                                                                                                                                                                                                |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Create plan         | `plans/{id}` + N `sessions` + library upsert (series → `watching`; marathon movies not in the library → `plan`) + activity `plan.create`                                                                                                          |
+| Complete session    | session `done` + `doneBy` · plan `doneUnits`, `nextDate`, `endDate`, `status` · **the marker's own** library (series progress, only forward; `completed` when the plan finishes; a movie → `completed`) · activity `session.done` (+ `plan.done`) |
+| Undo                | session back to `pending` · for a skip, its pending copy is deleted · plan counters. Library progress is not rolled back                                                                                                                          |
+| Reschedule session  | session `date` (+ every later pending session shifted by the same days) · plan `nextDate`, `endDate`                                                                                                                                              |
+| Reorder films       | pending sessions of a `list` plan swap their `units` and `minutes` (dates and times stay); plan counters are unchanged. Owner and editor                                                                                                          |
+| Like a film         | `likes/{sessionId}_{uid}` set or deleted. Owner, editor and viewer of a movie marathon                                                                                                                                                            |
+| Suggest a film      | `proposals/{sessionId}_{uid}` set (pending), or deleted by the author. Owner, editor and viewer of a movie marathon                                                                                                                               |
+| Answer a suggestion | owner only: proposal `accepted` / `rejected`; on accept the session's `units` and `minutes` swap in the same batch, the session's likes are deleted and other open suggestions for it are rejected                                                |
+| Skip session        | session `skipped` + `doneBy` · a copy with the same units (`copyOf`) on the next plan weekday after the last session · plan `endDate`                                                                                                             |
+| Delete plan         | all sessions, likes and proposals, then the plan in the last batch (library entries stay)                                                                                                                                                         |
+| Copy list           | new `lists/{id}` owned by the current user + copied items                                                                                                                                                                                         |
 
 ## Sharing and roles
 
@@ -296,15 +327,17 @@ The owner's access comes from `ownerUid`. Members are stored on the shared docum
 - Link visibility (`visibility == "link"`) allows **read** for anyone, including guests.
   It never allows writes.
 
-| Action                         | owner | editor | viewer | link visitor |
-| ------------------------------ | :---: | :----: | :----: | :----------: |
-| Read list / plan               |   ✓   |   ✓    |   ✓    |      ✓       |
-| Add / remove / edit list items |   ✓   |   ✓    |        |              |
-| Complete / reschedule sessions |   ✓   |   ✓    |        |              |
-| Rename, change visibility      |   ✓   |        |        |              |
-| Add / remove members, roles    |   ✓   |        |        |              |
-| Delete                         |   ✓   |        |        |              |
-| Leave                          |       |   ✓    |   ✓    |              |
+| Action                           | owner | editor | viewer | link visitor |
+| -------------------------------- | :---: | :----: | :----: | :----------: |
+| Read list / plan                 |   ✓   |   ✓    |   ✓    |      ✓       |
+| Add / remove / edit list items   |   ✓   |   ✓    |        |              |
+| Complete / reschedule sessions   |   ✓   |   ✓    |        |              |
+| Rename, change visibility        |   ✓   |        |        |              |
+| Add / remove members, roles      |   ✓   |        |        |              |
+| Delete                           |   ✓   |        |        |              |
+| Like / suggest a film (marathon) |   ✓   |   ✓    |   ✓    |              |
+| Accept / reject a suggestion     |   ✓   |        |        |              |
+| Leave                            |       |   ✓    |   ✓    |              |
 
 ## Security rules
 
