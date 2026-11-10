@@ -122,6 +122,7 @@
     "after": "{{day}} · после «{{title}}»",
     "overlap": "{{day}} · пересекается с «{{title}}», {{from}}–{{to}}"
   },
+  "calendarLink": "Ссылка на календарь",
   "everyDay": "Каждый день",
   "scheduleAt": "{{days}} в {{time}}",
   "units": {

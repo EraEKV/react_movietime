@@ -74,6 +74,29 @@
         "unconfigured": "Push notifications aren’t set up for this version of the app.",
         "denied": "Notifications are blocked for this site. Allow them in the browser’s site settings, then come back."
       }
+    },
+    "calendar": {
+      "title": "Calendar",
+      "intro": "One link with every session of all your plans. Add it to Google Calendar or any calendar app and your viewing evenings show up next to everything else.",
+      "create": "Create calendar link",
+      "link": "Calendar subscription link",
+      "copy": "Copy",
+      "copied": "Copied",
+      "manual": "Copy the link by hand: it is selected.",
+      "step1": "In Google Calendar, open Other calendars → From URL.",
+      "step2": "Paste the link and add the calendar.",
+      "step3": "Open it from the list on the left whenever you want to hide it.",
+      "refresh": "Google refreshes subscribed calendars only every few hours, so a new or moved session can take a while to show up.",
+      "private": "Anyone with this link can see your sessions. If it gets out, make a new one.",
+      "zone": "Times follow the time zone of the device that made the link: {{zone}}.",
+      "renew": "New link",
+      "renewWarning": "The current link stops working at once. Calendars that use it must be given the new one.",
+      "renewConfirm": "Make a new link",
+      "remove": "Turn off",
+      "removeWarning": "The link stops working and calendars using it go empty. You can create a new one later.",
+      "removeConfirm": "Turn off the link",
+      "cancel": "Cancel",
+      "failed": "Couldn’t change this. Check your connection and try again."
     }
   },
   "name": {

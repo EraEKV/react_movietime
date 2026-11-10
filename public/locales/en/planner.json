@@ -122,6 +122,7 @@
     "after": "{{day}} · after {{title}}",
     "overlap": "{{day}} · overlaps {{title}}, {{from}}–{{to}}"
   },
+  "calendarLink": "Calendar link",
   "everyDay": "Every day",
   "scheduleAt": "{{days}} at {{time}}",
   "units": {

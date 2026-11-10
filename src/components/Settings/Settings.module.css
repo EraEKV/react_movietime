@@ -80,3 +80,33 @@
 .previewSplit .previewPoster:nth-child(n + 3) {
   display: none;
 }
+
+/* Calendar subscription: the link with its Copy button, the steps, the actions. */
+.copyRow {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.copyRow > :first-child {
+  flex: 1;
+  min-width: 0;
+}
+
+.steps {
+  margin: 0;
+  padding-left: var(--space-5);
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 22px;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.confirmText {
+  margin: 0 0 var(--space-3);
+}

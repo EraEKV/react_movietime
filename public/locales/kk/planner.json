@@ -122,6 +122,7 @@
     "after": "{{day}} · «{{title}}» кейін",
     "overlap": "{{day}} · «{{title}}» сеансымен қиылысады, {{from}}–{{to}}"
   },
+  "calendarLink": "Күнтізбе сілтемесі",
   "everyDay": "Күн сайын",
   "scheduleAt": "{{days}}, {{time}}",
   "units": {
