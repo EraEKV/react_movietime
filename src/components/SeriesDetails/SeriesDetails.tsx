@@ -2,6 +2,8 @@ import { useTranslation } from 'react-i18next'
 
 import { ApiError, endpoints } from '../../shared/api/tmdb'
 import { useFetch } from '../../shared/hooks/useFetch'
+import { seriesCredits } from '../../utils/credits'
+import { keyCrew } from '../../utils/person'
 import { useGenres } from '../../hooks/useGenres'
 import type { SeriesDetails as SeriesDetailsData } from '../../types/tmdb'
 import { useTmdbLanguage } from '../../shared/hooks/useTmdbLanguage'
@@ -14,6 +16,7 @@ import AddToListButton from '../AddToList/AddToListButton'
 import BackButton from '../../shared/ui/BackButton/BackButton'
 import ButtonLink from '../../shared/ui/ButtonLink/ButtonLink'
 import CastList from '../CastList/CastList'
+import CrewList from '../CrewList/CrewList'
 import ErrorState from '../../shared/ui/EmptyState/ErrorState'
 import MediaGrid from '../MediaGrid/MediaGrid'
 import EpisodeHeatmap from '../EpisodeHeatmap/EpisodeHeatmap'
@@ -26,12 +29,12 @@ import LibraryButton from '../LibraryButton/LibraryButton'
 import PlanWatchingButton from '../Planner/PlanWatchingButton'
 import DetailsSkeleton from '../DetailsSkeleton/DetailsSkeleton'
 
-const MAX_CAST = 12
 const MAX_RECOMMENDATIONS = 10
 
 export default function SeriesDetails({ seriesId }: { seriesId: string }) {
   const { t } = useTranslation(['catalog', 'common'])
-  // One request: details + credits + videos + recommendations via append_to_response.
+  const { t: tPerson } = useTranslation('person')
+  // One request: details + credits + aggregate credits + videos + recommendations via append_to_response.
   const {
     status,
     data: series,
@@ -64,7 +67,12 @@ export default function SeriesDetails({ seriesId }: { seriesId: string }) {
     )
   }
 
-  const cast = series.credits.cast.slice(0, MAX_CAST)
+  const credits = seriesCredits(series)
+  const cast = credits.cast
+  const crew = keyCrew([
+    ...series.created_by.map((creator) => ({ ...creator, job: 'Creator' })),
+    ...credits.crew,
+  ])
   const trailer = pickTrailer(series.videos.results)
   const seasons = sortSeasons(series.seasons)
   // Specials (season 0) are left out of the heatmap: they aren't part of the story arc.
@@ -132,6 +140,12 @@ export default function SeriesDetails({ seriesId }: { seriesId: string }) {
       {trailer && (
         <Section title={t('details.trailer')}>
           <Trailer video={trailer} title={series.name} />
+        </Section>
+      )}
+
+      {crew.length > 0 && (
+        <Section title={tPerson('crewLabel')}>
+          <CrewList crew={crew} />
         </Section>
       )}
 

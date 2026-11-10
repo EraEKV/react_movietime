@@ -178,9 +178,11 @@ export const endpoints = {
 
   // translations: the English overview, shown when TMDB has none in the current language.
   // Videos are filtered by `language` too, so English (and language-less) trailers are added.
+  // aggregate_credits: the whole cast and crew over all seasons (`credits` is show-level only).
   seriesDetails: (id: Id, language: string) =>
     buildPath(`/tv/${id}`, {
-      append_to_response: 'credits,videos,recommendations,translations,watch/providers',
+      append_to_response:
+        'credits,aggregate_credits,videos,recommendations,translations,watch/providers',
       include_video_language: videoLanguages(language),
     }),
 
@@ -192,6 +194,11 @@ export const endpoints = {
       append_to_response: 'credits,videos,recommendations,translations,watch/providers',
       include_video_language: videoLanguages(language),
     }),
+
+  // Biography, birth data and the whole filmography in one request. `translations` gives the
+  // English biography when TMDB has none in the current language.
+  person: (id: Id) =>
+    buildPath(`/person/${id}`, { append_to_response: 'combined_credits,translations' }),
 
   season: (id: Id, seasonNumber: number) => buildPath(`/tv/${id}/season/${seasonNumber}`),
 

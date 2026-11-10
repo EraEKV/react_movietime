@@ -1,0 +1,87 @@
+{
+  "pageTitle": "{{name}}",
+  "loading": "Загружаем профиль",
+  "notFound": "Человек не найден",
+  "notFoundBody": "Профиль могли удалить из TMDB, или ссылка неверна.",
+  "error": "Не удалось загрузить профиль",
+  "offlineTitle": "Вы не в сети",
+  "offlineBody": "Этого профиля ещё нет на устройстве. Подключитесь к интернету и повторите.",
+  "badLink": "Эта ссылка не ведёт на человека",
+  "badId": "«{{id}}» не похоже на id человека. Проверьте ссылку или откройте фильм и выберите кого-то из актёрского состава.",
+  "browse": "Открыть фильмы",
+  "photo": "Фото: {{name}}",
+  "department": {
+    "Acting": "Актёр",
+    "Directing": "Режиссёр",
+    "Writing": "Сценарист"
+  },
+  "facts": {
+    "born": "Родился",
+    "died": "Умер",
+    "birthplace": "Место рождения"
+  },
+  "biography": "Биография",
+  "noBiography": "Биографии для «{{name}}» пока нет.",
+  "showMore": "Читать дальше",
+  "showLess": "Свернуть",
+  "knownFor": "Известен по",
+  "knownForLabel": "Самые известные работы",
+  "filmography": "Фильмография",
+  "filters": {
+    "role": "Роль",
+    "all": "Все",
+    "actor": "Актёр",
+    "director": "Режиссёр",
+    "writer": "Сценарист",
+    "media": "Тип",
+    "movies": "Фильмы",
+    "series": "Сериалы",
+    "sort": "Сортировка",
+    "year": "По году",
+    "popularity": "По популярности",
+    "clear": "Сбросить фильтры"
+  },
+  "progress": {
+    "seen": "Вы видели {{seen}} из {{total}}",
+    "planned": "В планах: {{count}}",
+    "label": "Просмотрено из этой фильмографии"
+  },
+  "upcoming": "Ещё не вышли",
+  "tba": "Дата объявляется",
+  "episodes_one": "{{count}} серия",
+  "episodes_few": "{{count}} серии",
+  "episodes_many": "{{count}} серий",
+  "episodes_other": "{{count}} серии",
+  "shown_one": "Показана {{count}} работа",
+  "shown_few": "Показано {{count}} работы",
+  "shown_many": "Показано {{count}} работ",
+  "shown_other": "Показано {{count}} работы",
+  "empty": {
+    "title": "Работ пока нет",
+    "body": "В TMDB нет фильмов и сериалов для «{{name}}»."
+  },
+  "noMatch": {
+    "title": "Под эти фильтры ничего не подходит",
+    "body": "Попробуйте другую роль или тип."
+  },
+  "listLabel": "Фильмография: {{name}}",
+  "jobs": {
+    "creator": "Создатель",
+    "director": "Режиссёр",
+    "writer": "Сценарист",
+    "cinematography": "Оператор",
+    "music": "Композитор",
+    "editing": "Монтаж",
+    "producer": "Продюсер",
+    "executiveProducer": "Исполнительный продюсер",
+    "productionDesign": "Художник-постановщик",
+    "costumeDesign": "Художник по костюмам",
+    "casting": "Кастинг",
+    "visualEffects": "Визуальные эффекты",
+    "sound": "Звук"
+  },
+  "crewLabel": "Съёмочная группа",
+  "profileLink": "{{name}}: профиль",
+  "showAll": "Показать всех: {{count}}",
+  "showFewer": "Свернуть"
+}

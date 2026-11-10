@@ -1,0 +1,83 @@
+{
+  "pageTitle": "{{name}}",
+  "loading": "Loading person",
+  "notFound": "Person not found",
+  "notFoundBody": "This profile may have been removed from TMDB, or the link is wrong.",
+  "error": "We couldn’t load this profile",
+  "offlineTitle": "You’re offline",
+  "offlineBody": "This profile isn’t saved on this device yet. Reconnect and try again.",
+  "badLink": "This link doesn’t point to a person",
+  "badId": "“{{id}}” is not a valid person id. Check the link, or open a movie and pick someone from its cast.",
+  "browse": "Browse movies",
+  "photo": "Photo of {{name}}",
+  "department": {
+    "Acting": "Actor",
+    "Directing": "Director",
+    "Writing": "Writer"
+  },
+  "facts": {
+    "born": "Born",
+    "died": "Died",
+    "birthplace": "Place of birth"
+  },
+  "biography": "Biography",
+  "noBiography": "We don’t have a biography for {{name}} yet.",
+  "showMore": "Read more",
+  "showLess": "Show less",
+  "knownFor": "Known for",
+  "knownForLabel": "Best-known works",
+  "filmography": "Filmography",
+  "filters": {
+    "role": "Role",
+    "all": "All",
+    "actor": "Actor",
+    "director": "Director",
+    "writer": "Writer",
+    "media": "Type",
+    "movies": "Movies",
+    "series": "Series",
+    "sort": "Sort by",
+    "year": "Year",
+    "popularity": "Popularity",
+    "clear": "Clear filters"
+  },
+  "progress": {
+    "seen": "You’ve seen {{seen}} of {{total}}",
+    "planned": "In your plan: {{count}}",
+    "label": "Watched from this filmography"
+  },
+  "upcoming": "Not released yet",
+  "tba": "Date to be announced",
+  "episodes_one": "{{count}} episode",
+  "episodes_other": "{{count}} episodes",
+  "shown_one": "{{count}} title shown",
+  "shown_other": "{{count}} titles shown",
+  "empty": {
+    "title": "No credits yet",
+    "body": "TMDB has no movies or series for {{name}}."
+  },
+  "noMatch": {
+    "title": "Nothing matches these filters",
+    "body": "Try another role or type."
+  },
+  "listLabel": "Filmography of {{name}}",
+  "jobs": {
+    "creator": "Creator",
+    "director": "Director",
+    "writer": "Writer",
+    "cinematography": "Cinematography",
+    "music": "Music",
+    "editing": "Editing",
+    "producer": "Producer",
+    "executiveProducer": "Executive producer",
+    "productionDesign": "Production design",
+    "costumeDesign": "Costume design",
+    "casting": "Casting",
+    "visualEffects": "Visual effects",
+    "sound": "Sound"
+  },
+  "crewLabel": "Key crew",
+  "profileLink": "{{name}}: profile",
+  "showAll": "Show all {{count}}",
+  "showFewer": "Show fewer"
+}
