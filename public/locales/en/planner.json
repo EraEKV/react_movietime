@@ -188,6 +188,8 @@
     "startDate": "Start date",
     "watchOn": "Watch on",
     "time": "Time",
+    "ownTimes": "Different time on some days",
+    "sameTime": "Same time on every day",
     "perSession": "Episodes per session"
   },
   "preview": {

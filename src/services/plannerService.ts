@@ -143,6 +143,11 @@ function toOptions(value: unknown): PlanOptions {
   }
 }
 
+/** Firestore refuses `undefined`: leave out `times` when no weekday has its own time. */
+function storedOptions({ times, ...options }: PlanOptions): PlanOptions {
+  return times && Object.keys(times).length > 0 ? { ...options, times } : options
+}
+
 function toPlan(id: string, data: DocumentData): Plan {
   const status = data.status === 'done' || data.status === 'archived' ? data.status : 'active'
   return {
@@ -478,7 +483,7 @@ export async function createPlan(
       kind: draft.kind,
       media: draft.media,
       sourceListId: draft.sourceListId,
-      options: draft.options,
+      options: storedOptions(draft.options),
       color,
       totalUnits: draft.units.length,
       doneUnits: 0,

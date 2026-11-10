@@ -345,3 +345,6 @@
 .agendaHint p {
   margin: 0;
 }
+.ownTimes {
+  align-self: flex-start;
+}
