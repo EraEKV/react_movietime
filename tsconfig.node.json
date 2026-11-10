@@ -16,5 +16,5 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true
   },
-  "include": ["vite.config.ts", "vitest.config.ts", "api"]
+  "include": ["vite.config.ts", "vite.dev-api.ts", "vitest.config.ts", "api"]
 }
