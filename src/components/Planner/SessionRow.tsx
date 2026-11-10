@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import type { PlanSession } from '../../types/plan'
 import { daysBetween, formatDay, relativeDay } from '../../utils/calendar'
 import { cx } from '../../shared/lib/cx'
@@ -22,6 +22,8 @@ interface SessionRowProps {
   onSkip: () => Promise<void>
   onUndo: () => Promise<void>
   onReschedule: () => void
+  /** Under the film: the marathon's 👍 and suggestions. */
+  extra?: ReactNode
 }
 
 /** One session on the plan page: when, what, status, and what you can do with it. */
@@ -35,6 +37,7 @@ export default function SessionRow({
   onSkip,
   onUndo,
   onReschedule,
+  extra,
 }: SessionRowProps) {
   const { t } = useTranslation(['planner', 'common'])
   const [busy, setBusy] = useState<'complete' | 'skip' | 'undo' | null>(null)
@@ -75,6 +78,7 @@ export default function SessionRow({
       <div className={styles.what}>
         <span className={styles.units}>{unitsLabel(session.units)}</span>
         {single && single.season !== null && <span className={styles.muted}>{single.title}</span>}
+        {extra}
       </div>
       <div className={styles.status}>
         {session.status === 'done' ? (

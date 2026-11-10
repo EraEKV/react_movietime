@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import type { AppNotification } from '../../types/notifications'
+import type { AppNotification, SharedNotification } from '../../types/notifications'
 
 const state = vi.hoisted(() => ({
   value: {} as Record<string, unknown>,
@@ -11,7 +11,7 @@ vi.mock('../../hooks/useNotifications', () => ({ useNotifications: () => state.v
 
 import NotificationBell from './NotificationBell'
 
-const note = (over: Partial<AppNotification> = {}): AppNotification => ({
+const note = (over: Partial<SharedNotification> = {}): AppNotification => ({
   id: 'n1',
   type: 'shared',
   collection: 'lists',
@@ -104,6 +104,37 @@ describe('NotificationBell', () => {
     await user.click(screen.getByRole('button', { name: /Notifications/ }))
     await user.click(screen.getByRole('button', { name: 'Decline' }))
     expect(decline).toHaveBeenCalledWith(item)
+  })
+
+  it('tells the owner about a suggestion and the author about the answer', async () => {
+    const base = {
+      collection: 'plans' as const,
+      targetId: 'p9',
+      targetTitle: 'Dark Knight marathon',
+      fromName: 'Vera',
+      createdAt: new Date().toISOString(),
+      read: false,
+    }
+    const user = setup([
+      { ...base, id: 'a', type: 'proposal', film: 'Inception', decision: null },
+      { ...base, id: 'b', type: 'answer', film: 'Memento', decision: 'accepted', fromName: 'Olga' },
+      { ...base, id: 'c', type: 'answer', film: 'Dunkirk', decision: 'rejected', fromName: 'Olga' },
+    ])
+    await user.click(screen.getByRole('button', { name: /Notifications/ }))
+    expect(
+      screen.getByText('Vera suggested “Inception” for the plan “Dark Knight marathon”'),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText('Olga accepted your suggestion “Memento” in “Dark Knight marathon”'),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText('Olga declined your suggestion “Dunkirk” in “Dark Knight marathon”'),
+    ).toBeInTheDocument()
+    expect(screen.getAllByRole('link', { name: 'Open' })[0]).toHaveAttribute('href', '/planner/p9')
+    // Nothing to give up here: the button only removes the notice.
+    expect(screen.queryByRole('button', { name: 'Decline' })).toBeNull()
+    await user.click(screen.getAllByRole('button', { name: 'Dismiss' })[0] as HTMLElement)
+    expect(decline).toHaveBeenCalledTimes(1)
   })
 
   it('shows a message when an action fails', async () => {

@@ -145,6 +145,36 @@ service cloud.firestore {
         && !(d.toEmail in get(/databases/$(database)/documents/$(d.collection)/$(d.targetId)).data.memberEmails);
     }
 
+    // An in-app notification about a film suggestion in a movie marathon, addressed by uid
+    // (the plan doesn't hold the owner's email). Written in the same batch as the suggestion
+    // ('proposal': a member tells the owner) or the owner's answer ('answer': the owner tells
+    // the author), and accepted only if that write is really in the batch. getAfter() sees it.
+    function validProposalNotice() {
+      let d = request.resource.data;
+      let plan = getAfter(/databases/$(database)/documents/plans/$(d.targetId)).data;
+      let offer = getAfter(/databases/$(database)/documents/plans/$(d.targetId)/proposals/$(d.proposalId)).data;
+      return d.keys().hasOnly(['toUid', 'type', 'collection', 'targetId', 'proposalId',
+          'targetTitle', 'film', 'decision', 'fromUid', 'fromName', 'createdAt', 'readAt'])
+        && d.collection == 'plans'
+        && d.targetId is string && d.targetId.size() >= 1 && d.targetId.size() <= 64
+        && d.proposalId is string && d.proposalId.size() >= 1 && d.proposalId.size() <= 128
+        && d.targetTitle == plan.title
+        && d.film == offer.unit.title
+        && d.fromUid == uid()
+        && d.fromName is string && d.fromName.size() <= 80
+        && d.createdAt == request.time
+        && d.readAt == null
+        && ((d.type == 'proposal' && !('decision' in d)
+              && d.toUid == plan.ownerUid
+              && isMember(plan)
+              && offer.by.uid == uid() && offer.status == 'pending')
+            || (d.type == 'answer' && d.decision in ['accepted', 'rejected']
+              && plan.ownerUid == uid()
+              && d.toUid == offer.by.uid && d.toUid != uid()
+              && offer.status == d.decision
+              && get(/databases/$(database)/documents/plans/$(d.targetId)/proposals/$(d.proposalId)).data.status == 'pending'));
+    }
+
     // ---------- private user data ----------
     match /users/{userId} {
       function self() { return signedIn() && uid() == userId; }
@@ -166,13 +196,19 @@ service cloud.firestore {
     }
 
     // ---------- notifications ----------
-    // Keyed by the recipient's lowercase email, readable only with that verified email.
+    // Keyed by the recipient's lowercase email (readable only with that verified email) or,
+    // for marathon suggestions, by the recipient's uid.
     // Nothing checks that an account exists: the notification waits for the email.
     match /notifications/{notificationId} {
-      allow read, delete: if verified() && resource.data.toEmail == email();
-      allow create: if signedIn() && validNotification();
+      // Addressed by verified email ('shared') or by uid (suggestions in a marathon).
+      function mine(n) {
+        return (verified() && n.get('toEmail', '') == email())
+          || (signedIn() && n.get('toUid', '') == uid());
+      }
+      allow read, delete: if mine(resource.data);
+      allow create: if signedIn() && (validNotification() || validProposalNotice());
       // Mark as read: only readAt changes, from empty to now.
-      allow update: if verified() && resource.data.toEmail == email()
+      allow update: if mine(resource.data)
         && onlyChanges(['readAt'])
         && resource.data.readAt == null
         && request.resource.data.readAt == request.time;
@@ -301,6 +337,68 @@ service cloud.firestore {
         // The owner deletes (with the plan); an editor only the copy a skip added (Undo).
         allow delete: if isOwner(plan())
           || (isEditor(plan()) && resource.data.get('copyOf', null) != null);
+      }
+
+      // ---- Shared marathon: 👍 and film suggestions (movie marathons only) ----
+      // The owner and every member with a verified email take part, viewers too. The ids hold
+      // the person (<sessionId>_<uid>): one like and one suggestion per person per session.
+      function marathon() { return get(/databases/$(database)/documents/plans/$(planId)).data; }
+      function takesPart() {
+        return marathon().kind == 'list' && (isOwner(marathon()) || isMember(marathon()));
+      }
+      function sessionIsPending(sessionId) {
+        return get(/databases/$(database)/documents/plans/$(planId)/sessions/$(sessionId)).data.status == 'pending';
+      }
+      function validFilmKey(v) { return v is string && v.matches('movie_[0-9]+'); }
+      function validFilm(u) {
+        return u is map
+          && u.keys().hasOnly(['mediaKey', 'title', 'season', 'episode', 'ordinal', 'runtime', 'media'])
+          && validFilmKey(u.mediaKey)
+          && u.title is string && u.title.size() >= 1 && u.title.size() <= 300
+          && u.season == null && u.episode == null && u.ordinal == null
+          && u.runtime is int && u.runtime >= 0 && u.runtime <= 1000
+          && (u.media == null || (u.media is map && u.media.size() <= 20));
+      }
+
+      match /likes/{likeId} {
+        allow read: if canRead(marathon());
+        allow create, update: if takesPart()
+          && likeId == request.resource.data.sessionId + '_' + uid()
+          && request.resource.data.keys().hasOnly(['sessionId', 'uid', 'name', 'mediaKey', 'createdAt'])
+          && request.resource.data.uid == uid()
+          && request.resource.data.name is string && request.resource.data.name.size() <= 80
+          && validFilmKey(request.resource.data.mediaKey)
+          && request.resource.data.createdAt == request.time
+          && sessionIsPending(request.resource.data.sessionId);
+        // My own like, or any like for the owner (clearing after a swap, deleting the plan).
+        allow delete: if signedIn() && (resource.data.uid == uid() || isOwner(marathon()));
+      }
+
+      match /proposals/{proposalId} {
+        allow read: if isOwner(marathon()) || isMember(marathon());
+        // The author writes (and rewrites) their own suggestion: always open again.
+        allow create, update: if takesPart()
+          && proposalId == request.resource.data.sessionId + '_' + uid()
+          && request.resource.data.keys().hasOnly(['sessionId', 'by', 'unit', 'replaces', 'status',
+              'createdAt', 'decidedAt'])
+          && request.resource.data.by is map
+          && request.resource.data.by.keys().hasOnly(['uid', 'name'])
+          && request.resource.data.by.uid == uid()
+          && request.resource.data.by.name is string && request.resource.data.by.name.size() <= 80
+          && validFilm(request.resource.data.unit)
+          && validFilmKey(request.resource.data.replaces)
+          && request.resource.data.unit.mediaKey != request.resource.data.replaces
+          && request.resource.data.status == 'pending'
+          && request.resource.data.createdAt == request.time
+          && request.resource.data.decidedAt == null
+          && sessionIsPending(request.resource.data.sessionId);
+        // The owner answers an open suggestion; nothing else about it changes.
+        allow update: if isOwner(marathon())
+          && resource.data.status == 'pending'
+          && onlyChanges(['status', 'decidedAt'])
+          && request.resource.data.status in ['accepted', 'rejected']
+          && request.resource.data.decidedAt == request.time;
+        allow delete: if signedIn() && (resource.data.by.uid == uid() || isOwner(marathon()));
       }
     }
   }

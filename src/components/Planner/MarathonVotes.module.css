@@ -1,0 +1,174 @@
+.votes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.like {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: 32px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  transition:
+    border-color var(--dur-fast),
+    background var(--dur-fast);
+}
+
+.like:hover:not(:disabled) {
+  background: var(--surface-hover);
+}
+
+.like[aria-pressed='true'] {
+  border-color: var(--accent);
+  background: var(--surface-selected);
+  color: var(--text);
+}
+
+.like:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+/* A read-only count for people who can't vote. */
+.count {
+  cursor: default;
+}
+
+.who {
+  overflow: hidden;
+  max-width: 100%;
+  color: var(--text-subtle);
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.note {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-2);
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.note strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* Touch: the same 44px target as the session buttons. */
+@media (pointer: coarse) {
+  .like,
+  .votes button {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* ---- Owner's panel */
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-md);
+  background: var(--surface-selected);
+}
+
+.panelTitle {
+  composes: overline from '../../shared/styles/typography.module.css';
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.offers {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.offer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+
+.offerBody {
+  display: flex;
+  flex: 1 1 240px;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.offerText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  font-size: 14px;
+}
+
+.offerText span {
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.offerActions {
+  display: flex;
+  gap: var(--space-1);
+}
+
+/* ---- Suggest dialog */
+
+.pick {
+  display: flex;
+  width: 100%;
+  min-height: 64px;
+  align-items: center;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color var(--dur-fast),
+    background var(--dur-fast);
+}
+
+.pick:hover:not(:disabled) {
+  background: var(--surface-hover);
+}
+
+.pick[aria-pressed='true'] {
+  border-color: var(--accent);
+  background: var(--surface-selected);
+}
+
+.pick:disabled {
+  cursor: default;
+  opacity: 0.6;
+}

@@ -24,16 +24,21 @@ export default function NotificationItem({
   onDecline,
 }: NotificationItemProps) {
   const { t } = useTranslation('notifications')
+  const shared = item.type === 'shared'
+  const text = (n: AppNotification) => {
+    const values = { name: n.fromName || '—', title: n.targetTitle }
+    if (n.type === 'shared') return t(`shared.${n.collection}.${n.role}`, values)
+    if (n.type === 'proposal') return t('suggestion.proposal', { ...values, film: n.film })
+    return t(n.decision === 'accepted' ? 'suggestion.accepted' : 'suggestion.rejected', {
+      ...values,
+      film: n.film,
+    })
+  }
   return (
     <li className={cx(styles.item, !item.read && styles.unread)}>
       {!item.read && <span className={styles.dot} role="img" aria-label={t('unreadMark')} />}
       <div className={styles.body}>
-        <p className={styles.text}>
-          {t(`shared.${item.collection}.${item.role}`, {
-            name: item.fromName || '—',
-            title: item.targetTitle,
-          })}
-        </p>
+        <p className={styles.text}>{text(item)}</p>
         <time className={styles.time} dateTime={item.createdAt}>
           {relativeTime(item.createdAt)}
         </time>
@@ -50,9 +55,9 @@ export default function NotificationItem({
             size="sm"
             variant="ghost"
             onClick={onDecline}
-            title={t('declineHint', { title: item.targetTitle })}
+            title={shared ? t('declineHint', { title: item.targetTitle }) : undefined}
           >
-            {t('decline')}
+            {t(shared ? 'decline' : 'dismiss')}
           </Button>
         </div>
       </div>
