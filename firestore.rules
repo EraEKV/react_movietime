@@ -313,7 +313,7 @@ service cloud.firestore {
       function sessionIsPending(sessionId) {
         return get(/databases/$(database)/documents/plans/$(planId)/sessions/$(sessionId)).data.status == 'pending';
       }
-      function validFilmKey(v) { return v is string && v.matches('movie:[0-9]+'); }
+      function validFilmKey(v) { return v is string && v.matches('movie_[0-9]+'); }
       function validFilm(u) {
         return u is map
           && u.keys().hasOnly(['mediaKey', 'title', 'season', 'episode', 'ordinal', 'runtime', 'media'])

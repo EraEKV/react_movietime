@@ -3,7 +3,7 @@ import type { PlanSession, PlanUnit, SessionLike, SessionProposal } from '../typ
 import { likesOf, myProposal, openProposals, proposalsFor } from './marathonVotes'
 
 const unit = (id: number): PlanUnit => ({
-  mediaKey: `movie:${id}`,
+  mediaKey: `movie_${id}`,
   title: `Film ${id}`,
   season: null,
   episode: null,
@@ -33,7 +33,7 @@ const like = (sessionId: string, uid: string, film: number): SessionLike => ({
   sessionId,
   uid,
   name: uid,
-  mediaKey: `movie:${film}`,
+  mediaKey: `movie_${film}`,
 })
 const proposal = (
   sessionId: string,
@@ -45,7 +45,7 @@ const proposal = (
   sessionId,
   by: { uid, name: uid },
   unit: unit(99),
-  replaces: `movie:${replaces}`,
+  replaces: `movie_${replaces}`,
   status,
 })
 
