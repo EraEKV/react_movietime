@@ -200,7 +200,10 @@
     "showAll": "Show all {{sessions}}",
     "showFewer": "Show fewer",
     "dragHint": "Drag the handle to change the order. The dates stay, the films move.",
-    "resetOrder": "Restore original order",
+    "moveHintFilms": "Drag a film to another day. The films follow their dates.",
+    "moveHintEpisodes": "Drag a session to another day. It stays between the sessions on either side.",
+    "reset": "Reset changes",
+    "remove": "Leave {{title}} out of the plan",
     "reorder": {
       "instructions": "Press space to pick up the film, arrow keys to move it, space to drop it or Escape to cancel.",
       "handle": "Move {{title}}",

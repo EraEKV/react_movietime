@@ -4,6 +4,7 @@ import type { PlanColor, ScheduledSession } from '../../types/plan'
 import { formatDay, monthGrid, monthOf } from '../../utils/calendar'
 import type { PlanSummary } from '../../utils/schedule'
 import { totalHours, unitsLabel } from '../../utils/schedule'
+import { sessionKey } from '../../utils/previewEdits'
 import Banner from '../../shared/ui/Banner/Banner'
 import CalendarMonth from '../CalendarMonth/CalendarMonth'
 import StatTile from '../../shared/ui/StatTile/StatTile'
@@ -63,7 +64,13 @@ interface PreviewStepProps {
   movies: boolean
   /** Marathons: a film was dropped where another one is. Enables dragging in the list. */
   onMove?: (movedKey: string, overKey: string) => void
-  /** Marathons: the order differs from the source; put it back. */
+  /** Marathons: a film was dropped from the plan (media key). */
+  onRemove?: (mediaKey: string) => void
+  /** A session was dropped on another day in the calendar (see `sessionKey`). */
+  onMoveSession?: (key: string, date: string) => void
+  /** Where a session may land; the calendar only lights up those days. */
+  canMoveSession?: (key: string, date: string) => boolean
+  /** Something was changed by hand; put everything back. */
   onReset?: () => void
 }
 
@@ -79,6 +86,9 @@ export function PreviewStep({
   today,
   movies,
   onMove,
+  onRemove,
+  onMoveSession,
+  canMoveSession,
   onReset,
 }: PreviewStepProps) {
   const { t } = useTranslation('planner')
@@ -100,11 +110,17 @@ export function PreviewStep({
           today={today}
           movies={movies}
           onMove={onMove}
+          onRemove={onRemove}
           onReset={onReset}
         />
       </section>
       <section className={styles.previewCalendar} aria-label={t('preview.firstWeeks')}>
         <h3 className={styles.panelTitle}>{t('preview.firstWeeks')}</h3>
+        {onMoveSession && (
+          <p className={styles.agendaHint}>
+            {t(movies ? 'preview.moveHintFilms' : 'preview.moveHintEpisodes')}
+          </p>
+        )}
         <CalendarMonth
           label={t('preview.firstWeeksLabel')}
           month={month}
@@ -113,8 +129,10 @@ export function PreviewStep({
           compact
           size="sm"
           maxPerDay={1}
+          onMove={onMoveSession}
+          canDrop={canMoveSession}
           items={sessions.map((s) => ({
-            key: String(s.index),
+            key: sessionKey(s, movies),
             date: s.date,
             color,
             // A marathon's chip names the film (the plan's name is the same on every day).
@@ -122,6 +140,7 @@ export function PreviewStep({
             range: movies ? '' : unitsLabel(s.units),
             time: movies ? s.time : undefined,
             status: 'pending',
+            movable: onMoveSession !== undefined,
             posterPath: s.units[0]?.media?.posterPath,
           }))}
         />

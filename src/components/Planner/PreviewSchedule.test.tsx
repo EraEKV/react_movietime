@@ -95,7 +95,7 @@ describe('PreviewSchedule reordering a marathon', () => {
     const { rerender } = render(
       <PreviewSchedule sessions={sessions} today={TODAY} movies onMove={() => {}} />,
     )
-    expect(screen.queryByRole('button', { name: 'Restore original order' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Reset changes' })).not.toBeInTheDocument()
     rerender(
       <PreviewSchedule
         sessions={sessions}
@@ -105,8 +105,35 @@ describe('PreviewSchedule reordering a marathon', () => {
         onReset={onReset}
       />,
     )
-    await userEvent.click(screen.getByRole('button', { name: 'Restore original order' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Reset changes' }))
     expect(onReset).toHaveBeenCalledOnce()
+  })
+
+  it('lets a film be left out, but never the last one', async () => {
+    const onRemove = vi.fn()
+    const { rerender } = render(
+      <PreviewSchedule
+        sessions={sessions}
+        today={TODAY}
+        movies
+        onMove={() => {}}
+        onRemove={onRemove}
+      />,
+    )
+    const buttons = screen.getAllByRole('button', { name: /^Leave .* out of the plan$/ })
+    expect(buttons).toHaveLength(sessions.length)
+    await userEvent.click(buttons[1]!)
+    expect(onRemove).toHaveBeenCalledWith(sessions[1]?.units[0]?.mediaKey)
+    rerender(
+      <PreviewSchedule
+        sessions={sessions.slice(0, 1)}
+        today={TODAY}
+        movies
+        onMove={() => {}}
+        onRemove={onRemove}
+      />,
+    )
+    expect(screen.queryByRole('button', { name: /out of the plan/ })).not.toBeInTheDocument()
   })
 
   it('has no handles without onMove, or with a single film', () => {

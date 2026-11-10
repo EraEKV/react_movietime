@@ -4,6 +4,7 @@ import { imageUrl } from '../../shared/api/tmdb'
 import { formatRuntime } from '../../shared/lib/format'
 import Button from '../../shared/ui/Button/Button'
 import Icon from '../../shared/ui/Icon/Icon'
+import IconButton from '../../shared/ui/IconButton/IconButton'
 import SortableList from '../../shared/ui/SortableList/SortableList'
 import type { ScheduledSession } from '../../types/plan'
 import { formatDay } from '../../utils/calendar'
@@ -23,7 +24,9 @@ interface PreviewScheduleProps {
   movies: boolean
   /** Marathons only: a film was dropped where another one is (media keys). Enables dragging. */
   onMove?: (movedKey: string, overKey: string) => void
-  /** Marathons only: put the films back in the order the source gave them. */
+  /** Marathons only: drop a film from the plan (media key). Offered while two or more remain. */
+  onRemove?: (mediaKey: string) => void
+  /** Put the plan back as the source and the weekdays give it (order, dates, dropped films). */
   onReset?: () => void
 }
 
@@ -37,6 +40,7 @@ export default function PreviewSchedule({
   today,
   movies,
   onMove,
+  onRemove,
   onReset,
 }: PreviewScheduleProps) {
   const { t } = useTranslation(['planner', 'common'])
@@ -46,6 +50,7 @@ export default function PreviewSchedule({
 
   if (movies) {
     const sortable = onMove !== undefined && sessions.length > 1
+    const removable = onRemove !== undefined && sessions.length > 1
     if (!sortable) {
       return (
         <ol className={styles.agendaList} aria-label={t('preview.scheduleLabel')}>
@@ -64,7 +69,7 @@ export default function PreviewSchedule({
           <p>{t('preview.dragHint')}</p>
           {onReset && (
             <Button variant="ghost" icon="refresh" onClick={onReset}>
-              {t('preview.resetOrder')}
+              {t('preview.reset')}
             </Button>
           )}
         </div>
@@ -92,6 +97,14 @@ export default function PreviewSchedule({
               {handle}
               <SlotCell session={session} />
               <FilmCells session={session} />
+              {removable && (
+                <IconButton
+                  icon="x"
+                  size="sm"
+                  label={t('preview.remove', { title: session.units[0]?.title })}
+                  onClick={() => onRemove(session.units[0]?.mediaKey ?? '')}
+                />
+              )}
             </>
           )}
         />
