@@ -150,7 +150,8 @@ Invitations, role-change notices and the welcome email are sent by Vercel functi
 The functions verify the caller's Firebase ID token and read Firestore with it, so the
 security rules apply: invites and role-change notices go only to members of a list or plan the
 caller owns, and the welcome email only to the caller's own verified address. `npm run dev`
-does not serve `api/`; use `npx vercel dev` to try it locally.
+serves `api/` too (`vite.dev-api.ts` runs the same handlers as Vercel, with the server-side keys
+from `.env.local`); `/api/tmdb` stays with the dev proxy.
 
 ## 8. Push notifications
 
