@@ -48,7 +48,8 @@
     "alreadyAll": "All films are already in “{{list}}”.",
     "created": "Created the list “{{list}}” with {{movies}}.",
     "failed": "We couldn’t add the films.",
-    "open": "Open the list"
+    "open": "Open the list",
+    "retry": "Try again"
   },
   "block": {
     "title": "From the same collection",

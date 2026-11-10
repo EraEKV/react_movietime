@@ -169,3 +169,13 @@
   display: grid;
   gap: var(--space-2);
 }
+
+/* ---- "From the same collection" ---- */
+
+.blockError {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--text-muted);
+}
