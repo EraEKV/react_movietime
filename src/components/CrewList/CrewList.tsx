@@ -1,18 +1,22 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
+import { useMediaQuery } from '../../shared/hooks/useMediaQuery'
 import Button from '../../shared/ui/Button/Button'
 import type { KeyCrewMember } from '../../utils/person'
 import styles from './CrewList.module.css'
 
-/** How many people show before "Show all". */
+/** How many people show before "Show all": a short list on phones, where it is all scrolling. */
 export const CREW_PREVIEW = 12
+export const CREW_PREVIEW_PHONE = 5
 
 /** Key crew (director, writers, composer…) as links to their pages. */
 export default function CrewList({ crew }: { crew: KeyCrewMember[] }) {
   const { t } = useTranslation('person')
   const [expanded, setExpanded] = useState(false)
-  const visible = expanded ? crew : crew.slice(0, CREW_PREVIEW)
+  const phone = useMediaQuery('(max-width: 767px)')
+  const preview = phone ? CREW_PREVIEW_PHONE : CREW_PREVIEW
+  const visible = expanded ? crew : crew.slice(0, preview)
 
   return (
     <>
@@ -28,7 +32,7 @@ export default function CrewList({ crew }: { crew: KeyCrewMember[] }) {
           </li>
         ))}
       </ul>
-      {crew.length > CREW_PREVIEW && (
+      {crew.length > preview && (
         <Button
           variant="ghost"
           className={styles.toggle}

@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router'
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import CrewList from '../CrewList/CrewList'
 import CastList from './CastList'
 
@@ -84,6 +84,42 @@ describe('CrewList', () => {
     const link = screen.getByRole('link', { name: /Lana Wachowski/ })
     expect(link).toHaveAttribute('href', '/person/9')
     expect(link).toHaveTextContent('Director, Writer')
+  })
+})
+
+describe('CrewList preview on a phone', () => {
+  const crew = Array.from({ length: 9 }, (_, i) => ({
+    id: i + 1,
+    name: `Person ${i + 1}`,
+    jobs: ['producer' as const],
+  }))
+
+  afterEach(() => vi.unstubAllGlobals())
+
+  it('shows 5 people and a button for the rest', async () => {
+    const original = window.matchMedia
+    vi.stubGlobal('matchMedia', (query: string) => ({
+      ...original(query),
+      matches: query === '(max-width: 767px)',
+    }))
+    render(
+      <MemoryRouter>
+        <CrewList crew={crew} />
+      </MemoryRouter>,
+    )
+    expect(screen.getAllByRole('link')).toHaveLength(5)
+    await userEvent.click(screen.getByRole('button', { name: 'Show all 9' }))
+    expect(screen.getAllByRole('link')).toHaveLength(9)
+  })
+
+  it('shows all 9 at once on a wide screen', () => {
+    render(
+      <MemoryRouter>
+        <CrewList crew={crew} />
+      </MemoryRouter>,
+    )
+    expect(screen.getAllByRole('link')).toHaveLength(9)
+    expect(screen.queryByRole('button')).not.toBeInTheDocument()
   })
 })
 
