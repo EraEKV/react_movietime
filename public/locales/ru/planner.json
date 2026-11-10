@@ -117,6 +117,10 @@
     "time": "Выберите время.",
     "perSession": "Выберите от 1 до {{max}} за сеанс."
   },
+  "dropHint": {
+    "after": "{{day}} · после «{{title}}»",
+    "overlap": "{{day}} · пересекается с «{{title}}», {{from}}–{{to}}"
+  },
   "everyDay": "Каждый день",
   "scheduleAt": "{{days}} в {{time}}",
   "units": {

@@ -117,6 +117,10 @@
     "time": "Pick a time.",
     "perSession": "Choose 1 to {{max}} per session."
   },
+  "dropHint": {
+    "after": "{{day}} · after {{title}}",
+    "overlap": "{{day}} · overlaps {{title}}, {{from}}–{{to}}"
+  },
   "everyDay": "Every day",
   "scheduleAt": "{{days}} at {{time}}",
   "units": {

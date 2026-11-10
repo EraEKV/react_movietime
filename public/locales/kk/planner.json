@@ -117,6 +117,10 @@
     "time": "Уақытты таңдаңыз.",
     "perSession": "Сеансқа 1-ден {{max}}-ға дейін таңдаңыз."
   },
+  "dropHint": {
+    "after": "{{day}} · «{{title}}» кейін",
+    "overlap": "{{day}} · «{{title}}» сеансымен қиылысады, {{from}}–{{to}}"
+  },
   "everyDay": "Күн сайын",
   "scheduleAt": "{{days}}, {{time}}",
   "units": {
