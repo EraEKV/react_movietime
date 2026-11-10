@@ -454,7 +454,7 @@ export async function createPlan(
   draft: PlanDraft,
   color: Plan['color'],
 ): Promise<string> {
-  const sessions = buildSchedule(draft.units, draft.options)
+  const sessions = draft.sessions ?? buildSchedule(draft.units, draft.options)
   const last = sessions.at(-1)
   if (!last) throw new PlanError(i18n.t('planner:errors.nothingToSchedule'))
 
