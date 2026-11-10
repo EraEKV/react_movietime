@@ -85,22 +85,28 @@ export interface MediaSummary {
 
 ### `users/{uid}`: profile
 
-| Field               | Type                            | Notes                              |
-| ------------------- | ------------------------------- | ---------------------------------- |
-| `displayName`       | string                          | 1–40 chars                         |
-| `email`             | string                          | lowercase, from Auth               |
-| `photoURL`          | string \| null                  | Google avatar                      |
-| `providers`         | string[]                        | `["password"]`, `["google.com"]`   |
-| `settings.theme`    | `"light" \| "dark" \| "system"` |                                    |
-| `settings.language` | `"en" \| "ru" \| "kk"`          |                                    |
-| `createdAt`         | Timestamp                       |                                    |
-| `updatedAt`         | Timestamp                       |                                    |
-| `welcomedAt`        | Timestamp \| absent             | Set once the welcome email is sent |
+| Field               | Type                            | Notes                                                                                                                     |
+| ------------------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `displayName`       | string                          | 1–40 chars                                                                                                                |
+| `email`             | string                          | lowercase, from Auth                                                                                                      |
+| `photoURL`          | string \| null                  | Google avatar                                                                                                             |
+| `providers`         | string[]                        | `["password"]`, `["google.com"]`                                                                                          |
+| `settings.theme`    | `"light" \| "dark" \| "system"` |                                                                                                                           |
+| `settings.language` | `"en" \| "ru" \| "kk"`          |                                                                                                                           |
+| `createdAt`         | Timestamp                       |                                                                                                                           |
+| `updatedAt`         | Timestamp                       |                                                                                                                           |
+| `welcomedAt`        | Timestamp \| absent             | Set once the welcome email is sent                                                                                        |
+| `icsToken`          | string \| absent                | 32 URL-safe characters (192 random bits): the secret in the calendar subscription link; absent until the user creates one |
+| `icsTimeZone`       | string \| absent                | IANA name of the device that made the link (`Asia/Almaty`); sessions are wall-clock times, so the feed needs it           |
 
 Created on first sign-in (`ensureProfile`). `settings` is written from the device only when the
 account has none; afterwards the account wins and a listener applies it on every device
 (guests keep preferences in `localStorage` only). `localStorage` stays the first-paint cache.
-The settings page changes `displayName` (also in Firebase Auth) and `settings`.
+The settings page changes `displayName` (also in Firebase Auth) and `settings`, and creates, replaces or
+removes the calendar link (`icsToken` + `icsTimeZone`). `GET /api/calendar/<icsToken>.ics`
+(`api/ics.ts`, Firebase Admin, no sign-in) finds the owner by that field and returns every
+pending session of the user's plans, and of plans shared with a verified email, as an iCalendar
+feed with `TZID` times. A new token cancels the old link; there is no other way to the feed.
 
 ### `pushSubscriptions/{sha256(endpoint)}`: push subscription
 

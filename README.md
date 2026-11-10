@@ -75,6 +75,7 @@ with an editor / viewer role.
   a one-time welcome email. Push notifications (Settings → Notifications, Web Push) tell a friend
   about a share or a role change even when the app is closed. The app never checks whether an account exists: the notification
   waits for the verified email.
+- ✅ **Calendar link**: Settings → Calendar creates one secret address with every session of all your plans (and plans shared with you). Paste it into Google Calendar (Other calendars → From URL); a Vercel function in `api/` serves it, and a new link cancels the old one.
 - ✅ **Profile**: account info, counters and an activity feed; settings for display name, theme
   and language.
 - ✅ **Languages**: English, Русский, Қазақша from the header menu or the settings. The choice is
