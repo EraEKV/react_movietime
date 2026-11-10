@@ -353,3 +353,9 @@
 .ownTimes {
   align-self: flex-start;
 }
+
+/* Sessions that collide with a time the user picked. */
+.overlaps {
+  margin: 0;
+  padding-left: var(--space-4);
+}

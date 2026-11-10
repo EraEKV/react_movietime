@@ -55,6 +55,7 @@
     "submit": "Save order"
   },
   "move": {
+    "overlap": "Overlaps {{title}}, {{from}}–{{to}}",
     "title": "Reschedule {{units}}",
     "submit": "Move session",
     "date": "New date",

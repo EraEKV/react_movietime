@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import type * as PlannerService from '../services/plannerService'
 import type { Plan, PlannedSession, PlanRole, PlanSession } from '../types/plan'
+import { bookingsOf } from '../utils/conflicts'
 import { addDays, localToday, monthGrid, type MonthRef } from '../utils/calendar'
 import { bySchedule } from '../utils/schedule'
 import { normalizeEmail, roleOf } from '../utils/sharing'
@@ -111,6 +112,18 @@ function useSessionsOf(plans: Plan[] | null, range: PlannerService.DayRange | nu
   }, [plans, sessions.data])
 
   return { status: sessions.status, error: sessions.error, retry: sessions.retry, sessions: joined }
+}
+
+/**
+ * Every session of my plans, for checking a new time against the evenings already taken.
+ * Idle (no listeners) while `enabled` is false, so a page opens them only when it needs them.
+ */
+export function useBookedSessions(plans: Plan[] | null, enabled = true) {
+  const sessions = useSessionsOf(enabled ? plans : null, null)
+  return useMemo(
+    () => (sessions.sessions ? bookingsOf(sessions.sessions) : []),
+    [sessions.sessions],
+  )
 }
 
 /** Today's and tomorrow's sessions of all my plans: Home "Up next" and the header chip. */
