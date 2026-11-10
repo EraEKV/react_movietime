@@ -14,6 +14,7 @@ import AddToListButton from '../AddToList/AddToListButton'
 import BackButton from '../../shared/ui/BackButton/BackButton'
 import ButtonLink from '../../shared/ui/ButtonLink/ButtonLink'
 import CastList from '../CastList/CastList'
+import CollectionBlock from '../CollectionDetails/CollectionBlock'
 import CrewList from '../CrewList/CrewList'
 import DetailsSkeleton from '../DetailsSkeleton/DetailsSkeleton'
 import ErrorState from '../../shared/ui/EmptyState/ErrorState'
@@ -148,6 +149,10 @@ export default function MovieDetails({ movieId }: { movieId: string }) {
         <Section title={t('details.cast')}>
           <CastList cast={cast} />
         </Section>
+      )}
+
+      {movie.belongs_to_collection && (
+        <CollectionBlock collection={movie.belongs_to_collection} currentId={movie.id} />
       )}
 
       {recommendations.length > 0 && (

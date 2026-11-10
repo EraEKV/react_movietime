@@ -1,0 +1,181 @@
+.page {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-8);
+}
+
+/* ---- Hero: the franchise's backdrop under a dark scrim, like a title page ---- */
+
+.hero {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  min-height: 320px;
+  border-radius: var(--radius-lg);
+  background: var(--surface-sunken);
+  color: var(--text-on-backdrop);
+}
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background-size: cover;
+  background-position: center top;
+}
+
+.hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--scrim-backdrop);
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-5);
+  width: 100%;
+  padding: var(--space-5);
+}
+
+@media (min-width: 768px) {
+  .hero {
+    min-height: 380px;
+  }
+
+  .content {
+    grid-template-columns: 180px minmax(0, 1fr);
+    align-items: end;
+    gap: var(--space-8);
+    padding: var(--space-8);
+  }
+}
+
+.poster {
+  justify-self: start;
+  width: 112px;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+  background: var(--surface-sunken);
+  box-shadow: var(--shadow-3);
+}
+
+@media (min-width: 768px) {
+  .poster {
+    width: 100%;
+  }
+}
+
+.poster img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.posterFallback {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  color: var(--text-subtle);
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.kicker {
+  composes: overline from '../../shared/styles/typography.module.css';
+  color: var(--text-on-backdrop-muted);
+}
+
+.title {
+  composes: displayL from '../../shared/styles/typography.module.css';
+  overflow-wrap: anywhere;
+}
+
+.meta {
+  color: var(--text-on-backdrop-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+/* ---- Overview + progress ---- */
+
+.about {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-6);
+}
+
+@media (min-width: 1024px) {
+  .about {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    gap: var(--space-12);
+  }
+}
+
+.overview {
+  composes: bodyL from '../../shared/styles/typography.module.css';
+  max-width: 70ch;
+}
+
+.muted {
+  color: var(--text-muted);
+}
+
+.progress {
+  display: grid;
+  align-content: start;
+  gap: var(--space-2);
+}
+
+.progressText {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.progressText strong {
+  font-weight: 600;
+}
+
+/* ---- Add-to-list dialog ---- */
+
+.dialogText {
+  margin-bottom: var(--space-4);
+}
+
+.dialogMessage {
+  composes: body from '../../shared/styles/typography.module.css';
+}
+
+.dialogSkeleton {
+  display: grid;
+  gap: var(--space-2);
+}
+
+/* ---- "From the same collection" ---- */
+
+.blockError {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--text-muted);
+}

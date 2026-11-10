@@ -1,0 +1,58 @@
+{
+  "pageTitle": "{{name}}",
+  "kicker": "Collection",
+  "loading": "Loading collection",
+  "notFound": "Collection not found",
+  "notFoundBody": "It may have been removed from TMDB, or the link is wrong.",
+  "error": "We couldn’t load this collection",
+  "offlineTitle": "You’re offline",
+  "offlineBody": "This collection isn’t saved on this device yet. Reconnect and try again.",
+  "badLink": "This link doesn’t point to a collection",
+  "badId": "“{{id}}” is not a valid collection id. Check the link, or open a movie and follow its collection.",
+  "browse": "Browse movies",
+  "cover": "Cover of {{name}}",
+  "noOverview": "There is no description for this collection yet.",
+  "films": "Films",
+  "filmsLabel": "Films of {{name}}, in order of release",
+  "upcoming": "Not released yet",
+  "tba": "Date to be announced",
+  "empty": {
+    "title": "No films yet",
+    "body": "TMDB lists no films for “{{name}}”."
+  },
+  "progress": {
+    "seen": "You’ve watched {{seen}} of {{total}}",
+    "planned": "In your plan: {{count}}",
+    "label": "Watched from this collection",
+    "none": "Nothing released to watch yet"
+  },
+  "actions": {
+    "addAll": "Add all to a list",
+    "plan": "Plan a marathon"
+  },
+  "dialog": {
+    "title": "Add the collection to a list",
+    "body": "{{movies}} from “{{name}}” go into the list you choose. Films that are already there are skipped.",
+    "pick": "Choose a list",
+    "loading": "Loading lists",
+    "loadError": "We couldn’t load your lists. Check your connection and try again.",
+    "noLists": "You don’t have any lists yet. Make one from this collection:",
+    "newList": "New list “{{name}}”",
+    "add": "Add {{movies}}",
+    "cancel": "Cancel",
+    "done": "Done",
+    "added": "Added {{movies}} to “{{list}}”.",
+    "addedSome": "Added {{added}}, skipped {{skipped}} already in “{{list}}”.",
+    "alreadyAll": "All films are already in “{{list}}”.",
+    "created": "Created the list “{{list}}” with {{movies}}.",
+    "open": "Open the list",
+    "retry": "Try again"
+  },
+  "block": {
+    "title": "From the same collection",
+    "open": "Open the collection",
+    "partOf": "Part of {{name}}",
+    "loadError": "We couldn’t load the other films of this collection.",
+    "films": "Other films of {{name}}"
+  }
+}

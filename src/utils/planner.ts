@@ -168,3 +168,15 @@ export function timeOptions(current: string) {
   if (!times.includes(current)) times.push(current)
   return times.toSorted().map((t) => ({ value: t, label: t }))
 }
+
+/**
+ * What a plan remembers about its source in `sourceListId`. A list plan stores the list id;
+ * a collection marathon stores "collection:<tmdb id>" (the field is a plain string that
+ * nothing resolves, and the rules only ask for a string on list plans). Series plans keep null.
+ */
+export function sourceIdOf(
+  pick: { kind: 'series' | 'list' | 'collection'; id: number | string } | null,
+): string | null {
+  if (!pick || pick.kind === 'series') return null
+  return pick.kind === 'collection' ? `collection:${pick.id}` : String(pick.id)
+}

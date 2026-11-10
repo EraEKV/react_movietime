@@ -1,6 +1,7 @@
 import 'i18next'
 import type auth from '../../../public/locales/en/auth.json'
 import type catalog from '../../../public/locales/en/catalog.json'
+import type collection from '../../../public/locales/en/collection.json'
 import type common from '../../../public/locales/en/common.json'
 import type dashboard from '../../../public/locales/en/dashboard.json'
 import type home from '../../../public/locales/en/home.json'
@@ -17,6 +18,7 @@ declare module 'i18next' {
   interface CustomTypeOptions {
     defaultNS: 'common'
     resources: {
+      collection: typeof collection
       common: typeof common
       auth: typeof auth
       catalog: typeof catalog

@@ -174,6 +174,11 @@ export const endpoints = {
   searchMovies: ({ query, page = 1, year }: SearchParams) =>
     buildPath('/search/movie', { query, page, primary_release_year: year }),
 
+  searchPeople: ({ query, page = 1 }: SearchParams) => buildPath('/search/person', { query, page }),
+
+  searchCollections: ({ query, page = 1 }: SearchParams) =>
+    buildPath('/search/collection', { query, page }),
+
   seriesSummary: (id: Id) => buildPath(`/tv/${id}`),
 
   // translations: the English overview, shown when TMDB has none in the current language.
@@ -199,6 +204,9 @@ export const endpoints = {
   // English biography when TMDB has none in the current language.
   person: (id: Id) =>
     buildPath(`/person/${id}`, { append_to_response: 'combined_credits,translations' }),
+
+  /** A franchise: its name, cover, overview and every film (`parts`). */
+  collection: (id: Id) => buildPath(`/collection/${id}`),
 
   season: (id: Id, seasonNumber: number) => buildPath(`/tv/${id}/season/${seasonNumber}`),
 

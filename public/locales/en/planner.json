@@ -135,7 +135,9 @@
     "nameRequired": "Give the plan a name.",
     "back": "Back",
     "continue": "Continue",
-    "submit": "Create plan · {{sessions}}"
+    "submit": "Create plan · {{sessions}}",
+    "collectionError": "We couldn’t load the collection",
+    "emptyCollection": "None of this collection’s films are out yet, so there’s nothing to plan."
   },
   "source": {
     "what": "What to plan",

@@ -1,16 +1,16 @@
 import { useTranslation } from 'react-i18next'
-import { useRef, type KeyboardEvent } from 'react'
+import { useId, useRef, type KeyboardEvent, type ReactNode } from 'react'
 import { createSearchParams, Link } from 'react-router'
-import { useTitleSearch } from '../../hooks/useTitleSearch'
+import { useSiteSearch } from '../../hooks/useSiteSearch'
 import { imageUrl } from '../../shared/api/tmdb'
 import { cx } from '../../shared/lib/cx'
 import { getYear } from '../../shared/lib/format'
 import Button from '../../shared/ui/Button/Button'
 import Icon from '../../shared/ui/Icon/Icon'
 import Skeleton from '../../shared/ui/Skeleton/Skeleton'
+import { hitCount } from '../../utils/search'
+import PersonPhoto from '../PersonPhoto/PersonPhoto'
 import styles from './Layout.module.css'
-
-const MAX_RESULTS = 6
 
 interface HeaderSearchResultsProps {
   query: string
@@ -25,9 +25,9 @@ interface HeaderSearchResultsProps {
 }
 
 /**
- * Titles that match what is typed in the header, as cards with a poster: movies and series
- * together (the same search the "add to list" picker uses). Enter in the field still opens the
- * full catalog search; this is the quick way to jump straight to a title.
+ * What matches what is typed in the header, in groups: titles (movies and series together),
+ * people and collections. Enter in the field still opens the full catalog search; this is the
+ * quick way to jump straight to a title, a person or a franchise.
  */
 export default function HeaderSearchResults({
   query,
@@ -37,8 +37,9 @@ export default function HeaderSearchResults({
   onExitUp,
 }: HeaderSearchResultsProps) {
   const { t } = useTranslation(['common', 'library'])
-  const search = useTitleSearch(query)
+  const search = useSiteSearch(query)
   const panel = useRef<HTMLDivElement>(null)
+  const ids = useId()
 
   if (search.tooShort) return null
 
@@ -74,40 +75,89 @@ export default function HeaderSearchResults({
         </Button>
       </div>
     )
-  } else if (search.status === 'success' && search.data.length === 0) {
+  } else if (search.status === 'success' && hitCount(search.data) === 0) {
     body = <p className={styles.resultsHint}>{t('header.noResults', { query: query.trim() })}</p>
   } else if (search.status === 'success') {
-    const items = search.data.slice(0, MAX_RESULTS)
+    const { titles, people, collections } = search.data
     body = (
       <>
-        <ul className={styles.resultsList} aria-label={t('header.results')}>
-          {items.map((item) => {
-            const poster = imageUrl(item.posterPath, 'w92')
-            const year = getYear(item.date)
-            const type = t(item.mediaType === 'movie' ? 'library:movie' : 'library:series')
-            return (
-              <li key={`${item.mediaType}_${item.id}`}>
-                <Link
-                  to={`/${item.mediaType === 'movie' ? 'movies' : 'series'}/${item.id}`}
-                  className={styles.resultLink}
-                  onClick={onPick}
-                >
-                  <span className={styles.resultPoster} aria-hidden="true">
-                    {poster ? (
-                      <img src={poster} alt="" loading="lazy" />
-                    ) : (
-                      <Icon name={item.mediaType === 'movie' ? 'film' : 'tv'} size={16} />
-                    )}
+        {titles.length > 0 && (
+          <ResultGroup id={`${ids}-titles`} label={t('header.groupTitles')}>
+            {titles.map((item) => {
+              const poster = imageUrl(item.posterPath, 'w92')
+              const year = getYear(item.date)
+              const type = t(item.mediaType === 'movie' ? 'library:movie' : 'library:series')
+              return (
+                <li key={`${item.mediaType}_${item.id}`}>
+                  <Link
+                    to={`/${item.mediaType === 'movie' ? 'movies' : 'series'}/${item.id}`}
+                    className={styles.resultLink}
+                    onClick={onPick}
+                  >
+                    <span className={styles.resultPoster} aria-hidden="true">
+                      {poster ? (
+                        <img src={poster} alt="" loading="lazy" />
+                      ) : (
+                        <Icon name={item.mediaType === 'movie' ? 'film' : 'tv'} size={16} />
+                      )}
+                    </span>
+                    <span className={styles.resultText}>
+                      <strong>{item.title}</strong>
+                      <span>{[year, type].filter(Boolean).join(' · ')}</span>
+                    </span>
+                  </Link>
+                </li>
+              )
+            })}
+          </ResultGroup>
+        )}
+        {collections.length > 0 && (
+          <ResultGroup id={`${ids}-collections`} label={t('header.groupCollections')}>
+            {collections.map((item) => {
+              const poster = imageUrl(item.posterPath, 'w92')
+              return (
+                <li key={item.id}>
+                  <Link
+                    to={`/collection/${item.id}`}
+                    className={styles.resultLink}
+                    onClick={onPick}
+                  >
+                    <span className={styles.resultPoster} aria-hidden="true">
+                      {poster ? (
+                        <img src={poster} alt="" loading="lazy" />
+                      ) : (
+                        <Icon name="film" size={16} />
+                      )}
+                    </span>
+                    <span className={styles.resultText}>
+                      <strong>{item.name}</strong>
+                      <span>{t('header.collection')}</span>
+                    </span>
+                  </Link>
+                </li>
+              )
+            })}
+          </ResultGroup>
+        )}
+        {people.length > 0 && (
+          <ResultGroup id={`${ids}-people`} label={t('header.groupPeople')}>
+            {people.map((item) => (
+              <li key={item.id}>
+                <Link to={`/person/${item.id}`} className={styles.resultLink} onClick={onPick}>
+                  <span className={styles.resultPhoto} aria-hidden="true">
+                    <PersonPhoto path={item.photoPath} size="w92" iconSize={18} />
                   </span>
                   <span className={styles.resultText}>
-                    <strong>{item.title}</strong>
-                    <span>{[year, type].filter(Boolean).join(' · ')}</span>
+                    <strong>{item.name}</strong>
+                    {isDepartment(item.department) && (
+                      <span>{t(`header.dept.${item.department}`)}</span>
+                    )}
                   </span>
                 </Link>
               </li>
-            )
-          })}
-        </ul>
+            ))}
+          </ResultGroup>
+        )}
         <Link
           to={{ pathname: catalog, search: `?${createSearchParams({ q: query.trim() })}` }}
           className={styles.resultsAll}
@@ -133,8 +183,28 @@ export default function HeaderSearchResults({
     >
       {body}
       <span className="sr-only" role="status">
-        {search.status === 'success' ? t('header.resultCount', { count: search.data.length }) : ''}
+        {search.status === 'success'
+          ? t('header.resultCount', { count: hitCount(search.data) })
+          : ''}
       </span>
+    </div>
+  )
+}
+
+const DEPARTMENTS = ['Acting', 'Directing', 'Writing'] as const
+const isDepartment = (value: string): value is (typeof DEPARTMENTS)[number] =>
+  (DEPARTMENTS as readonly string[]).includes(value)
+
+/** One labelled group of results: a heading and its list, named by that heading. */
+function ResultGroup({ id, label, children }: { id: string; label: string; children: ReactNode }) {
+  return (
+    <div className={styles.resultsGroup}>
+      <h3 id={id} className={styles.resultsGroupTitle}>
+        {label}
+      </h3>
+      <ul className={styles.resultsList} aria-labelledby={id}>
+        {children}
+      </ul>
     </div>
   )
 }

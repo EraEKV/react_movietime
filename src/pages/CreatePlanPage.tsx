@@ -14,7 +14,7 @@ import Stepper from '../shared/ui/Stepper/Stepper'
 import { useLibraryEntry } from '../hooks/useLibrary'
 import { useListAuthor } from '../hooks/useLists'
 import { loadPlannerService, usePlans } from '../hooks/usePlanner'
-import { usePlanSource, type SourcePick } from '../hooks/usePlanSource'
+import { usePlanSource, type PickerKind, type SourcePick } from '../hooks/usePlanSource'
 import type { ScheduleOptions, Weekday } from '../types/plan'
 import { localToday, weekdayOf } from '../utils/calendar'
 import { offlineMessage } from '../utils/listErrors'
@@ -23,6 +23,7 @@ import {
   defaultPlanTitle,
   nextPlanColor,
   planErrorMessage,
+  sourceIdOf,
   startIndexOf,
   type StartChoice,
 } from '../utils/planner'
@@ -31,11 +32,15 @@ import styles from '../components/Planner/Planner.module.css'
 
 const STEP_KEYS = ['steps.pick', 'steps.start', 'steps.schedule', 'steps.preview'] as const
 
-/** ?series=1396 or ?list=abc from the entry points ("Plan watching", "Plan a marathon"). */
+/** ?series=1396, ?list=abc or ?collection=10 from the entry points ("Plan watching", "Plan a marathon"). */
 function pickFromUrl(params: URLSearchParams): SourcePick | null {
   const series = Number(params.get('series'))
   if (Number.isInteger(series) && series > 0) {
     return { kind: 'series', id: series, title: '', posterPath: null }
+  }
+  const collection = Number(params.get('collection'))
+  if (Number.isInteger(collection) && collection > 0) {
+    return { kind: 'collection', id: collection, title: '', posterPath: null }
   }
   const list = params.get('list')
   return list ? { kind: 'list', id: list, title: '', posterPath: null } : null
@@ -53,7 +58,7 @@ export default function CreatePlanPage() {
   const today = localToday()
 
   const [pick, setPick] = useState<SourcePick | null>(() => pickFromUrl(params))
-  const [kind, setKind] = useState<SourcePick['kind']>(pick?.kind ?? 'series')
+  const [kind, setKind] = useState<PickerKind>(pick?.kind === 'list' ? 'list' : 'series')
   // Coming from a title page, the title is already chosen: start on step 2.
   const [step, setStep] = useState(pick ? 1 : 0)
   const [choice, setChoice] = useState<StartChoice>({ mode: 'continue' })
@@ -76,7 +81,8 @@ export default function CreatePlanPage() {
 
   const name = loaded?.name || pick?.title || ''
   const posterPath = loaded?.posterPath ?? pick?.posterPath ?? null
-  const isList = pick?.kind === 'list'
+  // A list and a collection are both movie marathons: one film per evening.
+  const isList = pick?.kind === 'list' || pick?.kind === 'collection'
   // Movies: one per night. Memoized so the schedule below isn't rebuilt on every render.
   const effective = useMemo<ScheduleOptions>(
     () => (isList ? { ...options, perSession: 1 } : options),
@@ -106,7 +112,7 @@ export default function CreatePlanPage() {
 
   function changePick(next: SourcePick) {
     setPick(next)
-    setChoice(next.kind === 'list' ? { mode: 'movie', index: 0 } : { mode: 'continue' })
+    setChoice(next.kind !== 'series' ? { mode: 'movie', index: 0 } : { mode: 'continue' })
     setCustomTitle(null)
   }
 
@@ -123,7 +129,7 @@ export default function CreatePlanPage() {
           title,
           kind: isList ? 'list' : 'series',
           media: loaded.media,
-          sourceListId: isList && pick ? String(pick.id) : null,
+          sourceListId: sourceIdOf(pick),
           options: {
             ...effective,
             from:
@@ -150,6 +156,17 @@ export default function CreatePlanPage() {
   }
 
   const steps = STEP_KEYS.map((key) => t(key))
+  const isCollection = pick?.kind === 'collection'
+  const errorKey = isCollection
+    ? 'new.collectionError'
+    : isList
+      ? 'new.listError'
+      : 'new.episodesError'
+  const emptyKey = isCollection
+    ? 'new.emptyCollection'
+    : isList
+      ? 'new.emptyList'
+      : 'new.emptySeries'
   let body
   if (step === 0) {
     body = (
@@ -163,7 +180,7 @@ export default function CreatePlanPage() {
   } else if (source.status === 'error') {
     body = (
       <ErrorState
-        title={t(isList ? 'new.listError' : 'new.episodesError')}
+        title={t(errorKey)}
         body={source.error.message}
         onRetry={source.reload}
         headingLevel="h3"
@@ -181,7 +198,7 @@ export default function CreatePlanPage() {
   } else if (loaded.units.length === 0) {
     body = (
       <Banner tone="warning" icon="alert">
-        {t(isList ? 'new.emptyList' : 'new.emptySeries')}
+        {t(emptyKey)}
       </Banner>
     )
   } else if (step === 1) {
