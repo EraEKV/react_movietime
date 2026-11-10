@@ -1,5 +1,7 @@
 .back {
   align-self: flex-start;
+  /* The same inside a grid, where align-self is the vertical axis. */
+  justify-self: start;
   margin: 0 0 var(--space-3) calc(-1 * var(--space-3));
   color: var(--text-muted);
 }

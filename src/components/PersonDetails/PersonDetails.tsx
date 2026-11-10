@@ -64,13 +64,15 @@ export default function PersonDetails({ personId }: { personId: string }) {
   }
 
   return (
-    <article className={styles.page}>
+    <article>
       {/* React 19 hoists <title> into <head>. */}
       <title>{t('pageTitle', { name: person.name })}</title>
       <BackButton />
-      <PersonHero person={person} />
-      <KnownFor works={topWorks} statuses={statuses} />
-      <Filmography name={person.name} works={works} today={today} statuses={statuses} />
+      <div className={styles.page}>
+        <PersonHero person={person} />
+        <KnownFor works={topWorks} statuses={statuses} />
+        <Filmography name={person.name} works={works} today={today} statuses={statuses} />
+      </div>
     </article>
   )
 }
