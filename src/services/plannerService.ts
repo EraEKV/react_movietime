@@ -56,7 +56,7 @@ import { db } from './firestore'
 const plansCol = collection(db, 'plans')
 const planRef = (id: string) => doc(db, 'plans', id)
 const sessionsCol = (planId: string) => collection(db, 'plans', planId, 'sessions')
-const sessionRef = (planId: string, id: string) => doc(db, 'plans', planId, 'sessions', id)
+export const sessionRef = (planId: string, id: string) => doc(db, 'plans', planId, 'sessions', id)
 const entryRef = (uid: string, key: string) => doc(db, 'users', uid, 'library', key)
 
 /** Firestore keeps at most 500 writes in one batch; stay well below it. */
@@ -103,7 +103,7 @@ function toMedia(value: unknown): LibraryMedia | null {
   }
 }
 
-function toUnit(value: unknown): PlanUnit | null {
+export function toUnit(value: unknown): PlanUnit | null {
   if (typeof value !== 'object' || value === null) return null
   const u = value as Record<string, unknown>
   const parsed = parseMediaKey(String(u.mediaKey ?? ''))

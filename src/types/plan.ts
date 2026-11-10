@@ -108,6 +108,36 @@ export interface PlanDraft {
   sessions?: ScheduledSession[]
 }
 
+/**
+ * `plans/{planId}/likes/{sessionId}_{uid}`: a member's 👍 on the film of a marathon session.
+ * `mediaKey` is the film it was given to: if the film changes (reorder, accepted swap), the
+ * like stops counting for the session that now holds another film.
+ */
+export interface SessionLike {
+  id: string
+  sessionId: string
+  uid: string
+  name: string
+  mediaKey: MediaKey
+}
+
+export type ProposalStatus = 'pending' | 'accepted' | 'rejected'
+
+/**
+ * `plans/{planId}/proposals/{sessionId}_{uid}`: a member suggests another film for a session.
+ * One per person per session (a new suggestion replaces the old one). `replaces` is the film
+ * it was made against; if the session holds another film by now, the proposal is stale.
+ */
+export interface SessionProposal {
+  id: string
+  sessionId: string
+  by: PlanPerson
+  /** The suggested film. */
+  unit: PlanUnit
+  replaces: MediaKey
+  status: ProposalStatus
+}
+
 /** A session together with its plan, for the calendar, agenda and Home. */
 export interface PlannedSession {
   session: PlanSession
