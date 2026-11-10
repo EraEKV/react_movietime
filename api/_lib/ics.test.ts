@@ -38,6 +38,11 @@ describe('toIcs with a time zone', () => {
 })
 
 describe('toIcs without a time zone', () => {
+  it('names the brand colour for the calendar apps that read it', () => {
+    const ics = toIcs('Avleron', [event], now)
+    expect(ics).toContain('X-APPLE-CALENDAR-COLOR:#01B4E4')
+    expect(ics).toContain('COLOR:deepskyblue')
+  })
   it('writes UTC moments', () => {
     const ics = toIcs('Avleron', [event], now)
     expect(ics).toMatch(/DTSTART:\d{8}T\d{6}Z/)

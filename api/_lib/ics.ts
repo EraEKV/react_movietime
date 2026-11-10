@@ -38,6 +38,9 @@ export function unitsLabel(units: LabelUnit[]): string {
     : `${start}–${episodeCode(last.season, last.episode)}`
 }
 
+/** The brand colour (`--brand-teal` in the design tokens). */
+const BRAND_COLOR = '#01B4E4'
+
 /** Text values escape backslash, semicolon, comma and newlines. */
 const escapeText = (value: string) =>
   value.replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n')
@@ -126,6 +129,10 @@ export function toIcs(
     'CALSCALE:GREGORIAN',
     'METHOD:PUBLISH',
     `X-WR-CALNAME:${escapeText(calendarName)}`,
+    // The brand colour for the apps that read it (Apple Calendar and others). Google
+    // Calendar ignores a feed's colour and keeps the one the user picks.
+    `X-APPLE-CALENDAR-COLOR:${BRAND_COLOR}`,
+    'COLOR:deepskyblue',
     ...(zone ? [`X-WR-TIMEZONE:${zone}`] : []),
   ]
   for (const event of events) {
