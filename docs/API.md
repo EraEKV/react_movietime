@@ -34,21 +34,25 @@ types in `src/types/`.
 
 ## TMDB: `src/shared/api/tmdb.ts`
 
-| Function / endpoint builder                     | Status | Request                                                                                      |
-| ----------------------------------------------- | :----: | -------------------------------------------------------------------------------------------- |
-| `tmdbGet(path, { signal })`                     |   ✅   | `GET /api/tmdb{path}`: our proxy adds the token and forwards to `api.themoviedb.org/3`       |
-| `buildPath(path, params)`                       |   ✅   | Builds a path + query string, skips empty values                                             |
-| `imageUrl(path, size)`                          |   ✅   | `https://image.tmdb.org/t/p/{size}{path}`                                                    |
-| `endpoints.genres(mediaType)`                   |   ✅   | `/genre/{movie,tv}/list`                                                                     |
-| `endpoints.discoverSeries(params)`              |   ✅   | `/discover/tv`                                                                               |
-| `endpoints.discoverMovies(params)`              |   ✅   | `/discover/movie`                                                                            |
-| `endpoints.searchSeries({ query, page, year })` |   ✅   | `/search/tv`                                                                                 |
-| `endpoints.searchMovies({ query, page, year })` |   ✅   | `/search/movie`                                                                              |
-| `endpoints.seriesDetails(id)`                   |   ✅   | `/tv/{id}?append_to_response=credits,videos,recommendations,translations,watch/providers`    |
-| `endpoints.movieDetails(id)`                    |   ✅   | `/movie/{id}?append_to_response=credits,videos,recommendations,translations,watch/providers` |
-| `endpoints.seasonsBatch(id, seasonNumbers)`     |   ✅   | `/tv/{id}?append_to_response=season/1,…` (≤ 20)                                              |
-| `endpoints.trending(mediaType)`                 |   ✅   | `/trending/{movie,tv}/week`                                                                  |
-| `tmdbGetAll(paths, { signal })`                 |   ✅   | Several paths in parallel (`Promise.all`), one shared signal                                 |
+| Function / endpoint builder                     | Status | Request                                                                                                     |
+| ----------------------------------------------- | :----: | ----------------------------------------------------------------------------------------------------------- |
+| `tmdbGet(path, { signal })`                     |   ✅   | `GET /api/tmdb{path}`: our proxy adds the token and forwards to `api.themoviedb.org/3`                      |
+| `buildPath(path, params)`                       |   ✅   | Builds a path + query string, skips empty values                                                            |
+| `imageUrl(path, size)`                          |   ✅   | `https://image.tmdb.org/t/p/{size}{path}`                                                                   |
+| `endpoints.genres(mediaType)`                   |   ✅   | `/genre/{movie,tv}/list`                                                                                    |
+| `endpoints.discoverSeries(params)`              |   ✅   | `/discover/tv`                                                                                              |
+| `endpoints.discoverMovies(params)`              |   ✅   | `/discover/movie`                                                                                           |
+| `endpoints.searchSeries({ query, page, year })` |   ✅   | `/search/tv`                                                                                                |
+| `endpoints.searchMovies({ query, page, year })` |   ✅   | `/search/movie`                                                                                             |
+| `endpoints.seriesDetails(id)`                   |   ✅   | `/tv/{id}?append_to_response=credits,aggregate_credits,videos,recommendations,translations,watch/providers` |
+| `endpoints.movieDetails(id)`                    |   ✅   | `/movie/{id}?append_to_response=credits,videos,recommendations,translations,watch/providers`                |
+| `endpoints.person(id)`                          |   ✅   | `/person/{id}?append_to_response=combined_credits,translations`                                             |
+| `endpoints.collection(id)`                      |   ✅   | `/collection/{id}`: name, cover, overview and every film (`parts`, in no promised order)                    |
+| `endpoints.searchPeople({ query, page })`       |   ✅   | `/search/person`                                                                                            |
+| `endpoints.searchCollections({ query, page })`  |   ✅   | `/search/collection`                                                                                        |
+| `endpoints.seasonsBatch(id, seasonNumbers)`     |   ✅   | `/tv/{id}?append_to_response=season/1,…` (≤ 20)                                                             |
+| `endpoints.trending(mediaType)`                 |   ✅   | `/trending/{movie,tv}/week`                                                                                 |
+| `tmdbGetAll(paths, { signal })`                 |   ✅   | Several paths in parallel (`Promise.all`), one shared signal                                                |
 
 ✅ Every request carries `language=en-US | ru-RU | kk-KZ` for the current UI language
 (`tmdbGet` appends it unless the path already has one). The hooks (`useFetch`, `useCatalog`,
@@ -58,6 +62,15 @@ types in `src/types/`.
 - Details endpoints append `translations` and `include_video_language=<lang>,en,null`:
   `overviewOf()` shows the English overview when TMDB has none in the current language
   (common for Kazakh), and trailers fall back to English ones.
+- A series' plain `credits` only holds what is entered at show level (Arcane: 2 cast of 91), so
+  series pages read `aggregate_credits`, the whole cast and crew over all seasons; `credits`
+  stays as the fallback (`seriesCredits()` in `utils/credits.ts`).
+- `combined_credits` repeats a title for every job and role: `buildFilmography()` merges them
+  into one work per `movie_<id>` / `tv_<id>` key (`utils/person.ts`).
+- Collections hold movies only (series have none). `parts` come unordered: `filmsByDate()` sorts
+  them by release date, films without a date go last (`utils/collection.ts`).
+- The header search runs titles, people and collections together (`useSiteSearch`); only the
+  titles can fail the search, an empty people or collections request just drops its group.
 - Genres, episode names and recommendations come back in the UI language from the same call.
 - The planner's one-off requests (`seriesSummary`, `seasonsBatch`, `movieSummary`) also get the
   language; stored plan data keeps the language it was created in.

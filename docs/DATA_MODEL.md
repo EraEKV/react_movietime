@@ -180,23 +180,23 @@ Top-level, not under `users/`, because lists are shared between users.
 
 ### `plans/{planId}`: watch plan (business feature)
 
-| Field                                 | Type                                                                   | Notes                                                                                             |
-| ------------------------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| `ownerUid`, `ownerName`               | string                                                                 |                                                                                                   |
-| `title`                               | string                                                                 | "Breaking Bad — season 2"                                                                         |
-| `kind`                                | `"series" \| "list" \| "movie"`                                        | A series, the movies of a list, or one movie on one evening (one unit, one session, `media` null) |
-| `media`                               | library media snapshot \| null                                         | When `kind = "series"`                                                                            |
-| `sourceListId`                        | string \| null                                                         | When `kind = "list"`                                                                              |
-| `options`                             | `{ startDate, weekdays, time, perSession, from: { season, episode } }` | `weekdays`: 0 = Sun … 6 = Sat                                                                     |
-| `color`                               | number 1–6                                                             | `--plan-N` token, in creation order                                                               |
-| `totalUnits`                          | number                                                                 | Episodes or movies in the plan                                                                    |
-| `doneUnits`                           | number                                                                 |                                                                                                   |
-| `totalMinutes`                        | number                                                                 |                                                                                                   |
-| `nextDate`                            | string \| null                                                         | Next pending session day, for sorting                                                             |
-| `endDate`                             | string                                                                 | Last session day                                                                                  |
-| `status`                              | `"active" \| "done" \| "archived"`                                     |                                                                                                   |
-| `visibility`, `roles`, `memberEmails` |                                                                        | Same as lists                                                                                     |
-| `createdAt`, `updatedAt`              | Timestamp                                                              |                                                                                                   |
+| Field                                 | Type                                                                   | Notes                                                                                               |
+| ------------------------------------- | ---------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| `ownerUid`, `ownerName`               | string                                                                 |                                                                                                     |
+| `title`                               | string                                                                 | "Breaking Bad — season 2"                                                                           |
+| `kind`                                | `"series" \| "list" \| "movie"`                                        | A series, the movies of a list, or one movie on one evening (one unit, one session, `media` null)   |
+| `media`                               | library media snapshot \| null                                         | When `kind = "series"`                                                                              |
+| `sourceListId`                        | string \| null                                                         | When `kind = "list"`: a list id, or `collection:<tmdb id>` for a marathon planned from a collection |
+| `options`                             | `{ startDate, weekdays, time, perSession, from: { season, episode } }` | `weekdays`: 0 = Sun … 6 = Sat                                                                       |
+| `color`                               | number 1–6                                                             | `--plan-N` token, in creation order                                                                 |
+| `totalUnits`                          | number                                                                 | Episodes or movies in the plan                                                                      |
+| `doneUnits`                           | number                                                                 |                                                                                                     |
+| `totalMinutes`                        | number                                                                 |                                                                                                     |
+| `nextDate`                            | string \| null                                                         | Next pending session day, for sorting                                                               |
+| `endDate`                             | string                                                                 | Last session day                                                                                    |
+| `status`                              | `"active" \| "done" \| "archived"`                                     |                                                                                                     |
+| `visibility`, `roles`, `memberEmails` |                                                                        | Same as lists                                                                                       |
+| `createdAt`, `updatedAt`              | Timestamp                                                              |                                                                                                     |
 
 ### `plans/{planId}/sessions/{sessionId}`: session
 

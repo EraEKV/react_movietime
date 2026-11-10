@@ -28,14 +28,12 @@
   },
   "actions": {
     "addAll": "Add all to a list",
-    "plan": "Plan a marathon",
-    "signIn": "Sign in to add to a list"
+    "plan": "Plan a marathon"
   },
   "dialog": {
     "title": "Add the collection to a list",
     "body": "{{movies}} from “{{name}}” go into the list you choose. Films that are already there are skipped.",
     "pick": "Choose a list",
-    "yourLists": "Your lists",
     "loading": "Loading lists",
     "loadError": "We couldn’t load your lists. Check your connection and try again.",
     "noLists": "You don’t have any lists yet. Make one from this collection:",
@@ -47,7 +45,6 @@
     "addedSome": "Added {{added}}, skipped {{skipped}} already in “{{list}}”.",
     "alreadyAll": "All films are already in “{{list}}”.",
     "created": "Created the list “{{list}}” with {{movies}}.",
-    "failed": "We couldn’t add the films.",
     "open": "Open the list",
     "retry": "Try again"
   },
