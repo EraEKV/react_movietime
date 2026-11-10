@@ -80,5 +80,5 @@
   "profileLink": "{{name}}: профилі",
   "showAll": "Барлығын көрсету: {{count}}",
   "showFewer": "Жасыру",
-  "planMarathon_other": "{{count}} фильмдік марафонды жоспарлау"
+  "planMarathon": "Барлық фильмдерден марафон жоспарлау"
 }

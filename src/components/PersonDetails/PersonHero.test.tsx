@@ -24,9 +24,9 @@ const setup = (marathonFilms?: number) =>
   )
 
 describe('PersonHero marathon button', () => {
-  it('plans a marathon of the directed films, counting them', () => {
+  it('plans a marathon of all the directed films', () => {
     setup(12)
-    expect(screen.getByRole('link', { name: 'Plan a marathon of 12 films' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: 'Plan a marathon of all films' })).toHaveAttribute(
       'href',
       '/planner/new?person=525',
     )
@@ -34,8 +34,8 @@ describe('PersonHero marathon button', () => {
 
   it('is not there for someone with fewer than two directed films', () => {
     setup(1)
-    expect(screen.queryByRole('link', { name: /Plan a marathon/ })).toBeNull()
+    expect(screen.queryByRole('link', { name: /Plan a marathon of all films/ })).toBeNull()
     setup()
-    expect(screen.queryByRole('link', { name: /Plan a marathon/ })).toBeNull()
+    expect(screen.queryByRole('link', { name: /Plan a marathon of all films/ })).toBeNull()
   })
 })

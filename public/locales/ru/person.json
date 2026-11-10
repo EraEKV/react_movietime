@@ -84,8 +84,5 @@
   "profileLink": "{{name}}: профиль",
   "showAll": "Показать всех: {{count}}",
   "showFewer": "Свернуть",
-  "planMarathon_one": "Запланировать марафон из {{count}} фильма",
-  "planMarathon_few": "Запланировать марафон из {{count}} фильмов",
-  "planMarathon_many": "Запланировать марафон из {{count}} фильмов",
-  "planMarathon_other": "Запланировать марафон из {{count}} фильма"
+  "planMarathon": "Запланировать марафон всех фильмов"
 }

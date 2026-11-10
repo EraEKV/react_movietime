@@ -18,7 +18,7 @@ const isKnownDepartment = (value: string): value is KnownDepartment =>
 
 interface PersonHeroProps {
   person: PersonDetails
-  /** Films this person directed that are out; a marathon needs at least two. */
+  /** Films this person directed that are out (credits; short films are dropped later); a marathon needs at least two. */
   marathonFilms?: number
 }
 
@@ -68,7 +68,7 @@ export default function PersonHero({ person, marathonFilms = 0 }: PersonHeroProp
         {marathonFilms >= 2 && (
           <div className={styles.actions}>
             <ButtonLink to={`/planner/new?person=${person.id}`} variant="primary" icon="calendar">
-              {t('planMarathon', { count: marathonFilms })}
+              {t('planMarathon')}
             </ButtonLink>
           </div>
         )}

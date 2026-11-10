@@ -80,6 +80,5 @@
   "profileLink": "{{name}}: profile",
   "showAll": "Show all {{count}}",
   "showFewer": "Show fewer",
-  "planMarathon_one": "Plan a marathon of {{count}} film",
-  "planMarathon_other": "Plan a marathon of {{count}} films"
+  "planMarathon": "Plan a marathon of all films"
 }

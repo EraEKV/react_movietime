@@ -381,12 +381,16 @@ export async function loadCollectionMovies(
   }
 }
 
+/** Shorter than this is a short film (the Academy's line): not an evening's film. */
+const SHORT_FILM_MINUTES = 40
+
 /** At most this many runtime requests at once: a prolific director has dozens of films. */
 const RUNTIME_REQUESTS = 8
 
 /**
  * The movies a person directed that are out, oldest first, each with its runtime from
- * /movie/{id}: a marathon source like a collection. `skipped` counts nothing here.
+ * /movie/{id}: a marathon source like a collection. Short films (under 40 minutes, when TMDB
+ * knows the runtime) are left out; anything else can be crossed out in the preview.
  */
 export async function loadPersonMovies(
   personId: number,
@@ -402,7 +406,7 @@ export async function loadPersonMovies(
         .slice(i, i + RUNTIME_REQUESTS)
         .map((film) => tmdbGet<MovieBase>(endpoints.movieSummary(film.id), { signal })),
     )
-    movies.push(...batch)
+    movies.push(...batch.filter((movie) => !(movie.runtime && movie.runtime < SHORT_FILM_MINUTES)))
   }
   return {
     name: person.name,
