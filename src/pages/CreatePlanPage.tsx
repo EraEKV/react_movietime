@@ -18,10 +18,14 @@ import { usePlanSource, type PickerKind, type SourcePick } from '../hooks/usePla
 import type { ScheduleOptions, Weekday } from '../types/plan'
 import { localToday, weekdayOf } from '../utils/calendar'
 import { offlineMessage } from '../utils/listErrors'
+import type { MediaKey } from '../types/media'
 import { mediaKey } from '../utils/media'
 import {
   defaultPlanTitle,
   nextPlanColor,
+  applyOrder,
+  isSourceOrder,
+  moveUnit,
   planErrorMessage,
   sourceIdOf,
   startIndexOf,
@@ -70,6 +74,8 @@ export default function CreatePlanPage() {
     time: '21:00',
     perSession: 2,
   })
+  // A marathon's films in the order the user dragged them; null = as the source gave them.
+  const [order, setOrder] = useState<MediaKey[] | null>(null)
   const [customTitle, setCustomTitle] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
@@ -90,10 +96,14 @@ export default function CreatePlanPage() {
   )
 
   // Everything below is derived from state on each render — no effects to keep in sync.
-  const units = useMemo(() => {
-    if (!loaded) return []
-    return loaded.units.slice(startIndexOf(loaded.units, progress, choice))
-  }, [loaded, progress, choice])
+  const ordered = useMemo(
+    () => (loaded ? applyOrder(loaded.units, isList ? order : null) : []),
+    [loaded, isList, order],
+  )
+  const units = useMemo(
+    () => ordered.slice(startIndexOf(ordered, progress, choice)),
+    [ordered, progress, choice],
+  )
   const sessions = useMemo(() => buildSchedule(units, effective), [units, effective])
   const summary = planSummary(sessions, effective.weekdays)
   const title = (customTitle ?? defaultPlanTitle(isList ? 'list' : 'series', name, units[0])).trim()
@@ -114,6 +124,7 @@ export default function CreatePlanPage() {
     setPick(next)
     setChoice(next.kind !== 'series' ? { mode: 'movie', index: 0 } : { mode: 'continue' })
     setCustomTitle(null)
+    setOrder(null)
   }
 
   async function handleCreate() {
@@ -205,7 +216,7 @@ export default function CreatePlanPage() {
     body = (
       <StartStep
         kind={isList ? 'list' : 'series'}
-        units={loaded.units}
+        units={ordered}
         progress={progress}
         choice={choice}
         onChange={setChoice}
@@ -233,6 +244,16 @@ export default function CreatePlanPage() {
         color={color}
         today={today}
         movies={isList}
+        onMove={
+          isList
+            ? (moved, over) => setOrder(moveUnit(ordered, moved as MediaKey, over as MediaKey))
+            : undefined
+        }
+        onReset={
+          isList && loaded && !isSourceOrder(ordered, loaded.units)
+            ? () => setOrder(null)
+            : undefined
+        }
       />
     )
   }

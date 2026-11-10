@@ -198,7 +198,17 @@
     "schedule": "What and when",
     "scheduleLabel": "Sessions of the plan, in order",
     "showAll": "Show all {{sessions}}",
-    "showFewer": "Show fewer"
+    "showFewer": "Show fewer",
+    "dragHint": "Drag the handle to change the order. The dates stay, the films move.",
+    "resetOrder": "Restore original order",
+    "reorder": {
+      "instructions": "Press space to pick up the film, arrow keys to move it, space to drop it or Escape to cancel.",
+      "handle": "Move {{title}}",
+      "pickedUp": "Picked up {{title}}.",
+      "movedTo": "{{title}} moved to number {{place}}.",
+      "dropped": "{{title}} dropped at number {{place}}.",
+      "cancelled": "Moving {{title}} cancelled."
+    }
   },
   "marathon": {
     "title": "Plan a movie marathon",

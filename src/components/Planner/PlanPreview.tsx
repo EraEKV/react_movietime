@@ -61,6 +61,10 @@ interface PreviewStepProps {
   today: string
   /** A movie marathon (list or collection): one film per evening. */
   movies: boolean
+  /** Marathons: a film was dropped where another one is. Enables dragging in the list. */
+  onMove?: (movedKey: string, overKey: string) => void
+  /** Marathons: the order differs from the source; put it back. */
+  onReset?: () => void
 }
 
 /** Step 4: the numbers, the first weeks on a calendar, and the plan's name. */
@@ -74,6 +78,8 @@ export function PreviewStep({
   color,
   today,
   movies,
+  onMove,
+  onReset,
 }: PreviewStepProps) {
   const { t } = useTranslation('planner')
   const month = monthOf(summary.firstDate ?? today)
@@ -89,7 +95,13 @@ export function PreviewStep({
       <SummaryTiles summary={summary} size="md" />
       <section className={styles.previewCalendar} aria-label={t('preview.schedule')}>
         <h3 className={styles.panelTitle}>{t('preview.schedule')}</h3>
-        <PreviewSchedule sessions={sessions} today={today} movies={movies} />
+        <PreviewSchedule
+          sessions={sessions}
+          today={today}
+          movies={movies}
+          onMove={onMove}
+          onReset={onReset}
+        />
       </section>
       <section className={styles.previewCalendar} aria-label={t('preview.firstWeeks')}>
         <h3 className={styles.panelTitle}>{t('preview.firstWeeks')}</h3>

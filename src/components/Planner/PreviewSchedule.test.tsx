@@ -1,6 +1,6 @@
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import type { PlanUnit } from '../../types/plan'
 import { buildSchedule } from '../../utils/schedule'
 import PreviewSchedule from './PreviewSchedule'
@@ -66,6 +66,55 @@ describe('PreviewSchedule for a marathon', () => {
 
   it('has no "show all" button: a marathon is always shown whole', () => {
     render(<PreviewSchedule sessions={sessions} today={TODAY} movies />)
+    expect(screen.queryByRole('button')).not.toBeInTheDocument()
+  })
+})
+
+describe('PreviewSchedule reordering a marathon', () => {
+  const sessions = buildSchedule(
+    [film(1, 'Batman Begins', '2005', 140), film(2, 'The Dark Knight', '2008', 152)],
+    options,
+  )
+
+  it('gives every film a drag handle and explains how it works', () => {
+    render(<PreviewSchedule sessions={sessions} today={TODAY} movies onMove={() => {}} />)
+    expect(screen.getByRole('button', { name: 'Move Batman Begins' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Move The Dark Knight' })).toBeInTheDocument()
+    expect(screen.getByText(/The dates stay, the films move/)).toBeInTheDocument()
+  })
+
+  it('shows the dates of the slots, so a moved film takes the date of its new place', () => {
+    render(<PreviewSchedule sessions={sessions} today={TODAY} movies onMove={() => {}} />)
+    const rows = screen.getAllByRole('listitem')
+    expect(rows[0]).toHaveTextContent('Mon, Nov 9')
+    expect(rows[1]).toHaveTextContent('Wed, Nov 11')
+  })
+
+  it('offers to restore the order only when the caller says it was changed', async () => {
+    const onReset = vi.fn()
+    const { rerender } = render(
+      <PreviewSchedule sessions={sessions} today={TODAY} movies onMove={() => {}} />,
+    )
+    expect(screen.queryByRole('button', { name: 'Restore original order' })).not.toBeInTheDocument()
+    rerender(
+      <PreviewSchedule
+        sessions={sessions}
+        today={TODAY}
+        movies
+        onMove={() => {}}
+        onReset={onReset}
+      />,
+    )
+    await userEvent.click(screen.getByRole('button', { name: 'Restore original order' }))
+    expect(onReset).toHaveBeenCalledOnce()
+  })
+
+  it('has no handles without onMove, or with a single film', () => {
+    const { rerender } = render(<PreviewSchedule sessions={sessions} today={TODAY} movies />)
+    expect(screen.queryByRole('button')).not.toBeInTheDocument()
+    rerender(
+      <PreviewSchedule sessions={sessions.slice(0, 1)} today={TODAY} movies onMove={() => {}} />,
+    )
     expect(screen.queryByRole('button')).not.toBeInTheDocument()
   })
 })

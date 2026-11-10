@@ -4,6 +4,7 @@ import { imageUrl } from '../../shared/api/tmdb'
 import { formatRuntime } from '../../shared/lib/format'
 import Button from '../../shared/ui/Button/Button'
 import Icon from '../../shared/ui/Icon/Icon'
+import SortableList from '../../shared/ui/SortableList/SortableList'
 import type { ScheduledSession } from '../../types/plan'
 import { formatDay } from '../../utils/calendar'
 import { groupByWeek, unitsLabel, weekLabel } from '../../utils/schedule'
@@ -20,6 +21,10 @@ interface PreviewScheduleProps {
   today: string
   /** A movie marathon: one film per evening, shown as a flat list with posters. */
   movies: boolean
+  /** Marathons only: a film was dropped where another one is (media keys). Enables dragging. */
+  onMove?: (movedKey: string, overKey: string) => void
+  /** Marathons only: put the films back in the order the source gave them. */
+  onReset?: () => void
 }
 
 /**
@@ -27,21 +32,70 @@ interface PreviewScheduleProps {
  * film or episode names the calendar's small chips can't fit. Series are grouped by week and
  * cut after a few sessions; a marathon is one flat list.
  */
-export default function PreviewSchedule({ sessions, today, movies }: PreviewScheduleProps) {
+export default function PreviewSchedule({
+  sessions,
+  today,
+  movies,
+  onMove,
+  onReset,
+}: PreviewScheduleProps) {
   const { t } = useTranslation(['planner', 'common'])
   const [all, setAll] = useState(false)
 
   if (sessions.length === 0) return null
 
   if (movies) {
+    const sortable = onMove !== undefined && sessions.length > 1
+    if (!sortable) {
+      return (
+        <ol className={styles.agendaList} aria-label={t('preview.scheduleLabel')}>
+          {sessions.map((session) => (
+            <li key={session.index} className={styles.agendaRow}>
+              <SlotCell session={session} />
+              <FilmCells session={session} />
+            </li>
+          ))}
+        </ol>
+      )
+    }
     return (
-      <ol className={styles.agendaList} aria-label={t('preview.scheduleLabel')}>
-        {sessions.map((session) => (
-          <li key={session.index} className={styles.agendaRow}>
-            <FilmRow session={session} />
-          </li>
-        ))}
-      </ol>
+      <div className={styles.agenda}>
+        <div className={styles.agendaHint}>
+          <p>{t('preview.dragHint')}</p>
+          {onReset && (
+            <Button variant="ghost" icon="refresh" onClick={onReset}>
+              {t('preview.resetOrder')}
+            </Button>
+          )}
+        </div>
+        <SortableList
+          items={sessions}
+          getId={(session) => session.units[0]?.mediaKey ?? String(session.index)}
+          onMove={onMove}
+          label={t('preview.scheduleLabel')}
+          className={styles.agendaList}
+          rowClassName={styles.agendaRow}
+          texts={{
+            instructions: t('preview.reorder.instructions'),
+            handle: (session) => t('preview.reorder.handle', { title: session.units[0]?.title }),
+            pickedUp: (session) =>
+              t('preview.reorder.pickedUp', { title: session.units[0]?.title }),
+            movedTo: (session, place) =>
+              t('preview.reorder.movedTo', { title: session.units[0]?.title, place }),
+            dropped: (session, place) =>
+              t('preview.reorder.dropped', { title: session.units[0]?.title, place }),
+            cancelled: (session) =>
+              t('preview.reorder.cancelled', { title: session.units[0]?.title }),
+          }}
+          renderItem={(session, handle) => (
+            <>
+              {handle}
+              <SlotCell session={session} />
+              <FilmCells session={session} />
+            </>
+          )}
+        />
+      </div>
     )
   }
 
@@ -104,15 +158,6 @@ export function FilmCells({ session }: { session: ScheduledSession }) {
         <strong className={styles.agendaTitle}>{film?.title}</strong>
         {sub && <span className={styles.agendaSub}>{sub}</span>}
       </span>
-    </>
-  )
-}
-
-function FilmRow({ session }: { session: ScheduledSession }) {
-  return (
-    <>
-      <SlotCell session={session} />
-      <FilmCells session={session} />
     </>
   )
 }
