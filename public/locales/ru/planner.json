@@ -257,5 +257,43 @@
   "defaultTitle": {
     "marathon": "Марафон «{{name}}»",
     "from": "{{name}} — с {{code}}"
+  },
+  "votes": {
+    "like": "Нравится: {{film}}",
+    "unlike": "Убрать лайк с фильма {{film}}",
+    "count_one": "{{count}} лайк",
+    "count_few": "{{count}} лайка",
+    "count_many": "{{count}} лайков",
+    "count_other": "{{count}} лайка",
+    "you": "Вы",
+    "more": "+{{count}}",
+    "suggest": "Предложить другой фильм",
+    "waiting": "Вы предложили {{film}}. Решает {{owner}}.",
+    "declined": "{{owner}} отклонил(а) {{film}}.",
+    "withdraw": "Отозвать",
+    "dismiss": "Скрыть",
+    "viewerBanner": "Вы можете ставить лайки фильмам и предлагать другой. Что останется, решает {{owner}}.",
+    "dialog": {
+      "title": "Другой фильм на {{date}}",
+      "body": "Вместо {{film}}. {{owner}} принимает или отклоняет.",
+      "search": "Найти фильм",
+      "submit": "Отправить предложение",
+      "already": "Уже в марафоне"
+    },
+    "panel": {
+      "title": "Предложения фильмов ({{count}})",
+      "offer": "{{name}} предлагает {{film}}",
+      "instead": "Вместо {{film}} · {{date}}",
+      "accept": "Принять",
+      "reject": "Отклонить",
+      "acceptLabel": "Принять {{film}}",
+      "rejectLabel": "Отклонить {{film}}"
+    },
+    "toast": {
+      "sent": "Предложение отправлено: {{owner}}",
+      "withdrawn": "Предложение отозвано",
+      "accepted": "{{film}} вместо {{current}}",
+      "rejected": "Предложение отклонено"
+    }
   }
 }

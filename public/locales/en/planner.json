@@ -251,5 +251,41 @@
   "defaultTitle": {
     "marathon": "{{name}} marathon",
     "from": "{{name}} — from {{code}}"
+  },
+  "votes": {
+    "like": "Like {{film}}",
+    "unlike": "Take back your like from {{film}}",
+    "count_one": "{{count}} like",
+    "count_other": "{{count}} likes",
+    "you": "You",
+    "more": "+{{count}}",
+    "suggest": "Suggest another film",
+    "waiting": "You suggested {{film}}. {{owner}} decides.",
+    "declined": "{{owner}} declined {{film}}.",
+    "withdraw": "Withdraw",
+    "dismiss": "Dismiss",
+    "viewerBanner": "You can like the films and suggest another one. {{owner}} decides what stays.",
+    "dialog": {
+      "title": "Another film for {{date}}",
+      "body": "Instead of {{film}}. {{owner}} accepts or declines.",
+      "search": "Search movies",
+      "submit": "Send suggestion",
+      "already": "In the marathon"
+    },
+    "panel": {
+      "title": "Film suggestions ({{count}})",
+      "offer": "{{name}} suggests {{film}}",
+      "instead": "Instead of {{film}} · {{date}}",
+      "accept": "Accept",
+      "reject": "Decline",
+      "acceptLabel": "Accept {{film}}",
+      "rejectLabel": "Decline {{film}}"
+    },
+    "toast": {
+      "sent": "Suggestion sent to {{owner}}",
+      "withdrawn": "Suggestion withdrawn",
+      "accepted": "{{film}} replaces {{current}}",
+      "rejected": "Suggestion declined"
+    }
   }
 }
