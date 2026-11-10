@@ -2,6 +2,8 @@ import { currentLocale } from '../../shared/i18n'
 import { formatDateWith } from '../../shared/i18n/intl'
 import { useTranslation } from 'react-i18next'
 import { useMediaQuery } from '../../shared/hooks/useMediaQuery'
+import { useAppSelector } from '../../store/hooks'
+import { selectAvatar } from '../../store/authSlice'
 import type { AuthUser, UserProfile } from '../../types/auth'
 import Avatar from '../../shared/ui/Avatar/Avatar'
 import Badge from '../../shared/ui/Badge/Badge'
@@ -31,6 +33,7 @@ interface ProfileHeaderProps {
 export default function ProfileHeader({ user, profile, loading }: ProfileHeaderProps) {
   const { t } = useTranslation('profile')
   const wide = useMediaQuery('(min-width: 768px)')
+  const avatar = useAppSelector(selectAvatar)
   const name = profile?.displayName || user.displayName || user.email || t('movieFan')
   // providerData of the signed-in user: the methods this account can actually sign in with.
   const methods = user.providers.map((p) => PROVIDER_LABELS[p] ?? p)
@@ -38,7 +41,7 @@ export default function ProfileHeader({ user, profile, loading }: ProfileHeaderP
   return (
     <>
       <header className={styles.header}>
-        <Avatar name={name} photoUrl={user.photoURL} size={wide ? 96 : 72} />
+        <Avatar name={name} photoUrl={user.photoURL} avatar={avatar} size={wide ? 96 : 72} />
         <div className={styles.identity}>
           <h1 id="profile-title" className={styles.name}>
             {name}

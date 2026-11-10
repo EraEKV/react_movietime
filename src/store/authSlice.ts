@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice, type PayloadAction } from '@reduxjs/toolkit'
 import type { User } from 'firebase/auth'
-import type { AuthError, AuthStatus, AuthUser } from '../types/auth'
+import type { AuthError, AuthStatus, AuthUser, UserAvatar } from '../types/auth'
 import { loadAuthService } from '../services/loadAuthService'
 import { toAuthError } from '../utils/firebaseErrors'
 import { takeRedirectMark } from '../utils/signInMode'
@@ -15,9 +15,17 @@ export interface AuthState {
   status: AuthStatus
   pending: AuthPending
   error: AuthError | null
+  /** The avatar chosen in settings, kept in step with the profile by a listener. */
+  avatar: UserAvatar | null
 }
 
-const initialState: AuthState = { user: null, status: 'loading', pending: null, error: null }
+const initialState: AuthState = {
+  user: null,
+  status: 'loading',
+  pending: null,
+  error: null,
+  avatar: null,
+}
 
 // Typed once: thunks get RootState in getState() and AuthError as the rejected payload.
 const createAuthThunk = createAsyncThunk.withTypes<{
@@ -184,8 +192,14 @@ const authSlice = createSlice({
   reducers: {
     /** Dispatched by the Firebase subscription in listeners.ts on every auth/token change. */
     authChanged(state, action: PayloadAction<AuthUser | null>) {
+      // Someone else (or nobody) is signed in now: their avatar arrives with their profile.
+      if (action.payload?.uid !== state.user?.uid) state.avatar = null
       state.user = action.payload
       state.status = action.payload ? 'authenticated' : 'guest'
+    },
+    /** The profile listener's view of `users/{uid}.avatar`. */
+    avatarSynced(state, action: PayloadAction<UserAvatar | null>) {
+      state.avatar = action.payload
     },
     authErrorCleared(state) {
       state.error = null
@@ -265,10 +279,16 @@ const authSlice = createSlice({
     selectAuthStatus: (state) => state.status,
     selectAuthPending: (state) => state.pending,
     selectAuthError: (state) => state.error,
+    selectAvatar: (state) => state.avatar,
   },
 })
 
-export const { authChanged, authErrorCleared } = authSlice.actions
-export const { selectAuthUser, selectAuthStatus, selectAuthPending, selectAuthError } =
-  authSlice.selectors
+export const { authChanged, authErrorCleared, avatarSynced } = authSlice.actions
+export const {
+  selectAuthUser,
+  selectAuthStatus,
+  selectAuthPending,
+  selectAuthError,
+  selectAvatar,
+} = authSlice.selectors
 export default authSlice

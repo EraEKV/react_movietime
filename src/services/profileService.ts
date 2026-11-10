@@ -10,13 +10,14 @@ import {
   updateDoc,
   type DocumentData,
 } from 'firebase/firestore'
-import type { UserProfile } from '../types/auth'
+import type { UserAvatar, UserProfile } from '../types/auth'
 import type { Preferences } from '../shared/types/preferences'
 import { isLanguage, isTheme } from '../storage/preferencesStorage'
 import { db } from './firestore'
 
 import { newFeedToken } from '../utils/calendarFeed'
 import { localTimeZone } from '../utils/calendar'
+import { parseAvatar } from '../utils/avatar'
 
 const profileRef = (uid: string) => doc(db, 'users', uid)
 
@@ -30,6 +31,7 @@ function toProfile(data: DocumentData): UserProfile {
     displayName: String(data.displayName ?? ''),
     email: String(data.email ?? ''),
     photoURL: typeof data.photoURL === 'string' ? data.photoURL : null,
+    avatar: parseAvatar(data.avatar),
     providers: Array.isArray(data.providers) ? data.providers.map(String) : [],
     settings: isSettings(data.settings) ? (data.settings as Preferences) : null,
     icsToken: typeof data.icsToken === 'string' ? data.icsToken : null,
@@ -111,6 +113,14 @@ export async function updateUserProfile(
   changes: { displayName?: string; settings?: Preferences },
 ): Promise<void> {
   await updateDoc(profileRef(uid), { ...changes, updatedAt: serverTimestamp() })
+}
+
+/** Saves the chosen avatar, or removes it (back to the Google photo or the initials). */
+export async function saveAvatar(uid: string, avatar: UserAvatar | null): Promise<void> {
+  await updateDoc(profileRef(uid), {
+    avatar: avatar ?? deleteField(),
+    updatedAt: serverTimestamp(),
+  })
 }
 
 /**

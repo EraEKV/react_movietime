@@ -10,6 +10,7 @@ const profile = (changes: Partial<UserProfile>): UserProfile => ({
   displayName: 'Ada',
   email: 'ada@example.com',
   photoURL: null,
+  avatar: null,
   providers: [],
   settings: null,
   icsToken: null,

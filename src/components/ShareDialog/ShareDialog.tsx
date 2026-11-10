@@ -11,6 +11,8 @@ import { RoleBadge } from '../ListCard/ListBadges'
 import Banner from '../../shared/ui/Banner/Banner'
 import Button from '../../shared/ui/Button/Button'
 import { buttonClass } from '../../shared/ui/Button/variants'
+import { useAppSelector } from '../../store/hooks'
+import { selectAvatar } from '../../store/authSlice'
 import Dialog from '../../shared/ui/Dialog/Dialog'
 import Icon from '../../shared/ui/Icon/Icon'
 import Menu from '../../shared/ui/Menu/Menu'
@@ -84,6 +86,8 @@ function ShareDialogBody({
   onRemove,
 }: ShareDialogProps) {
   const { t } = useTranslation(['sharing', 'common'])
+  // Only the owner opens this dialog, so "you" in the list is the signed-in user.
+  const ownAvatar = useAppSelector(selectAvatar)
   const [email, setEmail] = useState('')
   const [role, setRole] = useState<MemberRole>('editor')
   const [inviteError, setInviteError] = useState<string | null>(null)
@@ -219,7 +223,7 @@ function ShareDialogBody({
         </h3>
         <ul className={styles.people}>
           <li className={styles.person}>
-            <Avatar name={owner.name} photoUrl={owner.photoUrl} size={36} />
+            <Avatar name={owner.name} photoUrl={owner.photoUrl} avatar={ownAvatar} size={36} />
             <div className={styles.who}>
               <span className={styles.name}>{t('share.you', { name: owner.name })}</span>
               {owner.email && <span className={styles.address}>{owner.email}</span>}
