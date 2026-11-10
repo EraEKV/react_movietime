@@ -13,7 +13,7 @@ import {
 import { localTimeZone } from '../../utils/calendar'
 import { feedUrl } from '../../utils/calendarFeed'
 import { offlineMessage } from '../../utils/listErrors'
-import styles from './Settings.module.css'
+import styles from '../../pages/SettingsPage.module.css'
 
 type Busy = 'create' | 'renew' | 'remove'
 
