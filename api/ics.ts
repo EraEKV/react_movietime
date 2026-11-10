@@ -1,5 +1,4 @@
-import { getAuth } from 'firebase-admin/auth'
-import { adminDb } from './_lib/admin.js'
+import { accountOf, adminDb } from './_lib/admin.js'
 import { buildFeed, tokenFrom, type FeedPlan, type FeedSession } from './_lib/feed.js'
 import { validTimeZone } from './_lib/ics.js'
 
@@ -30,10 +29,8 @@ export async function GET(request: Request): Promise<Response> {
 
   // Plans shared with the user's email count only once that email is verified, like the
   // security rules say for the app itself.
-  const account = await getAuth()
-    .getUser(uid)
-    .catch(() => null)
-  const email = account?.emailVerified && account.email ? account.email.toLowerCase() : null
+  const account = await accountOf(uid).catch(() => null)
+  const email = account?.emailVerified ? account.email.toLowerCase() : null
 
   const [owned, shared] = await Promise.all([
     db.collection('plans').where('ownerUid', '==', uid).limit(MAX_PLANS).get(),
