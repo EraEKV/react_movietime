@@ -181,11 +181,11 @@ export interface SeenProgress {
 }
 
 /**
- * "You've seen N of M": M is the released works given, N those completed in the library.
+ * "You've seen N of M" (people and collections): M is the released works given, N those completed in the library.
  * A series being watched isn't seen yet. `planned` counts the library's plan status.
  */
 export function seenProgress(
-  released: PersonWork[],
+  released: readonly { key: MediaKey }[],
   statuses: ReadonlyMap<MediaKey, LibraryStatus>,
 ): SeenProgress {
   let seen = 0
