@@ -154,3 +154,18 @@
 .progressText strong {
   font-weight: 600;
 }
+
+/* ---- Add-to-list dialog ---- */
+
+.dialogText {
+  margin-bottom: var(--space-4);
+}
+
+.dialogMessage {
+  composes: body from '../../shared/styles/typography.module.css';
+}
+
+.dialogSkeleton {
+  display: grid;
+  gap: var(--space-2);
+}

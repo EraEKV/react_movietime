@@ -13,6 +13,7 @@ import type { CollectionDetails as CollectionData } from '../../types/tmdb'
 import { filmsByDate, splitFilms, yearSpan } from '../../utils/collection'
 import { isoDay, seenProgress } from '../../utils/person'
 import DetailsSkeleton from '../DetailsSkeleton/DetailsSkeleton'
+import CollectionActions from './CollectionActions'
 import CollectionFilms from './CollectionFilms'
 import styles from './CollectionDetails.module.css'
 
@@ -88,6 +89,14 @@ export default function CollectionDetails({ collectionId }: { collectionId: stri
               <p className={styles.kicker}>{t('kicker')}</p>
               <h1 className={styles.title}>{collection.name}</h1>
               <p className={styles.meta}>{meta}</p>
+              <div className={styles.actions}>
+                <CollectionActions
+                  collectionId={collection.id}
+                  name={collection.name}
+                  films={films}
+                  releasedCount={released.length}
+                />
+              </div>
             </div>
           </div>
         </div>
