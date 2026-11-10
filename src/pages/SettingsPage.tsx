@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from 'react-router'
 import Badge from '../shared/ui/Badge/Badge'
 import Button from '../shared/ui/Button/Button'
 import Card from '../shared/ui/Card/Card'
+import AvatarSetting from '../components/Settings/AvatarSetting'
 import CalendarFeed from '../components/Settings/CalendarFeed'
 import PushSettings from '../components/Settings/PushSettings'
 import ResendVerification from '../components/Settings/ResendVerification'
@@ -66,6 +67,7 @@ export default function SettingsPage() {
           <h2 id="account-title" className={styles.sectionTitle}>
             {t('settings.account')}
           </h2>
+          <AvatarSetting user={user} name={user.displayName || user.email || ''} />
           {/* key: a new user (sign out → in as someone else) gets a fresh form. */}
           <DisplayNameForm key={user.uid} initialName={user.displayName ?? ''} />
 

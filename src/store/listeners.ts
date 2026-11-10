@@ -2,7 +2,7 @@ import { isAnyOf, TaskAbortError } from '@reduxjs/toolkit'
 import { loadAuthService } from '../services/loadAuthService'
 import { setLanguage } from '../shared/i18n'
 import { savePreferences } from '../storage/preferencesStorage'
-import { authChanged, completeGoogleRedirect } from './authSlice'
+import { authChanged, avatarSynced, completeGoogleRedirect } from './authSlice'
 import { redirectPending } from '../utils/signInMode'
 import { startAppListening } from './listenerMiddleware'
 import {
@@ -93,6 +93,10 @@ export function registerPreferenceListeners(getState: () => RootState) {
         unsubscribe = service.watchProfile(
           uid,
           (profile) => {
+            const avatar = profile?.avatar ?? null
+            if (JSON.stringify(avatar) !== JSON.stringify(api.getState().auth.avatar)) {
+              api.dispatch(avatarSynced(avatar))
+            }
             const settings = profile?.settings
             const { theme, language } = api.getState().preferences
             if (settings && (settings.theme !== theme || settings.language !== language)) {

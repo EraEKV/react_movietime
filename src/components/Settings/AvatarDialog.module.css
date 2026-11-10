@@ -1,0 +1,179 @@
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.preview {
+  display: flex;
+  justify-content: center;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-4);
+  min-height: 240px;
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.legend {
+  composes: overline from '../../shared/styles/typography.module.css';
+  padding: 0;
+  color: var(--text-muted);
+}
+
+.swatches,
+.emojis {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* Both pickers are real radio inputs: arrow keys and one Tab stop come from the browser. */
+.swatch,
+.emoji {
+  position: relative;
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+}
+
+.swatch input,
+.emoji input {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.swatch {
+  background: var(--accent-soft);
+  box-shadow: inset 0 0 0 1.5px var(--border-strong);
+}
+
+.swatch:not([data-color='default']) {
+  background: color-mix(in srgb, var(--ring) 30%, var(--surface));
+  box-shadow: inset 0 0 0 1.5px var(--ring);
+}
+
+.swatch[data-color='plan-1'] {
+  --ring: var(--plan-1);
+}
+.swatch[data-color='plan-2'] {
+  --ring: var(--plan-2);
+}
+.swatch[data-color='plan-3'] {
+  --ring: var(--plan-3);
+}
+.swatch[data-color='plan-4'] {
+  --ring: var(--plan-4);
+}
+.swatch[data-color='plan-5'] {
+  --ring: var(--plan-5);
+}
+.swatch[data-color='plan-6'] {
+  --ring: var(--plan-6);
+}
+
+.emoji {
+  background: var(--surface-sunken);
+  font-size: 24px;
+  line-height: 1;
+}
+
+.emoji:hover,
+.swatch:hover {
+  filter: brightness(1.12);
+}
+
+.swatch:has(input:checked),
+.emoji:has(input:checked) {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.swatch:has(input:focus-visible),
+.emoji:has(input:focus-visible) {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.file {
+  display: none;
+}
+
+.cropper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  align-self: center;
+}
+
+/* The photo is clipped to the circle that the saved avatar will show. */
+.viewport {
+  position: relative;
+  overflow: hidden;
+  border-radius: 50%;
+  background: var(--surface-sunken);
+  box-shadow: 0 0 0 2px var(--border-strong);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.viewport:active {
+  cursor: grabbing;
+}
+
+.viewport:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 4px;
+}
+
+.viewport img {
+  position: absolute;
+  max-width: none;
+  pointer-events: none;
+}
+
+.zoom {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.zoom input {
+  flex: 1;
+  min-height: 44px;
+  accent-color: var(--accent);
+}
+
+.hint {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.remove {
+  margin-right: auto;
+}

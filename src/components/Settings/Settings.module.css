@@ -80,3 +80,29 @@
 .previewSplit .previewPoster:nth-child(n + 3) {
   display: none;
 }
+
+/* ---------- Avatar ---------- */
+
+.avatarRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.avatarText {
+  display: flex;
+  flex: 1 1 200px;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.avatarLabel {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.avatarNote {
+  color: var(--text-muted);
+  font-size: 14px;
+}

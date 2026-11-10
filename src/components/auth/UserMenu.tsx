@@ -1,6 +1,8 @@
 import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router'
 import { useAuth } from '../../hooks/useAuth'
+import { useAppSelector } from '../../store/hooks'
+import { selectAvatar } from '../../store/authSlice'
 import { loginPath } from '../../shared/lib/redirect'
 import Avatar from '../../shared/ui/Avatar/Avatar'
 import ButtonLink from '../../shared/ui/ButtonLink/ButtonLink'
@@ -11,6 +13,7 @@ import styles from './UserMenu.module.css'
 export default function UserMenu() {
   const { t } = useTranslation()
   const { user, status, signOut } = useAuth()
+  const avatar = useAppSelector(selectAvatar)
   const { pathname, search } = useLocation()
   const navigate = useNavigate()
 
@@ -37,7 +40,7 @@ export default function UserMenu() {
     <Menu
       label={t('auth.accountOf', { name })}
       triggerClassName={styles.trigger}
-      trigger={<Avatar name={name} photoUrl={user.photoURL} size={32} />}
+      trigger={<Avatar name={name} photoUrl={user.photoURL} avatar={avatar} size={32} />}
       align="right"
       header={
         <>
