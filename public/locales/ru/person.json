@@ -72,8 +72,16 @@
     "cinematography": "Оператор",
     "music": "Композитор",
     "editing": "Монтаж",
-    "producer": "Продюсер"
+    "producer": "Продюсер",
+    "executiveProducer": "Исполнительный продюсер",
+    "productionDesign": "Художник-постановщик",
+    "costumeDesign": "Художник по костюмам",
+    "casting": "Кастинг",
+    "visualEffects": "Визуальные эффекты",
+    "sound": "Звук"
   },
   "crewLabel": "Съёмочная группа",
-  "profileLink": "{{name}}: профиль"
+  "profileLink": "{{name}}: профиль",
+  "crewAll": "Показать всех: {{count}}",
+  "crewLess": "Свернуть"
 }

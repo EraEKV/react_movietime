@@ -68,8 +68,16 @@
     "cinematography": "Оператор",
     "music": "Композитор",
     "editing": "Монтаж",
-    "producer": "Продюсер"
+    "producer": "Продюсер",
+    "executiveProducer": "Атқарушы продюсер",
+    "productionDesign": "Көркемдеу бойынша суретші",
+    "costumeDesign": "Костюм суретшісі",
+    "casting": "Кастинг",
+    "visualEffects": "Визуалды эффектілер",
+    "sound": "Дыбыс"
   },
   "crewLabel": "Түсірілім тобы",
-  "profileLink": "{{name}}: профилі"
+  "profileLink": "{{name}}: профилі",
+  "crewAll": "Барлығын көрсету: {{count}}",
+  "crewLess": "Жасыру"
 }

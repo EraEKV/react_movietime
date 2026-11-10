@@ -210,7 +210,19 @@ export function biographyOf(person: Pick<PersonDetails, 'biography' | 'translati
 
 /** Crew jobs worth a link on a title page, in the order they are shown. */
 export type KeyJob =
-  'creator' | 'director' | 'writer' | 'cinematography' | 'music' | 'editing' | 'producer'
+  | 'creator'
+  | 'director'
+  | 'writer'
+  | 'cinematography'
+  | 'music'
+  | 'editing'
+  | 'producer'
+  | 'executiveProducer'
+  | 'productionDesign'
+  | 'costumeDesign'
+  | 'casting'
+  | 'visualEffects'
+  | 'sound'
 
 const KEY_JOB: Record<string, KeyJob> = {
   Creator: 'creator',
@@ -225,6 +237,13 @@ const KEY_JOB: Record<string, KeyJob> = {
   'Original Music Composer': 'music',
   Editor: 'editing',
   Producer: 'producer',
+  'Executive Producer': 'executiveProducer',
+  'Production Design': 'productionDesign',
+  'Costume Design': 'costumeDesign',
+  Casting: 'casting',
+  'Visual Effects Supervisor': 'visualEffects',
+  'Sound Designer': 'sound',
+  'Supervising Sound Editor': 'sound',
 }
 
 const KEY_JOB_ORDER: KeyJob[] = [
@@ -235,6 +254,12 @@ const KEY_JOB_ORDER: KeyJob[] = [
   'music',
   'editing',
   'producer',
+  'executiveProducer',
+  'productionDesign',
+  'costumeDesign',
+  'casting',
+  'visualEffects',
+  'sound',
 ]
 
 export interface KeyCrewMember {
@@ -247,10 +272,11 @@ export interface KeyCrewMember {
  * The people a visitor looks for first: one entry per person with their key jobs merged
  * ("Screenplay" and "Story" are both `writer`), most important job first. Other jobs
  * (gaffer, caterer…) are left out. A person is listed once even with five credits.
+ * No limit by default: the page decides how many to show.
  */
 export function keyCrew(
   crew: { id: number; name: string; job: string }[],
-  limit = 10,
+  limit = Infinity,
 ): KeyCrewMember[] {
   const people = new Map<number, KeyCrewMember>()
   for (const member of crew) {

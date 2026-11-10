@@ -304,6 +304,31 @@ describe('keyCrew', () => {
     expect(crew.map((p) => p.id)).toEqual([3, 2])
   })
 
+  it('includes design, casting, effects and sound jobs, merging the two sound jobs', () => {
+    const crew = keyCrew([
+      member(1, 'Executive Producer'),
+      member(2, 'Production Design'),
+      member(3, 'Costume Design'),
+      member(4, 'Casting'),
+      member(5, 'Visual Effects Supervisor'),
+      member(6, 'Sound Designer'),
+      member(6, 'Supervising Sound Editor'),
+    ])
+    expect(crew.map((p) => p.jobs)).toEqual([
+      ['executiveProducer'],
+      ['productionDesign'],
+      ['costumeDesign'],
+      ['casting'],
+      ['visualEffects'],
+      ['sound'],
+    ])
+  })
+
+  it('has no limit unless asked', () => {
+    const many = Array.from({ length: 40 }, (_, i) => member(i + 1, 'Producer'))
+    expect(keyCrew(many)).toHaveLength(40)
+  })
+
   it('puts series creators first', () => {
     const crew = keyCrew([member(1, 'Director'), member(2, 'Creator')])
     expect(crew.map((p) => p.id)).toEqual([2, 1])
