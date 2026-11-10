@@ -145,6 +145,36 @@ service cloud.firestore {
         && !(d.toEmail in get(/databases/$(database)/documents/$(d.collection)/$(d.targetId)).data.memberEmails);
     }
 
+    // An in-app notification about a film suggestion in a movie marathon, addressed by uid
+    // (the plan doesn't hold the owner's email). Written in the same batch as the suggestion
+    // ('proposal': a member tells the owner) or the owner's answer ('answer': the owner tells
+    // the author), and accepted only if that write is really in the batch. getAfter() sees it.
+    function validProposalNotice() {
+      let d = request.resource.data;
+      let plan = getAfter(/databases/$(database)/documents/plans/$(d.targetId)).data;
+      let offer = getAfter(/databases/$(database)/documents/plans/$(d.targetId)/proposals/$(d.proposalId)).data;
+      return d.keys().hasOnly(['toUid', 'type', 'collection', 'targetId', 'proposalId',
+          'targetTitle', 'film', 'decision', 'fromUid', 'fromName', 'createdAt', 'readAt'])
+        && d.collection == 'plans'
+        && d.targetId is string && d.targetId.size() >= 1 && d.targetId.size() <= 64
+        && d.proposalId is string && d.proposalId.size() >= 1 && d.proposalId.size() <= 128
+        && d.targetTitle == plan.title
+        && d.film == offer.unit.title
+        && d.fromUid == uid()
+        && d.fromName is string && d.fromName.size() <= 80
+        && d.createdAt == request.time
+        && d.readAt == null
+        && ((d.type == 'proposal' && !('decision' in d)
+              && d.toUid == plan.ownerUid
+              && isMember(plan)
+              && offer.by.uid == uid() && offer.status == 'pending')
+            || (d.type == 'answer' && d.decision in ['accepted', 'rejected']
+              && plan.ownerUid == uid()
+              && d.toUid == offer.by.uid && d.toUid != uid()
+              && offer.status == d.decision
+              && get(/databases/$(database)/documents/plans/$(d.targetId)/proposals/$(d.proposalId)).data.status == 'pending'));
+    }
+
     // ---------- private user data ----------
     match /users/{userId} {
       function self() { return signedIn() && uid() == userId; }
@@ -166,13 +196,19 @@ service cloud.firestore {
     }
 
     // ---------- notifications ----------
-    // Keyed by the recipient's lowercase email, readable only with that verified email.
+    // Keyed by the recipient's lowercase email (readable only with that verified email) or,
+    // for marathon suggestions, by the recipient's uid.
     // Nothing checks that an account exists: the notification waits for the email.
     match /notifications/{notificationId} {
-      allow read, delete: if verified() && resource.data.toEmail == email();
-      allow create: if signedIn() && validNotification();
+      // Addressed by verified email ('shared') or by uid (suggestions in a marathon).
+      function mine(n) {
+        return (verified() && n.get('toEmail', '') == email())
+          || (signedIn() && n.get('toUid', '') == uid());
+      }
+      allow read, delete: if mine(resource.data);
+      allow create: if signedIn() && (validNotification() || validProposalNotice());
       // Mark as read: only readAt changes, from empty to now.
-      allow update: if verified() && resource.data.toEmail == email()
+      allow update: if mine(resource.data)
         && onlyChanges(['readAt'])
         && resource.data.readAt == null
         && request.resource.data.readAt == request.time;

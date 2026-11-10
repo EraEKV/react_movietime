@@ -282,6 +282,30 @@ to the target (`getAfter`), the writer owns the target, and `toEmail` was not a 
 known fields only. Read and delete: verified email equals `toEmail`. Update: only `readAt`,
 from `null` to `request.time`. Query: `where toEmail == me orderBy createdAt desc limit 30`.
 
+### `notifications/{notificationId}`: marathon suggestion notice
+
+A second kind of notification, addressed by `toUid` (a plan holds the owner's uid, not their
+email). Written in the same batch as the suggestion (`proposal`: a member tells the owner) or
+the owner's answer (`answer`: the owner tells the author). Likes send nothing.
+
+| Field                                        | Type   | Notes                                                               |
+| -------------------------------------------- | ------ | ------------------------------------------------------------------- |
+| `toUid`                                      | string | the plan's owner (`proposal`) or the suggestion's author (`answer`) |
+| `type`                                       | string | `proposal` or `answer`                                              |
+| `collection`                                 | string | `plans`                                                             |
+| `targetId`                                   | string | plan id                                                             |
+| `proposalId`                                 | string | `proposals/{sessionId}_{uid}` of that plan                          |
+| `targetTitle`                                | string | must equal the plan's title                                         |
+| `film`                                       | string | must equal the suggested film's title                               |
+| `decision`                                   | string | `accepted` or `rejected`, only on `answer`                          |
+| `fromUid`, `fromName`, `createdAt`, `readAt` |        | as above                                                            |
+
+Rules (`validProposalNotice`): create only if the suggestion (or its answer) is really in the
+batch (`getAfter`): a `proposal` from a member of the plan, pending, addressed to the owner;
+an `answer` from the owner, for a suggestion that was pending before, `decision` equal to its
+new status, addressed to its author. Read, delete and mark read: `toUid == me`. Query:
+`where toUid == me orderBy createdAt desc limit 30` (index `toUid` + `createdAt`).
+
 ## Business operations
 
 | Operation           | Writes (one batch)                                                                                                                                                                                                                                |
