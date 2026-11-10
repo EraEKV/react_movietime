@@ -296,3 +296,17 @@ export interface CollectionDetails extends CollectionSummary {
   overview: string
   parts: CollectionPart[]
 }
+
+/** A person in /search/person. `known_for` (their best-known titles) isn't used. */
+export interface PersonSearchItem {
+  id: number
+  name: string
+  profile_path: string | null
+  known_for_department: string
+  popularity: number
+}
+
+/** A collection in /search/collection: the same fields as a movie's `belongs_to_collection`. */
+export interface CollectionSearchItem extends CollectionSummary {
+  overview: string
+}

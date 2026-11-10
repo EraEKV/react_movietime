@@ -174,6 +174,11 @@ export const endpoints = {
   searchMovies: ({ query, page = 1, year }: SearchParams) =>
     buildPath('/search/movie', { query, page, primary_release_year: year }),
 
+  searchPeople: ({ query, page = 1 }: SearchParams) => buildPath('/search/person', { query, page }),
+
+  searchCollections: ({ query, page = 1 }: SearchParams) =>
+    buildPath('/search/collection', { query, page }),
+
   seriesSummary: (id: Id) => buildPath(`/tv/${id}`),
 
   // translations: the English overview, shown when TMDB has none in the current language.
