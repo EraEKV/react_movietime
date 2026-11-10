@@ -710,6 +710,36 @@ export async function reorderFilms(plan: Plan, order: string[]): Promise<void> {
 }
 
 /**
+ * The owner adds a film to a movie marathon: a new session after the last one, on the plan's
+ * next weekday at that day's time. Counters follow, and a finished marathon is open again.
+ * Resolves to the day the film landed on.
+ */
+export async function addFilm(plan: Plan, unit: PlanUnit): Promise<string> {
+  if (plan.kind !== 'list') throw new PlanError(i18n.t('planner:errors.permission'))
+  const all = await loadSessions(plan.id)
+  const lastDate = all.reduce((max, s) => (s.date > max ? s.date : max), localToday())
+  const date = nextSlot(lastDate, plan.options.weekdays)
+  const added = sessionDoc({
+    index: all.reduce((max, s) => Math.max(max, s.index), 0) + 1,
+    date,
+    time: timeOn(plan.options, date),
+    units: [unit],
+    minutes: unit.runtime,
+  })
+  const ref = doc(sessionsCol(plan.id))
+  const next = { ...plan, totalUnits: plan.totalUnits + 1 }
+  const batch = writeBatch(db)
+  batch.set(ref, added)
+  batch.update(planRef(plan.id), {
+    ...planTotals(next, [...all, { ...added, id: ref.id, planId: plan.id, status: 'pending' }]),
+    totalUnits: next.totalUnits,
+    totalMinutes: plan.totalMinutes + unit.runtime,
+  })
+  await batch.commit()
+  return date
+}
+
+/**
  * Deletes a plan with its sessions, likes and proposals (sub-collections aren't deleted with the parent). The
  * plan goes in the last batch: session rules read it, so it must outlive them.
  * Library entries stay — they are the user's history, not part of the plan.

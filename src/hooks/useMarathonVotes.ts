@@ -62,6 +62,13 @@ export function useVoteActions() {
     loadFilm: (tmdbId: number, signal?: AbortSignal) => run((s) => s.loadFilmUnit(tmdbId, signal)),
     suggest: (plan: Plan, session: PlanSession, unit: PlanUnit) =>
       run((s) => s.suggestFilm(plan, session, by(), unit)),
+    replace: (
+      plan: Plan,
+      session: PlanSession,
+      unit: PlanUnit,
+      proposals: SessionProposal[],
+      likes: SessionLike[],
+    ) => run((s) => s.replaceFilm(plan, session, unit, proposals, likes)),
     withdraw: (plan: Plan, proposalId: string) => run((s) => s.withdrawProposal(plan, proposalId)),
     decide: (
       plan: Plan,

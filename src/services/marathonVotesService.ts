@@ -6,6 +6,7 @@ import {
   writeBatch,
   type DocumentData,
   type Unsubscribe,
+  type WriteBatch,
 } from 'firebase/firestore'
 import { endpoints, tmdbGet } from '../shared/api/tmdb'
 import type {
@@ -156,6 +157,29 @@ export async function withdrawProposal(plan: Plan, proposalId: string): Promise<
 }
 
 /**
+ * The session's film becomes `unit`: the session, the plan's total minutes and the old
+ * film's likes in one go (likes belong to the film they were given to).
+ */
+function swapFilm(
+  batch: WriteBatch,
+  plan: Plan,
+  session: PlanSession,
+  unit: PlanUnit,
+  likes: SessionLike[],
+) {
+  batch.update(sessionRef(plan.id, session.id), { units: [unit], minutes: unit.runtime })
+  batch.update(planRef(plan.id), {
+    totalMinutes: Math.max(0, plan.totalMinutes - session.minutes + unit.runtime),
+    updatedAt: serverTimestamp(),
+  })
+  for (const like of likes) {
+    if (like.sessionId === session.id) {
+      batch.delete(likeRef(plan.id, like.sessionId, like.uid))
+    }
+  }
+}
+
+/**
  * The owner's answer. Accepting swaps the film of the session in the same batch (and the
  * plan's total minutes), drops the likes the old film had, and turns down the other open
  * suggestions for that session.
@@ -170,34 +194,43 @@ export async function decideProposal(
 ): Promise<void> {
   const batch = writeBatch(db)
   const decided = { decidedAt: serverTimestamp() }
-  if (!accept) {
-    batch.update(proposalRef(plan.id, proposal.id), { status: 'rejected', ...decided })
-    return batch.commit()
-  }
   const current = session?.units[0]
   const stale = !session || session.status !== 'pending' || current?.mediaKey !== proposal.replaces
-  if (stale) {
-    // The session moved on: nothing to swap, the suggestion is simply closed.
+  if (!accept || stale) {
+    // Declined, or the session moved on: nothing to swap, the suggestion is simply closed.
     batch.update(proposalRef(plan.id, proposal.id), { status: 'rejected', ...decided })
     return batch.commit()
   }
-  batch.update(sessionRef(plan.id, session.id), {
-    units: [proposal.unit],
-    minutes: proposal.unit.runtime,
-  })
-  batch.update(planRef(plan.id), {
-    totalMinutes: Math.max(0, plan.totalMinutes - session.minutes + proposal.unit.runtime),
-    updatedAt: serverTimestamp(),
-  })
+  swapFilm(batch, plan, session, proposal.unit, likes)
   batch.update(proposalRef(plan.id, proposal.id), { status: 'accepted', ...decided })
   for (const other of siblings) {
-    if (other.id !== proposal.id && other.status === 'pending') {
+    if (other.id !== proposal.id && other.sessionId === session.id && other.status === 'pending') {
       batch.update(proposalRef(plan.id, other.id), { status: 'rejected', ...decided })
     }
   }
-  for (const like of likes) {
-    if (like.sessionId === session.id) {
-      batch.delete(likeRef(plan.id, like.sessionId, like.uid))
+  await batch.commit()
+}
+
+/**
+ * The owner changes the film of a pending evening directly, no confirmation: the same swap
+ * as an accepted suggestion, and every open suggestion for that evening is closed.
+ */
+export async function replaceFilm(
+  plan: Plan,
+  session: PlanSession,
+  unit: PlanUnit,
+  proposals: SessionProposal[],
+  likes: SessionLike[],
+): Promise<void> {
+  if (plan.kind !== 'list' || session.status !== 'pending') return
+  const batch = writeBatch(db)
+  swapFilm(batch, plan, session, unit, likes)
+  for (const open of proposals) {
+    if (open.sessionId === session.id && open.status === 'pending') {
+      batch.update(proposalRef(plan.id, open.id), {
+        status: 'rejected',
+        decidedAt: serverTimestamp(),
+      })
     }
   }
   await batch.commit()

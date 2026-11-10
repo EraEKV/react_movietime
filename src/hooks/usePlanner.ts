@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import type * as PlannerService from '../services/plannerService'
-import type { Plan, PlannedSession, PlanRole, PlanSession } from '../types/plan'
+import type { Plan, PlannedSession, PlanRole, PlanSession, PlanUnit } from '../types/plan'
 import { bookingsOf } from '../utils/conflicts'
 import { addDays, localToday, monthGrid, type MonthRef } from '../utils/calendar'
 import { bySchedule } from '../utils/schedule'
@@ -240,5 +240,6 @@ export function usePlanActions() {
       time?: string,
     ) => run((s) => s.rescheduleSession(plan, session, date, shiftLater, time)),
     reorderFilms: (plan: Plan, order: string[]) => run((s) => s.reorderFilms(plan, order)),
+    addFilm: (plan: Plan, unit: PlanUnit) => run((s) => s.addFilm(plan, unit)),
   }
 }
