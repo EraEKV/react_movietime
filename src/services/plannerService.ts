@@ -673,6 +673,30 @@ export async function rescheduleSession(
 }
 
 /**
+ * Reorders the films of a movie marathon. `order` lists the ids of the pending sessions in
+ * the order their films should now be watched: the evenings (dates, times) stay where they
+ * are and the films move between them. Done and skipped sessions never change.
+ */
+export async function reorderFilms(plan: Plan, order: string[]): Promise<void> {
+  if (plan.kind !== 'list') throw new PlanError(i18n.t('planner:errors.permission'))
+  const all = await loadSessions(plan.id)
+  const slots = all.filter((s) => s.status === 'pending')
+  const byId = new Map(slots.map((s) => [s.id, s]))
+  const films = order.flatMap((id) => byId.get(id) ?? [])
+  if (films.length !== slots.length) throw new PlanError(i18n.t('planner:errors.notFound'))
+
+  const writes: ((batch: WriteBatch) => void)[] = []
+  slots.forEach((slot, i) => {
+    const film = films[i]
+    if (!film || film.id === slot.id) return
+    writes.push((b) =>
+      b.update(sessionRef(plan.id, slot.id), { units: film.units, minutes: film.minutes }),
+    )
+  })
+  await commitInChunks(writes)
+}
+
+/**
  * Deletes a plan with its sessions (sub-collections aren't deleted with the parent). The
  * plan goes in the last batch: session rules read it, so it must outlive them.
  * Library entries stay — they are the user's history, not part of the plan.
