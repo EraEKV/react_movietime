@@ -1,6 +1,7 @@
 import { Resend } from 'resend'
 import { bearer, json, markWelcomed, readDoc, readEnv, verifyToken } from './_lib/firebase.js'
 import { isLocale } from './_lib/layout.js'
+import { siteOrigin } from './_lib/site.js'
 import { welcomeEmail } from './_lib/templates.js'
 
 // POST /api/send-welcome { locale }: the welcome email, once per account. It goes only to
@@ -34,7 +35,7 @@ export async function POST(request: Request): Promise<Response> {
   const name = profile.fields.displayName?.stringValue || caller.displayName
   const message = welcomeEmail(isLocale(locale) ? locale : 'en', {
     name,
-    url: new URL('/', request.url).href,
+    url: `${siteOrigin(request)}/`,
   })
   const { error } = await new Resend(env.resendKey).emails.send({
     from: env.from,

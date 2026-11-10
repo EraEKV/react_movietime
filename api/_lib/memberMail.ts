@@ -1,6 +1,7 @@
 import { Resend } from 'resend'
 import { bearer, json, readEnv, readDoc, verifyToken, type MailEnv } from './firebase.js'
 import { isLocale, type Locale } from './layout.js'
+import { siteOrigin } from './site.js'
 import type { Role } from './templates.js'
 
 // Shared by the endpoints that mail a member of a list or plan (invite, role change). They
@@ -66,7 +67,7 @@ export async function resolveMember(
     return json({ error: 'forbidden' }, 403)
   }
 
-  const origin = new URL(request.url).origin
+  const origin = siteOrigin(request)
   const signup = new URL('/signup', origin)
   signup.searchParams.set('invite', `${collection}/${id}`)
   signup.searchParams.set('email', email)

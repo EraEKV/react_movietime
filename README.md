@@ -10,7 +10,7 @@ keep a personal library, collect titles into lists, and turn a series or a list 
 a **watch schedule** on a calendar. Lists and schedules can be shared with friends by link or
 with an editor / viewer role.
 
-**Live demo:** https://react-movietime.vercel.app
+**Live demo:** https://avleron.com
 
 > React end-term project (KBTU), built on top of the midterm version.
 > **Status:** all planned features are implemented, deployed and covered by tests; see the
@@ -314,7 +314,7 @@ How it fits together, where each piece of state lives and why, and the React pat
 
 ## Deployment
 
-Deployed on **Vercel** from `main`: https://react-movietime.vercel.app
+Deployed on **Vercel** from `main`: https://avleron.com
 
 - `vercel.json` rewrites every path to `index.html`, so deep links work on refresh.
 - Environment variables are set in the Vercel project settings.

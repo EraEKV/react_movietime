@@ -1,6 +1,7 @@
 import { accountOf, adminDb } from './_lib/admin.js'
 import { buildFeed, tokenFrom, type FeedPlan, type FeedSession } from './_lib/feed.js'
 import { validTimeZone } from './_lib/ics.js'
+import { siteOrigin } from './_lib/site.js'
 
 // GET /api/calendar/<token>.ics (vercel.json → /api/ics?file=<token>.ics): a calendar
 // subscription with every pending session of the plans of whoever owns the token. Google
@@ -71,7 +72,7 @@ export async function GET(request: Request): Promise<Response> {
   const body = buildFeed(
     plans,
     perPlan.flat(),
-    url.origin,
+    siteOrigin(request),
     validTimeZone(zone) ? zone : 'UTC',
     new Date(),
   )

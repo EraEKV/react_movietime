@@ -37,7 +37,7 @@ anyway. Data is protected by the security rules (step 5), not by hiding the key.
 **Authentication → Settings → Authorized domains:** add the production domain:
 
 ```
-react-movietime.vercel.app
+avleron.com
 ```
 
 `localhost` and `<project-id>.firebaseapp.com` are there by default. Without the production
@@ -56,10 +56,10 @@ Firebase's "proxy" option: `vercel.json` forwards `/__/auth/*` to
 
 1. **Google Cloud Console → APIs & Services → Credentials → OAuth 2.0 Client IDs** (the "Web
    client (auto created by Google Service)"): under **Authorized redirect URIs** add
-   `https://react-movietime.vercel.app/__/auth/handler` (keep the existing
+   `https://avleron.com/__/auth/handler` (keep the existing
    `https://<project-id>.firebaseapp.com/__/auth/handler`).
 2. Deploy the `vercel.json` rewrite (merge to `main`).
-3. In Vercel set `VITE_FIREBASE_AUTH_DOMAIN=react-movietime.vercel.app` (Production) and redeploy.
+3. In Vercel set `VITE_FIREBASE_AUTH_DOMAIN=avleron.com` (Production) and redeploy.
    Doing this before step 1 breaks Google sign-in with `redirect_uri_mismatch`, popup included.
 
 Locally keep `<project-id>.firebaseapp.com` (or leave it as is): desktop uses the popup, which
@@ -179,7 +179,7 @@ subscription that the browser reports as gone (404/410) is deleted on the next p
 - [ ] `.env.local` filled
 - [ ] Email/Password enabled
 - [ ] Google enabled, support email set
-- [ ] `react-movietime.vercel.app` in authorized domains
+- [ ] `avleron.com` in authorized domains
 - [ ] Firestore created in production mode
 - [ ] Rules and indexes deployed
 - [ ] Env variables in Vercel, redeployed

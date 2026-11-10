@@ -321,7 +321,7 @@ Small fixes between phases go straight to `main`.
 
 | Requirement                              | How                                                                       |
 | ---------------------------------------- | ------------------------------------------------------------------------- |
-| Public HTTPS deployment                  | Vercel: https://react-movietime.vercel.app                                |
+| Public HTTPS deployment                  | Vercel: https://avleron.com                                               |
 | Everything works on the deployed version | Firebase is a hosted backend; Vercel domain in Auth authorized domains    |
 | Nested routes, shared layout             | `Layout` → `Outlet`; `/lists/*`, `/planner/*`, `/profile/*`, `/library/*` |
 | Dynamic routes                           | `/movies/:id`, `/series/:id`, `/lists/:listId`, `/planner/:planId`        |
@@ -415,7 +415,7 @@ dashboard from 3.8.
 
 ## 7. Defense preparation
 
-Production: https://react-movietime.vercel.app. Two accounts help: A (owner) and B (friend), both
+Production: https://avleron.com. Two accounts help: A (owner) and B (friend), both
 with verified emails, in two browser profiles or one normal and one private window.
 
 ### 7.1 Demo script (about 7 minutes)
