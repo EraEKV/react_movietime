@@ -1,0 +1,49 @@
+.card {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+}
+
+.poster {
+  flex: none;
+  width: 48px;
+  aspect-ratio: 2 / 3;
+  border-radius: var(--radius-xs);
+  overflow: hidden;
+  background: color-mix(in srgb, var(--plan) 45%, var(--surface-sunken));
+}
+
+.poster img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.title {
+  font-size: 14px;
+  line-height: 20px;
+  overflow-wrap: anywhere;
+}
+
+.range,
+.when {
+  color: var(--text-muted);
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
+  color: var(--text);
+  font-weight: 500;
+}

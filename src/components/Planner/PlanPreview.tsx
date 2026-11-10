@@ -122,6 +122,7 @@ export function PreviewStep({
             range: movies ? '' : unitsLabel(s.units),
             time: movies ? s.time : undefined,
             status: 'pending',
+            posterPath: s.units[0]?.media?.posterPath,
           }))}
         />
       </section>

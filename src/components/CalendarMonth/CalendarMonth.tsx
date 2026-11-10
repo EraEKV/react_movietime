@@ -16,6 +16,8 @@ import type { PlanColor, SessionStatus } from '../../types/plan'
 import { formatDay, monthOf, WEEK_ORDER, weekdayShort, type MonthRef } from '../../utils/calendar'
 import { cx } from '../../shared/lib/cx'
 
+import HoverCard from '../../shared/ui/HoverCard/HoverCard'
+import SessionCard from '../SessionChip/SessionCard'
 import SessionChip from '../SessionChip/SessionChip'
 import styles from './CalendarMonth.module.css'
 
@@ -102,18 +104,41 @@ export default function CalendarMonth({
 
   const dragged = dragging ? itemOf(dragging) : undefined
 
-  const chip = (item: CalendarItem, to = item.to) => (
-    <SessionChip
-      color={item.color}
-      title={item.title}
-      range={item.range}
-      time={item.time}
-      status={item.status}
-      posterPath={item.posterPath}
-      compact={compact}
-      to={to}
-    />
-  )
+  const chip = (item: CalendarItem, to = item.to, withCard = true) => {
+    const content = (
+      <SessionChip
+        color={item.color}
+        title={item.title}
+        range={item.range}
+        time={item.time}
+        status={item.status}
+        posterPath={item.posterPath}
+        compact={compact}
+        to={to}
+      />
+    )
+    // The chip is small and its text is cut off; the card shows everything, anywhere.
+    return withCard ? (
+      <HoverCard
+        disabled={dragging !== null}
+        content={
+          <SessionCard
+            color={item.color}
+            title={item.title}
+            range={item.range}
+            date={item.date}
+            time={item.time}
+            status={item.status}
+            posterPath={item.posterPath}
+          />
+        }
+      >
+        {content}
+      </HoverCard>
+    ) : (
+      content
+    )
+  }
 
   return (
     <DndContext
@@ -179,7 +204,7 @@ export default function CalendarMonth({
           )
         })}
       </div>
-      <DragOverlay>{dragged ? chip(dragged, undefined) : null}</DragOverlay>
+      <DragOverlay>{dragged ? chip(dragged, undefined, false) : null}</DragOverlay>
     </DndContext>
   )
 }
