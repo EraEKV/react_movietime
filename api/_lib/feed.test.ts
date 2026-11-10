@@ -7,6 +7,8 @@ describe('tokenFrom', () => {
   it('reads the token from ?token= and from the pretty URL', () => {
     expect(tokenFrom(new URL(`https://x.app/api/ics?token=${token}`))).toBe(token)
     expect(tokenFrom(new URL(`https://x.app/api/ics?file=${token}.ics`))).toBe(token)
+    // The original address, when Vercel hands the function the URL before the rewrite.
+    expect(tokenFrom(new URL(`https://x.app/api/calendar/${token}.ics`))).toBe(token)
   })
   it('rejects anything that is not a token, so nothing reaches Firestore', () => {
     for (const bad of ['', 'short', `${token}x`, `${token.slice(0, 31)}!`, `../${token}`]) {

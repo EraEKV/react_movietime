@@ -25,12 +25,15 @@ export const FEED_NAME = 'Avleron'
 export const TOKEN = /^[A-Za-z0-9_-]{32}$/
 
 /**
- * The secret in the request: `?token=…`, or the file name of the pretty URL
- * `/api/calendar/<token>.ics` (vercel.json sends that as `?file=<token>.ics`). Null when
- * it isn't a token, so nothing is asked of Firestore.
+ * The secret in the request. On Vercel the function may see either the rewritten URL
+ * (`/api/ics?file=<token>.ics`, from vercel.json) or the original one
+ * (`/api/calendar/<token>.ics`), so both are read, and `?token=` too. Null when it isn't a
+ * token, so nothing is asked of Firestore.
  */
 export function tokenFrom(url: URL): string | null {
-  const raw = url.searchParams.get('token') ?? url.searchParams.get('file')?.replace(/\.ics$/, '')
+  const fromPath = /^\/api\/calendar\/([^/]+)\.ics$/.exec(url.pathname)?.[1]
+  const raw =
+    url.searchParams.get('token') ?? url.searchParams.get('file')?.replace(/\.ics$/, '') ?? fromPath
   return raw && TOKEN.test(raw) ? raw : null
 }
 
