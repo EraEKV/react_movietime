@@ -29,12 +29,18 @@ import type {
   Weekday,
 } from '../types/plan'
 import type { MemberRole } from '../types/sharing'
-import type { CollectionDetails, MovieBase, SeasonsBatchResponse, SeriesBase } from '../types/tmdb'
+import type {
+  CollectionDetails,
+  MovieBase,
+  PersonDetails,
+  SeasonsBatchResponse,
+  SeriesBase,
+} from '../types/tmdb'
 import { isDay, isTime, localToday } from '../utils/calendar'
 import { seriesToLibraryMedia, movieToLibraryMedia } from '../utils/library'
 import { releasedFilms } from '../utils/collection'
 import { mediaKey, parseMediaKey } from '../utils/media'
-import { isoDay } from '../utils/person'
+import { buildFilmography, directedFilms, isoDay } from '../utils/person'
 import { episodesToUnits, isPlanColor, movieToUnit, PlanError } from '../utils/planner'
 import {
   buildSchedule,
@@ -370,6 +376,37 @@ export async function loadCollectionMovies(
   return {
     name: collection.name,
     posterPath: collection.poster_path ?? movies[0]?.poster_path ?? null,
+    units: movies.map((movie) => movieToUnit(movieToLibraryMedia(movie))),
+    skipped: 0,
+  }
+}
+
+/** At most this many runtime requests at once: a prolific director has dozens of films. */
+const RUNTIME_REQUESTS = 8
+
+/**
+ * The movies a person directed that are out, oldest first, each with its runtime from
+ * /movie/{id}: a marathon source like a collection. `skipped` counts nothing here.
+ */
+export async function loadPersonMovies(
+  personId: number,
+  signal?: AbortSignal,
+): Promise<ListSource> {
+  const person = await tmdbGet<PersonDetails>(endpoints.person(personId), { signal })
+  const works = buildFilmography(person.combined_credits.cast, person.combined_credits.crew)
+  const films = directedFilms(works, isoDay(new Date()))
+  const movies: MovieBase[] = []
+  for (let i = 0; i < films.length; i += RUNTIME_REQUESTS) {
+    const batch = await Promise.all(
+      films
+        .slice(i, i + RUNTIME_REQUESTS)
+        .map((film) => tmdbGet<MovieBase>(endpoints.movieSummary(film.id), { signal })),
+    )
+    movies.push(...batch)
+  }
+  return {
+    name: person.name,
+    posterPath: movies.find((movie) => movie.poster_path)?.poster_path ?? null,
     units: movies.map((movie) => movieToUnit(movieToLibraryMedia(movie))),
     skipped: 0,
   }
