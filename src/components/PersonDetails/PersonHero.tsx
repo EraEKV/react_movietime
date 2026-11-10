@@ -1,11 +1,10 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { imageUrl } from '../../shared/api/tmdb'
 import { formatDate } from '../../shared/lib/format'
 import Button from '../../shared/ui/Button/Button'
-import Icon from '../../shared/ui/Icon/Icon'
 import type { PersonDetails } from '../../types/tmdb'
 import { biographyOf } from '../../utils/person'
+import PersonPhoto from '../PersonPhoto/PersonPhoto'
 import styles from './PersonDetails.module.css'
 
 /** Longer than this and the biography starts folded. */
@@ -19,7 +18,6 @@ const isKnownDepartment = (value: string): value is KnownDepartment =>
 export default function PersonHero({ person }: { person: PersonDetails }) {
   const { t } = useTranslation('person')
   const [expanded, setExpanded] = useState(false)
-  const photo = imageUrl(person.profile_path, 'w342')
   const biography = biographyOf(person)
   const paragraphs = biography.split(/\r?\n(?:\s*\r?\n)+/).filter(Boolean)
   const folded = biography.length > LONG_BIO && !expanded
@@ -33,13 +31,12 @@ export default function PersonHero({ person }: { person: PersonDetails }) {
   return (
     <div className={styles.hero}>
       <div className={styles.photo}>
-        {photo ? (
-          <img src={photo} alt={t('photo', { name: person.name })} />
-        ) : (
-          <div className={styles.photoFallback}>
-            <Icon name="user" size={40} />
-          </div>
-        )}
+        <PersonPhoto
+          path={person.profile_path}
+          size="w342"
+          alt={t('photo', { name: person.name })}
+          iconSize={40}
+        />
       </div>
 
       <div className={styles.info}>

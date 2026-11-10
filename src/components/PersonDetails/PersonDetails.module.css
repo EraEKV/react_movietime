@@ -43,13 +43,6 @@
   object-fit: cover;
 }
 
-.photoFallback {
-  display: grid;
-  place-items: center;
-  height: 100%;
-  color: var(--text-subtle);
-}
-
 .info {
   display: grid;
   gap: var(--space-4);

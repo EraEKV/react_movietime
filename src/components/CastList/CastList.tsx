@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
-import { imageUrl } from '../../shared/api/tmdb'
 import { cx } from '../../shared/lib/cx'
 import Button from '../../shared/ui/Button/Button'
 import type { CastMember } from '../../types/tmdb'
+import PersonPhoto from '../PersonPhoto/PersonPhoto'
 import styles from './CastList.module.css'
 
 /** How many people show in the row before "Show all". */
@@ -20,7 +20,6 @@ export default function CastList({ cast }: { cast: CastMember[] }) {
     <>
       <ul className={cx(styles.list, expanded && styles.expanded)}>
         {visible.map((person) => {
-          const photo = imageUrl(person.profile_path, 'w185')
           return (
             // credit_id is unique per role; the same actor can appear twice with different roles.
             <li key={person.credit_id} className={styles.person}>
@@ -34,11 +33,7 @@ export default function CastList({ cast }: { cast: CastMember[] }) {
                 }
               >
                 <div className={styles.photo}>
-                  {photo ? (
-                    <img src={photo} alt="" loading="lazy" />
-                  ) : (
-                    <span aria-hidden="true">{person.name.charAt(0)}</span>
-                  )}
+                  <PersonPhoto path={person.profile_path} size="w185" />
                 </div>
                 <p className={styles.name}>{person.name}</p>
                 {person.character && (
