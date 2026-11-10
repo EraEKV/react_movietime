@@ -49,6 +49,8 @@ interface CalendarMonthProps {
   label: string
   /** A chip was dropped on `date`. Without it nothing is draggable. */
   onMove?: (key: string, date: string) => void
+  /** Narrows where a dragged chip may land (a series keeps its episodes in order). */
+  canDrop?: (key: string, date: string) => boolean
 }
 
 /**
@@ -69,6 +71,7 @@ export default function CalendarMonth({
   size = 'md',
   label,
   onMove,
+  canDrop,
 }: CalendarMonthProps) {
   const { t } = useTranslation()
   const [expanded, setExpanded] = useState<string | null>(null)
@@ -99,7 +102,9 @@ export default function CalendarMonth({
   function handleDragEnd({ active, over }: DragEndEvent) {
     setDragging(null)
     const item = itemOf(active.id)
-    if (over && item && item.date !== over.id) onMove?.(item.key, String(over.id))
+    if (!over || !item || item.date === over.id) return
+    if (canDrop && !canDrop(item.key, String(over.id))) return
+    onMove?.(item.key, String(over.id))
   }
 
   const dragged = dragging ? itemOf(dragging) : undefined
@@ -176,8 +181,10 @@ export default function CalendarMonth({
               name={name}
               outside={monthOf(day).month !== month.month}
               today={day === today}
-              // Sessions can't be moved into the past.
-              droppable={Boolean(onMove) && day >= today}
+              // Sessions can't be moved into the past, or where `canDrop` says no.
+              droppable={
+                Boolean(onMove) && day >= today && (!dragging || !canDrop || canDrop(dragging, day))
+              }
             >
               {shown.map((item) =>
                 onMove && item.movable ? (
