@@ -50,9 +50,11 @@ const base = {
   ownerName: 'Olga',
   canLike: true,
   canSuggest: true,
+  canReplace: false,
   mine: null,
   onLike: vi.fn().mockResolvedValue(undefined),
   onSuggest: vi.fn(),
+  onReplace: vi.fn(),
   onWithdraw: vi.fn().mockResolvedValue(undefined),
 }
 
@@ -106,6 +108,14 @@ describe('MarathonVotes', () => {
     rerender(<MarathonVotes {...base} mine={proposal('rejected')} onWithdraw={onWithdraw} />)
     expect(screen.getByText('Olga declined Inception.')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Dismiss' })).toBeInTheDocument()
+  })
+
+  it('lets the owner replace the film right away, with no suggest button of their own', async () => {
+    const onReplace = vi.fn()
+    render(<MarathonVotes {...base} canSuggest={false} canReplace onReplace={onReplace} />)
+    expect(screen.queryByRole('button', { name: 'Suggest another film' })).toBeNull()
+    await userEvent.click(screen.getByRole('button', { name: 'Replace film' }))
+    expect(onReplace).toHaveBeenCalled()
   })
 })
 

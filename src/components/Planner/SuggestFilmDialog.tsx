@@ -18,10 +18,10 @@ import styles from './MarathonVotes.module.css'
 const MAX_RESULTS = 12
 
 interface SuggestFilmDialogProps {
-  /** The film of the evening the suggestion is for, and its date line. */
-  film: string
-  when: string
-  ownerName: string
+  /** The caller words it: a suggestion, a replacement or a new film. */
+  title: string
+  body: string
+  submitLabel: string
   /** Films already in the marathon: shown, but not pickable. */
   existing: ReadonlySet<MediaKey>
   /** Resolves when sent; a rejection keeps the dialog open with the error. */
@@ -29,11 +29,11 @@ interface SuggestFilmDialogProps {
   onClose: () => void
 }
 
-/** Search for one movie and send it to the owner as a replacement for an evening's film. */
+/** Search for one movie and hand it over: a suggestion, a replacement or a new film. */
 export default function SuggestFilmDialog({
-  film,
-  when,
-  ownerName,
+  title,
+  body,
+  submitLabel,
   existing,
   onSend,
   onClose,
@@ -136,7 +136,7 @@ export default function SuggestFilmDialog({
     <Dialog
       open
       onClose={() => !saving && onClose()}
-      title={t('votes.dialog.title', { date: when })}
+      title={title}
       footer={
         <>
           <Button variant="ghost" onClick={onClose} disabled={saving}>
@@ -149,12 +149,12 @@ export default function SuggestFilmDialog({
             loading={saving}
             onClick={() => void send()}
           >
-            {t('votes.dialog.submit')}
+            {submitLabel}
           </Button>
         </>
       }
     >
-      <p>{t('votes.dialog.body', { film, owner: ownerName })}</p>
+      <p>{body}</p>
       <TextField
         label={t('votes.dialog.search')}
         hideLabel

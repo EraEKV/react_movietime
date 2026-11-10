@@ -103,7 +103,10 @@ function PlanView({ id }: { id: string }) {
   const voteActions = useVoteActions()
   const today = localToday()
 
-  const [suggesting, setSuggesting] = useState<PlanSession | null>(null)
+  // One film picker for three jobs: a member's suggestion, the owner's replacement, a new film.
+  const [picking, setPicking] = useState<
+    { mode: 'suggest' | 'replace'; session: PlanSession } | { mode: 'add' } | null
+  >(null)
   const [moving, setMoving] = useState<PlanSession | null>(null)
   const [reordering, setReordering] = useState(false)
   const [shareOpen, setShareOpen] = useState(false)
@@ -220,6 +223,11 @@ function PlanView({ id }: { id: string }) {
         <Button variant="primary" icon="share" onClick={() => setShareOpen(true)}>
           {t('plan.share')}
         </Button>
+        {plan.kind === 'list' && (
+          <Button icon="plus" onClick={() => setPicking({ mode: 'add' })}>
+            {t('votes.add')}
+          </Button>
+        )}
         {canReorder && (
           <Button icon="list" onClick={() => setReordering(true)}>
             {t('plan.reorder')}
@@ -331,9 +339,11 @@ function PlanView({ id }: { id: string }) {
                         ownerName={plan.ownerName}
                         canLike={canVote(plan, role)}
                         canSuggest={canVote(plan, role) && role !== 'owner'}
+                        canReplace={role === 'owner'}
                         mine={myProposal(s, votes.proposals, user?.uid ?? null)}
                         onLike={(on) => act(() => voteActions.like(plan, s, on))()}
-                        onSuggest={() => setSuggesting(s)}
+                        onSuggest={() => setPicking({ mode: 'suggest', session: s })}
+                        onReplace={() => setPicking({ mode: 'replace', session: s })}
                         onWithdraw={act(
                           () => voteActions.withdraw(plan, `${s.id}_${user?.uid ?? ''}`),
                           t('votes.toast.withdrawn'),
@@ -462,18 +472,34 @@ function PlanView({ id }: { id: string }) {
 
       {body}
 
-      {suggesting && sessions && (
+      {picking && sessions && (
         <SuggestFilmDialog
-          film={suggesting.units[0]?.title ?? ''}
-          when={formatDay(suggesting.date, { weekday: 'short', month: 'short', day: 'numeric' })}
-          ownerName={plan.ownerName}
+          {...pickerTexts(picking, plan.ownerName)}
           existing={new Set(sessions.flatMap((s) => s.units.map((u) => u.mediaKey)))}
-          onClose={() => setSuggesting(null)}
+          onClose={() => setPicking(null)}
           onSend={async (tmdbId) => {
             try {
               const unit = await voteActions.loadFilm(tmdbId)
-              await voteActions.suggest(plan, suggesting, unit)
-              showToast({ text: t('votes.toast.sent', { owner: plan.ownerName }) })
+              if (picking.mode === 'add') {
+                const date = await actions.addFilm(plan, unit)
+                showToast({
+                  text: t('votes.toast.added', {
+                    film: unit.title,
+                    date: formatDay(date, { weekday: 'short', month: 'short', day: 'numeric' }),
+                  }),
+                })
+              } else if (picking.mode === 'replace') {
+                await voteActions.replace(plan, picking.session, unit, votes.proposals, votes.likes)
+                showToast({
+                  text: t('votes.toast.replaced', {
+                    film: unit.title,
+                    current: picking.session.units[0]?.title ?? '',
+                  }),
+                })
+              } else {
+                await voteActions.suggest(plan, picking.session, unit)
+                showToast({ text: t('votes.toast.sent', { owner: plan.ownerName }) })
+              }
             } catch (error) {
               throw new Error(planErrorMessage(error), { cause: error })
             }
@@ -620,6 +646,34 @@ function PlanView({ id }: { id: string }) {
       )}
     </article>
   )
+}
+
+/** The picker's words for each of its three jobs. */
+function pickerTexts(
+  picking: { mode: 'suggest' | 'replace'; session: PlanSession } | { mode: 'add' },
+  ownerName: string,
+) {
+  if (picking.mode === 'add') {
+    return {
+      title: i18n.t('planner:votes.dialog.addTitle'),
+      body: i18n.t('planner:votes.dialog.addBody'),
+      submitLabel: i18n.t('planner:votes.dialog.addSubmit'),
+    }
+  }
+  const { session } = picking
+  const film = session.units[0]?.title ?? ''
+  const date = formatDay(session.date, { weekday: 'short', month: 'short', day: 'numeric' })
+  return picking.mode === 'replace'
+    ? {
+        title: i18n.t('planner:votes.dialog.replaceTitle', { date }),
+        body: i18n.t('planner:votes.dialog.replaceBody', { film }),
+        submitLabel: i18n.t('planner:votes.dialog.replaceSubmit'),
+      }
+    : {
+        title: i18n.t('planner:votes.dialog.title', { date }),
+        body: i18n.t('planner:votes.dialog.body', { film, owner: ownerName }),
+        submitLabel: i18n.t('planner:votes.dialog.submit'),
+      }
 }
 
 /** A marathon has no series poster: use the first movie's. */

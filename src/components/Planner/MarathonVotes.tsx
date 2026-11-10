@@ -14,10 +14,13 @@ interface MarathonVotesProps {
   canLike: boolean
   /** Editors and viewers suggest; the owner decides instead. */
   canSuggest: boolean
+  /** The owner changes the film right away, no confirmation. */
+  canReplace: boolean
   /** My suggestion for this session, if it is still about the current film. */
   mine: SessionProposal | null
   onLike: (on: boolean) => Promise<void>
   onSuggest: () => void
+  onReplace: () => void
   onWithdraw: () => Promise<void>
 }
 
@@ -43,9 +46,11 @@ export default function MarathonVotes({
   ownerName,
   canLike,
   canSuggest,
+  canReplace,
   mine,
   onLike,
   onSuggest,
+  onReplace,
   onWithdraw,
 }: MarathonVotesProps) {
   const { t } = useTranslation('planner')
@@ -58,7 +63,7 @@ export default function MarathonVotes({
     void action().finally(() => setBusy(null))
   }
 
-  if (!canLike && !canSuggest && likes.length === 0) return null
+  if (!canLike && !canSuggest && !canReplace && likes.length === 0) return null
   return (
     <>
       <div className={styles.votes}>
@@ -90,6 +95,11 @@ export default function MarathonVotes({
           <span className={styles.who}>
             {whoLine(likes, ownUid, t('votes.you'), (n) => t('votes.more', { count: n }))}
           </span>
+        )}
+        {canReplace && (
+          <Button size="sm" variant="ghost" icon="refresh" onClick={onReplace}>
+            {t('votes.replace')}
+          </Button>
         )}
         {canSuggest && !mine && (
           <Button size="sm" variant="ghost" icon="refresh" onClick={onSuggest}>
