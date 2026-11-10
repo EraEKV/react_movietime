@@ -26,7 +26,7 @@ const episodeCode = (season: number, episode: number) => `S${season}E${episode}`
  */
 export function unitsLabel(units: LabelUnit[]): string {
   const first = units[0]
-  const last = units.at(-1)
+  const last = units[units.length - 1]
   if (!first || !last) return ''
   if (first.season === null || first.episode === null) {
     return units.map((u) => u.title).join(', ')

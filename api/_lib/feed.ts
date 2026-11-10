@@ -47,7 +47,7 @@ export function buildFeed(
 ): string {
   const byId = new Map(plans.map((plan) => [plan.id, plan]))
   const events: IcsEvent[] = []
-  for (const session of sessions.toSorted(
+  for (const session of [...sessions].sort(
     (a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time),
   )) {
     const plan = byId.get(session.planId)
