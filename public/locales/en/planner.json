@@ -49,6 +49,11 @@
     "undoWatched": "Undo watched: {{units}}",
     "undoSkip": "Undo skip: {{units}}"
   },
+  "reorder": {
+    "title": "Reorder films",
+    "body": "The films move between the evenings that are still ahead. The dates and times stay.",
+    "submit": "Save order"
+  },
   "move": {
     "title": "Reschedule {{units}}",
     "submit": "Move session",
@@ -72,6 +77,8 @@
     "delete": "Delete plan",
     "more": "More plan actions",
     "leave": "Leave plan",
+    "reorder": "Reorder films",
+    "reordered": "Films reordered",
     "sessionsError": "We couldn’t load the sessions",
     "marked": "Marked {{units}} as watched",
     "skippedToast": "Skipped {{units}}: moved to the end",
@@ -194,7 +201,24 @@
     "banner": "You can reschedule or skip any session later. Moving one can shift all later ones.",
     "live": "Live preview",
     "pickFirst": "Pick a series or a list",
-    "numbers": "The numbers appear as soon as there is something to plan."
+    "numbers": "The numbers appear as soon as there is something to plan.",
+    "schedule": "What and when",
+    "scheduleLabel": "Sessions of the plan, in order",
+    "showAll": "Show all {{sessions}}",
+    "showFewer": "Show fewer",
+    "dragHint": "Drag the handle to change the order. The dates stay, the films move.",
+    "moveHintFilms": "Drag a film to another day. The films follow their dates.",
+    "moveHintEpisodes": "Drag a session to another day. It stays between the sessions on either side.",
+    "reset": "Reset changes",
+    "remove": "Leave {{title}} out of the plan",
+    "reorder": {
+      "instructions": "Press space to pick up the film, arrow keys to move it, space to drop it or Escape to cancel.",
+      "handle": "Move {{title}}",
+      "pickedUp": "Picked up {{title}}.",
+      "movedTo": "{{title}} moved to number {{place}}.",
+      "dropped": "{{title}} dropped at number {{place}}.",
+      "cancelled": "Moving {{title}} cancelled."
+    }
   },
   "marathon": {
     "title": "Plan a movie marathon",

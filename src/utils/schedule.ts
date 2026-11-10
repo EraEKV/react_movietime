@@ -10,7 +10,7 @@ import type {
   ScheduleOptions,
   Weekday,
 } from '../types/plan'
-import { addDays, daysBetween, isDay, isTime, weekdayOf } from './calendar'
+import { addDays, daysBetween, formatDay, isDay, isTime, weekdayOf, weekStart } from './calendar'
 import { episodeCode } from '../shared/lib/format'
 
 /** Hard stop for the day loop: no plan should take more than ten years. */
@@ -61,6 +61,28 @@ export function buildSchedule(units: PlanUnit[], options: ScheduleOptions): Sche
     day = addDays(day, 1)
   }
   return sessions
+}
+
+/** Items grouped by the Monday of their week, in the order they come (sessions arrive by date). */
+export function groupByWeek<T extends { date: string }>(items: T[]): [string, T[]][] {
+  const weeks = new Map<string, T[]>()
+  for (const item of items) {
+    const monday = weekStart(item.date)
+    weeks.set(monday, [...(weeks.get(monday) ?? []), item])
+  }
+  return [...weeks]
+}
+
+/** "This week · Nov 2–8", "Next week · …", "Week of Nov 16". */
+export function weekLabel(monday: string, today: string): string {
+  const sunday = addDays(monday, 6)
+  const sameMonth = monday.slice(5, 7) === sunday.slice(5, 7)
+  const range = `${formatDay(monday, { month: 'short', day: 'numeric' })}–${formatDay(sunday, sameMonth ? { day: 'numeric' } : { month: 'short', day: 'numeric' })}`
+  const thisWeek = weekStart(today)
+  if (monday === thisWeek) return i18n.t('planner:plan.thisWeek', { range })
+  if (monday === addDays(thisWeek, 7)) return i18n.t('planner:plan.nextWeek', { range })
+  if (monday === addDays(thisWeek, -7)) return i18n.t('planner:plan.lastWeek', { range })
+  return i18n.t('planner:plan.weekOf', { range })
 }
 
 /** The first day after `after` that falls on one of the weekdays (any day if none). */

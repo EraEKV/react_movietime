@@ -5,6 +5,7 @@ import type { Plan, PlanColor, PlanDraft, PlanRole, PlanUnit, Weekday } from '..
 import type { RawSeason } from '../types/tmdb'
 import { WEEK_ORDER, weekdayOf, weekdayShort } from './calendar'
 import { watchedUpTo, type SeasonSize } from './library'
+import type { MediaKey } from '../types/media'
 import { mediaKey } from './media'
 
 /** When TMDB knows neither the episode nor the series runtime. */
@@ -179,4 +180,43 @@ export function sourceIdOf(
 ): string | null {
   if (!pick || pick.kind === 'series') return null
   return pick.kind === 'collection' ? `collection:${pick.id}` : String(pick.id)
+}
+
+/**
+ * A marathon in the order the user chose: `order` lists media keys, first to last. Units it
+ * doesn't mention (the source changed, a film appeared) keep their own order after the
+ * listed ones, and keys that are no longer in the source are ignored. `null` = as loaded.
+ */
+export function applyOrder(units: PlanUnit[], order: MediaKey[] | null): PlanUnit[] {
+  if (!order) return units
+  const rank = new Map(order.map((key, index) => [key, index]))
+  const unknown = order.length
+  return units
+    .map((unit, index) => ({ unit, index }))
+    .sort(
+      (a, b) =>
+        (rank.get(a.unit.mediaKey) ?? unknown) - (rank.get(b.unit.mediaKey) ?? unknown) ||
+        a.index - b.index,
+    )
+    .map(({ unit }) => unit)
+}
+
+/**
+ * The order after dropping `movedKey` where `overKey` is: the film takes that place and the
+ * ones in between shift by one (what a sortable list shows while dragging). Unknown keys
+ * change nothing.
+ */
+export function moveUnit(units: PlanUnit[], movedKey: MediaKey, overKey: MediaKey): MediaKey[] {
+  const keys = units.map((unit) => unit.mediaKey)
+  const from = keys.indexOf(movedKey)
+  const to = keys.indexOf(overKey)
+  if (from === -1 || to === -1 || from === to) return keys
+  const [moved] = keys.splice(from, 1)
+  if (moved) keys.splice(to, 0, moved)
+  return keys
+}
+
+/** True when the units are in the same order as the source gave them. */
+export function isSourceOrder(units: PlanUnit[], source: PlanUnit[]): boolean {
+  return units.length === source.length && units.every((u, i) => u.mediaKey === source[i]?.mediaKey)
 }

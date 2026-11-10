@@ -256,6 +256,7 @@ from `null` to `request.time`. Query: `where toEmail == me orderBy createdAt des
 | Complete session   | session `done` + `doneBy` · plan `doneUnits`, `nextDate`, `endDate`, `status` · **the marker's own** library (series progress, only forward; `completed` when the plan finishes; a movie → `completed`) · activity `session.done` (+ `plan.done`) |
 | Undo               | session back to `pending` · for a skip, its pending copy is deleted · plan counters. Library progress is not rolled back                                                                                                                          |
 | Reschedule session | session `date` (+ every later pending session shifted by the same days) · plan `nextDate`, `endDate`                                                                                                                                              |
+| Reorder films      | pending sessions of a `list` plan swap their `units` and `minutes` (dates and times stay); plan counters are unchanged. Owner and editor                                                                                                          |
 | Skip session       | session `skipped` + `doneBy` · a copy with the same units (`copyOf`) on the next plan weekday after the last session · plan `endDate`                                                                                                             |
 | Delete plan        | all sessions, then the plan in the last batch (library entries stay)                                                                                                                                                                              |
 | Copy list          | new `lists/{id}` owned by the current user + copied items                                                                                                                                                                                         |
@@ -425,9 +426,12 @@ service cloud.firestore {
         // validSession: known fields, day "YYYY-MM-DD", time "HH:mm", 1–10 units, status enum.
         // validDoneBy: "marked by" names yourself, or stays as it was.
         allow create: if canEdit(planAfter()) && validSession() && validDoneBy(null);
+        // units stay, except a pending session of a movie marathon (kind 'list') may
+        // swap its single film for another one: reordering the films.
         allow update: if canEdit(planAfter()) && validSession() && validDoneBy(resource.data)
-          && request.resource.data.units == resource.data.units
-          && request.resource.data.index == resource.data.index;
+          && request.resource.data.index == resource.data.index
+          && (request.resource.data.units == resource.data.units
+              || (planAfter().kind == 'list' && both pending && one unit each));
         // The owner deletes; an editor only the copy a skip added (Undo).
         allow delete: if isOwner(plan())
           || (isEditor(plan()) && resource.data.get('copyOf', null) != null);

@@ -283,9 +283,16 @@ service cloud.firestore {
         allow read: if canRead(plan());
         allow create: if canEdit(planAfter()) && validSession() && validDoneBy(null);
         // Marking, skipping, undoing and moving: what is watched (units, order) stays.
+        // The one exception: a pending session of a movie marathon may swap its film for
+        // another one (reordering the films), still one film per session.
         allow update: if canEdit(planAfter()) && validSession() && validDoneBy(resource.data)
-          && request.resource.data.units == resource.data.units
-          && request.resource.data.index == resource.data.index;
+          && request.resource.data.index == resource.data.index
+          && (request.resource.data.units == resource.data.units
+              || (planAfter().kind == 'list'
+                  && resource.data.status == 'pending'
+                  && request.resource.data.status == 'pending'
+                  && resource.data.units.size() == 1
+                  && request.resource.data.units.size() == 1));
         // The owner deletes (with the plan); an editor only the copy a skip added (Undo).
         allow delete: if isOwner(plan())
           || (isEditor(plan()) && resource.data.get('copyOf', null) != null);

@@ -216,19 +216,20 @@ Pure helpers in `utils/invite.ts`: `inviteUrl(collection, id, email)` (`/signup?
 Loaded with `import()` from `hooks/usePlanner.ts` (`loadPlannerService`). Every write that
 changes more than one document is one batch (see DATA_MODEL, "Business operations").
 
-| Function                                              | Returns                                | Notes                                                                      |
-| ----------------------------------------------------- | -------------------------------------- | -------------------------------------------------------------------------- |
-| `loadSeriesEpisodes(tvId, signal?)`                   | `{ media, units }`                     | `/tv/{id}`, then seasons in batches of 20 in parallel; no specials/unaired |
-| `loadListMovies(listId, signal?)`                     | `{ name, posterPath, units, skipped }` | List items in order, `/movie/{id}` per movie for runtime; series skipped   |
-| `createPlan(owner, draft, color)`                     | `Promise<string>` (id)                 | Plan + sessions + library + activity, chunks of 400 writes                 |
-| `watchMyPlans(uid, …)` / `watchSharedPlans(email, …)` | `unsubscribe`                          | `ownerUid ==` / `memberEmails array-contains`, `orderBy('nextDate')`       |
-| `watchPlan(id, …)`                                    | `unsubscribe`                          | `null` when missing                                                        |
-| `watchSessions(planId, { from, to } \| null, …)`      | `unsubscribe`                          | `date >= from && date <= to` (single-field index) or all sessions          |
-| `completeSession(plan, session, by)`                  | `Promise<void>`                        | Session + plan + **marker's** library + activity in one batch              |
-| `skipSession(plan, session, by)`                      | `Promise<void>`                        | Skipped + copy at the end on the next plan weekday                         |
-| `undoSession(plan, session)`                          | `Promise<void>`                        | Back to pending; deletes a skip's pending copy                             |
-| `rescheduleSession(plan, session, date, shiftLater)`  | `Promise<void>`                        | Moves later pending sessions by the same days when asked                   |
-| `deletePlan(id)`                                      | `Promise<void>`                        | Sessions in batches, the plan last                                         |
+| Function                                              | Returns                                | Notes                                                                               |
+| ----------------------------------------------------- | -------------------------------------- | ----------------------------------------------------------------------------------- |
+| `loadSeriesEpisodes(tvId, signal?)`                   | `{ media, units }`                     | `/tv/{id}`, then seasons in batches of 20 in parallel; no specials/unaired          |
+| `loadListMovies(listId, signal?)`                     | `{ name, posterPath, units, skipped }` | List items in order, `/movie/{id}` per movie for runtime; series skipped            |
+| `createPlan(owner, draft, color)`                     | `Promise<string>` (id)                 | Plan + sessions + library + activity, chunks of 400 writes                          |
+| `watchMyPlans(uid, …)` / `watchSharedPlans(email, …)` | `unsubscribe`                          | `ownerUid ==` / `memberEmails array-contains`, `orderBy('nextDate')`                |
+| `watchPlan(id, …)`                                    | `unsubscribe`                          | `null` when missing                                                                 |
+| `watchSessions(planId, { from, to } \| null, …)`      | `unsubscribe`                          | `date >= from && date <= to` (single-field index) or all sessions                   |
+| `completeSession(plan, session, by)`                  | `Promise<void>`                        | Session + plan + **marker's** library + activity in one batch                       |
+| `skipSession(plan, session, by)`                      | `Promise<void>`                        | Skipped + copy at the end on the next plan weekday                                  |
+| `undoSession(plan, session)`                          | `Promise<void>`                        | Back to pending; deletes a skip's pending copy                                      |
+| `rescheduleSession(plan, session, date, shiftLater)`  | `Promise<void>`                        | Moves later pending sessions by the same days when asked                            |
+| `reorderFilms(plan, order)`                           | `Promise<void>`                        | Marathon only: pending sessions take the films in `order` (session ids); dates stay |
+| `deletePlan(id)`                                      | `Promise<void>`                        | Sessions in batches, the plan last                                                  |
 
 Pure helpers in `src/utils/schedule.ts` and `src/utils/calendar.ts` (no React, no Firestore).
 Days are `"YYYY-MM-DD"` in local time; day math runs on UTC dates, so DST never shifts a day.

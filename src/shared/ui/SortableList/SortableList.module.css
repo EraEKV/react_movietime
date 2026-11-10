@@ -1,0 +1,33 @@
+.row {
+  position: relative;
+}
+
+/* The lifted row stays above its neighbours and shows it is in the air. */
+.dragging {
+  z-index: 1;
+  box-shadow: var(--shadow-3);
+}
+
+.handle {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 32px;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--text-muted);
+  cursor: grab;
+  touch-action: none;
+}
+
+.handle:hover {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+
+.dragging .handle {
+  cursor: grabbing;
+}

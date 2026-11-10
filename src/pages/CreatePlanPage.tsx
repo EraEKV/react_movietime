@@ -18,15 +18,26 @@ import { usePlanSource, type PickerKind, type SourcePick } from '../hooks/usePla
 import type { ScheduleOptions, Weekday } from '../types/plan'
 import { localToday, weekdayOf } from '../utils/calendar'
 import { offlineMessage } from '../utils/listErrors'
+import type { MediaKey } from '../types/media'
 import { mediaKey } from '../utils/media'
 import {
   defaultPlanTitle,
   nextPlanColor,
+  applyOrder,
+  isSourceOrder,
   planErrorMessage,
   sourceIdOf,
   startIndexOf,
   type StartChoice,
 } from '../utils/planner'
+import {
+  applyMoves,
+  canMoveTo,
+  marathonMoves,
+  moveFilmTo,
+  removeFilm,
+  type Moves,
+} from '../utils/previewEdits'
 import { buildSchedule, planSummary, scheduleProblem, unitsLabel } from '../utils/schedule'
 import styles from '../components/Planner/Planner.module.css'
 
@@ -70,6 +81,12 @@ export default function CreatePlanPage() {
     time: '21:00',
     perSession: 2,
   })
+  // A marathon's films in the order the user dragged them; null = as the source gave them.
+  const [order, setOrder] = useState<MediaKey[] | null>(null)
+  // Films the user crossed out in the preview, and days they moved sessions to. The moves
+  // belong to one schedule: they carry a signature and are ignored once it changes.
+  const [dropped, setDropped] = useState<MediaKey[]>([])
+  const [edits, setEdits] = useState<{ signature: string; moves: Moves } | null>(null)
   const [customTitle, setCustomTitle] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
@@ -90,11 +107,30 @@ export default function CreatePlanPage() {
   )
 
   // Everything below is derived from state on each render — no effects to keep in sync.
-  const units = useMemo(() => {
-    if (!loaded) return []
-    return loaded.units.slice(startIndexOf(loaded.units, progress, choice))
-  }, [loaded, progress, choice])
-  const sessions = useMemo(() => buildSchedule(units, effective), [units, effective])
+  const ordered = useMemo(
+    () => (loaded ? applyOrder(loaded.units, isList ? order : null) : []),
+    [loaded, isList, order],
+  )
+  const start = startIndexOf(ordered, progress, choice)
+  const units = useMemo(
+    () => ordered.slice(start).filter((unit) => !dropped.includes(unit.mediaKey)),
+    [ordered, start, dropped],
+  )
+  const signature = JSON.stringify([effective, choice, pick?.kind, pick?.id])
+  const moves = useMemo<Moves>(
+    () => (edits?.signature === signature ? edits.moves : {}),
+    [edits, signature],
+  )
+  const sessions = useMemo(
+    () => applyMoves(buildSchedule(units, effective), moves, isList),
+    [units, effective, moves, isList],
+  )
+  // What is created: the sessions as shaped, and their units in that order.
+  const plannedUnits = useMemo(() => sessions.flatMap((s) => s.units), [sessions])
+  const edited =
+    dropped.length > 0 ||
+    Object.keys(moves).length > 0 ||
+    (isList && loaded !== null && !isSourceOrder(ordered, loaded.units))
   const summary = planSummary(sessions, effective.weekdays)
   const title = (customTitle ?? defaultPlanTitle(isList ? 'list' : 'series', name, units[0])).trim()
   const range = units.length
@@ -114,8 +150,40 @@ export default function CreatePlanPage() {
     setPick(next)
     setChoice(next.kind !== 'series' ? { mode: 'movie', index: 0 } : { mode: 'continue' })
     setCustomTitle(null)
+    resetEdits()
   }
 
+  function resetEdits() {
+    setOrder(null)
+    setDropped([])
+    setEdits(null)
+  }
+
+  /** A marathon edit: films in a new order on new dates, stored as order + custom dates. */
+  function commitMarathon(change: { keys: string[]; dates: string[] }, removed?: string) {
+    const byKey = new Map(ordered.map((unit) => [unit.mediaKey, unit]))
+    const films = change.keys.flatMap((key) => byKey.get(key as MediaKey) ?? [])
+    const head = ordered.slice(0, start).map((unit) => unit.mediaKey)
+    setOrder([...head, ...films.map((unit) => unit.mediaKey)])
+    if (removed) setDropped((list) => [...list, removed as MediaKey])
+    setEdits({ signature, moves: marathonMoves(films, change.dates, effective) })
+  }
+
+  const moveSession = (key: string, date: string) => {
+    if (!canMoveTo(sessions, key, date, isList, today)) return
+    if (isList) return commitMarathon(moveFilmTo(sessions, key, date))
+    setEdits({ signature, moves: { ...moves, [key]: date } })
+  }
+  /** A film dragged to another place in the list: the dates stay, the films move. */
+  const reorderFilms = (movedKey: string, overKey: string) => {
+    const keys = sessions.map((s) => s.units[0]?.mediaKey ?? '')
+    const from = keys.indexOf(movedKey as MediaKey)
+    const to = keys.indexOf(overKey as MediaKey)
+    if (from === -1 || to === -1 || from === to) return
+    const [film] = keys.splice(from, 1)
+    keys.splice(to, 0, film ?? '')
+    commitMarathon({ keys, dates: sessions.map((s) => s.date) })
+  }
   async function handleCreate() {
     if (!author || !loaded) return
     if (!navigator.onLine) return setSaveError(offlineMessage())
@@ -137,7 +205,8 @@ export default function CreatePlanPage() {
                 ? { season: units[0].season, episode: units[0].episode }
                 : null,
           },
-          units,
+          units: plannedUnits,
+          sessions,
         },
         color,
       )
@@ -205,7 +274,7 @@ export default function CreatePlanPage() {
     body = (
       <StartStep
         kind={isList ? 'list' : 'series'}
-        units={loaded.units}
+        units={ordered}
         progress={progress}
         choice={choice}
         onChange={setChoice}
@@ -232,6 +301,12 @@ export default function CreatePlanPage() {
         name={name}
         color={color}
         today={today}
+        movies={isList}
+        onMove={isList ? reorderFilms : undefined}
+        onRemove={isList ? (key) => commitMarathon(removeFilm(sessions, key), key) : undefined}
+        onMoveSession={moveSession}
+        canMoveSession={(key, date) => canMoveTo(sessions, key, date, isList, today)}
+        onReset={edited ? resetEdits : undefined}
       />
     )
   }

@@ -101,6 +101,8 @@ export interface PlanDraft {
   sourceListId: string | null
   options: PlanOptions
   units: PlanUnit[]
+  /** The schedule as the user shaped it (moved days, dropped films); built from `options` when absent. */
+  sessions?: ScheduledSession[]
 }
 
 /** A session together with its plan, for the calendar, agenda and Home. */

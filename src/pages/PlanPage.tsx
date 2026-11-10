@@ -16,6 +16,7 @@ import Icon from '../shared/ui/Icon/Icon'
 import IconButton from '../shared/ui/IconButton/IconButton'
 import Menu from '../shared/ui/Menu/Menu'
 import RescheduleDialog from '../components/Planner/RescheduleDialog'
+import ReorderFilmsDialog from '../components/Planner/ReorderFilmsDialog'
 import SessionRow from '../components/Planner/SessionRow'
 import ProgressBar from '../shared/ui/ProgressBar/ProgressBar'
 import ShareDialog from '../components/ShareDialog/ShareDialog'
@@ -27,7 +28,7 @@ import { loadPlannerService, usePlan, usePlanActions } from '../hooks/usePlanner
 import { useSharing } from '../hooks/useSharing'
 import { useTimedState } from '../shared/hooks/useTimedState'
 import type { Plan, PlanRole, PlanSession } from '../types/plan'
-import { addDays, formatDay, localToday, weekStart } from '../utils/calendar'
+import { formatDay, localToday } from '../utils/calendar'
 import { offlineMessage } from '../utils/listErrors'
 import { noticeFromState } from '../shared/lib/notice'
 import {
@@ -38,7 +39,7 @@ import {
   unitWord,
 } from '../utils/planner'
 import { loginPath } from '../shared/lib/redirect'
-import { toIcs, unitsLabel } from '../utils/schedule'
+import { groupByWeek, toIcs, unitsLabel, weekLabel } from '../utils/schedule'
 import { memberName, membersOf, roleLabel, shareUrl } from '../utils/sharing'
 import type { MemberRole } from '../types/sharing'
 import NotFoundPage from './NotFoundPage'
@@ -48,17 +49,6 @@ export default function PlanPage() {
   const { id = '' } = useParams()
   // A key per plan: moving between plans starts with fresh dialogs and toasts.
   return <PlanView key={id} id={id} />
-}
-
-/** "This week · Nov 2–8", "Next week · …", "Week of Nov 16". */
-function weekLabel(monday: string, today: string): string {
-  const sunday = addDays(monday, 6)
-  const range = `${formatDay(monday, { month: 'short', day: 'numeric' })}–${formatDay(sunday, monday.slice(5, 7) === sunday.slice(5, 7) ? { day: 'numeric' } : { month: 'short', day: 'numeric' })}`
-  const thisWeek = weekStart(today)
-  if (monday === thisWeek) return i18n.t('planner:plan.thisWeek', { range })
-  if (monday === addDays(thisWeek, 7)) return i18n.t('planner:plan.nextWeek', { range })
-  if (monday === addDays(thisWeek, -7)) return i18n.t('planner:plan.lastWeek', { range })
-  return i18n.t('planner:plan.weekOf', { range })
 }
 
 function downloadIcs(plan: Plan, sessions: PlanSession[]) {
@@ -104,6 +94,7 @@ function PlanView({ id }: { id: string }) {
   const today = localToday()
 
   const [moving, setMoving] = useState<PlanSession | null>(null)
+  const [reordering, setReordering] = useState(false)
   const [shareOpen, setShareOpen] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [deleting, setDeleting] = useState(false)
@@ -200,13 +191,14 @@ function PlanView({ id }: { id: string }) {
     (sessions !== null && sessions.length > 0 && !sessions.some((s) => s.status === 'pending'))
 
   // Weeks, Monday first, in date order (sessions arrive sorted by date and index).
-  const weeks = new Map<string, PlanSession[]>()
-  for (const s of sessions ?? []) {
-    const monday = weekStart(s.date)
-    weeks.set(monday, [...(weeks.get(monday) ?? []), s])
-  }
+  const weeks = groupByWeek(sessions ?? [])
   const pendingCopy = (s: PlanSession) =>
     sessions?.some((c) => c.copyOf === s.id && c.status === 'pending') ?? false
+
+  // A movie marathon's remaining films can be reordered by whoever may edit the plan.
+  const pendingFilms = sessions?.filter((s) => s.status === 'pending') ?? []
+  const canReorder =
+    plan.kind === 'list' && (role === 'owner' || role === 'editor') && pendingFilms.length > 1
 
   let actionsBar
   if (role === 'owner') {
@@ -215,6 +207,11 @@ function PlanView({ id }: { id: string }) {
         <Button variant="primary" icon="share" onClick={() => setShareOpen(true)}>
           {t('plan.share')}
         </Button>
+        {canReorder && (
+          <Button icon="list" onClick={() => setReordering(true)}>
+            {t('plan.reorder')}
+          </Button>
+        )}
         <Button
           icon="download"
           disabled={!sessions}
@@ -247,6 +244,15 @@ function PlanView({ id }: { id: string }) {
             triggerClassName={buttonClass('secondary', 'md', { iconOnly: true })}
             trigger={<Icon name="more" size={20} />}
             items={[
+              ...(canReorder
+                ? [
+                    {
+                      label: t('plan.reorder'),
+                      icon: 'list' as const,
+                      onSelect: () => setReordering(true),
+                    },
+                  ]
+                : []),
               {
                 label: t('plan.leave'),
                 icon: 'logout',
@@ -275,7 +281,7 @@ function PlanView({ id }: { id: string }) {
   } else {
     body = (
       <div className={styles.weeks}>
-        {[...weeks].map(([monday, list]) => (
+        {weeks.map(([monday, list]) => (
           <section key={monday} aria-labelledby={`week-${monday}`} className={styles.week}>
             <h2 id={`week-${monday}`} className={styles.kicker}>
               {weekLabel(monday, today)}
@@ -415,6 +421,21 @@ function PlanView({ id }: { id: string }) {
                   date: formatDay(date, { weekday: 'short', month: 'short', day: 'numeric' }),
                 }),
               })
+            } catch (error) {
+              throw new Error(planErrorMessage(error), { cause: error })
+            }
+          }}
+        />
+      )}
+
+      {reordering && canReorder && (
+        <ReorderFilmsDialog
+          sessions={pendingFilms}
+          onClose={() => setReordering(false)}
+          onSave={async (order) => {
+            try {
+              await actions.reorderFilms(plan, order)
+              showToast({ text: t('plan.reordered') })
             } catch (error) {
               throw new Error(planErrorMessage(error), { cause: error })
             }

@@ -3,12 +3,14 @@ import type { PlanUnit } from '../types/plan'
 import { addDays, daysBetween, monthGrid, weekdayOf } from './calendar'
 import {
   buildSchedule,
+  groupByWeek,
   nextSlot,
   planDates,
   planSummary,
   scheduleProblem,
   shiftSessions,
   unitsLabel,
+  weekLabel,
 } from './schedule'
 
 const ep = (season: number, episode: number, ordinal: number): PlanUnit => ({
@@ -105,5 +107,42 @@ describe('unitsLabel', () => {
   it('collapses ranges', () => {
     expect(unitsLabel(units.slice(0, 2))).toBe('S1E1–E2')
     expect(unitsLabel(units.slice(2, 4))).toBe('S1E3–S2E1')
+  })
+})
+
+describe('groupByWeek', () => {
+  it('groups by the Monday of the week and keeps the order', () => {
+    // 2026-11-09 is a Monday.
+    const items = [
+      { date: '2026-11-09', n: 1 },
+      { date: '2026-11-13', n: 2 },
+      { date: '2026-11-16', n: 3 },
+      { date: '2026-11-22', n: 4 },
+    ]
+    expect(groupByWeek(items).map(([monday, list]) => [monday, list.map((i) => i.n)])).toEqual([
+      ['2026-11-09', [1, 2]],
+      ['2026-11-16', [3, 4]],
+    ])
+  })
+
+  it('puts a Sunday into the week that started the Monday before', () => {
+    expect(groupByWeek([{ date: '2026-11-15' }]).map(([monday]) => monday)).toEqual(['2026-11-09'])
+  })
+
+  it('is empty for no items', () => {
+    expect(groupByWeek([])).toEqual([])
+  })
+})
+
+describe('weekLabel', () => {
+  it('names this week, next week and last week, and gives a date for the rest', () => {
+    expect(weekLabel('2026-11-09', '2026-11-11')).toMatch(/^This week/)
+    expect(weekLabel('2026-11-16', '2026-11-11')).toMatch(/^Next week/)
+    expect(weekLabel('2026-11-02', '2026-11-11')).toMatch(/^Last week/)
+    expect(weekLabel('2026-11-30', '2026-11-11')).toMatch(/^Week of/)
+  })
+
+  it('spans two months when the week does', () => {
+    expect(weekLabel('2026-11-30', '2026-11-11')).toContain('Nov 30–Dec 6')
   })
 })

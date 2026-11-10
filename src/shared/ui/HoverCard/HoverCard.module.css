@@ -1,0 +1,23 @@
+.trigger {
+  min-width: 0;
+}
+
+.card {
+  position: fixed;
+  z-index: var(--z-menu);
+  width: max-content;
+  max-width: min(320px, calc(100vw - 16px));
+  padding: var(--space-3);
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-2);
+  color: var(--text);
+  animation: appear var(--dur-fast) var(--ease-out);
+}
+
+@keyframes appear {
+  from {
+    opacity: 0;
+  }
+}
