@@ -6,9 +6,7 @@ import { useOnlineStatus } from '../../shared/hooks/useOnlineStatus'
 import BackButton from '../../shared/ui/BackButton/BackButton'
 import ButtonLink from '../../shared/ui/ButtonLink/ButtonLink'
 import ErrorState from '../../shared/ui/EmptyState/ErrorState'
-import { useLibrary } from '../../hooks/useLibrary'
-import type { LibraryStatus } from '../../types/library'
-import type { MediaKey } from '../../types/media'
+import { useLibraryStatuses } from '../../hooks/useLibraryStatuses'
 import type { PersonDetails as PersonData } from '../../types/tmdb'
 import { buildFilmography, isoDay, knownFor } from '../../utils/person'
 import Filmography from './Filmography'
@@ -21,12 +19,7 @@ export default function PersonDetails({ personId }: { personId: string }) {
   const { t } = useTranslation('person')
   const online = useOnlineStatus()
   const { status, data: person, error, reload } = useFetch<PersonData>(endpoints.person(personId))
-  const { entries } = useLibrary()
-
-  const statuses = useMemo(
-    () => new Map<MediaKey, LibraryStatus>(entries.map((entry) => [entry.key, entry.status])),
-    [entries],
-  )
+  const statuses = useLibraryStatuses()
   const today = isoDay(new Date())
   const works = useMemo(
     () =>

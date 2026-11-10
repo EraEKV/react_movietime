@@ -25,6 +25,7 @@ import type {
   TitleList,
 } from '../types/list'
 import type { MediaKey } from '../types/media'
+import { coversAfterAdd } from '../utils/lists'
 import { mediaKey, parseMediaKey } from '../utils/media'
 import { logActivity } from './activityService'
 import { db } from './firestore'
@@ -253,6 +254,23 @@ export function addItems(
     updatedAt: serverTimestamp(),
   })
   return batch.commit()
+}
+
+/**
+ * Adds the titles the list doesn't have yet (one read of its items, then one batch).
+ * Resolves to how many went in and how many were already there.
+ */
+export async function addMissingItems(
+  list: Pick<TitleList, 'id' | 'covers'>,
+  titles: ListMedia[],
+  author: ListAuthor,
+): Promise<{ added: number; skipped: number }> {
+  const present = new Set((await getDocs(itemsCol(list.id))).docs.map((d) => d.id))
+  const fresh = titles.filter((m) => !present.has(mediaKey(m.mediaType, m.tmdbId)))
+  if (fresh.length > 0) {
+    await addItems(list.id, fresh, author, coversAfterAdd(list.covers, fresh))
+  }
+  return { added: fresh.length, skipped: titles.length - fresh.length }
 }
 
 export function removeItem(listId: string, key: MediaKey, covers: string[]): Promise<void> {

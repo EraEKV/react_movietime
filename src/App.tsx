@@ -22,6 +22,7 @@ const AboutPage = lazy(() => import('./pages/AboutPage'))
 const CatalogPage = lazy(() => import('./pages/CatalogPage'))
 const MoviePage = lazy(() => import('./pages/MoviePage'))
 const SeriesPage = lazy(() => import('./pages/SeriesPage'))
+const CollectionPage = lazy(() => import('./pages/CollectionPage'))
 const PersonPage = lazy(() => import('./pages/PersonPage'))
 const LibraryPage = lazy(() => import('./pages/LibraryPage'))
 const LibraryEditPage = lazy(() => import('./pages/LibraryEditPage'))
@@ -77,6 +78,7 @@ export default function App() {
           </Route>
 
           <Route path="person/:id" element={<PersonPage />} />
+          <Route path="collection/:id" element={<CollectionPage />} />
 
           <Route path="library">
             <Route index element={<LibraryPage />} />
