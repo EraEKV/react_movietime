@@ -200,6 +200,9 @@ export const endpoints = {
   person: (id: Id) =>
     buildPath(`/person/${id}`, { append_to_response: 'combined_credits,translations' }),
 
+  /** A franchise: its name, cover, overview and every film (`parts`). */
+  collection: (id: Id) => buildPath(`/collection/${id}`),
+
   season: (id: Id, seasonNumber: number) => buildPath(`/tv/${id}/season/${seasonNumber}`),
 
   // Up to MAX_APPEND seasons with all their episodes in a single request.

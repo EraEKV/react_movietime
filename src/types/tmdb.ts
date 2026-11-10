@@ -193,6 +193,8 @@ export interface MovieBase {
   original_language: string
   genres: Genre[]
   production_countries: { iso_3166_1: string; name: string }[]
+  /** The franchise this movie belongs to; null (or absent) for stand-alone films. Movies only. */
+  belongs_to_collection?: CollectionSummary | null
 }
 
 /** /movie/{id}?append_to_response=credits,videos,recommendations,translations */
@@ -267,4 +269,30 @@ export interface PersonDetails {
   known_for_department: string
   combined_credits: { cast: PersonCastCredit[]; crew: PersonCrewCredit[] }
   translations?: Translations
+}
+
+/** A collection in short: `belongs_to_collection` of a movie and a /search/collection result. */
+export interface CollectionSummary {
+  id: number
+  name: string
+  poster_path: string | null
+  backdrop_path: string | null
+}
+
+/** One film of a collection (/collection/{id}). Collections hold movies only. */
+export interface CollectionPart {
+  id: number
+  title: string
+  overview: string
+  poster_path: string | null
+  release_date: string
+  vote_average: number
+  popularity: number
+  genre_ids: number[]
+}
+
+/** /collection/{id}: the parts come in no guaranteed order. */
+export interface CollectionDetails extends CollectionSummary {
+  overview: string
+  parts: CollectionPart[]
 }
