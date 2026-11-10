@@ -4,6 +4,8 @@
 
 export interface Field {
   stringValue?: string
+  /** RFC 3339, as the REST API writes a Timestamp. */
+  timestampValue?: string
   arrayValue?: { values?: Field[] }
   mapValue?: { fields?: Record<string, Field> }
 }
