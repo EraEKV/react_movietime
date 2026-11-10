@@ -3,13 +3,17 @@ import type { PlanUnit } from '../types/plan'
 import { loadPlannerService } from './usePlanner'
 import { useRequest } from '../shared/hooks/useRequest'
 
-/** What the stepper plans: a series or a list of movies. */
+/** What the stepper plans: a series, the movies of a list, or the films of a collection. */
 export type SourcePick =
   | { kind: 'series'; id: number; title: string; posterPath: string | null }
   | { kind: 'list'; id: string; title: string; posterPath: string | null }
+  | { kind: 'collection'; id: number; title: string; posterPath: string | null }
+
+/** What step 1 lets you choose between: a collection only arrives from its own page. */
+export type PickerKind = Exclude<SourcePick['kind'], 'collection'>
 
 export interface LoadedSource {
-  /** Series or list name. */
+  /** Series, list or collection name. */
   name: string
   posterPath: string | null
   media: LibraryMedia | null
@@ -32,7 +36,10 @@ export function usePlanSource(pick: SourcePick | null) {
       const { media, units } = await service.loadSeriesEpisodes(pick.id, signal)
       return { name: media.title, posterPath: media.posterPath, media, units, skipped: 0 }
     }
-    const list = await service.loadListMovies(pick.id, signal)
-    return { ...list, media: null }
+    const source =
+      pick.kind === 'collection'
+        ? await service.loadCollectionMovies(pick.id, signal)
+        : await service.loadListMovies(pick.id, signal)
+    return { ...source, media: null }
   })
 }

@@ -74,3 +74,8 @@ export function filmToListMedia(film: CollectionFilm): ListMedia {
     tmdbRating: film.rating || null,
   }
 }
+
+/** The films a marathon can plan: already out, in release order. */
+export function releasedFilms(parts: CollectionPart[], today: string): CollectionFilm[] {
+  return splitFilms(filmsByDate(parts), today).released
+}

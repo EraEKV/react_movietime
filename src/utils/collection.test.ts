@@ -2,7 +2,14 @@ import { describe, expect, it } from 'vitest'
 import type { LibraryStatus } from '../types/library'
 import type { MediaKey } from '../types/media'
 import type { CollectionPart } from '../types/tmdb'
-import { filmToListMedia, filmsByDate, splitFilms, toFilm, yearSpan } from './collection'
+import {
+  filmToListMedia,
+  filmsByDate,
+  releasedFilms,
+  splitFilms,
+  toFilm,
+  yearSpan,
+} from './collection'
 import { seenProgress } from './person'
 
 const TODAY = '2026-11-09'
@@ -103,5 +110,12 @@ describe('snapshots', () => {
       genreIds: [28],
       tmdbRating: null,
     })
+  })
+})
+
+describe('releasedFilms', () => {
+  it('keeps what a marathon can watch: out already, in release order', () => {
+    const parts = [part(3, '2005-05-19'), part(9, '2099-01-01'), part(1, '1977-05-25'), part(8, '')]
+    expect(releasedFilms(parts, TODAY).map((f) => f.id)).toEqual([1, 3])
   })
 })

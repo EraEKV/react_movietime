@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { LibraryMedia } from '../types/library'
 import { buildSchedule } from './schedule'
-import { moviePlanDraft } from './planner'
+import { moviePlanDraft, sourceIdOf } from './planner'
 
 const media: LibraryMedia = {
   mediaType: 'movie',
@@ -28,5 +28,14 @@ describe('moviePlanDraft', () => {
     const sessions = buildSchedule(draft.units, draft.options)
     expect(sessions).toHaveLength(1)
     expect(sessions[0]).toMatchObject({ date: '2026-11-14', time: '20:30', minutes: 136 })
+  })
+})
+
+describe('sourceIdOf', () => {
+  it('stores the list id, a collection marker, or nothing for a series', () => {
+    expect(sourceIdOf({ kind: 'list', id: 'abc' })).toBe('abc')
+    expect(sourceIdOf({ kind: 'collection', id: 10 })).toBe('collection:10')
+    expect(sourceIdOf({ kind: 'series', id: 1396 })).toBeNull()
+    expect(sourceIdOf(null)).toBeNull()
   })
 })

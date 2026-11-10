@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { useLibrary } from '../../hooks/useLibrary'
 import { useMyLists, useSharedLists } from '../../hooks/useLists'
 import { useTitleSearch } from '../../hooks/useTitleSearch'
-import type { SourcePick } from '../../hooks/usePlanSource'
+import type { PickerKind, SourcePick } from '../../hooks/usePlanSource'
 import { episodeCode, getYear } from '../../shared/lib/format'
 import Banner from '../../shared/ui/Banner/Banner'
 import ButtonLink from '../../shared/ui/ButtonLink/ButtonLink'
@@ -17,8 +17,8 @@ import styles from './Planner.module.css'
 const SHOWN = 6
 
 interface SourceStepProps {
-  kind: SourcePick['kind']
-  onKindChange: (kind: SourcePick['kind']) => void
+  kind: PickerKind
+  onKindChange: (kind: PickerKind) => void
   pick: SourcePick | null
   onPick: (pick: SourcePick) => void
 }

@@ -29,10 +29,12 @@ import type {
   Weekday,
 } from '../types/plan'
 import type { MemberRole } from '../types/sharing'
-import type { MovieBase, SeasonsBatchResponse, SeriesBase } from '../types/tmdb'
+import type { CollectionDetails, MovieBase, SeasonsBatchResponse, SeriesBase } from '../types/tmdb'
 import { isDay, isTime, localToday } from '../utils/calendar'
 import { seriesToLibraryMedia, movieToLibraryMedia } from '../utils/library'
+import { releasedFilms } from '../utils/collection'
 import { mediaKey, parseMediaKey } from '../utils/media'
+import { isoDay } from '../utils/person'
 import { episodesToUnits, isPlanColor, movieToUnit, PlanError } from '../utils/planner'
 import {
   buildSchedule,
@@ -334,6 +336,30 @@ export async function loadListMovies(listId: string, signal?: AbortSignal): Prom
     posterPath: covers[0] ?? movies[0]?.poster_path ?? null,
     units: movies.map((movie) => movieToUnit(movieToLibraryMedia(movie))),
     skipped: keys.length - movieIds.length,
+  }
+}
+
+/**
+ * The released films of a collection in release order, each with its runtime from
+ * /movie/{id}: a marathon source that needs no list. Announced films are left out,
+ * because a session can't be watched before the film is out.
+ */
+export async function loadCollectionMovies(
+  collectionId: number,
+  signal?: AbortSignal,
+): Promise<ListSource> {
+  const collection = await tmdbGet<CollectionDetails>(endpoints.collection(collectionId), {
+    signal,
+  })
+  const films = releasedFilms(collection.parts, isoDay(new Date()))
+  const movies = await Promise.all(
+    films.map((film) => tmdbGet<MovieBase>(endpoints.movieSummary(film.id), { signal })),
+  )
+  return {
+    name: collection.name,
+    posterPath: collection.poster_path ?? movies[0]?.poster_path ?? null,
+    units: movies.map((movie) => movieToUnit(movieToLibraryMedia(movie))),
+    skipped: 0,
   }
 }
 
