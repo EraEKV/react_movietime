@@ -1,4 +1,6 @@
 .tile {
+  /* The numeral scales with the tile (see .value), so long values like "Nov 13" fit. */
+  container-type: inline-size;
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
@@ -39,8 +41,10 @@
 
 .value {
   font-family: var(--font-display);
-  font-size: 28px;
-  line-height: 34px;
+  /* 22cqi = 22% of the tile's inner width: "Nov 13" in the display face is ~4.2em wide, so it
+     always fits; short numbers in wide tiles still reach the full 36px. */
+  font-size: clamp(22px, 22cqi, 36px);
+  line-height: 1.2;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.01em;
@@ -75,10 +79,5 @@
 @media (min-width: 1024px) {
   .tile[data-size='md'] {
     padding: var(--space-5);
-  }
-
-  .tile[data-size='md'] .value {
-    font-size: 36px;
-    line-height: 40px;
   }
 }
