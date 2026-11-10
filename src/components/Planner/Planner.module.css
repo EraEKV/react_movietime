@@ -359,3 +359,12 @@
   margin: 0;
   padding-left: var(--space-4);
 }
+
+.overlapNote {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--warning);
+  font-size: 13px;
+  line-height: 18px;
+}

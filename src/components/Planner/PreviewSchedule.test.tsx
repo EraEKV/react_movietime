@@ -205,3 +205,29 @@ describe('PreviewSchedule own times', () => {
     expect(screen.getByText('21:00')).toBeInTheDocument()
   })
 })
+
+describe('PreviewSchedule overlaps', () => {
+  it('names what a session collides with, only on that session', () => {
+    const sessions = buildSchedule([episode(1), episode(2)], options)
+    render(
+      <PreviewSchedule
+        sessions={sessions}
+        today={TODAY}
+        movies={false}
+        overlaps={{
+          '1': [
+            {
+              id: 'p/s',
+              title: 'The Dark Knight',
+              date: '2026-11-11',
+              time: '21:00',
+              minutes: 152,
+            },
+          ],
+        }}
+      />,
+    )
+    expect(screen.getAllByText(/Overlaps/)).toHaveLength(1)
+    expect(screen.getByText('Overlaps The Dark Knight, 21:00–23:32')).toBeInTheDocument()
+  })
+})

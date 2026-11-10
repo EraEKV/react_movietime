@@ -13,7 +13,7 @@ import Skeleton from '../shared/ui/Skeleton/Skeleton'
 import Stepper from '../shared/ui/Stepper/Stepper'
 import { useLibraryEntry } from '../hooks/useLibrary'
 import { useListAuthor } from '../hooks/useLists'
-import { loadPlannerService, usePlans } from '../hooks/usePlanner'
+import { loadPlannerService, useBookedSessions, usePlans } from '../hooks/usePlanner'
 import { usePlanSource, type PickerKind, type SourcePick } from '../hooks/usePlanSource'
 import type { ScheduleOptions, Weekday } from '../types/plan'
 import { localToday, weekdayOf } from '../utils/calendar'
@@ -41,6 +41,7 @@ import {
   type Moves,
   type Times,
 } from '../utils/previewEdits'
+import { findConflicts, type Booking } from '../utils/conflicts'
 import { buildSchedule, planSummary, scheduleProblem, timeOn, unitsLabel } from '../utils/schedule'
 import styles from '../components/Planner/Planner.module.css'
 
@@ -75,6 +76,8 @@ export default function CreatePlanPage() {
   const [kind, setKind] = useState<PickerKind>(pick?.kind === 'list' ? 'list' : 'series')
   // Coming from a title page, the title is already chosen: start on step 2.
   const [step, setStep] = useState(pick ? 1 : 0)
+  // The evenings my other plans already take, looked at once the preview is open.
+  const bookings = useBookedSessions(plans.plans, step === 3)
   const [choice, setChoice] = useState<StartChoice>({ mode: 'continue' })
   const [options, setOptions] = useState<ScheduleOptions>({
     startDate: today,
@@ -139,6 +142,14 @@ export default function CreatePlanPage() {
     Object.keys(moves).length > 0 ||
     Object.keys(times).length > 0 ||
     (isList && loaded !== null && !isSourceOrder(ordered, loaded.units))
+  const overlaps = useMemo(() => {
+    const found: Record<string, Booking[]> = {}
+    for (const session of sessions) {
+      const clash = findConflicts(session, bookings)
+      if (clash.length > 0) found[sessionKey(session, isList)] = clash
+    }
+    return found
+  }, [sessions, bookings, isList])
   const summary = planSummary(sessions, effective.weekdays)
   const title = (customTitle ?? defaultPlanTitle(isList ? 'list' : 'series', name, units[0])).trim()
   const range = units.length
@@ -322,6 +333,7 @@ export default function CreatePlanPage() {
         onRemove={isList ? (key) => commitMarathon(removeFilm(sessions, key), key) : undefined}
         onMoveSession={moveSession}
         onRetime={retimeSession}
+        overlaps={overlaps}
         canMoveSession={(key, date) => canMoveTo(sessions, key, date, isList, today)}
         onReset={edited ? resetEdits : undefined}
       />
