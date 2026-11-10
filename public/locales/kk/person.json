@@ -78,6 +78,6 @@
   },
   "crewLabel": "Түсірілім тобы",
   "profileLink": "{{name}}: профилі",
-  "crewAll": "Барлығын көрсету: {{count}}",
-  "crewLess": "Жасыру"
+  "showAll": "Барлығын көрсету: {{count}}",
+  "showFewer": "Жасыру"
 }

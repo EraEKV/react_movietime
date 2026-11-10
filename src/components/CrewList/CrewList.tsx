@@ -35,7 +35,7 @@ export default function CrewList({ crew }: { crew: KeyCrewMember[] }) {
           aria-expanded={expanded}
           onClick={() => setExpanded(!expanded)}
         >
-          {expanded ? t('crewLess') : t('crewAll', { count: crew.length })}
+          {expanded ? t('showFewer') : t('showAll', { count: crew.length })}
         </Button>
       )}
     </>

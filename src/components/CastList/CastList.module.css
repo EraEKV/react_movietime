@@ -85,3 +85,17 @@
 .link:hover .name {
   text-decoration: underline;
 }
+
+/* "Show all": the sideways row becomes a grid, so everyone is visible without scrolling. */
+.expanded {
+  grid-auto-flow: row;
+  grid-auto-columns: auto;
+  grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
+  margin: 0;
+  padding: 0 0 var(--space-2);
+  overflow-x: visible;
+}
+
+.toggle {
+  margin-top: var(--space-3);
+}

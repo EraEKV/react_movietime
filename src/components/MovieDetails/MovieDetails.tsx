@@ -26,7 +26,6 @@ import TitleHero from '../TitleHero/TitleHero'
 import Trailer from '../Trailer/Trailer'
 import WhereToWatch from '../WhereToWatch/WhereToWatch'
 
-const MAX_CAST = 12
 const MAX_RECOMMENDATIONS = 10
 
 /** Some movies have two directors (the Wachowskis), so join every "Director" credit. */
@@ -72,7 +71,7 @@ export default function MovieDetails({ movieId }: { movieId: string }) {
   }
 
   const crew = keyCrew(movie.credits.crew)
-  const cast = movie.credits.cast.slice(0, MAX_CAST)
+  const cast = movie.credits.cast
   const trailer = pickTrailer(movie.videos.results)
   const recommendations = movie.recommendations.results.slice(0, MAX_RECOMMENDATIONS).map(fromMovie)
   const countries = movie.production_countries.map((c) => c.name).join(', ')

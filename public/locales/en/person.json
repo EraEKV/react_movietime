@@ -78,6 +78,6 @@
   },
   "crewLabel": "Key crew",
   "profileLink": "{{name}}: profile",
-  "crewAll": "Show all {{count}}",
-  "crewLess": "Show fewer"
+  "showAll": "Show all {{count}}",
+  "showFewer": "Show fewer"
 }

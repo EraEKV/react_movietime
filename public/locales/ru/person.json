@@ -82,6 +82,6 @@
   },
   "crewLabel": "Съёмочная группа",
   "profileLink": "{{name}}: профиль",
-  "crewAll": "Показать всех: {{count}}",
-  "crewLess": "Свернуть"
+  "showAll": "Показать всех: {{count}}",
+  "showFewer": "Свернуть"
 }

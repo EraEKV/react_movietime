@@ -40,6 +40,40 @@ describe('CastList', () => {
   })
 })
 
+describe('CastList preview', () => {
+  const many = Array.from({ length: 30 }, (_, i) => ({
+    id: i + 1,
+    credit_id: `c${i}`,
+    name: `Actor ${i + 1}`,
+    profile_path: null,
+    character: '',
+  }))
+
+  it('shows 12 people and reveals everyone on request', async () => {
+    render(
+      <MemoryRouter>
+        <CastList cast={many} />
+      </MemoryRouter>,
+    )
+    expect(screen.getAllByRole('link')).toHaveLength(12)
+    const toggle = screen.getByRole('button', { name: 'Show all 30' })
+    expect(toggle).toHaveAttribute('aria-expanded', 'false')
+    await userEvent.click(toggle)
+    expect(screen.getAllByRole('link')).toHaveLength(30)
+    await userEvent.click(screen.getByRole('button', { name: 'Show fewer' }))
+    expect(screen.getAllByRole('link')).toHaveLength(12)
+  })
+
+  it('has no toggle for a short cast', () => {
+    render(
+      <MemoryRouter>
+        <CastList cast={many.slice(0, 5)} />
+      </MemoryRouter>,
+    )
+    expect(screen.queryByRole('button')).not.toBeInTheDocument()
+  })
+})
+
 describe('CrewList', () => {
   it('links people to their pages and names their jobs in the interface language', () => {
     render(

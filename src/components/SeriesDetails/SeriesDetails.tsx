@@ -28,7 +28,6 @@ import LibraryButton from '../LibraryButton/LibraryButton'
 import PlanWatchingButton from '../Planner/PlanWatchingButton'
 import DetailsSkeleton from '../DetailsSkeleton/DetailsSkeleton'
 
-const MAX_CAST = 12
 const MAX_RECOMMENDATIONS = 10
 
 export default function SeriesDetails({ seriesId }: { seriesId: string }) {
@@ -71,7 +70,7 @@ export default function SeriesDetails({ seriesId }: { seriesId: string }) {
     ...series.created_by.map((creator) => ({ ...creator, job: 'Creator' })),
     ...series.credits.crew,
   ])
-  const cast = series.credits.cast.slice(0, MAX_CAST)
+  const cast = series.credits.cast
   const trailer = pickTrailer(series.videos.results)
   const seasons = sortSeasons(series.seasons)
   // Specials (season 0) are left out of the heatmap: they aren't part of the story arc.
