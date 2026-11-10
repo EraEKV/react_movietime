@@ -270,7 +270,13 @@
       "body": "Instead of {{film}}. {{owner}} accepts or declines.",
       "search": "Search movies",
       "submit": "Send suggestion",
-      "already": "In the marathon"
+      "already": "In the marathon",
+      "replaceTitle": "Replace the film for {{date}}",
+      "replaceBody": "Instead of {{film}}. The change applies right away.",
+      "replaceSubmit": "Replace film",
+      "addTitle": "Add a film",
+      "addBody": "It goes to the end of the marathon, on the next evening of the plan.",
+      "addSubmit": "Add film"
     },
     "panel": {
       "title": "Film suggestions ({{count}})",
@@ -285,7 +291,11 @@
       "sent": "Suggestion sent to {{owner}}",
       "withdrawn": "Suggestion withdrawn",
       "accepted": "{{film}} replaces {{current}}",
-      "rejected": "Suggestion declined"
-    }
+      "rejected": "Suggestion declined",
+      "added": "{{film}} added for {{date}}",
+      "replaced": "{{film}} replaces {{current}}"
+    },
+    "replace": "Replace film",
+    "add": "Add film"
   }
 }
