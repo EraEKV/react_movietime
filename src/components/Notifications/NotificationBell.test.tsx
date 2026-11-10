@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import type { AppNotification } from '../../types/notifications'
+import type { AppNotification, SharedNotification } from '../../types/notifications'
 
 const state = vi.hoisted(() => ({
   value: {} as Record<string, unknown>,
@@ -11,7 +11,7 @@ vi.mock('../../hooks/useNotifications', () => ({ useNotifications: () => state.v
 
 import NotificationBell from './NotificationBell'
 
-const note = (over: Partial<AppNotification> = {}): AppNotification => ({
+const note = (over: Partial<SharedNotification> = {}): AppNotification => ({
   id: 'n1',
   type: 'shared',
   collection: 'lists',

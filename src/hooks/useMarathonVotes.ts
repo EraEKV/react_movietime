@@ -17,6 +17,13 @@ const loadVotesService = (): Promise<typeof VotesService> =>
 
 const NONE: never[] = []
 
+/** The push is a courtesy on top of the bell: never block or fail the action for it. */
+function pushNotice(planId: string, proposalId: string, kind: 'proposal' | 'answer') {
+  void import('../services/mailService')
+    .then((mail) => mail.sendSuggestionPush(planId, proposalId, kind))
+    .catch(() => {})
+}
+
 /** Owner, editor and viewer of a movie marathon can like and suggest. */
 export const canVote = (plan: Pick<Plan, 'kind'>, role: PlanRole) =>
   plan.kind === 'list' && (role === 'owner' || role === 'editor' || role === 'viewer')
@@ -60,8 +67,10 @@ export function useVoteActions() {
     like: (plan: Plan, session: PlanSession, on: boolean) =>
       run((s) => s.setLike(plan, session, by(), on)),
     loadFilm: (tmdbId: number, signal?: AbortSignal) => run((s) => s.loadFilmUnit(tmdbId, signal)),
-    suggest: (plan: Plan, session: PlanSession, unit: PlanUnit) =>
-      run((s) => s.suggestFilm(plan, session, by(), unit)),
+    suggest: async (plan: Plan, session: PlanSession, unit: PlanUnit) => {
+      const proposalId = await run((s) => s.suggestFilm(plan, session, by(), unit))
+      if (proposalId && plan.ownerUid !== by().uid) pushNotice(plan.id, proposalId, 'proposal')
+    },
     replace: (
       plan: Plan,
       session: PlanSession,
@@ -70,13 +79,16 @@ export function useVoteActions() {
       likes: SessionLike[],
     ) => run((s) => s.replaceFilm(plan, session, unit, proposals, likes)),
     withdraw: (plan: Plan, proposalId: string) => run((s) => s.withdrawProposal(plan, proposalId)),
-    decide: (
+    decide: async (
       plan: Plan,
       proposal: SessionProposal,
       session: PlanSession | undefined,
       proposals: SessionProposal[],
       likes: SessionLike[],
       accept: boolean,
-    ) => run((s) => s.decideProposal(plan, proposal, session, proposals, likes, accept)),
+    ) => {
+      await run((s) => s.decideProposal(plan, proposal, session, proposals, likes, accept, by()))
+      if (proposal.by.uid !== by().uid) pushNotice(plan.id, proposal.id, 'answer')
+    },
   }
 }

@@ -9,18 +9,20 @@ const loadNotificationsService = (): Promise<typeof NotificationsService> =>
   import('../services/notificationsService')
 
 /**
- * The signed-in user's notifications, live, plus the actions on them. The listener
- * starts only for a verified email: the rules answer an unverified token with
- * permission-denied, and the notifications of an email belong to whoever proves it.
+ * The signed-in user's notifications, live, plus the actions on them. Notifications
+ * addressed to an email are watched only for a verified one (the rules answer an unverified
+ * token with permission-denied: they belong to whoever proves the email); the ones addressed
+ * to the uid need only the sign-in.
  */
 export function useNotifications() {
   const { user } = useAuth()
+  const uid = user?.uid ?? null
   const email = user?.emailVerified && user.email ? normalizeEmail(user.email) : null
   const state = useSubscription<AppNotification[]>(
-    email && `notifications:${email}`,
+    uid && `notifications:${uid}:${email ?? ''}`,
     async (onData, onError) => {
       const { watchNotifications } = await loadNotificationsService()
-      return watchNotifications(email ?? '', onData, onError)
+      return watchNotifications({ uid: uid ?? '', email }, onData, onError)
     },
   )
   const items = state.data ?? []

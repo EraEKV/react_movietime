@@ -56,3 +56,16 @@ export async function sendPushNotice(
 ): Promise<void> {
   await post('push-notify', { collection, id, email, kind })
 }
+
+/**
+ * A push about a film suggestion in a movie marathon: to the owner when a member suggests
+ * (`proposal`), to the author when the owner answers (`answer`). Best effort, after the
+ * suggestion or answer was saved; the server checks both against the stored suggestion.
+ */
+export async function sendSuggestionPush(
+  planId: string,
+  proposalId: string,
+  kind: 'proposal' | 'answer',
+): Promise<void> {
+  await post('push-notify', { collection: 'plans', id: planId, proposalId, kind })
+}

@@ -5,7 +5,7 @@
   "bellUnread_other": "Notifications, {{count}} unread",
   "markAll": "Mark all as read",
   "empty": "No notifications yet",
-  "emptyHint": "You will see it here when someone shares a list or a plan with you.",
+  "emptyHint": "You will see it here when someone shares a list or a plan with you, or suggests a film for your marathon.",
   "shared": {
     "lists": {
       "editor": "{{name}} invited you to edit the list “{{title}}”",
@@ -24,5 +24,11 @@
   "error": "Could not update. Check your connection and try again.",
   "loadError": "Could not load notifications.",
   "retry": "Try again",
-  "offline": "No connection."
+  "offline": "No connection.",
+  "suggestion": {
+    "proposal": "{{name}} suggested “{{film}}” for the plan “{{title}}”",
+    "accepted": "{{name}} accepted your suggestion “{{film}}” in “{{title}}”",
+    "rejected": "{{name}} declined your suggestion “{{film}}” in “{{title}}”"
+  },
+  "dismiss": "Dismiss"
 }

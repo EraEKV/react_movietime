@@ -22,6 +22,7 @@ import { parseMediaKey } from '../utils/media'
 import { movieToLibraryMedia } from '../utils/library'
 import { movieToUnit } from '../utils/planner'
 import { db } from './firestore'
+import { addSuggestionNotice } from './notificationsService'
 import { planRef, sessionRef, toUnit } from './plannerService'
 
 // plans/{planId}/likes/{sessionId}_{uid} and plans/{planId}/proposals/{sessionId}_{uid}
@@ -134,11 +135,12 @@ export async function suggestFilm(
   session: PlanSession,
   by: PlanPerson,
   unit: PlanUnit,
-): Promise<void> {
+): Promise<string | null> {
   const current = session.units[0]
-  if (!current || session.status !== 'pending') return
+  if (!current || session.status !== 'pending') return null
   const batch = writeBatch(db)
-  batch.set(proposalRef(plan.id, `${session.id}_${by.uid}`), {
+  const proposalId = `${session.id}_${by.uid}`
+  batch.set(proposalRef(plan.id, proposalId), {
     sessionId: session.id,
     by: { uid: by.uid, name: by.name },
     unit,
@@ -147,7 +149,21 @@ export async function suggestFilm(
     createdAt: serverTimestamp(),
     decidedAt: null,
   })
+  // The owner hears about it (in the bell, and by push from the caller) in the same batch.
+  if (plan.ownerUid !== by.uid) {
+    addSuggestionNotice(batch, {
+      toUid: plan.ownerUid,
+      type: 'proposal',
+      planId: plan.id,
+      proposalId,
+      planTitle: plan.title,
+      film: unit.title,
+      fromUid: by.uid,
+      fromName: by.name,
+    })
+  }
   await batch.commit()
+  return proposalId
 }
 
 export async function withdrawProposal(plan: Plan, proposalId: string): Promise<void> {
@@ -191,24 +207,43 @@ export async function decideProposal(
   siblings: SessionProposal[],
   likes: SessionLike[],
   accept: boolean,
-): Promise<void> {
+  by: PlanPerson,
+): Promise<'accepted' | 'rejected'> {
   const batch = writeBatch(db)
   const decided = { decidedAt: serverTimestamp() }
   const current = session?.units[0]
   const stale = !session || session.status !== 'pending' || current?.mediaKey !== proposal.replaces
-  if (!accept || stale) {
-    // Declined, or the session moved on: nothing to swap, the suggestion is simply closed.
-    batch.update(proposalRef(plan.id, proposal.id), { status: 'rejected', ...decided })
-    return batch.commit()
-  }
-  swapFilm(batch, plan, session, proposal.unit, likes)
-  batch.update(proposalRef(plan.id, proposal.id), { status: 'accepted', ...decided })
-  for (const other of siblings) {
-    if (other.id !== proposal.id && other.sessionId === session.id && other.status === 'pending') {
-      batch.update(proposalRef(plan.id, other.id), { status: 'rejected', ...decided })
+  // Declined, or the session moved on: nothing to swap, the suggestion is simply closed.
+  const decision = accept && !stale ? 'accepted' : 'rejected'
+  if (decision === 'accepted' && session) {
+    swapFilm(batch, plan, session, proposal.unit, likes)
+    for (const other of siblings) {
+      if (
+        other.id !== proposal.id &&
+        other.sessionId === session.id &&
+        other.status === 'pending'
+      ) {
+        batch.update(proposalRef(plan.id, other.id), { status: 'rejected', ...decided })
+      }
     }
   }
+  batch.update(proposalRef(plan.id, proposal.id), { status: decision, ...decided })
+  // The author hears the answer in the same batch.
+  if (proposal.by.uid !== by.uid) {
+    addSuggestionNotice(batch, {
+      toUid: proposal.by.uid,
+      type: 'answer',
+      planId: plan.id,
+      proposalId: proposal.id,
+      planTitle: plan.title,
+      film: proposal.unit.title,
+      decision,
+      fromUid: by.uid,
+      fromName: by.name,
+    })
+  }
   await batch.commit()
+  return decision
 }
 
 /**
