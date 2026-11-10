@@ -54,7 +54,7 @@ import { db } from './firestore'
 // sessions, and the library can't say "completed" for a plan that failed to save.
 
 const plansCol = collection(db, 'plans')
-const planRef = (id: string) => doc(db, 'plans', id)
+export const planRef = (id: string) => doc(db, 'plans', id)
 const sessionsCol = (planId: string) => collection(db, 'plans', planId, 'sessions')
 export const sessionRef = (planId: string, id: string) => doc(db, 'plans', planId, 'sessions', id)
 const entryRef = (uid: string, key: string) => doc(db, 'users', uid, 'library', key)

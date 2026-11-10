@@ -21,7 +21,7 @@ import { parseMediaKey } from '../utils/media'
 import { movieToLibraryMedia } from '../utils/library'
 import { movieToUnit } from '../utils/planner'
 import { db } from './firestore'
-import { sessionRef, toUnit } from './plannerService'
+import { planRef, sessionRef, toUnit } from './plannerService'
 
 // plans/{planId}/likes/{sessionId}_{uid} and plans/{planId}/proposals/{sessionId}_{uid}
 // (docs/DATA_MODEL.md, "Shared marathon"). The id holds the person, so one person has at most
@@ -156,8 +156,9 @@ export async function withdrawProposal(plan: Plan, proposalId: string): Promise<
 }
 
 /**
- * The owner's answer. Accepting swaps the film of the session in the same batch, drops the
- * likes the old film had, and turns down the other open suggestions for that session.
+ * The owner's answer. Accepting swaps the film of the session in the same batch (and the
+ * plan's total minutes), drops the likes the old film had, and turns down the other open
+ * suggestions for that session.
  */
 export async function decideProposal(
   plan: Plan,
@@ -183,6 +184,10 @@ export async function decideProposal(
   batch.update(sessionRef(plan.id, session.id), {
     units: [proposal.unit],
     minutes: proposal.unit.runtime,
+  })
+  batch.update(planRef(plan.id), {
+    totalMinutes: Math.max(0, plan.totalMinutes - session.minutes + proposal.unit.runtime),
+    updatedAt: serverTimestamp(),
   })
   batch.update(proposalRef(plan.id, proposal.id), { status: 'accepted', ...decided })
   for (const other of siblings) {
