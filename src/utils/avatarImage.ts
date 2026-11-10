@@ -49,7 +49,7 @@ export function renderPhoto(img: HTMLImageElement, view: number, crop: Crop): st
   context.drawImage(img, sx, sy, size, size, 0, 0, PHOTO_SIZE, PHOTO_SIZE)
 
   for (const type of ['image/webp', 'image/jpeg']) {
-    for (const quality of [0.82, 0.72, 0.62, 0.5]) {
+    for (const quality of [0.82, 0.72, 0.62, 0.5, 0.4, 0.3]) {
       const url = canvas.toDataURL(type, quality)
       // A browser that can't encode the type answers with a PNG: try the next type.
       if (!url.startsWith(`data:${type}`)) break
