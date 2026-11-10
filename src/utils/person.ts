@@ -107,6 +107,21 @@ export function buildFilmography(cast: PersonCastCredit[], crew: PersonCrewCredi
   return [...works.values()]
 }
 
+/**
+ * The movies a person directed that are out, oldest first (the order to watch a director's
+ * work in). Series, other crew jobs, announced films and films without a date are left out.
+ */
+export function directedFilms(works: PersonWork[], today: string): PersonWork[] {
+  return works
+    .filter(
+      (work) =>
+        work.mediaType === 'movie' && work.roles.includes('director') && !isUpcoming(work, today),
+    )
+    .toSorted(
+      (a, b) => a.date.localeCompare(b.date) || a.title.localeCompare(b.title) || a.id - b.id,
+    )
+}
+
 /** Local calendar day as "2026-11-09": release dates are plain days, not instants. */
 export function isoDay(now: Date): string {
   const month = String(now.getMonth() + 1).padStart(2, '0')

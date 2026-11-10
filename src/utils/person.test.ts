@@ -6,6 +6,7 @@ import {
   biographyOf,
   buildFilmography,
   crewRole,
+  directedFilms,
   filterWorks,
   isoDay,
   keyCrew,
@@ -332,5 +333,48 @@ describe('keyCrew', () => {
   it('puts series creators first', () => {
     const crew = keyCrew([member(1, 'Director'), member(2, 'Creator')])
     expect(crew.map((p) => p.id)).toEqual([2, 1])
+  })
+})
+
+describe('directedFilms', () => {
+  const work = (id: number, over: Partial<PersonWork> = {}): PersonWork => ({
+    key: `movie_${id}` as MediaKey,
+    mediaType: 'movie',
+    id,
+    title: `Film ${id}`,
+    posterPath: null,
+    date: '2000-01-01',
+    rating: 7,
+    popularity: 1,
+    roles: ['director'],
+    credits: ['Director'],
+    episodeCount: null,
+    ...over,
+  })
+
+  it('keeps released movies the person directed, oldest first', () => {
+    const works = [
+      work(3, { date: '2010-07-16' }),
+      work(1, { date: '1998-07-01' }),
+      work(2, { date: '2005-06-15' }),
+    ]
+    expect(directedFilms(works, TODAY).map((w) => w.id)).toEqual([1, 2, 3])
+  })
+
+  it('leaves out other jobs, series, announced and undated films', () => {
+    const works = [
+      work(1, { roles: ['writer'] }),
+      work(2, { roles: ['actor', 'writer'] }),
+      work(3, { mediaType: 'tv', key: 'tv_3' as MediaKey }),
+      work(4, { date: '2027-07-17' }),
+      work(5, { date: '' }),
+      work(6, { roles: ['director', 'writer'] }),
+    ]
+    expect(directedFilms(works, TODAY).map((w) => w.id)).toEqual([6])
+  })
+
+  it('breaks ties by title so the order never jumps', () => {
+    const works = [work(2, { title: 'B' }), work(1, { title: 'A' })]
+    expect(directedFilms(works, TODAY).map((w) => w.title)).toEqual(['A', 'B'])
   })
 })

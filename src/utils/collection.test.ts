@@ -6,6 +6,7 @@ import {
   filmToListMedia,
   filmsByDate,
   releasedFilms,
+  resumeFilm,
   splitFilms,
   toFilm,
   yearSpan,
@@ -117,5 +118,41 @@ describe('releasedFilms', () => {
   it('keeps what a marathon can watch: out already, in release order', () => {
     const parts = [part(3, '2005-05-19'), part(9, '2099-01-01'), part(1, '1977-05-25'), part(8, '')]
     expect(releasedFilms(parts, TODAY).map((f) => f.id)).toEqual([1, 3])
+  })
+})
+
+describe('resumeFilm', () => {
+  const films = filmsByDate([
+    part(1, '1999-01-01'),
+    part(2, '2001-01-01'),
+    part(3, '2003-01-01'),
+    part(4, '2005-01-01'),
+  ])
+  const seen = (...ids: number[]) =>
+    new Map<MediaKey, LibraryStatus>(ids.map((id) => [`movie_${id}` as MediaKey, 'completed']))
+
+  it('continues with the film after the last one you have seen', () => {
+    expect(resumeFilm(films, seen(1, 2))?.id).toBe(3)
+    expect(resumeFilm(films, seen(1))?.id).toBe(2)
+  })
+
+  it('goes by the furthest film, leaving skipped ones out', () => {
+    expect(resumeFilm(films, seen(3))?.id).toBe(4)
+    expect(resumeFilm(films, seen(1, 3))?.id).toBe(4)
+  })
+
+  it('has nothing to continue when nothing, or the last film, was seen', () => {
+    expect(resumeFilm(films, new Map())).toBeNull()
+    expect(resumeFilm(films, seen(4))).toBeNull()
+    expect(resumeFilm(films, seen(1, 2, 3, 4))).toBeNull()
+    expect(resumeFilm([], seen(1))).toBeNull()
+  })
+
+  it('only "completed" counts: watching and plan do not', () => {
+    const statuses = new Map<MediaKey, LibraryStatus>([
+      ['movie_1', 'watching'],
+      ['movie_2', 'plan'],
+    ])
+    expect(resumeFilm(films, statuses)).toBeNull()
   })
 })

@@ -200,14 +200,17 @@ export function timeOptions(current: string) {
 
 /**
  * What a plan remembers about its source in `sourceListId`. A list plan stores the list id;
- * a collection marathon stores "collection:<tmdb id>" (the field is a plain string that
- * nothing resolves, and the rules only ask for a string on list plans). Series plans keep null.
+ * a collection marathon stores "collection:<tmdb id>" and a director's marathon
+ * "person:<tmdb id>" (the field is a plain string that nothing resolves, and the rules only
+ * ask for a string on list plans). Series plans keep null.
  */
 export function sourceIdOf(
-  pick: { kind: 'series' | 'list' | 'collection'; id: number | string } | null,
+  pick: { kind: 'series' | 'list' | 'collection' | 'person'; id: number | string } | null,
 ): string | null {
   if (!pick || pick.kind === 'series') return null
-  return pick.kind === 'collection' ? `collection:${pick.id}` : String(pick.id)
+  return pick.kind === 'collection' || pick.kind === 'person'
+    ? `${pick.kind}:${pick.id}`
+    : String(pick.id)
 }
 
 /**
