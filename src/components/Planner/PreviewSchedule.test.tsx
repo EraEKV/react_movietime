@@ -184,3 +184,24 @@ describe('PreviewSchedule for a series', () => {
     expect(container).toBeEmptyDOMElement()
   })
 })
+
+describe('PreviewSchedule own times', () => {
+  it('lets a session pick its own time', async () => {
+    const user = userEvent.setup()
+    const onRetime = vi.fn()
+    const sessions = buildSchedule([episode(1), episode(2)], options)
+    render(<PreviewSchedule sessions={sessions} today={TODAY} movies={false} onRetime={onRetime} />)
+    const pickers = screen.getAllByRole('combobox')
+    expect(pickers).toHaveLength(2)
+    await user.click(pickers[0] as HTMLElement)
+    await user.click(await screen.findByRole('option', { name: '22:30' }))
+    expect(onRetime).toHaveBeenCalledWith('0', '22:30')
+  })
+
+  it('shows the time as plain text without onRetime', () => {
+    const sessions = buildSchedule([episode(1)], options)
+    render(<PreviewSchedule sessions={sessions} today={TODAY} movies={false} />)
+    expect(screen.queryByRole('combobox')).toBeNull()
+    expect(screen.getByText('21:00')).toBeInTheDocument()
+  })
+})

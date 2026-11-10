@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { imageUrl } from '../../shared/api/tmdb'
 import { formatRuntime } from '../../shared/lib/format'
@@ -8,6 +8,10 @@ import IconButton from '../../shared/ui/IconButton/IconButton'
 import SortableList from '../../shared/ui/SortableList/SortableList'
 import type { ScheduledSession } from '../../types/plan'
 import { formatDay } from '../../utils/calendar'
+import { cx } from '../../shared/lib/cx'
+import SelectField from '../../shared/ui/SelectField/SelectField'
+import { timeOptions } from '../../utils/planner'
+import { sessionKey } from '../../utils/previewEdits'
 import { groupByWeek, unitsLabel, weekLabel } from '../../utils/schedule'
 import styles from './Planner.module.css'
 
@@ -26,6 +30,8 @@ interface PreviewScheduleProps {
   onMove?: (movedKey: string, overKey: string) => void
   /** Marathons only: drop a film from the plan (media key). Offered while two or more remain. */
   onRemove?: (mediaKey: string) => void
+  /** Offers a time picker on every session (key as in `sessionKey`). */
+  onRetime?: (key: string, time: string) => void
   /** Put the plan back as the source and the weekdays give it (order, dates, dropped films). */
   onReset?: () => void
 }
@@ -41,10 +47,17 @@ export default function PreviewSchedule({
   movies,
   onMove,
   onRemove,
+  onRetime,
   onReset,
 }: PreviewScheduleProps) {
   const { t } = useTranslation(['planner', 'common'])
   const [all, setAll] = useState(false)
+  const slot = (session: ScheduledSession) => (
+    <SlotCell
+      session={session}
+      onTime={onRetime && ((time) => onRetime(sessionKey(session, movies), time))}
+    />
+  )
 
   if (sessions.length === 0) return null
 
@@ -56,7 +69,7 @@ export default function PreviewSchedule({
         <ol className={styles.agendaList} aria-label={t('preview.scheduleLabel')}>
           {sessions.map((session) => (
             <li key={session.index} className={styles.agendaRow}>
-              <SlotCell session={session} />
+              {slot(session)}
               <FilmCells session={session} />
             </li>
           ))}
@@ -95,7 +108,7 @@ export default function PreviewSchedule({
           renderItem={(session, handle) => (
             <>
               {handle}
-              <SlotCell session={session} />
+              {slot(session)}
               <FilmCells session={session} />
               {removable && (
                 <IconButton
@@ -123,7 +136,7 @@ export default function PreviewSchedule({
           <ol className={styles.agendaList}>
             {list.map((session) => (
               <li key={session.index} className={styles.agendaRow}>
-                <EpisodeRow session={session} />
+                <EpisodeRow session={session} slot={slot(session)} />
               </li>
             ))}
           </ol>
@@ -148,11 +161,29 @@ export default function PreviewSchedule({
 }
 
 /** The date and time slot of a session. */
-export function SlotCell({ session }: { session: ScheduledSession }) {
+export function SlotCell({
+  session,
+  onTime,
+}: {
+  session: ScheduledSession
+  /** With it the time is a picker. */
+  onTime?: (time: string) => void
+}) {
+  const { t } = useTranslation('planner')
   return (
-    <span className={styles.agendaDate}>
+    <span className={cx(styles.agendaDate, onTime && styles.agendaDateEdit)}>
       <strong>{dayLabel(session.date)}</strong>
-      <span>{session.time}</span>
+      {onTime ? (
+        <SelectField
+          label={t('preview.timeFor', { day: dayLabel(session.date) })}
+          hideLabel
+          value={session.time}
+          options={timeOptions(session.time)}
+          onChange={onTime}
+        />
+      ) : (
+        <span>{session.time}</span>
+      )}
     </span>
   )
 }
@@ -176,12 +207,12 @@ export function FilmCells({ session }: { session: ScheduledSession }) {
 }
 
 /** One session of a series: the episode range, the runtime and the episode names. */
-function EpisodeRow({ session }: { session: ScheduledSession }) {
+function EpisodeRow({ session, slot }: { session: ScheduledSession; slot: ReactNode }) {
   const names = session.units.map((unit) => unit.title).join(' · ')
   const sub = [formatRuntime(session.minutes), names].filter(Boolean).join(' · ')
   return (
     <>
-      <SlotCell session={session} />
+      {slot}
       <span className={styles.agendaText}>
         <strong className={styles.agendaTitle}>{unitsLabel(session.units)}</strong>
         {sub && <span className={styles.agendaSub}>{sub}</span>}

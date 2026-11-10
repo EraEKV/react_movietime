@@ -68,6 +68,8 @@ interface PreviewStepProps {
   onRemove?: (mediaKey: string) => void
   /** A session was dropped on another day in the calendar (see `sessionKey`). */
   onMoveSession?: (key: string, date: string) => void
+  /** A session got its own time (see `sessionKey`). */
+  onRetime?: (key: string, time: string) => void
   /** Where a session may land; the calendar only lights up those days. */
   canMoveSession?: (key: string, date: string) => boolean
   /** Something was changed by hand; put everything back. */
@@ -88,6 +90,7 @@ export function PreviewStep({
   onMove,
   onRemove,
   onMoveSession,
+  onRetime,
   canMoveSession,
   onReset,
 }: PreviewStepProps) {
@@ -111,6 +114,7 @@ export function PreviewStep({
           movies={movies}
           onMove={onMove}
           onRemove={onRemove}
+          onRetime={onRetime}
           onReset={onReset}
         />
       </section>

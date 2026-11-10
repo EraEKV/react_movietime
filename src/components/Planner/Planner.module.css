@@ -272,10 +272,15 @@
   font-weight: 600;
 }
 
-.agendaDate span {
+.agendaDate > span {
   color: var(--text-muted);
   font-size: 13px;
   line-height: 18px;
+}
+
+.agendaDateEdit {
+  width: 120px;
+  gap: var(--space-1);
 }
 
 .agendaPoster {

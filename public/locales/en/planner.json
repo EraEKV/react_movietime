@@ -211,6 +211,7 @@
     "dragHint": "Drag the handle to change the order. The dates stay, the films move.",
     "moveHintFilms": "Drag a film to another day. The films follow their dates.",
     "moveHintEpisodes": "Drag a session to another day. It stays between the sessions on either side.",
+    "timeFor": "Time on {{day}}",
     "reset": "Reset changes",
     "remove": "Leave {{title}} out of the plan",
     "reorder": {

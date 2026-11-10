@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type { PlanUnit, ScheduleOptions } from '../types/plan'
 import {
   applyMoves,
+  applyTimes,
   canMoveTo,
   marathonMoves,
   moveFilmTo,
@@ -93,5 +94,22 @@ describe('film edits', () => {
   it('names sessions by film or by index', () => {
     expect(sessionKey(base[0]!, true)).toBe('movie_1')
     expect(sessionKey(base[0]!, false)).toBe('0')
+  })
+})
+
+describe('applyTimes', () => {
+  it('puts the own time on the session with that key and leaves the rest', () => {
+    const out = applyTimes(base, { movie_2: '22:30' }, true)
+    expect(out.map((s) => s.time)).toEqual(['21:00', '22:30', '21:00'])
+  })
+  it('keys a series by session index', () => {
+    expect(applyTimes(base, { '0': '19:00' }, false).map((s) => s.time)).toEqual([
+      '19:00',
+      '21:00',
+      '21:00',
+    ])
+  })
+  it('returns the same sessions when there is nothing to apply', () => {
+    expect(applyTimes(base, {}, true)).toBe(base)
   })
 })

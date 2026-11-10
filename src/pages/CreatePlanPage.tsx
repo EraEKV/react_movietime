@@ -32,13 +32,16 @@ import {
 } from '../utils/planner'
 import {
   applyMoves,
+  applyTimes,
   canMoveTo,
   marathonMoves,
   moveFilmTo,
   removeFilm,
+  sessionKey,
   type Moves,
+  type Times,
 } from '../utils/previewEdits'
-import { buildSchedule, planSummary, scheduleProblem, unitsLabel } from '../utils/schedule'
+import { buildSchedule, planSummary, scheduleProblem, timeOn, unitsLabel } from '../utils/schedule'
 import styles from '../components/Planner/Planner.module.css'
 
 const STEP_KEYS = ['steps.pick', 'steps.start', 'steps.schedule', 'steps.preview'] as const
@@ -86,7 +89,7 @@ export default function CreatePlanPage() {
   // Films the user crossed out in the preview, and days they moved sessions to. The moves
   // belong to one schedule: they carry a signature and are ignored once it changes.
   const [dropped, setDropped] = useState<MediaKey[]>([])
-  const [edits, setEdits] = useState<{ signature: string; moves: Moves } | null>(null)
+  const [edits, setEdits] = useState<{ signature: string; moves: Moves; times: Times } | null>(null)
   const [customTitle, setCustomTitle] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
@@ -121,15 +124,20 @@ export default function CreatePlanPage() {
     () => (edits?.signature === signature ? edits.moves : {}),
     [edits, signature],
   )
+  const times = useMemo<Times>(
+    () => (edits?.signature === signature ? edits.times : {}),
+    [edits, signature],
+  )
   const sessions = useMemo(
-    () => applyMoves(buildSchedule(units, effective), moves, isList),
-    [units, effective, moves, isList],
+    () => applyTimes(applyMoves(buildSchedule(units, effective), moves, isList), times, isList),
+    [units, effective, moves, times, isList],
   )
   // What is created: the sessions as shaped, and their units in that order.
   const plannedUnits = useMemo(() => sessions.flatMap((s) => s.units), [sessions])
   const edited =
     dropped.length > 0 ||
     Object.keys(moves).length > 0 ||
+    Object.keys(times).length > 0 ||
     (isList && loaded !== null && !isSourceOrder(ordered, loaded.units))
   const summary = planSummary(sessions, effective.weekdays)
   const title = (customTitle ?? defaultPlanTitle(isList ? 'list' : 'series', name, units[0])).trim()
@@ -166,13 +174,21 @@ export default function CreatePlanPage() {
     const head = ordered.slice(0, start).map((unit) => unit.mediaKey)
     setOrder([...head, ...films.map((unit) => unit.mediaKey)])
     if (removed) setDropped((list) => [...list, removed as MediaKey])
-    setEdits({ signature, moves: marathonMoves(films, change.dates, effective) })
+    setEdits({ signature, moves: marathonMoves(films, change.dates, effective), times })
   }
 
   const moveSession = (key: string, date: string) => {
     if (!canMoveTo(sessions, key, date, isList, today)) return
     if (isList) return commitMarathon(moveFilmTo(sessions, key, date))
-    setEdits({ signature, moves: { ...moves, [key]: date } })
+    setEdits({ signature, moves: { ...moves, [key]: date }, times })
+  }
+  /** A session at its own time; the weekday's usual time needs no entry. */
+  const retimeSession = (key: string, time: string) => {
+    const session = sessions.find((s) => sessionKey(s, isList) === key)
+    if (!session) return
+    const { [key]: _, ...rest } = times
+    const next = time === timeOn(effective, session.date) ? rest : { ...rest, [key]: time }
+    setEdits({ signature, moves, times: next })
   }
   /** A film dragged to another place in the list: the dates stay, the films move. */
   const reorderFilms = (movedKey: string, overKey: string) => {
@@ -305,6 +321,7 @@ export default function CreatePlanPage() {
         onMove={isList ? reorderFilms : undefined}
         onRemove={isList ? (key) => commitMarathon(removeFilm(sessions, key), key) : undefined}
         onMoveSession={moveSession}
+        onRetime={retimeSession}
         canMoveSession={(key, date) => canMoveTo(sessions, key, date, isList, today)}
         onReset={edited ? resetEdits : undefined}
       />
