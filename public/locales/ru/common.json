@@ -34,14 +34,22 @@
     "tonight": "Сегодня",
     "tonightLabel": "Сегодня в {{time}}: {{title}}, {{units}}. Открыть планы",
     "searching": "Идёт поиск",
-    "results": "Результаты поиска",
     "noResults": "По запросу «{{query}}» ничего не найдено.",
     "searchFailed": "Не получилось выполнить поиск. Проверьте соединение.",
     "allResults": "Все результаты",
     "resultCount_one": "{{count}} результат",
     "resultCount_few": "{{count}} результата",
     "resultCount_many": "{{count}} результатов",
-    "resultCount_other": "{{count}} результата"
+    "resultCount_other": "{{count}} результата",
+    "groupTitles": "Названия",
+    "groupPeople": "Люди",
+    "groupCollections": "Коллекции",
+    "collection": "Коллекция",
+    "dept": {
+      "Acting": "Актёр",
+      "Directing": "Режиссёр",
+      "Writing": "Сценарист"
+    }
   },
   "verify": {
     "text": "Подтвердите <strong>{{email}}</strong>, чтобы пользоваться общими списками и планами.",

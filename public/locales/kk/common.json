@@ -34,12 +34,20 @@
     "tonight": "Бүгін",
     "tonightLabel": "Бүгін {{time}}: {{title}}, {{units}}. Жоспарларды ашу",
     "searching": "Іздеу жүріп жатыр",
-    "results": "Іздеу нәтижелері",
     "noResults": "«{{query}}» бойынша ештеңе табылмады.",
     "searchFailed": "Іздеу мүмкін болмады. Байланысты тексеріңіз.",
     "allResults": "Барлық нәтижелер",
     "resultCount_one": "{{count}} нәтиже",
-    "resultCount_other": "{{count}} нәтиже"
+    "resultCount_other": "{{count}} нәтиже",
+    "groupTitles": "Атаулар",
+    "groupPeople": "Адамдар",
+    "groupCollections": "Жинақтар",
+    "collection": "Жинақ",
+    "dept": {
+      "Acting": "Актёр",
+      "Directing": "Режиссёр",
+      "Writing": "Сценарист"
+    }
   },
   "verify": {
     "text": "Ортақ тізімдер мен жоспарларды пайдалану үшін <strong>{{email}}</strong> поштасын растаңыз.",

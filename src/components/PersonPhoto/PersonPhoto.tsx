@@ -6,7 +6,7 @@ import styles from './PersonPhoto.module.css'
 interface PersonPhotoProps {
   /** TMDB `profile_path`; null when the person has no photo. */
   path: string | null
-  size: 'w185' | 'w342'
+  size: 'w92' | 'w185' | 'w342'
   /** Alt text; empty when a neighbouring link already names the person. */
   alt?: string
   iconSize?: number
