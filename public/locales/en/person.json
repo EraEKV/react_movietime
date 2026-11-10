@@ -79,5 +79,6 @@
   "crewLabel": "Key crew",
   "profileLink": "{{name}}: profile",
   "showAll": "Show all {{count}}",
-  "showFewer": "Show fewer"
+  "showFewer": "Show fewer",
+  "planMarathon": "Plan a marathon of all films"
 }

@@ -42,6 +42,7 @@ describe('moviePlanDraft', () => {
 describe('sourceIdOf', () => {
   it('stores the list id, a collection marker, or nothing for a series', () => {
     expect(sourceIdOf({ kind: 'list', id: 'abc' })).toBe('abc')
+    expect(sourceIdOf({ kind: 'person', id: 525 })).toBe('person:525')
     expect(sourceIdOf({ kind: 'collection', id: 10 })).toBe('collection:10')
     expect(sourceIdOf({ kind: 'series', id: 1396 })).toBeNull()
     expect(sourceIdOf(null)).toBeNull()

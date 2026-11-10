@@ -3,14 +3,18 @@ import type { PlanUnit } from '../types/plan'
 import { loadPlannerService } from './usePlanner'
 import { useRequest } from '../shared/hooks/useRequest'
 
-/** What the stepper plans: a series, the movies of a list, or the films of a collection. */
+/**
+ * What the stepper plans: a series, the movies of a list, the films of a collection or the
+ * films a person directed.
+ */
 export type SourcePick =
   | { kind: 'series'; id: number; title: string; posterPath: string | null }
   | { kind: 'list'; id: string; title: string; posterPath: string | null }
   | { kind: 'collection'; id: number; title: string; posterPath: string | null }
+  | { kind: 'person'; id: number; title: string; posterPath: string | null }
 
-/** What step 1 lets you choose between: a collection only arrives from its own page. */
-export type PickerKind = Exclude<SourcePick['kind'], 'collection'>
+/** What step 1 lets you choose between: a collection or a director only arrives from its own page. */
+export type PickerKind = Exclude<SourcePick['kind'], 'collection' | 'person'>
 
 export interface LoadedSource {
   /** Series, list or collection name. */
@@ -39,7 +43,9 @@ export function usePlanSource(pick: SourcePick | null) {
     const source =
       pick.kind === 'collection'
         ? await service.loadCollectionMovies(pick.id, signal)
-        : await service.loadListMovies(pick.id, signal)
+        : pick.kind === 'person'
+          ? await service.loadPersonMovies(pick.id, signal)
+          : await service.loadListMovies(pick.id, signal)
     return { ...source, media: null }
   })
 }

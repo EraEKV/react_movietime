@@ -1,3 +1,4 @@
+import type { LibraryStatus } from '../types/library'
 import type { MediaKey } from '../types/media'
 import type { ListMedia } from '../types/list'
 import type { CollectionPart } from '../types/tmdb'
@@ -51,6 +52,20 @@ export function splitFilms(films: CollectionFilm[], today: string) {
     released: films.filter((film) => isReleased(film, today)),
     upcoming: films.filter((film) => !isReleased(film, today)),
   }
+}
+
+/**
+ * "Continue": the film right after the last one you have seen, in release order. Null when
+ * you have seen none of them (a plain marathon from the first film is the right button) or
+ * the last one (nothing is left to continue with). Films you skipped on the way stay out;
+ * the full marathon is still one click away.
+ */
+export function resumeFilm(
+  released: CollectionFilm[],
+  statuses: ReadonlyMap<MediaKey, LibraryStatus>,
+): CollectionFilm | null {
+  const lastSeen = released.findLastIndex((film) => statuses.get(film.key) === 'completed')
+  return lastSeen === -1 ? null : (released[lastSeen + 1] ?? null)
 }
 
 /** The years a franchise spans: "1999–2021", "2010", or null with no dates. */

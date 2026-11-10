@@ -47,7 +47,10 @@ import styles from '../components/Planner/Planner.module.css'
 
 const STEP_KEYS = ['steps.pick', 'steps.start', 'steps.schedule', 'steps.preview'] as const
 
-/** ?series=1396, ?list=abc or ?collection=10 from the entry points ("Plan watching", "Plan a marathon"). */
+/**
+ * ?series=1396, ?list=abc, ?collection=10 or ?person=525 from the entry points ("Plan watching",
+ * "Plan a marathon", "Continue", a director's page).
+ */
 function pickFromUrl(params: URLSearchParams): SourcePick | null {
   const series = Number(params.get('series'))
   if (Number.isInteger(series) && series > 0) {
@@ -56,6 +59,10 @@ function pickFromUrl(params: URLSearchParams): SourcePick | null {
   const collection = Number(params.get('collection'))
   if (Number.isInteger(collection) && collection > 0) {
     return { kind: 'collection', id: collection, title: '', posterPath: null }
+  }
+  const person = Number(params.get('person'))
+  if (Number.isInteger(person) && person > 0) {
+    return { kind: 'person', id: person, title: '', posterPath: null }
   }
   const list = params.get('list')
   return list ? { kind: 'list', id: list, title: '', posterPath: null } : null
@@ -105,7 +112,7 @@ export default function CreatePlanPage() {
   const name = loaded?.name || pick?.title || ''
   const posterPath = loaded?.posterPath ?? pick?.posterPath ?? null
   // A list and a collection are both movie marathons: one film per evening.
-  const isList = pick?.kind === 'list' || pick?.kind === 'collection'
+  const isList = pick?.kind !== 'series' && pick !== null
   // Movies: one per night. Memoized so the schedule below isn't rebuilt on every render.
   const effective = useMemo<ScheduleOptions>(
     () => (isList ? { ...options, perSession: 1 } : options),
@@ -117,12 +124,19 @@ export default function CreatePlanPage() {
     () => (loaded ? applyOrder(loaded.units, isList ? order : null) : []),
     [loaded, isList, order],
   )
-  const start = startIndexOf(ordered, progress, choice)
+  // "Continue" on a collection page: ?from= names the film to start with, until the user
+  // picks another start themselves.
+  const fromId = Number(params.get('from'))
+  const fromIndex =
+    isList && fromId > 0 ? ordered.findIndex((u) => u.mediaKey === mediaKey('movie', fromId)) : -1
+  const startChoice: StartChoice =
+    choice.mode === 'continue' && fromIndex >= 0 ? { mode: 'movie', index: fromIndex } : choice
+  const start = startIndexOf(ordered, progress, startChoice)
   const units = useMemo(
     () => ordered.slice(start).filter((unit) => !dropped.includes(unit.mediaKey)),
     [ordered, start, dropped],
   )
-  const signature = JSON.stringify([effective, choice, pick?.kind, pick?.id])
+  const signature = JSON.stringify([effective, startChoice, pick?.kind, pick?.id])
   const moves = useMemo<Moves>(
     () => (edits?.signature === signature ? edits.moves : {}),
     [edits, signature],
@@ -252,17 +266,22 @@ export default function CreatePlanPage() {
   }
 
   const steps = STEP_KEYS.map((key) => t(key))
-  const isCollection = pick?.kind === 'collection'
-  const errorKey = isCollection
-    ? 'new.collectionError'
-    : isList
-      ? 'new.listError'
-      : 'new.episodesError'
-  const emptyKey = isCollection
-    ? 'new.emptyCollection'
-    : isList
-      ? 'new.emptyList'
-      : 'new.emptySeries'
+  const errorKey =
+    pick?.kind === 'collection'
+      ? 'new.collectionError'
+      : pick?.kind === 'person'
+        ? 'new.personError'
+        : isList
+          ? 'new.listError'
+          : 'new.episodesError'
+  const emptyKey =
+    pick?.kind === 'collection'
+      ? 'new.emptyCollection'
+      : pick?.kind === 'person'
+        ? 'new.emptyPerson'
+        : isList
+          ? 'new.emptyList'
+          : 'new.emptySeries'
   let body
   if (step === 0) {
     body = (
@@ -303,7 +322,7 @@ export default function CreatePlanPage() {
         kind={isList ? 'list' : 'series'}
         units={ordered}
         progress={progress}
-        choice={choice}
+        choice={startChoice}
         onChange={setChoice}
         skipped={loaded.skipped}
       />

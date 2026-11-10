@@ -83,5 +83,6 @@
   "crewLabel": "Съёмочная группа",
   "profileLink": "{{name}}: профиль",
   "showAll": "Показать всех: {{count}}",
-  "showFewer": "Свернуть"
+  "showFewer": "Свернуть",
+  "planMarathon": "Запланировать марафон всех фильмов"
 }

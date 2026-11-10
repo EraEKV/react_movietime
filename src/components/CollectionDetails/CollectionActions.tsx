@@ -14,10 +14,13 @@ interface CollectionActionsProps {
   films: CollectionFilm[]
   /** Films that are out: a marathon plans only these. */
   releasedCount: number
+  /** The film after the last one you have seen: "Continue" starts there. */
+  resume?: CollectionFilm | null
 }
 
 /**
- * "Add all to a list" and "Plan a marathon". Lists and plans need an account: a guest is
+ * "Add all to a list", "Continue" (after the last film you have seen) and "Plan a marathon".
+ * Lists and plans need an account: a guest is
  * sent to sign in and comes back here (the planner route does the same on its own).
  */
 export default function CollectionActions({
@@ -25,6 +28,7 @@ export default function CollectionActions({
   name,
   films,
   releasedCount,
+  resume = null,
 }: CollectionActionsProps) {
   const { t } = useTranslation('collection')
   const { isAuthenticated } = useAuth()
@@ -44,13 +48,22 @@ export default function CollectionActions({
           {t('actions.addAll')}
         </ButtonLink>
       )}
+      {resume && (
+        <ButtonLink
+          to={`/planner/new?collection=${collectionId}&from=${resume.id}`}
+          variant="primary"
+          icon="play"
+        >
+          {t('actions.continue', { title: resume.title })}
+        </ButtonLink>
+      )}
       {releasedCount > 0 && (
         <ButtonLink
           to={`/planner/new?collection=${collectionId}`}
-          variant="primary"
+          variant={resume ? 'secondary' : 'primary'}
           icon="calendar"
         >
-          {t('actions.plan')}
+          {t(resume ? 'actions.planAll' : 'actions.plan')}
         </ButtonLink>
       )}
       {open && <AddCollectionDialog name={name} films={films} onClose={() => setOpen(false)} />}

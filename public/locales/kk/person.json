@@ -79,5 +79,6 @@
   "crewLabel": "Түсірілім тобы",
   "profileLink": "{{name}}: профилі",
   "showAll": "Барлығын көрсету: {{count}}",
-  "showFewer": "Жасыру"
+  "showFewer": "Жасыру",
+  "planMarathon": "Барлық фильмдерден марафон жоспарлау"
 }

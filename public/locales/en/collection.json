@@ -28,7 +28,9 @@
   },
   "actions": {
     "addAll": "Add all to a list",
-    "plan": "Plan a marathon"
+    "plan": "Plan a marathon",
+    "continue": "Continue with {{title}}",
+    "planAll": "Plan all as a marathon"
   },
   "dialog": {
     "title": "Add the collection to a list",

@@ -10,7 +10,7 @@ import Icon from '../../shared/ui/Icon/Icon'
 import ProgressBar from '../../shared/ui/ProgressBar/ProgressBar'
 import { useLibraryStatuses } from '../../hooks/useLibraryStatuses'
 import type { CollectionDetails as CollectionData } from '../../types/tmdb'
-import { filmsByDate, splitFilms, yearSpan } from '../../utils/collection'
+import { filmsByDate, resumeFilm, splitFilms, yearSpan } from '../../utils/collection'
 import { isoDay, seenProgress } from '../../utils/person'
 import DetailsSkeleton from '../DetailsSkeleton/DetailsSkeleton'
 import CollectionActions from './CollectionActions'
@@ -60,6 +60,7 @@ export default function CollectionDetails({ collectionId }: { collectionId: stri
   const backdrop = imageUrl(collection.backdrop_path, 'w1280')
   const poster = imageUrl(collection.poster_path, 'w342')
   const progress = seenProgress(released, statuses)
+  const resume = resumeFilm(released, statuses)
   const years = yearSpan(films)
   const meta = [t('common:count.movies', { count: films.length }), years]
     .filter(Boolean)
@@ -95,6 +96,7 @@ export default function CollectionDetails({ collectionId }: { collectionId: stri
                   name={collection.name}
                   films={films}
                   releasedCount={released.length}
+                  resume={resume}
                 />
               </div>
             </div>

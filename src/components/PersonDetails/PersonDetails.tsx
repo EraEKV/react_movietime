@@ -8,7 +8,7 @@ import ButtonLink from '../../shared/ui/ButtonLink/ButtonLink'
 import ErrorState from '../../shared/ui/EmptyState/ErrorState'
 import { useLibraryStatuses } from '../../hooks/useLibraryStatuses'
 import type { PersonDetails as PersonData } from '../../types/tmdb'
-import { buildFilmography, isoDay, knownFor } from '../../utils/person'
+import { buildFilmography, directedFilms, isoDay, knownFor } from '../../utils/person'
 import Filmography from './Filmography'
 import KnownFor from './KnownFor'
 import PersonHero from './PersonHero'
@@ -26,6 +26,7 @@ export default function PersonDetails({ personId }: { personId: string }) {
       person ? buildFilmography(person.combined_credits.cast, person.combined_credits.crew) : [],
     [person],
   )
+  const directed = useMemo(() => directedFilms(works, today).length, [works, today])
   const topWorks = useMemo(
     () => (person ? knownFor(works, person.known_for_department, today) : []),
     [person, works, today],
@@ -62,7 +63,7 @@ export default function PersonDetails({ personId }: { personId: string }) {
       <title>{t('pageTitle', { name: person.name })}</title>
       <BackButton />
       <div className={styles.page}>
-        <PersonHero person={person} />
+        <PersonHero person={person} marathonFilms={directed} />
         <KnownFor works={topWorks} statuses={statuses} />
         <Filmography name={person.name} works={works} today={today} statuses={statuses} />
       </div>
