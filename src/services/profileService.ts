@@ -1,5 +1,6 @@
 import type { User } from 'firebase/auth'
 import {
+  deleteField,
   doc,
   getDoc,
   onSnapshot,
@@ -13,6 +14,9 @@ import type { UserProfile } from '../types/auth'
 import type { Preferences } from '../shared/types/preferences'
 import { isLanguage, isTheme } from '../storage/preferencesStorage'
 import { db } from './firestore'
+
+import { newFeedToken } from '../utils/calendarFeed'
+import { localTimeZone } from '../utils/calendar'
 
 const profileRef = (uid: string) => doc(db, 'users', uid)
 
@@ -28,6 +32,8 @@ function toProfile(data: DocumentData): UserProfile {
     photoURL: typeof data.photoURL === 'string' ? data.photoURL : null,
     providers: Array.isArray(data.providers) ? data.providers.map(String) : [],
     settings: isSettings(data.settings) ? (data.settings as Preferences) : null,
+    icsToken: typeof data.icsToken === 'string' ? data.icsToken : null,
+    icsTimeZone: typeof data.icsTimeZone === 'string' ? data.icsTimeZone : null,
     createdAt: toIso(data.createdAt),
     updatedAt: toIso(data.updatedAt),
   }
@@ -105,4 +111,32 @@ export async function updateUserProfile(
   changes: { displayName?: string; settings?: Preferences },
 ): Promise<void> {
   await updateDoc(profileRef(uid), { ...changes, updatedAt: serverTimestamp() })
+}
+
+/**
+ * Creates the calendar subscription link, or replaces it (the old address stops working).
+ * The device's time zone goes along: the feed writes sessions as wall-clock times in it.
+ */
+export async function renewCalendarFeed(uid: string): Promise<string> {
+  const icsToken = newFeedToken()
+  await updateDoc(profileRef(uid), {
+    icsToken,
+    icsTimeZone: localTimeZone(),
+    updatedAt: serverTimestamp(),
+  })
+  return icsToken
+}
+
+/** Turns the link off: the address stops working and the profile forgets it. */
+export async function removeCalendarFeed(uid: string): Promise<void> {
+  await updateDoc(profileRef(uid), {
+    icsToken: deleteField(),
+    icsTimeZone: deleteField(),
+    updatedAt: serverTimestamp(),
+  })
+}
+
+/** The user moved to another time zone: the feed follows. */
+export async function syncCalendarZone(uid: string): Promise<void> {
+  await updateDoc(profileRef(uid), { icsTimeZone: localTimeZone(), updatedAt: serverTimestamp() })
 }

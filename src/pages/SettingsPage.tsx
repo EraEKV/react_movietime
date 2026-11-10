@@ -1,9 +1,10 @@
 import { useTranslation } from 'react-i18next'
-import { useState } from 'react'
-import { useNavigate } from 'react-router'
+import { useEffect, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router'
 import Badge from '../shared/ui/Badge/Badge'
 import Button from '../shared/ui/Button/Button'
 import Card from '../shared/ui/Card/Card'
+import CalendarFeed from '../components/Settings/CalendarFeed'
 import PushSettings from '../components/Settings/PushSettings'
 import ResendVerification from '../components/Settings/ResendVerification'
 import RadioCards from '../shared/ui/RadioCards/RadioCards'
@@ -37,7 +38,13 @@ export default function SettingsPage() {
   const language = useAppSelector(selectLanguage)
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
+  const { hash } = useLocation()
   const [verifyNote, setVerifyNote] = useState<string | null>(null)
+
+  // /profile/settings#calendar (the planner's link) lands on the calendar card.
+  useEffect(() => {
+    if (hash === '#calendar') document.getElementById('calendar')?.scrollIntoView()
+  }, [hash, user])
 
   if (!user) return null // ProtectedRoute guarantees a user here.
 
@@ -131,6 +138,17 @@ export default function SettingsPage() {
           <PushSettings />
         </div>
       </Card>
+
+      <div id="calendar">
+        <Card as="section" aria-labelledby="calendar-title">
+          <div className={styles.section}>
+            <h2 id="calendar-title" className={styles.sectionTitle}>
+              {t('settings.calendar.title')}
+            </h2>
+            <CalendarFeed key={user.uid} uid={user.uid} />
+          </div>
+        </Card>
+      </div>
 
       <div className={styles.footer}>
         <span className={styles.version}>{t('settings.footer')}</span>

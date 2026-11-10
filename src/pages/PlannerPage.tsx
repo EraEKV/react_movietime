@@ -123,6 +123,11 @@ export default function PlannerPage() {
           options={SHOWS}
         />
         {tablet && (
+          <ButtonLink to="/profile/settings#calendar" icon="calendar">
+            {t('calendarLink')}
+          </ButtonLink>
+        )}
+        {tablet && (
           <ButtonLink to="/planner/new" variant="primary" icon="plus">
             {t('newPlan')}
           </ButtonLink>

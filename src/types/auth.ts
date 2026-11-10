@@ -32,6 +32,10 @@ export interface UserProfile {
   providers: string[]
   /** null when the document has none (older accounts) or an unknown value. */
   settings: Preferences | null
+  /** The secret of the calendar subscription link; null until the user creates one. */
+  icsToken: string | null
+  /** Time zone of the device that made the link, for the feed's wall-clock times. */
+  icsTimeZone: string | null
   createdAt: string | null
   updatedAt: string | null
 }

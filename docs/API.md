@@ -122,6 +122,9 @@ the store (updateProfile doesn't refresh the token, so `authChanged` wouldn't br
 | `ensureProfile(user, settings)`      | `Promise<void>`: creates `users/{uid}` on first sign-in; writes `settings` only if the account has none |
 | `watchProfile(uid, onData, onError)` | `unsubscribe`; `settings` is `null` when missing or invalid                                             |
 | `updateUserProfile(uid, changes)`    | `Promise<void>`: `displayName` and/or `settings`, plus `updatedAt`                                      |
+| `renewCalendarFeed(uid)`             | `Promise<string>`: a new `icsToken` (and the device's time zone); the old link stops working            |
+| `removeCalendarFeed(uid)`            | `Promise<void>`: forgets `icsToken` and `icsTimeZone`                                                   |
+| `syncCalendarZone(uid)`              | `Promise<void>`: saves the device's time zone for the feed                                              |
 
 ### `activityService.ts` ✅
 
@@ -234,16 +237,16 @@ changes more than one document is one batch (see DATA_MODEL, "Business operation
 Pure helpers in `src/utils/schedule.ts` and `src/utils/calendar.ts` (no React, no Firestore).
 Days are `"YYYY-MM-DD"` in local time; day math runs on UTC dates, so DST never shifts a day.
 
-| Function                                                          | Description                                                                                      |
-| ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| `buildSchedule(units, { startDate, weekdays, time, perSession })` | Sessions of `perSession` units on the chosen weekdays from `startDate`; `[]` without weekdays    |
-| `scheduleProblem(options)`                                        | Error text for the stepper (no weekdays, bad time…) or `null`                                    |
-| `shiftSessions(sessions, id, date, shiftLater)`                   | `{ id, date }[]` changes: the moved session and, optionally, later pending ones by the same days |
-| `planDates(sessions)` / `planSummary(sessions, weekdays)`         | `nextDate`/`endDate`; sessions, minutes, nights a week, first and finish date                    |
-| `nextSlot(after, weekdays)`                                       | First allowed weekday after a day (where a skip's copy goes)                                     |
-| `unitsLabel(units)`                                               | `S2E5`, `S2E5–E6`, `S2E13–S3E1`, or movie titles                                                 |
-| `toIcs(name, events, now)`                                        | iCalendar text (RFC 5545: escaping, 75-octet folding, CRLF); times converted to UTC per day      |
-| `monthGrid(month)`, `addDays`, `weekdayOf`, `localToday`          | Calendar-day helpers (`utils/calendar.ts`)                                                       |
+| Function                                                          | Description                                                                                                                                                                           |
+| ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `buildSchedule(units, { startDate, weekdays, time, perSession })` | Sessions of `perSession` units on the chosen weekdays from `startDate`; `[]` without weekdays                                                                                         |
+| `scheduleProblem(options)`                                        | Error text for the stepper (no weekdays, bad time…) or `null`                                                                                                                         |
+| `shiftSessions(sessions, id, date, shiftLater)`                   | `{ id, date }[]` changes: the moved session and, optionally, later pending ones by the same days                                                                                      |
+| `planDates(sessions)` / `planSummary(sessions, weekdays)`         | `nextDate`/`endDate`; sessions, minutes, nights a week, first and finish date                                                                                                         |
+| `nextSlot(after, weekdays)`                                       | First allowed weekday after a day (where a skip's copy goes)                                                                                                                          |
+| `unitsLabel(units)`                                               | `S2E5`, `S2E5–E6`, `S2E13–S3E1`, or movie titles                                                                                                                                      |
+| `toIcs(name, events, now, timeZone?)`                             | iCalendar text (RFC 5545: escaping, 75-octet folding, CRLF); UTC times, or `TZID` wall-clock times with a zone (the server feed). Lives in `api/_lib/ics.ts`, shared with the browser |
+| `monthGrid(month)`, `addDays`, `weekdayOf`, `localToday`          | Calendar-day helpers (`utils/calendar.ts`)                                                                                                                                            |
 
 ## Statistics: `src/utils/stats.ts` ✅
 
@@ -312,3 +315,7 @@ Thunks call the services above; reducers stay pure. The store only holds seriali
 | `useTmdbLanguage()`                                     |   ✅   | TMDB code of the UI language (`ru-RU`), part of every request key                             |
 | `useNotifications()`                                    |   ✅   | Live notifications of the verified email, `unread`, `markRead`, `markAllRead`, `decline`      |
 | `useOnlineStatus()`                                     |   ✅   | `true` / `false` from `online` / `offline` events                                             |
+
+## Calendar feed: `api/ics.ts` ✅
+
+`GET /api/calendar/<token>.ics` (Vercel rewrites it to `/api/ics?file=<token>.ics`; `?token=` works too). The token is `users/{uid}.icsToken`; there is no other credential, because Google Calendar fetches the file without signing in. Unknown or malformed tokens get 404, a missing `FIREBASE_SERVICE_ACCOUNT` gets 503. The response is `text/calendar` with `Cache-Control: private, no-store`: one event per pending session of the user's own plans and of plans shared with the user's verified email (archived plans left out), named `Plan title · S1E3–E4` like the plan page's export, in the zone saved with the link. Google refreshes subscribed calendars only every few hours.

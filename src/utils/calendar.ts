@@ -153,3 +153,6 @@ export function relativeDay(day: string, today: string, locale = currentLocale()
   }
   return formatDay(day, { weekday: 'short', month: 'short', day: 'numeric' }, locale)
 }
+
+/** The IANA name of this device's time zone ("Asia/Almaty"), or "UTC" when it can't tell. */
+export const localTimeZone = (): string => Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'

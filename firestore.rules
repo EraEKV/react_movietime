@@ -91,13 +91,18 @@ service cloud.firestore {
     function validProfile() {
       let d = request.resource.data;
       return d.keys().hasOnly(['displayName', 'email', 'photoURL', 'providers', 'settings',
-          'createdAt', 'updatedAt', 'welcomedAt'])
+          'createdAt', 'updatedAt', 'welcomedAt', 'icsToken', 'icsTimeZone'])
         && d.displayName is string && d.displayName.size() >= 1 && d.displayName.size() <= 40
         && d.email is string
         && (d.photoURL == null || d.photoURL is string)
         && d.providers is list
         // Set by api/send-welcome, with the user's own token, when the welcome email is sent.
         && (!('welcomedAt' in d) || d.welcomedAt is timestamp)
+        // The secret of the calendar subscription link (api/ics.ts looks the owner up by it)
+        // and the user's time zone, which the feed needs because sessions are wall-clock times.
+        && (!('icsToken' in d) || (d.icsToken is string && d.icsToken.matches('[A-Za-z0-9_-]{32}')))
+        && (!('icsTimeZone' in d) || (d.icsTimeZone is string && d.icsTimeZone.size() <= 64
+            && d.icsTimeZone.matches('[A-Za-z0-9_+/-]+')))
         && d.settings is map && d.settings.keys().hasOnly(['theme', 'language'])
         && d.settings.get('theme', 'system') in ['light', 'dark', 'system']
         && d.settings.get('language', 'en') in ['en', 'ru', 'kk']
