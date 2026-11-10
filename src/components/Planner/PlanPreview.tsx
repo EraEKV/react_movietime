@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { imageUrl } from '../../shared/api/tmdb'
 import type { PlanColor, ScheduledSession } from '../../types/plan'
+import type { Booking } from '../../utils/conflicts'
 import { formatDay, monthGrid, monthOf } from '../../utils/calendar'
 import type { PlanSummary } from '../../utils/schedule'
 import { totalHours, unitsLabel } from '../../utils/schedule'
@@ -68,6 +69,10 @@ interface PreviewStepProps {
   onRemove?: (mediaKey: string) => void
   /** A session was dropped on another day in the calendar (see `sessionKey`). */
   onMoveSession?: (key: string, date: string) => void
+  /** Sessions that overlap one of my other plans, by session key. */
+  overlaps?: Record<string, Booking[]>
+  /** A session got its own time (see `sessionKey`). */
+  onRetime?: (key: string, time: string) => void
   /** Where a session may land; the calendar only lights up those days. */
   canMoveSession?: (key: string, date: string) => boolean
   /** Something was changed by hand; put everything back. */
@@ -88,6 +93,8 @@ export function PreviewStep({
   onMove,
   onRemove,
   onMoveSession,
+  onRetime,
+  overlaps,
   canMoveSession,
   onReset,
 }: PreviewStepProps) {
@@ -111,6 +118,8 @@ export function PreviewStep({
           movies={movies}
           onMove={onMove}
           onRemove={onRemove}
+          onRetime={onRetime}
+          overlaps={overlaps}
           onReset={onReset}
         />
       </section>
@@ -145,6 +154,11 @@ export function PreviewStep({
           }))}
         />
       </section>
+      {overlaps && Object.keys(overlaps).length > 0 && (
+        <Banner tone="warning" icon="alert">
+          {t('preview.overlapBanner')}
+        </Banner>
+      )}
       <Banner>{t('preview.banner')}</Banner>
     </div>
   )

@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
+import styles from './Planner.module.css'
 import type { PlanSession } from '../../types/plan'
 import { bySchedule, unitsLabel } from '../../utils/schedule'
 import Banner from '../../shared/ui/Banner/Banner'
@@ -8,7 +9,9 @@ import Checkbox from '../../shared/ui/Checkbox/Checkbox'
 import DatePicker from '../DatePicker/DatePicker'
 import Dialog from '../../shared/ui/Dialog/Dialog'
 import SelectField from '../../shared/ui/SelectField/SelectField'
+import { endTimeOf, findConflicts } from '../../utils/conflicts'
 import { timeOptions } from '../../utils/planner'
+import { useBookedSessions, usePlans } from '../../hooks/usePlanner'
 
 interface RescheduleDialogProps {
   session: PlanSession
@@ -38,6 +41,15 @@ export default function RescheduleDialog({
   const marked = sessions
     .filter((s) => s.id !== session.id && s.status !== 'skipped')
     .map((s) => s.date)
+
+  // The other evenings already taken, by any of my plans (only while this dialog is open).
+  const plans = usePlans()
+  const bookings = useBookedSessions(plans.plans)
+  const overlaps = findConflicts(
+    { date, time, minutes: session.minutes },
+    bookings,
+    `${session.planId}/${session.id}`,
+  )
 
   async function move() {
     setSaving(true)
@@ -86,6 +98,21 @@ export default function RescheduleDialog({
         options={timeOptions(time)}
         onChange={setTime}
       />
+      {overlaps.length > 0 && (
+        <Banner tone="warning" icon="alert">
+          <ul className={styles.overlaps}>
+            {overlaps.slice(0, 3).map((booking) => (
+              <li key={booking.id}>
+                {t('move.overlap', {
+                  title: booking.title,
+                  from: booking.time,
+                  to: endTimeOf(booking),
+                })}
+              </li>
+            ))}
+          </ul>
+        </Banner>
+      )}
       {later > 0 && (
         <Checkbox
           label={t('move.shift', { sessions: t('common:count.sessions', { count: later }) })}

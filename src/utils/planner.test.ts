@@ -2,7 +2,14 @@ import { describe, expect, it } from 'vitest'
 import type { LibraryMedia } from '../types/library'
 import { buildSchedule } from './schedule'
 import type { PlanUnit } from '../types/plan'
-import { applyOrder, isSourceOrder, moveUnit, moviePlanDraft, sourceIdOf } from './planner'
+import {
+  applyOrder,
+  isSourceOrder,
+  moveUnit,
+  moviePlanDraft,
+  scheduleLabel,
+  sourceIdOf,
+} from './planner'
 
 const media: LibraryMedia = {
   mediaType: 'movie',
@@ -113,5 +120,16 @@ describe('marathon order', () => {
     expect(isSourceOrder(units, units)).toBe(true)
     expect(isSourceOrder(applyOrder(units, ['movie_2']), units)).toBe(false)
     expect(isSourceOrder(units.slice(1), units)).toBe(false)
+  })
+})
+
+describe('scheduleLabel', () => {
+  it('names the days and the usual time', () => {
+    expect(scheduleLabel({ weekdays: [5, 6, 0], time: '21:00' })).toBe('Fri, Sat, Sun at 21:00')
+  })
+  it('puts weekdays with their own time in a group of their own', () => {
+    expect(scheduleLabel({ weekdays: [5, 6, 0], time: '21:00', times: { 5: '22:30' } })).toBe(
+      'Sat, Sun at 21:00 · Fri at 22:30',
+    )
   })
 })

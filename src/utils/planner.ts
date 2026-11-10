@@ -1,7 +1,15 @@
 import i18n from '../shared/i18n'
 // Pure planner helpers: TMDB episodes → plan units, colours, labels, roles. No React.
 import type { LibraryMedia, SeriesProgress } from '../types/library'
-import type { Plan, PlanColor, PlanDraft, PlanRole, PlanUnit, Weekday } from '../types/plan'
+import type {
+  Plan,
+  PlanColor,
+  PlanDraft,
+  PlanRole,
+  PlanUnit,
+  ScheduleOptions,
+  Weekday,
+} from '../types/plan'
 import type { RawSeason } from '../types/tmdb'
 import { WEEK_ORDER, weekdayOf, weekdayShort } from './calendar'
 import { watchedUpTo, type SeasonSize } from './library'
@@ -75,12 +83,32 @@ export function nextPlanColor(plans: Pick<Plan, 'color' | 'status'>[]): PlanColo
 export const isPlanColor = (value: unknown): value is PlanColor =>
   PLAN_COLORS.some((c) => c === value)
 
-/** "Mon, Wed, Fri at 21:00" — weekdays in display order (Monday first). */
-export function scheduleLabel(weekdays: Weekday[], time: string): string {
-  const days = WEEK_ORDER.filter((d) => weekdays.includes(d))
-  const text =
-    days.length === 7 ? i18n.t('planner:everyDay') : days.map((day) => weekdayShort(day)).join(', ')
-  return i18n.t('planner:scheduleAt', { days: text, time })
+/**
+ * "Mon, Wed, Fri at 21:00" — weekdays in display order (Monday first). Weekdays with their
+ * own time form their own group: "Sat, Sun at 21:00 · Fri at 22:30".
+ */
+export function scheduleLabel(
+  options: Pick<ScheduleOptions, 'weekdays' | 'time' | 'times'>,
+): string {
+  const days = WEEK_ORDER.filter((d) => options.weekdays.includes(d))
+  const groups = new Map<string, Weekday[]>()
+  for (const day of days) {
+    const time = options.times?.[day] ?? options.time
+    groups.set(time, [...(groups.get(time) ?? []), day])
+  }
+  // The usual time first, then the other times in the order the days come.
+  const ordered = [...groups].toSorted(
+    ([a], [b]) => Number(b === options.time) - Number(a === options.time),
+  )
+  return ordered
+    .map(([time, group]) => {
+      const text =
+        group.length === 7
+          ? i18n.t('planner:everyDay')
+          : group.map((day) => weekdayShort(day)).join(', ')
+      return i18n.t('planner:scheduleAt', { days: text, time })
+    })
+    .join(' · ')
 }
 
 /** 0…1 for the progress ring and bar. */

@@ -112,3 +112,30 @@
   background: var(--surface-selected);
   box-shadow: inset 0 0 0 2px var(--accent);
 }
+
+/* The dragged chip with what it says about the day under it. */
+.carried {
+  position: relative;
+}
+
+.hint {
+  position: absolute;
+  top: calc(100% + var(--space-1));
+  left: 0;
+  z-index: 1;
+  width: max-content;
+  max-width: 240px;
+  margin: 0;
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-raised);
+  box-shadow: var(--shadow-2);
+  color: var(--text);
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.hintWarning {
+  border-color: var(--warning);
+}

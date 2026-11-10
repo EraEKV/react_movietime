@@ -3,7 +3,10 @@ import { useTranslation } from 'react-i18next'
 import { useLocation, useSearchParams } from 'react-router'
 import Button from '../shared/ui/Button/Button'
 import ButtonLink from '../shared/ui/ButtonLink/ButtonLink'
-import CalendarMonth, { type CalendarItem } from '../components/CalendarMonth/CalendarMonth'
+import CalendarMonth, {
+  type CalendarItem,
+  type DropHint,
+} from '../components/CalendarMonth/CalendarMonth'
 import EmptyState from '../shared/ui/EmptyState/EmptyState'
 import ErrorState from '../shared/ui/EmptyState/ErrorState'
 import IconButton from '../shared/ui/IconButton/IconButton'
@@ -15,6 +18,7 @@ import Toast from '../shared/ui/Toast/Toast'
 import { useMediaQuery } from '../shared/hooks/useMediaQuery'
 import { useAuth } from '../hooks/useAuth'
 import { usePlanActions, usePlanner } from '../hooks/usePlanner'
+import { useMemo } from 'react'
 import { useTimedState } from '../shared/hooks/useTimedState'
 import type { Plan, PlannedSession } from '../types/plan'
 import {
@@ -31,6 +35,8 @@ import {
 import { noticeFromState } from '../shared/lib/notice'
 import { canEditSessions, planErrorMessage, sessionPoster } from '../utils/planner'
 import { roleOf } from '../utils/sharing'
+import { bookingsOf } from '../utils/conflicts'
+import { dropInfo } from '../utils/dropInfo'
 import { unitsLabel } from '../utils/schedule'
 import styles from './PlannerPage.module.css'
 
@@ -102,6 +108,8 @@ export default function PlannerPage() {
     show === 'all' || (show === 'shared') === plans.sharedIds.has(plan.id)
   const shownPlans = plans.plans?.filter(included) ?? null
   const monthSessions = visible.sessions?.filter((s) => included(s.plan)) ?? null
+  // Every plan counts for overlaps, whatever the Mine/Shared filter shows.
+  const bookings = useMemo(() => bookingsOf(visible.sessions ?? []), [visible.sessions])
   const todaySessions = todays.sessions?.filter((s) => included(s.plan)) ?? null
 
   const header = (
@@ -198,6 +206,21 @@ export default function PlannerPage() {
     }
   }
 
+  function dropHint(key: string, date: string): DropHint | null {
+    const moved = monthSessions?.find((s) => `${s.plan.id}/${s.session.id}` === key)
+    if (!moved || !visible.sessions) return null
+    const { after, overlaps } = dropInfo(moved, date, visible.sessions, bookings)
+    const day = formatDay(date, { weekday: 'short', month: 'long', day: 'numeric' })
+    const first = overlaps[0]
+    if (first) {
+      return {
+        warning: true,
+        text: t('dropHint.overlap', { day, title: first.title, from: first.from, to: first.to }),
+      }
+    }
+    return { text: after ? t('dropHint.after', { day, title: after }) : day }
+  }
+
   let schedule
   if (visible.status === 'error') {
     schedule = (
@@ -223,6 +246,7 @@ export default function PlannerPage() {
           return toItem(item, role !== null && canEditSessions(role))
         })}
         onMove={(key, date) => void moveSession(key, date)}
+        hint={dropHint}
       />
     )
   } else {

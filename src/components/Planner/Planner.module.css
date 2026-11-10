@@ -272,10 +272,15 @@
   font-weight: 600;
 }
 
-.agendaDate span {
+.agendaDate > span {
   color: var(--text-muted);
   font-size: 13px;
   line-height: 18px;
+}
+
+.agendaDateEdit {
+  width: 120px;
+  gap: var(--space-1);
 }
 
 .agendaPoster {
@@ -344,4 +349,22 @@
 
 .agendaHint p {
   margin: 0;
+}
+.ownTimes {
+  align-self: flex-start;
+}
+
+/* Sessions that collide with a time the user picked. */
+.overlaps {
+  margin: 0;
+  padding-left: var(--space-4);
+}
+
+.overlapNote {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--warning);
+  font-size: 13px;
+  line-height: 18px;
 }

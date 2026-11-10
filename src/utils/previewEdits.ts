@@ -6,6 +6,9 @@ import { buildSchedule } from './schedule'
 /** Custom dates by session key: a film's media key (marathon) or the session index (series). */
 export type Moves = Record<string, string>
 
+/** Custom times by session key (same keys as `Moves`). */
+export type Times = Record<string, string>
+
 export const sessionKey = (session: ScheduledSession, movies: boolean): string =>
   movies ? (session.units[0]?.mediaKey ?? String(session.index)) : String(session.index)
 
@@ -29,6 +32,19 @@ export function applyMoves(
     .sort((a, b) => a.session.date.localeCompare(b.session.date) || a.position - b.position)
     .map(({ session }, index) => ({ ...session, index }))
 }
+
+/** The sessions with the user's own times on top. */
+export const applyTimes = (
+  sessions: ScheduledSession[],
+  times: Times,
+  movies: boolean,
+): ScheduledSession[] =>
+  Object.keys(times).length === 0
+    ? sessions
+    : sessions.map((session) => ({
+        ...session,
+        time: times[sessionKey(session, movies)] ?? session.time,
+      }))
 
 /**
  * Can this session land on `date`? Never in the past. A marathon takes any day; a series

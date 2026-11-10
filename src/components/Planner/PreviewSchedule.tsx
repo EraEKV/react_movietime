@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { imageUrl } from '../../shared/api/tmdb'
 import { formatRuntime } from '../../shared/lib/format'
@@ -8,6 +8,11 @@ import IconButton from '../../shared/ui/IconButton/IconButton'
 import SortableList from '../../shared/ui/SortableList/SortableList'
 import type { ScheduledSession } from '../../types/plan'
 import { formatDay } from '../../utils/calendar'
+import { cx } from '../../shared/lib/cx'
+import SelectField from '../../shared/ui/SelectField/SelectField'
+import { timeOptions } from '../../utils/planner'
+import { endTimeOf, type Booking } from '../../utils/conflicts'
+import { sessionKey } from '../../utils/previewEdits'
 import { groupByWeek, unitsLabel, weekLabel } from '../../utils/schedule'
 import styles from './Planner.module.css'
 
@@ -26,6 +31,10 @@ interface PreviewScheduleProps {
   onMove?: (movedKey: string, overKey: string) => void
   /** Marathons only: drop a film from the plan (media key). Offered while two or more remain. */
   onRemove?: (mediaKey: string) => void
+  /** Offers a time picker on every session (key as in `sessionKey`). */
+  onRetime?: (key: string, time: string) => void
+  /** Sessions that overlap one of my other plans, by session key. */
+  overlaps?: Record<string, Booking[]>
   /** Put the plan back as the source and the weekdays give it (order, dates, dropped films). */
   onReset?: () => void
 }
@@ -41,10 +50,21 @@ export default function PreviewSchedule({
   movies,
   onMove,
   onRemove,
+  onRetime,
+  overlaps,
   onReset,
 }: PreviewScheduleProps) {
   const { t } = useTranslation(['planner', 'common'])
   const [all, setAll] = useState(false)
+  const noteOf = (session: ScheduledSession) => (
+    <OverlapNote bookings={overlaps?.[sessionKey(session, movies)]} />
+  )
+  const slot = (session: ScheduledSession) => (
+    <SlotCell
+      session={session}
+      onTime={onRetime && ((time) => onRetime(sessionKey(session, movies), time))}
+    />
+  )
 
   if (sessions.length === 0) return null
 
@@ -56,8 +76,8 @@ export default function PreviewSchedule({
         <ol className={styles.agendaList} aria-label={t('preview.scheduleLabel')}>
           {sessions.map((session) => (
             <li key={session.index} className={styles.agendaRow}>
-              <SlotCell session={session} />
-              <FilmCells session={session} />
+              {slot(session)}
+              <FilmCells session={session} note={noteOf(session)} />
             </li>
           ))}
         </ol>
@@ -95,8 +115,8 @@ export default function PreviewSchedule({
           renderItem={(session, handle) => (
             <>
               {handle}
-              <SlotCell session={session} />
-              <FilmCells session={session} />
+              {slot(session)}
+              <FilmCells session={session} note={noteOf(session)} />
               {removable && (
                 <IconButton
                   icon="x"
@@ -123,7 +143,7 @@ export default function PreviewSchedule({
           <ol className={styles.agendaList}>
             {list.map((session) => (
               <li key={session.index} className={styles.agendaRow}>
-                <EpisodeRow session={session} />
+                <EpisodeRow session={session} slot={slot(session)} note={noteOf(session)} />
               </li>
             ))}
           </ol>
@@ -148,17 +168,35 @@ export default function PreviewSchedule({
 }
 
 /** The date and time slot of a session. */
-export function SlotCell({ session }: { session: ScheduledSession }) {
+export function SlotCell({
+  session,
+  onTime,
+}: {
+  session: ScheduledSession
+  /** With it the time is a picker. */
+  onTime?: (time: string) => void
+}) {
+  const { t } = useTranslation('planner')
   return (
-    <span className={styles.agendaDate}>
+    <span className={cx(styles.agendaDate, onTime && styles.agendaDateEdit)}>
       <strong>{dayLabel(session.date)}</strong>
-      <span>{session.time}</span>
+      {onTime ? (
+        <SelectField
+          label={t('preview.timeFor', { day: dayLabel(session.date) })}
+          hideLabel
+          value={session.time}
+          options={timeOptions(session.time)}
+          onChange={onTime}
+        />
+      ) : (
+        <span>{session.time}</span>
+      )}
     </span>
   )
 }
 
 /** One film on one evening. */
-export function FilmCells({ session }: { session: ScheduledSession }) {
+export function FilmCells({ session, note }: { session: ScheduledSession; note?: ReactNode }) {
   const film = session.units[0]
   const poster = imageUrl(film?.media?.posterPath, 'w92')
   const sub = [film?.media?.year, formatRuntime(film?.runtime)].filter(Boolean).join(' · ')
@@ -170,22 +208,45 @@ export function FilmCells({ session }: { session: ScheduledSession }) {
       <span className={styles.agendaText}>
         <strong className={styles.agendaTitle}>{film?.title}</strong>
         {sub && <span className={styles.agendaSub}>{sub}</span>}
+        {note}
       </span>
     </>
   )
 }
 
 /** One session of a series: the episode range, the runtime and the episode names. */
-function EpisodeRow({ session }: { session: ScheduledSession }) {
+function EpisodeRow({
+  session,
+  slot,
+  note,
+}: {
+  session: ScheduledSession
+  slot: ReactNode
+  note: ReactNode
+}) {
   const names = session.units.map((unit) => unit.title).join(' · ')
   const sub = [formatRuntime(session.minutes), names].filter(Boolean).join(' · ')
   return (
     <>
-      <SlotCell session={session} />
+      {slot}
       <span className={styles.agendaText}>
         <strong className={styles.agendaTitle}>{unitsLabel(session.units)}</strong>
         {sub && <span className={styles.agendaSub}>{sub}</span>}
+        {note}
       </span>
     </>
+  )
+}
+
+/** "Overlaps Dark, 21:30–00:00": what else is on at that time. */
+function OverlapNote({ bookings }: { bookings: Booking[] | undefined }) {
+  const { t } = useTranslation('planner')
+  const first = bookings?.[0]
+  if (!first) return null
+  return (
+    <span className={styles.overlapNote}>
+      <Icon name="alert" size={14} />
+      {t('move.overlap', { title: first.title, from: first.time, to: endTimeOf(first) })}
+    </span>
   )
 }

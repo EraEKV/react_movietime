@@ -35,6 +35,13 @@ export interface CalendarItem {
   movable?: boolean
 }
 
+/** What a dragged chip says about the day it hovers over. */
+export interface DropHint {
+  text: string
+  /** Something is wrong with this day (an overlap); the hint is drawn as a warning. */
+  warning?: boolean
+}
+
 interface CalendarMonthProps {
   month: MonthRef
   /** Days to show (utils/calendar monthGrid): whole weeks, Monday first. */
@@ -51,6 +58,8 @@ interface CalendarMonthProps {
   onMove?: (key: string, date: string) => void
   /** Narrows where a dragged chip may land (a series keeps its episodes in order). */
   canDrop?: (key: string, date: string) => boolean
+  /** Said next to the chip and to screen readers while it hovers over a day. */
+  hint?: (key: string, date: string) => DropHint | null
 }
 
 /**
@@ -72,10 +81,12 @@ export default function CalendarMonth({
   label,
   onMove,
   canDrop,
+  hint,
 }: CalendarMonthProps) {
   const { t } = useTranslation()
   const [expanded, setExpanded] = useState<string | null>(null)
   const [dragging, setDragging] = useState<string | null>(null)
+  const [overDay, setOverDay] = useState<string | null>(null)
   // A few pixels of travel (or a short touch hold) before a drag starts, so a plain click
   // still opens the plan and a touch swipe still scrolls the page.
   const sensors = useSensors(
@@ -91,7 +102,8 @@ export default function CalendarMonth({
 
   const announcements: Announcements = {
     onDragStart: ({ active }) => t('calendar.dragStart', { title: itemOf(active.id)?.title }),
-    onDragOver: () => undefined,
+    onDragOver: ({ active, over }) =>
+      (over && hint?.(String(active.id), String(over.id))?.text) || undefined,
     onDragEnd: ({ active, over }) =>
       over
         ? t('calendar.dragEnd', { title: itemOf(active.id)?.title, day: dayName(String(over.id)) })
@@ -101,6 +113,7 @@ export default function CalendarMonth({
 
   function handleDragEnd({ active, over }: DragEndEvent) {
     setDragging(null)
+    setOverDay(null)
     const item = itemOf(active.id)
     if (!over || !item || item.date === over.id) return
     if (canDrop && !canDrop(item.key, String(over.id))) return
@@ -150,8 +163,12 @@ export default function CalendarMonth({
       sensors={sensors}
       accessibility={{ announcements }}
       onDragStart={({ active }) => setDragging(String(active.id))}
+      onDragOver={({ over }) => setOverDay(over ? String(over.id) : null)}
       onDragEnd={handleDragEnd}
-      onDragCancel={() => setDragging(null)}
+      onDragCancel={() => {
+        setDragging(null)
+        setOverDay(null)
+      }}
     >
       <div
         className={cx(styles.calendar, size === 'sm' && styles.small)}
@@ -211,8 +228,26 @@ export default function CalendarMonth({
           )
         })}
       </div>
-      <DragOverlay>{dragged ? chip(dragged, undefined, false) : null}</DragOverlay>
+      <DragOverlay>
+        {dragged ? (
+          <div className={styles.carried}>
+            {chip(dragged, undefined, false)}
+            {dragging && overDay && overDay !== dragged.date && (
+              <DropHintBubble hint={hint?.(dragging, overDay) ?? null} />
+            )}
+          </div>
+        ) : null}
+      </DragOverlay>
     </DndContext>
+  )
+}
+
+function DropHintBubble({ hint }: { hint: DropHint | null }) {
+  if (!hint) return null
+  return (
+    <p className={cx(styles.hint, hint.warning && styles.hintWarning)} aria-hidden="true">
+      {hint.text}
+    </p>
   )
 }
 

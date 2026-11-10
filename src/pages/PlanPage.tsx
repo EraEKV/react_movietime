@@ -352,7 +352,7 @@ function PlanView({ id }: { id: string }) {
             />
             <span className={styles.kicker}>
               {t('plan.kicker', {
-                schedule: scheduleLabel(plan.options.weekdays, plan.options.time),
+                schedule: scheduleLabel(plan.options),
               })}
             </span>
           </span>

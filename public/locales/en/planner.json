@@ -55,6 +55,7 @@
     "submit": "Save order"
   },
   "move": {
+    "overlap": "Overlaps {{title}}, {{from}}–{{to}}",
     "title": "Reschedule {{units}}",
     "submit": "Move session",
     "date": "New date",
@@ -116,6 +117,10 @@
     "weekdays": "Pick at least one weekday.",
     "time": "Pick a time.",
     "perSession": "Choose 1 to {{max}} per session."
+  },
+  "dropHint": {
+    "after": "{{day}} · after {{title}}",
+    "overlap": "{{day}} · overlaps {{title}}, {{from}}–{{to}}"
   },
   "everyDay": "Every day",
   "scheduleAt": "{{days}} at {{time}}",
@@ -188,6 +193,8 @@
     "startDate": "Start date",
     "watchOn": "Watch on",
     "time": "Time",
+    "ownTimes": "Different time on some days",
+    "sameTime": "Same time on every day",
     "perSession": "Episodes per session"
   },
   "preview": {
@@ -209,6 +216,8 @@
     "dragHint": "Drag the handle to change the order. The dates stay, the films move.",
     "moveHintFilms": "Drag a film to another day. The films follow their dates.",
     "moveHintEpisodes": "Drag a session to another day. It stays between the sessions on either side.",
+    "overlapBanner": "Some sessions overlap with your other plans. You can still create the plan, or move them here first.",
+    "timeFor": "Time on {{day}}",
     "reset": "Reset changes",
     "remove": "Leave {{title}} out of the plan",
     "reorder": {
