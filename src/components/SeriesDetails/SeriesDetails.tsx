@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next'
 
 import { ApiError, endpoints } from '../../shared/api/tmdb'
 import { useFetch } from '../../shared/hooks/useFetch'
+import { seriesCredits } from '../../utils/credits'
 import { keyCrew } from '../../utils/person'
 import { useGenres } from '../../hooks/useGenres'
 import type { SeriesDetails as SeriesDetailsData } from '../../types/tmdb'
@@ -33,7 +34,7 @@ const MAX_RECOMMENDATIONS = 10
 export default function SeriesDetails({ seriesId }: { seriesId: string }) {
   const { t } = useTranslation(['catalog', 'common'])
   const { t: tPerson } = useTranslation('person')
-  // One request: details + credits + videos + recommendations via append_to_response.
+  // One request: details + credits + aggregate credits + videos + recommendations via append_to_response.
   const {
     status,
     data: series,
@@ -66,11 +67,12 @@ export default function SeriesDetails({ seriesId }: { seriesId: string }) {
     )
   }
 
+  const credits = seriesCredits(series)
+  const cast = credits.cast
   const crew = keyCrew([
     ...series.created_by.map((creator) => ({ ...creator, job: 'Creator' })),
-    ...series.credits.crew,
+    ...credits.crew,
   ])
-  const cast = series.credits.cast
   const trailer = pickTrailer(series.videos.results)
   const seasons = sortSeasons(series.seasons)
   // Specials (season 0) are left out of the heatmap: they aren't part of the story arc.

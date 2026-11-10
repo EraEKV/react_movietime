@@ -140,9 +140,32 @@ export interface Translations {
   translations: Translation[]
 }
 
-/** /tv/{id}?append_to_response=credits,videos,recommendations,translations */
+/**
+ * A person in /tv/{id}/aggregate_credits: one entry per person over all seasons and episodes,
+ * with every role. (Plain `credits` of a series only lists what is entered at show level:
+ * often two people for a cast of ninety.)
+ */
+export interface AggregateCastMember {
+  id: number
+  name: string
+  profile_path: string | null
+  roles: { credit_id: string; character: string; episode_count: number }[]
+  total_episode_count: number
+  order: number
+}
+
+export interface AggregateCrewMember {
+  id: number
+  name: string
+  department: string
+  jobs: { credit_id: string; job: string; episode_count: number }[]
+  total_episode_count: number
+}
+
+/** /tv/{id}?append_to_response=credits,aggregate_credits,videos,recommendations,translations */
 export interface SeriesDetails extends SeriesBase {
   credits: { cast: CastMember[]; crew: CrewMember[] }
+  aggregate_credits?: { cast: AggregateCastMember[]; crew: AggregateCrewMember[] }
   videos: { results: Video[] }
   recommendations: Paginated<SeriesListItem>
   translations?: Translations
