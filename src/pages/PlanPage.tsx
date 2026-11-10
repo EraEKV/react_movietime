@@ -16,6 +16,7 @@ import Icon from '../shared/ui/Icon/Icon'
 import IconButton from '../shared/ui/IconButton/IconButton'
 import Menu from '../shared/ui/Menu/Menu'
 import RescheduleDialog from '../components/Planner/RescheduleDialog'
+import ReorderFilmsDialog from '../components/Planner/ReorderFilmsDialog'
 import SessionRow from '../components/Planner/SessionRow'
 import ProgressBar from '../shared/ui/ProgressBar/ProgressBar'
 import ShareDialog from '../components/ShareDialog/ShareDialog'
@@ -93,6 +94,7 @@ function PlanView({ id }: { id: string }) {
   const today = localToday()
 
   const [moving, setMoving] = useState<PlanSession | null>(null)
+  const [reordering, setReordering] = useState(false)
   const [shareOpen, setShareOpen] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [deleting, setDeleting] = useState(false)
@@ -193,6 +195,11 @@ function PlanView({ id }: { id: string }) {
   const pendingCopy = (s: PlanSession) =>
     sessions?.some((c) => c.copyOf === s.id && c.status === 'pending') ?? false
 
+  // A movie marathon's remaining films can be reordered by whoever may edit the plan.
+  const pendingFilms = sessions?.filter((s) => s.status === 'pending') ?? []
+  const canReorder =
+    plan.kind === 'list' && (role === 'owner' || role === 'editor') && pendingFilms.length > 1
+
   let actionsBar
   if (role === 'owner') {
     actionsBar = (
@@ -200,6 +207,11 @@ function PlanView({ id }: { id: string }) {
         <Button variant="primary" icon="share" onClick={() => setShareOpen(true)}>
           {t('plan.share')}
         </Button>
+        {canReorder && (
+          <Button icon="list" onClick={() => setReordering(true)}>
+            {t('plan.reorder')}
+          </Button>
+        )}
         <Button
           icon="download"
           disabled={!sessions}
@@ -232,6 +244,15 @@ function PlanView({ id }: { id: string }) {
             triggerClassName={buttonClass('secondary', 'md', { iconOnly: true })}
             trigger={<Icon name="more" size={20} />}
             items={[
+              ...(canReorder
+                ? [
+                    {
+                      label: t('plan.reorder'),
+                      icon: 'list' as const,
+                      onSelect: () => setReordering(true),
+                    },
+                  ]
+                : []),
               {
                 label: t('plan.leave'),
                 icon: 'logout',
@@ -400,6 +421,21 @@ function PlanView({ id }: { id: string }) {
                   date: formatDay(date, { weekday: 'short', month: 'short', day: 'numeric' }),
                 }),
               })
+            } catch (error) {
+              throw new Error(planErrorMessage(error), { cause: error })
+            }
+          }}
+        />
+      )}
+
+      {reordering && canReorder && (
+        <ReorderFilmsDialog
+          sessions={pendingFilms}
+          onClose={() => setReordering(false)}
+          onSave={async (order) => {
+            try {
+              await actions.reorderFilms(plan, order)
+              showToast({ text: t('plan.reordered') })
             } catch (error) {
               throw new Error(planErrorMessage(error), { cause: error })
             }

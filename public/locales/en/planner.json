@@ -49,6 +49,11 @@
     "undoWatched": "Undo watched: {{units}}",
     "undoSkip": "Undo skip: {{units}}"
   },
+  "reorder": {
+    "title": "Reorder films",
+    "body": "The films move between the evenings that are still ahead. The dates and times stay.",
+    "submit": "Save order"
+  },
   "move": {
     "title": "Reschedule {{units}}",
     "submit": "Move session",
@@ -72,6 +77,8 @@
     "delete": "Delete plan",
     "more": "More plan actions",
     "leave": "Leave plan",
+    "reorder": "Reorder films",
+    "reordered": "Films reordered",
     "sessionsError": "We couldn’t load the sessions",
     "marked": "Marked {{units}} as watched",
     "skippedToast": "Skipped {{units}}: moved to the end",
