@@ -9,6 +9,7 @@ import {
   planSummary,
   scheduleProblem,
   shiftSessions,
+  timeOn,
   unitsLabel,
   weekLabel,
 } from './schedule'
@@ -49,6 +50,13 @@ describe('buildSchedule', () => {
     expect(scheduleProblem({ ...options, weekdays: [] })).toBe('Pick at least one weekday.')
     expect(scheduleProblem({ ...options, perSession: 0 })).not.toBeNull()
     expect(scheduleProblem(options)).toBeNull()
+  })
+  it('starts a weekday at its own time, the rest at the usual one', () => {
+    const own = { ...options, times: { 5: '22:30' } as never }
+    expect(buildSchedule(units, own).map((s) => s.time)).toEqual(['22:30', '21:00', '21:00'])
+    expect(timeOn(own, '2026-03-13')).toBe('22:30')
+    expect(timeOn(own, '2026-03-14')).toBe('21:00')
+    expect(scheduleProblem({ ...own, times: { 5: '25:99' } as never })).not.toBeNull()
   })
   it('summarises the plan', () => {
     expect(planSummary(sessions, options.weekdays).finishDate).toBe('2026-03-10')

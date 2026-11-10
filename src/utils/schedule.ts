@@ -23,6 +23,9 @@ export function scheduleProblem(options: ScheduleOptions): string | null {
   if (!isDay(options.startDate)) return i18n.t('planner:problem.startDate')
   if (options.weekdays.length === 0) return i18n.t('planner:problem.weekdays')
   if (!isTime(options.time)) return i18n.t('planner:problem.time')
+  if (Object.values(options.times ?? {}).some((time) => !isTime(time))) {
+    return i18n.t('planner:problem.time')
+  }
   if (
     !Number.isInteger(options.perSession) ||
     options.perSession < 1 ||
@@ -32,6 +35,10 @@ export function scheduleProblem(options: ScheduleOptions): string | null {
   }
   return null
 }
+
+/** The time a session on `day` starts at: the weekday's own time, or the usual one. */
+export const timeOn = (options: Pick<ScheduleOptions, 'time' | 'times'>, day: string) =>
+  options.times?.[weekdayOf(day)] ?? options.time
 
 const minutesOf = (units: PlanUnit[]) => units.reduce((sum, unit) => sum + unit.runtime, 0)
 
@@ -53,7 +60,7 @@ export function buildSchedule(units: PlanUnit[], options: ScheduleOptions): Sche
       sessions.push({
         index: sessions.length,
         date: day,
-        time: options.time,
+        time: timeOn(options, day),
         units: chunk,
         minutes: minutesOf(chunk),
       })

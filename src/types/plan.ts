@@ -35,7 +35,10 @@ export interface PlanUnit {
 export interface ScheduleOptions {
   startDate: string
   weekdays: Weekday[]
+  /** The usual time of a session. */
   time: string
+  /** Weekdays that start at their own time (Friday at 22:30); the rest use `time`. */
+  times?: Partial<Record<Weekday, string>>
   /** Episodes per session (movies: always 1). */
   perSession: number
 }

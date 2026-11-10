@@ -40,6 +40,7 @@ import {
   buildSchedule,
   bySchedule,
   nextSlot,
+  timeOn,
   planDates,
   shiftSessions,
   unitsLabel,
@@ -124,10 +125,16 @@ const isWeekday = (v: unknown): v is Weekday =>
 function toOptions(value: unknown): PlanOptions {
   const o = (typeof value === 'object' && value !== null ? value : {}) as Record<string, unknown>
   const from = o.from as Record<string, unknown> | null | undefined
+  const times = Object.fromEntries(
+    Object.entries((o.times ?? {}) as Record<string, unknown>).filter(
+      ([day, time]) => isWeekday(Number(day)) && isTime(time),
+    ),
+  )
   return {
     startDate: isDay(o.startDate) ? o.startDate : localToday(),
     weekdays: Array.isArray(o.weekdays) ? o.weekdays.filter(isWeekday) : [],
     time: isTime(o.time) ? o.time : '20:00',
+    ...(Object.keys(times).length > 0 && { times }),
     perSession: Math.max(1, num(o.perSession, 1)),
     from:
       from && typeof from.season === 'number' && typeof from.episode === 'number'
@@ -595,11 +602,12 @@ export async function completeSession(
 export async function skipSession(plan: Plan, session: PlanSession, by: PlanPerson) {
   const all = await loadSessions(plan.id)
   const lastDate = all.reduce((max, s) => (s.date > max ? s.date : max), session.date)
+  const copyDate = nextSlot(lastDate, plan.options.weekdays)
   const copy = {
     ...sessionDoc({
       index: all.reduce((max, s) => Math.max(max, s.index), 0) + 1,
-      date: nextSlot(lastDate, plan.options.weekdays),
-      time: plan.options.time,
+      date: copyDate,
+      time: timeOn(plan.options, copyDate),
       units: session.units,
       minutes: session.minutes,
     }),
