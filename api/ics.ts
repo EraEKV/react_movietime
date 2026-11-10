@@ -84,3 +84,6 @@ export async function GET(request: Request): Promise<Response> {
     },
   })
 }
+
+// Some calendar apps check an address with HEAD first: answer it like GET (the runtime drops the body).
+export const HEAD = GET
