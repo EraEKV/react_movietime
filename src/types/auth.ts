@@ -1,3 +1,4 @@
+import type { UserAvatar } from '../shared/types/avatar'
 import type { Preferences } from '../shared/types/preferences'
 
 /** Sign-in methods Avleron offers; Firebase calls them provider ids. */
@@ -24,11 +25,15 @@ export interface AuthError {
   message: string
 }
 
+export type { AvatarColor, UserAvatar } from '../shared/types/avatar'
+
 /** `users/{uid}` as the app reads it. Timestamps become ISO strings (or null while pending). */
 export interface UserProfile {
   displayName: string
   email: string
   photoURL: string | null
+  /** The avatar chosen in settings, null when none. */
+  avatar: UserAvatar | null
   providers: string[]
   /** null when the document has none (older accounts) or an unknown value. */
   settings: Preferences | null
