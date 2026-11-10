@@ -17,13 +17,17 @@ import IconButton from '../shared/ui/IconButton/IconButton'
 import Menu from '../shared/ui/Menu/Menu'
 import RescheduleDialog from '../components/Planner/RescheduleDialog'
 import ReorderFilmsDialog from '../components/Planner/ReorderFilmsDialog'
+import MarathonVotes from '../components/Planner/MarathonVotes'
+import ProposalsPanel from '../components/Planner/ProposalsPanel'
 import SessionRow from '../components/Planner/SessionRow'
+import SuggestFilmDialog from '../components/Planner/SuggestFilmDialog'
 import ProgressBar from '../shared/ui/ProgressBar/ProgressBar'
 import ShareDialog from '../components/ShareDialog/ShareDialog'
 import Skeleton from '../shared/ui/Skeleton/Skeleton'
 import Toast from '../shared/ui/Toast/Toast'
 import { useAuth } from '../hooks/useAuth'
 import { useListAuthor } from '../hooks/useLists'
+import { canVote, useMarathonVotes, useVoteActions } from '../hooks/useMarathonVotes'
 import { loadPlannerService, usePlan, usePlanActions } from '../hooks/usePlanner'
 import { useSharing } from '../hooks/useSharing'
 import { useTimedState } from '../shared/hooks/useTimedState'
@@ -39,6 +43,7 @@ import {
   unitWord,
 } from '../utils/planner'
 import { loginPath } from '../shared/lib/redirect'
+import { likesOf, myProposal, openProposals } from '../utils/marathonVotes'
 import { groupByWeek, toIcs, unitsLabel, weekLabel } from '../utils/schedule'
 import { memberName, membersOf, roleLabel, shareUrl } from '../utils/sharing'
 import type { MemberRole } from '../types/sharing'
@@ -91,8 +96,14 @@ function PlanView({ id }: { id: string }) {
     state.status === 'ready' ? state.plan : null,
     state.status === 'ready' ? state.plan.title : '',
   )
+  const votes = useMarathonVotes(
+    state.status === 'ready' ? state.plan : null,
+    state.status === 'ready' ? state.role : null,
+  )
+  const voteActions = useVoteActions()
   const today = localToday()
 
+  const [suggesting, setSuggesting] = useState<PlanSession | null>(null)
   const [moving, setMoving] = useState<PlanSession | null>(null)
   const [reordering, setReordering] = useState(false)
   const [shareOpen, setShareOpen] = useState(false)
@@ -199,6 +210,8 @@ function PlanView({ id }: { id: string }) {
   const pendingFilms = sessions?.filter((s) => s.status === 'pending') ?? []
   const canReorder =
     plan.kind === 'list' && (role === 'owner' || role === 'editor') && pendingFilms.length > 1
+
+  const offers = role === 'owner' && sessions ? openProposals(sessions, votes.proposals) : []
 
   let actionsBar
   if (role === 'owner') {
@@ -309,6 +322,25 @@ function PlanView({ id }: { id: string }) {
                   )}
                   onUndo={act(() => actions.undo(plan, s))}
                   onReschedule={() => setMoving(s)}
+                  extra={
+                    s.status === 'pending' && plan.kind === 'list' ? (
+                      <MarathonVotes
+                        session={s}
+                        likes={likesOf(s, votes.likes)}
+                        ownUid={user?.uid ?? null}
+                        ownerName={plan.ownerName}
+                        canLike={canVote(plan, role)}
+                        canSuggest={canVote(plan, role) && role !== 'owner'}
+                        mine={myProposal(s, votes.proposals, user?.uid ?? null)}
+                        onLike={(on) => act(() => voteActions.like(plan, s, on))()}
+                        onSuggest={() => setSuggesting(s)}
+                        onWithdraw={act(
+                          () => voteActions.withdraw(plan, `${s.id}_${user?.uid ?? ''}`),
+                          t('votes.toast.withdrawn'),
+                        )}
+                      />
+                    ) : undefined
+                  }
                 />
               ))}
             </ol>
@@ -330,7 +362,13 @@ function PlanView({ id }: { id: string }) {
         {user ? t('plan.backPlanner') : t('plan.backHome')}
       </ButtonLink>
 
-      {role === 'viewer' && <Banner>{t('plan.viewerBanner', { owner: plan.ownerName })}</Banner>}
+      {role === 'viewer' && (
+        <Banner>
+          {t(plan.kind === 'list' ? 'votes.viewerBanner' : 'plan.viewerBanner', {
+            owner: plan.ownerName,
+          })}
+        </Banner>
+      )}
       {role === 'link' && (
         <Banner>{user ? t('plan.linkBannerUser') : t('plan.linkBannerGuest')}</Banner>
       )}
@@ -404,7 +442,44 @@ function PlanView({ id }: { id: string }) {
         />
       )}
 
+      {role === 'owner' && sessions && offers.length > 0 && (
+        <ProposalsPanel
+          offers={offers}
+          onDecide={(proposal, session, accept) =>
+            act(
+              () =>
+                voteActions.decide(plan, proposal, session, votes.proposals, votes.likes, accept),
+              accept
+                ? t('votes.toast.accepted', {
+                    film: proposal.unit.title,
+                    current: session.units[0]?.title ?? '',
+                  })
+                : t('votes.toast.rejected'),
+            )()
+          }
+        />
+      )}
+
       {body}
+
+      {suggesting && sessions && (
+        <SuggestFilmDialog
+          film={suggesting.units[0]?.title ?? ''}
+          when={formatDay(suggesting.date, { weekday: 'short', month: 'short', day: 'numeric' })}
+          ownerName={plan.ownerName}
+          existing={new Set(sessions.flatMap((s) => s.units.map((u) => u.mediaKey)))}
+          onClose={() => setSuggesting(null)}
+          onSend={async (tmdbId) => {
+            try {
+              const unit = await voteActions.loadFilm(tmdbId)
+              await voteActions.suggest(plan, suggesting, unit)
+              showToast({ text: t('votes.toast.sent', { owner: plan.ownerName }) })
+            } catch (error) {
+              throw new Error(planErrorMessage(error), { cause: error })
+            }
+          }}
+        />
+      )}
 
       {moving && sessions && (
         <RescheduleDialog
