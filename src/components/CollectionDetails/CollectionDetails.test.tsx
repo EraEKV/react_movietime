@@ -18,6 +18,7 @@ let entries: Pick<LibraryEntry, 'key' | 'status'>[] = []
 
 vi.mock('../../shared/hooks/useFetch', () => ({ useFetch: () => state }))
 vi.mock('../../shared/hooks/useOnlineStatus', () => ({ useOnlineStatus: () => online }))
+vi.mock('../../hooks/useAuth', () => ({ useAuth: () => ({ isAuthenticated: false }) }))
 vi.mock('../../hooks/useLibrary', () => ({ useLibrary: () => ({ entries }) }))
 
 const reload = vi.fn()
@@ -92,6 +93,7 @@ describe('CollectionDetails states', () => {
 
   it('shows the empty state and the "nothing to watch" line for a collection without films', () => {
     setup()
+    expect(screen.queryByRole('link', { name: 'Plan a marathon' })).not.toBeInTheDocument()
     expect(
       screen.getByRole('heading', { name: 'Star Wars Collection', level: 1 }),
     ).toBeInTheDocument()
@@ -155,6 +157,18 @@ describe('CollectionDetails films and progress', () => {
     ).toHaveAttribute('aria-valuenow', '33')
     expect(screen.getAllByText('Completed').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Plan to watch').length).toBeGreaterThan(0)
+  })
+
+  it('offers the marathon, and sign-in instead of adding to a list, for a guest', () => {
+    setup()
+    expect(screen.getByRole('link', { name: 'Plan a marathon' })).toHaveAttribute(
+      'href',
+      '/planner/new?collection=10',
+    )
+    expect(screen.getByRole('link', { name: 'Add all to a list' })).toHaveAttribute(
+      'href',
+      expect.stringContaining('/login'),
+    )
   })
 
   it('links every film to its movie page', () => {
