@@ -8,6 +8,7 @@ import Banner from '../../shared/ui/Banner/Banner'
 import CalendarMonth from '../CalendarMonth/CalendarMonth'
 import StatTile from '../../shared/ui/StatTile/StatTile'
 import TextField from '../../shared/ui/TextField/TextField'
+import PreviewSchedule from './PreviewSchedule'
 import styles from './Planner.module.css'
 
 const finishLabel = (day: string | null) =>
@@ -58,6 +59,8 @@ interface PreviewStepProps {
   name: string
   color: PlanColor
   today: string
+  /** A movie marathon (list or collection): one film per evening. */
+  movies: boolean
 }
 
 /** Step 4: the numbers, the first weeks on a calendar, and the plan's name. */
@@ -70,6 +73,7 @@ export function PreviewStep({
   name,
   color,
   today,
+  movies,
 }: PreviewStepProps) {
   const { t } = useTranslation('planner')
   const month = monthOf(summary.firstDate ?? today)
@@ -83,6 +87,10 @@ export function PreviewStep({
         error={titleError}
       />
       <SummaryTiles summary={summary} size="md" />
+      <section className={styles.previewCalendar} aria-label={t('preview.schedule')}>
+        <h3 className={styles.panelTitle}>{t('preview.schedule')}</h3>
+        <PreviewSchedule sessions={sessions} today={today} movies={movies} />
+      </section>
       <section className={styles.previewCalendar} aria-label={t('preview.firstWeeks')}>
         <h3 className={styles.panelTitle}>{t('preview.firstWeeks')}</h3>
         <CalendarMonth
@@ -97,8 +105,10 @@ export function PreviewStep({
             key: String(s.index),
             date: s.date,
             color,
-            title: name,
-            range: unitsLabel(s.units),
+            // A marathon's chip names the film (the plan's name is the same on every day).
+            title: movies ? (s.units[0]?.title ?? name) : name,
+            range: movies ? '' : unitsLabel(s.units),
+            time: movies ? s.time : undefined,
             status: 'pending',
           }))}
         />

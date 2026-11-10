@@ -221,3 +221,110 @@
     top: calc(var(--header-height) + var(--space-6));
   }
 }
+
+/* ---- "What and when" in the preview step ---- */
+
+.agenda {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.agendaWeek {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.agendaList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.agendaRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 64px;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+
+.agendaDate {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  width: 88px;
+  font-variant-numeric: tabular-nums;
+}
+
+.agendaDate strong {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+}
+
+.agendaDate span {
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.agendaPoster {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 36px;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  border-radius: var(--radius-xs);
+  background: var(--surface-sunken);
+  color: var(--text-subtle);
+}
+
+.agendaPoster img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.agendaText {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.agendaTitle {
+  overflow: hidden;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.agendaSub {
+  overflow: hidden;
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 18px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.agendaToggle {
+  align-self: flex-start;
+}
+
+@media (max-width: 480px) {
+  .agendaDate {
+    width: 72px;
+  }
+}

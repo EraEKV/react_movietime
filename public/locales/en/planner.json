@@ -194,7 +194,11 @@
     "banner": "You can reschedule or skip any session later. Moving one can shift all later ones.",
     "live": "Live preview",
     "pickFirst": "Pick a series or a list",
-    "numbers": "The numbers appear as soon as there is something to plan."
+    "numbers": "The numbers appear as soon as there is something to plan.",
+    "schedule": "What and when",
+    "scheduleLabel": "Sessions of the plan, in order",
+    "showAll": "Show all {{sessions}}",
+    "showFewer": "Show fewer"
   },
   "marathon": {
     "title": "Plan a movie marathon",

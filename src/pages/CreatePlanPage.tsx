@@ -232,6 +232,7 @@ export default function CreatePlanPage() {
         name={name}
         color={color}
         today={today}
+        movies={isList}
       />
     )
   }
