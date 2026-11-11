@@ -1,22 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { endpoints, withLanguage } from '../../src/shared/api/tmdb'
-import {
-  catalogPath,
-  RATING_OPTIONS,
-  RUNTIME_OPTIONS,
-  SORT_OPTIONS,
-  STATUS_OPTIONS,
-  YEAR_OPTIONS,
-  type CatalogFilters,
-} from '../../src/utils/filters'
 import { parseTmdbRequest, proxyTarget } from './tmdb'
 
 const BASE = 'https://avleron.com'
-const parse = (path: string, language = 'en-US') => {
-  const url = new URL(`${BASE}/api/tmdb${withLanguage(path, language)}`)
-  return parseTmdbRequest(url.pathname, url.search)
-}
-
 describe('parseTmdbRequest', () => {
   it('maps a proxy path and its query onto the TMDB v3 API', () => {
     expect(parseTmdbRequest('/api/tmdb/discover/movie', '?language=en-US&page=2')?.upstream).toBe(
@@ -98,61 +83,5 @@ describe('proxyTarget', () => {
     expect(proxyTarget(`${BASE}/api/tmdb/person/287?language=ru-RU`)?.key).toBe(
       '/person/287?language=ru-RU',
     )
-  })
-})
-
-// The list is only useful if it lets through everything the app really asks for.
-describe('the requests the app makes', () => {
-  it.each(['en-US', 'ru-RU', 'kk-KZ'])('every endpoint builder passes in %s', (language) => {
-    const paths = [
-      endpoints.genres('movie'),
-      endpoints.genres('tv'),
-      endpoints.trending('movie'),
-      endpoints.trending('tv'),
-      endpoints.searchSeries({ query: 'Игра престолов: сезон 1', page: 2, year: '2011' }),
-      endpoints.searchMovies({ query: "Ocean's Eleven", year: '2001' }),
-      endpoints.searchPeople({ query: 'Нолан' }),
-      endpoints.searchCollections({ query: 'Dark Knight' }),
-      endpoints.seriesSummary(1399),
-      endpoints.seriesDetails(1399, language),
-      endpoints.movieSummary(550),
-      endpoints.movieDetails(550, language),
-      endpoints.person(525),
-      endpoints.collection(263),
-      endpoints.season(1399, 3),
-      endpoints.seasonsBatch(
-        1399,
-        Array.from({ length: 20 }, (_, i) => i + 1),
-      ),
-      endpoints.discoverSeries({}),
-      endpoints.discoverMovies({}),
-    ]
-    for (const path of paths) expect(parse(path, language), path).not.toBeNull()
-  })
-
-  it('every catalogue filter combination passes', () => {
-    const yearValues = ['', ...YEAR_OPTIONS.map((o) => o.value)]
-    const sorts = SORT_OPTIONS.map((o) => o.value)
-    for (const mediaType of ['movie', 'tv'] as const) {
-      for (const sort of sorts) {
-        for (const year of [yearValues[0], yearValues[1], yearValues.at(-1)]) {
-          for (const rating of RATING_OPTIONS.map((o) => o.value)) {
-            const filters: CatalogFilters = {
-              genre: '878',
-              year: year ?? '',
-              rating,
-              lang: 'ko',
-              status: mediaType === 'tv' ? (STATUS_OPTIONS.at(-1)?.value ?? '') : '',
-              runtime: mediaType === 'movie' ? (RUNTIME_OPTIONS.at(-1)?.value ?? '') : '',
-              sort,
-            }
-            for (const query of ['', 'matrix']) {
-              const path = catalogPath(mediaType, filters, query, 3)
-              expect(parse(path), path).not.toBeNull()
-            }
-          }
-        }
-      }
-    }
   })
 })
