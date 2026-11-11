@@ -2,8 +2,9 @@
 
 This document describes the Movietime end-term project: the scope, the features, the order of
 work, how every grading requirement is covered, and notes for the defense (section 7). All
-planned phases are done; web push is out of scope, in-app notifications and invite links
-(phase 13) are in.
+planned phases are done and later work is merged: emails and web push, people and franchises,
+shared movie marathons, the calendar feed, avatars, new dashboard charts and the move to
+Cloudflare Workers with protection against bots (phases 17 to 27 in the roadmap).
 
 Related docs:
 
@@ -225,12 +226,18 @@ user's real library and plans:
 | Planner  | Calendar planner (3.7), `.ics` export.                                                                                                                                                                                                                                                                                                                                  |
 | Firebase | Auth, Firestore, security rules, offline persistence.                                                                                                                                                                                                                                                                                                                   |
 
-**Out of scope: web push (FCM).** What exists instead is in-app notifications for sharing
-(3.6). Real reminders need a server to send messages at
-the planned time (Cloud Functions need the paid Blaze plan; Vercel Functions with Cron would
-work, but only once a day on the free plan). Instead the app shows "Tonight" in the header and
-"Up next" on Home and the dashboard. If web push is added later, this section and the phase
-table change.
+**Web push (done, not FCM).** A friend gets a Web Push message when something is shared with
+them or their role changes, even when the app is closed. Each person turns it on in Settings →
+Notifications. Subscriptions are in a collection no client can read; the Worker endpoints
+`/api/push` (subscribe) and `/api/push-notify` (send) use Firebase Admin and a VAPID key pair.
+Firebase Cloud Messaging and scheduled reminders ("your episode starts in 15 minutes") are not
+built: they need a scheduler, which the free plan does not give. "Tonight" in the header and "Up
+next" on Home and the dashboard cover that need.
+
+**Email.** Invitations, role-change notices and a one-time welcome email are sent through Resend
+from Worker endpoints (`api/send-*.ts`), after the endpoint checks the caller's Firebase token.
+
+**Protection against bots and scrapers.** See [PROTECTION.md](PROTECTION.md).
 
 ### 3.11 PWA and offline (mandatory)
 
@@ -257,7 +264,7 @@ Vitest + React Testing Library + jsdom, `npm test`:
 - **Hooks:** `useDebouncedValue` with fake timers, `useFetch` race condition (a slow old
   response must not overwrite a newer one) with a mocked `fetch`.
 - **Components:** signup form validation messages, `ProtectedRoute` redirect, `Pagination`.
-- 122 tests in 15 files. Firestore security rules were checked by hand-written scripts against
+- 527 tests in 75 files (also server handlers, the TMDB proxy allow-list and the edge cache). Firestore security rules were checked by hand-written scripts against
   the emulator (owner, editor, viewer, unverified member, stranger, guest), not by `npm test`.
 
 ## 4. Pages and routes
@@ -294,40 +301,51 @@ Vitest + React Testing Library + jsdom, `npm test`:
 Each phase is one feature branch and one PR (see [CONTRIBUTING.md](CONTRIBUTING.md)).
 Small fixes between phases go straight to `main`.
 
-| #   | Branch                       | Scope                                                                                                                                                                 |
-| --- | ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 0   | `main` ✅                    | These docs and the README                                                                                                                                             |
-| 0.5 | `refactor/typescript` ✅     | Codebase migrated to TypeScript (strict), typed TMDB responses, `typescript-eslint`                                                                                   |
-| 1   | `feat/ui-foundation` ✅      | Design tokens (both themes), fonts, base UI components, header + mobile tab bar, Redux store with the `preferences` slice and theme listener, existing pages restyled |
-| 2   | `feat/firebase-auth` ✅      | `auth` slice, Firebase init, auth service, Login/Signup (email + Google), verification, protected/guest routes, user in header, profile document                      |
-| 3   | `feat/routing` ✅            | Home landing, About, catalog moved to `/series`, nested routes, lazy pages                                                                                            |
-| 4   | `feat/movies` ✅             | Movie catalog and details, shared media helpers, 5th filter, language filter, page size                                                                               |
-| 5   | `feat/library` ✅            | Watchlist → Library, Firestore sync, guest merge on sign-in                                                                                                           |
-| 6   | `feat/lists` ✅              | Lists CRUD and list items                                                                                                                                             |
-| 7   | `feat/sharing` ✅            | Link visibility, members and roles, "Shared with me", copy list, Firestore rules                                                                                      |
-| 8   | `feat/planner` ✅            | Schedule generation, calendar, complete / reschedule / skip, `.ics` export, plan sharing                                                                              |
-| 9   | `feat/dashboard` ✅          | Stats, breakdowns, filters and navigation                                                                                                                             |
-| 10  | `feat/profile` ✅            | Profile page, settings (theme, language, display name)                                                                                                                |
-| 11  | `feat/i18n` ✅               | en / ru / kk, lazy dictionaries per feature, plurals, `Intl` formats, TMDB language, header language menu                                                             |
-| 12  | `feat/pwa` ✅                | Manifest, service worker, caching, offline page, status indicator, update prompt                                                                                      |
-| 13  | `feat/notifications` ✅      | In-app notifications (bell, realtime), invite link (copy, Web Share, mailto), rules and index; web push stays out (see 3.10)                                          |
-| 14  | `test/unit-and-component` ✅ | Vitest + Testing Library: logic, slices, hooks, components (see 3.12)                                                                                                 |
-| 15  | `docs/final` ✅              | Final README, screenshots, docs sync, defense notes                                                                                                                   |
-| 16  | `feat/player` ✅             | "Where to watch" from TMDB `/watch/providers` with the JustWatch credit; no streaming of our own (see 7.4)                                                            |
+| #   | Branch                                                                    | Scope                                                                                                                                                                 |
+| --- | ------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 0   | `main` ✅                                                                 | These docs and the README                                                                                                                                             |
+| 0.5 | `refactor/typescript` ✅                                                  | Codebase migrated to TypeScript (strict), typed TMDB responses, `typescript-eslint`                                                                                   |
+| 1   | `feat/ui-foundation` ✅                                                   | Design tokens (both themes), fonts, base UI components, header + mobile tab bar, Redux store with the `preferences` slice and theme listener, existing pages restyled |
+| 2   | `feat/firebase-auth` ✅                                                   | `auth` slice, Firebase init, auth service, Login/Signup (email + Google), verification, protected/guest routes, user in header, profile document                      |
+| 3   | `feat/routing` ✅                                                         | Home landing, About, catalog moved to `/series`, nested routes, lazy pages                                                                                            |
+| 4   | `feat/movies` ✅                                                          | Movie catalog and details, shared media helpers, 5th filter, language filter, page size                                                                               |
+| 5   | `feat/library` ✅                                                         | Watchlist → Library, Firestore sync, guest merge on sign-in                                                                                                           |
+| 6   | `feat/lists` ✅                                                           | Lists CRUD and list items                                                                                                                                             |
+| 7   | `feat/sharing` ✅                                                         | Link visibility, members and roles, "Shared with me", copy list, Firestore rules                                                                                      |
+| 8   | `feat/planner` ✅                                                         | Schedule generation, calendar, complete / reschedule / skip, `.ics` export, plan sharing                                                                              |
+| 9   | `feat/dashboard` ✅                                                       | Stats, breakdowns, filters and navigation                                                                                                                             |
+| 10  | `feat/profile` ✅                                                         | Profile page, settings (theme, language, display name)                                                                                                                |
+| 11  | `feat/i18n` ✅                                                            | en / ru / kk, lazy dictionaries per feature, plurals, `Intl` formats, TMDB language, header language menu                                                             |
+| 12  | `feat/pwa` ✅                                                             | Manifest, service worker, caching, offline page, status indicator, update prompt                                                                                      |
+| 13  | `feat/notifications` ✅                                                   | In-app notifications (bell, realtime), invite link (copy, Web Share, mailto), rules and index; web push stays out (see 3.10)                                          |
+| 14  | `test/unit-and-component` ✅                                              | Vitest + Testing Library: logic, slices, hooks, components (see 3.12)                                                                                                 |
+| 15  | `docs/final` ✅                                                           | Final README, screenshots, docs sync, defense notes                                                                                                                   |
+| 16  | `feat/player` ✅                                                          | "Where to watch" from TMDB `/watch/providers` with the JustWatch credit; no streaming of our own (see 7.4)                                                            |
+| 17  | `feat/web-push`, `feat/resend-emails` ✅                                  | Web Push on share and role change, invite / role / welcome emails through Resend, `FIREBASE_SERVICE_ACCOUNT` for the server                                           |
+| 18  | `feat/people`, `feat/collections` ✅                                      | Person and franchise pages, TMDB aggregate credits, a marathon from a collection                                                                                      |
+| 19  | `feat/planner-movies`, `feat/planner-preview`, `feat/planner-schedule` ✅ | One-film plans, editable preview (drag a session, leave a film out, reorder), own time per weekday, overlap warnings                                                  |
+| 20  | `feat/calendar-feed` ✅                                                   | Secret `.ics` link with every session of your plans                                                                                                                   |
+| 21  | `feat/shared-marathon` ✅                                                 | Likes and film suggestions on shared marathons, notices for them                                                                                                      |
+| 22  | `feat/avatar` ✅                                                          | Emoji or cropped photo avatar stored in the profile                                                                                                                   |
+| 23  | `feat/franchise-people`, `feat/movie-page` ✅                             | Continue a franchise, a director marathon, full crew, where to watch on plan rows                                                                                     |
+| 24  | `fix/api-hardening` ✅                                                    | TMDB proxy allow-list, edge cache, capped bodies (see PROTECTION.md)                                                                                                  |
+| 25  | `feat/dashboard-modern`, `feat/dashboard-charts-2` ✅                     | Recharts rings and graphs, animated tiles, month activity grid, hero with genre chips                                                                                 |
+| 26  | `fix/google-auth-domain`, `fix/fewer-chunks` ✅                           | Google sign-in on our own domain, 230 → 66 build files, immutable static caching                                                                                      |
+| 27  | `fix/design-audit-2` ✅                                                   | 44px touch targets, 4/8 spacing, weekday presets, finish line, catch-up banner, self-hosted fonts, compact phone header                                               |
 
 ## 6. Requirements checklist
 
 ### Deployment & routing (0.5)
 
-| Requirement                              | How                                                                       |
-| ---------------------------------------- | ------------------------------------------------------------------------- |
-| Public HTTPS deployment                  | Vercel: https://avleron.com                                               |
-| Everything works on the deployed version | Firebase is a hosted backend; Vercel domain in Auth authorized domains    |
-| Nested routes, shared layout             | `Layout` → `Outlet`; `/lists/*`, `/planner/*`, `/profile/*`, `/library/*` |
-| Dynamic routes                           | `/movies/:id`, `/series/:id`, `/lists/:listId`, `/planner/:planId`        |
-| Lazy loading ≥ 3 pages                   | Every page except Home, auth and 404 (`React.lazy` in `App.tsx`)          |
-| Custom 404                               | `NotFoundPage` (exists)                                                   |
-| ≥ 1 authenticated-only page              | Profile, Lists, Planner                                                   |
+| Requirement                              | How                                                                                                  |
+| ---------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| Public HTTPS deployment                  | Cloudflare Workers: https://avleron.com                                                              |
+| Everything works on the deployed version | Firebase is a hosted backend; our domain in Auth authorized domains, `/__/*` proxied                 |
+| Nested routes, shared layout             | `Layout` → `Outlet`; `/lists/*`, `/planner/*`, `/profile/*`, `/library/*`                            |
+| Dynamic routes                           | `/movies/:id`, `/series/:id`, `/person/:id`, `/collection/:id`, `/lists/:listId`, `/planner/:planId` |
+| Lazy loading ≥ 3 pages                   | Every page except Home, auth and 404 (`React.lazy` in `App.tsx`)                                     |
+| Custom 404                               | `NotFoundPage` (exists)                                                                              |
+| ≥ 1 authenticated-only page              | Profile, Lists, Planner                                                                              |
 
 ### Architecture (0.5)
 
@@ -436,7 +454,9 @@ with verified emails, in two browser profiles or one normal and one private wind
    from Firestore, shown as a "no access" screen. Show `firestore.rules`.
 6. **Planner.** Create a plan from a series (weekdays, time, pace) and look at the preview, then
    confirm. Calendar, "Today", **mark a session as watched**, reschedule one with "shift later
-   sessions", export `.ics`.
+   sessions", export `.ics`. Try the weekday presets and the finish line on the schedule step,
+   and drag a session to another day in the preview. Move a plan's sessions into the past to see
+   the "continue from today" banner.
 7. **Everything connected.** After marking the session: library progress moved, the activity feed
    on `/profile` has a new record, `/dashboard` numbers changed (hours, sessions this week); click a
    bar and the library opens with that filter.
@@ -483,25 +503,26 @@ with verified emails, in two browser profiles or one normal and one private wind
 
 ### 7.4 Likely questions
 
-| Question                                               | Short answer                                                                                                                                                                                                                                                                 |
-| ------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Why Redux Toolkit and not only Context?                | Auth, library and preferences are read on many routes and change from listeners (Firestore snapshots, other tabs). Slices, selectors and listener middleware give one place for that logic and easy tests. Context would re-render consumers and mix data with side effects. |
-| Why are lists and plans not in the store?              | Only the page that shows them needs them, and `onSnapshot` already keeps them live. A copy in Redux would be a second source of truth.                                                                                                                                       |
-| How do you avoid race conditions?                      | Each request effect aborts the previous request in its cleanup (`AbortController`) and ignores late results with a flag; search is also debounced (400 ms). `useFetch` has a test for exactly this.                                                                          |
-| Why a custom `useFetch` and not React Query?           | The requirements ask for custom data-fetching hooks. The cost is no shared cache between components, which the service worker (network-first) and the small number of requests make acceptable.                                                                              |
-| Where is the access control?                           | In `firestore.rules`: `canRead`, `isOwner`, `isEditor`, `isMember` helpers per document, plus field validators. The UI only hides buttons; calling the API directly still gets `permission-denied`.                                                                          |
-| Can anyone list public lists?                          | No. A link visitor can read one document by id; `list` queries need ownership or membership.                                                                                                                                                                                 |
-| What happens to a guest's data on sign-in?             | The local library is merged into the account in one batch (account entries win), then local storage is cleared.                                                                                                                                                              |
-| How does the planner build a schedule?                 | `buildSchedule(episodes, options)` is a pure function: it drops specials and unaired episodes, groups episodes into sessions by pace and puts each on the next chosen weekday. It has unit tests under two time zones.                                                       |
-| Why `injectManifest` and not `generateSW`?             | Every caching rule is visible in our own `src/sw.ts`; the plugin only injects the precache list and the manifest.                                                                                                                                                            |
-| What works offline?                                    | The shell, visited and lazy pages, cached TMDB responses and posters, the library and lists from the Firestore cache. New TMDB searches don't work offline and show an error with a retry button.                                                                            |
-| Why TypeScript 6 and not 7?                            | `typescript-eslint` 8 doesn't support TS 7 yet.                                                                                                                                                                                                                              |
-| What is not done?                                      | Web push (out of scope; sharing has in-app notifications), UI check of the update prompt. Stored data keeps the language it was created in; Kazakh TMDB overviews often fall back to English.                                                                                |
-| Why not send the invitation by email?                  | A transactional email service needs a verified domain, and the project has none. Instead the owner gets a link to copy, share or send through their own mail app, and people who already use Movietime get an in-app notification.                                           |
-| Why doesn't the app check if the email has an account? | Answering "this email is registered" is an email-enumeration leak, and profiles are private. The notification is keyed by email and waits; the rules show it only to the verified owner of that email.                                                                       |
-| How can an owner not spam strangers?                   | The rules accept a notification only in the same batch that adds that email as a member of the owner's own list or plan, at most 20 members, and never twice for the same member.                                                                                            |
-| Why doesn't the app play movies?                       | Streams need licences. "Where to watch" shows where a title is officially offered in the viewer's country (TMDB `/watch/providers`, data by JustWatch, credited next to it) and plays nothing itself, so the project has no copyright exposure.                              |
-| How do you test?                                       | `npm test`: 122 unit and component tests (logic, slices, hooks, components). Rules and UI flows were verified against the emulator and a mocked TMDB with scripts that aren't part of the repo.                                                                              |
+| Question                                               | Short answer                                                                                                                                                                                                                                                                                                                                              |
+| ------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Why Redux Toolkit and not only Context?                | Auth, library and preferences are read on many routes and change from listeners (Firestore snapshots, other tabs). Slices, selectors and listener middleware give one place for that logic and easy tests. Context would re-render consumers and mix data with side effects.                                                                              |
+| Why are lists and plans not in the store?              | Only the page that shows them needs them, and `onSnapshot` already keeps them live. A copy in Redux would be a second source of truth.                                                                                                                                                                                                                    |
+| How do you avoid race conditions?                      | Each request effect aborts the previous request in its cleanup (`AbortController`) and ignores late results with a flag; search is also debounced (400 ms). `useFetch` has a test for exactly this.                                                                                                                                                       |
+| Why a custom `useFetch` and not React Query?           | The requirements ask for custom data-fetching hooks. The cost is no shared cache between components, which the service worker (network-first) and the small number of requests make acceptable.                                                                                                                                                           |
+| Where is the access control?                           | In `firestore.rules`: `canRead`, `isOwner`, `isEditor`, `isMember` helpers per document, plus field validators. The UI only hides buttons; calling the API directly still gets `permission-denied`.                                                                                                                                                       |
+| Can anyone list public lists?                          | No. A link visitor can read one document by id; `list` queries need ownership or membership.                                                                                                                                                                                                                                                              |
+| What happens to a guest's data on sign-in?             | The local library is merged into the account in one batch (account entries win), then local storage is cleared.                                                                                                                                                                                                                                           |
+| How does the planner build a schedule?                 | `buildSchedule(episodes, options)` is a pure function: it drops specials and unaired episodes, groups episodes into sessions by pace and puts each on the next chosen weekday. It has unit tests under two time zones.                                                                                                                                    |
+| Why `injectManifest` and not `generateSW`?             | Every caching rule is visible in our own `src/sw.ts`; the plugin only injects the precache list and the manifest.                                                                                                                                                                                                                                         |
+| What works offline?                                    | The shell, visited and lazy pages, cached TMDB responses and posters, the library and lists from the Firestore cache. New TMDB searches don't work offline and show an error with a retry button.                                                                                                                                                         |
+| Why TypeScript 6 and not 7?                            | `typescript-eslint` 8 doesn't support TS 7 yet.                                                                                                                                                                                                                                                                                                           |
+| What is not done?                                      | Scheduled reminders (Web Push is sent only on a share or a role change), UI check of the update prompt. Stored data keeps the language it was created in; Kazakh TMDB overviews often fall back to English.                                                                                                                                               |
+| Why not send the invitation by email?                  | It does, through Resend from a Worker endpoint that checks the caller's token and sends only to members of a list or plan the caller owns. The owner can also copy the link, use the phone's share sheet or a prefilled mail, and people who already use the app get a bell notification and a push.                                                      |
+| Why doesn't the app check if the email has an account? | Answering "this email is registered" is an email-enumeration leak, and profiles are private. The notification is keyed by email and waits; the rules show it only to the verified owner of that email.                                                                                                                                                    |
+| How can an owner not spam strangers?                   | The rules accept a notification only in the same batch that adds that email as a member of the owner's own list or plan, at most 20 members, and never twice for the same member.                                                                                                                                                                         |
+| Why doesn't the app play movies?                       | Streams need licences. "Where to watch" shows where a title is officially offered in the viewer's country (TMDB `/watch/providers`, data by JustWatch, credited next to it) and plays nothing itself, so the project has no copyright exposure.                                                                                                           |
+| How do you test?                                       | `npm test`: 527 unit and component tests in 75 files (logic, slices, hooks, server handlers, components). Rules and UI flows were verified against the emulator and a mocked TMDB with scripts that aren't part of the repo.                                                                                                                              |
+| How is the site protected from bots and scrapers?      | The TMDB proxy answers only the requests the app makes and caches them at the edge; mail, push and the calendar feed need a Firebase token or a secret; Firestore rules guard user data; static files are cached for a year and do not run code; Cloudflare rules rate-limit `/api/*` and challenge page navigations. See [PROTECTION.md](PROTECTION.md). |
 
 ## Layered structure (FSD-like): `shared/` done, the rest is an idea
 

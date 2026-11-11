@@ -2,7 +2,7 @@
 
 ## Branches
 
-`main` is production: every push is deployed (and `vercel.json` allows deployments from `main` only) to https://avleron.com by Vercel.
+`main` is production: every push to it is built and deployed to https://avleron.com by Cloudflare Workers (`wrangler.jsonc`). Branches get no deployment.
 
 | Change                                                | Where                         |
 | ----------------------------------------------------- | ----------------------------- |
@@ -25,8 +25,7 @@ Pull requests:
   `feat(auth): email and google sign-in`.
 - Description: what changed, how to test, screenshots for UI changes.
 - Before merging: `npm run typecheck`, `npm run lint`, `npm run format:check`, `npm test`
-  (once tests exist) and `npm run build` pass and the Vercel
-  preview works.
+  and `npm run build` pass (CI runs them, see `.github/workflows/ci.yml`).
 - Merge with **squash**, then delete the branch.
 
 ## Commit messages
@@ -85,5 +84,7 @@ npm run typecheck && npm run lint && npx prettier --check --ignore-unknown $(git
   && npm run check:locales && npm test && npm run build
 ```
 
-Dependencies are updated by hand; there is no Dependabot. Vercel stays responsible for
-deployment.
+Dependencies are updated by hand; there is no Dependabot. Cloudflare is responsible for
+deployment. Firestore rules and indexes are not deployed by it: run `firebase deploy --only
+firestore` by hand, from an up-to-date `main`, so that rules from an old branch never overwrite
+the production ones.

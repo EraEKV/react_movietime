@@ -11,7 +11,7 @@ is enough: Authentication, Firestore and security rules don't need billing.
 ## 2. Register the web app
 
 1. **Project settings** (gear icon) → **Your apps** → **Web** (`</>`).
-2. App nickname: `movietime-web`. **Don't** enable Firebase Hosting; the app is hosted on Vercel.
+2. App nickname: `movietime-web`. **Don't** enable Firebase Hosting; the app is hosted on Cloudflare Workers.
 3. Copy the values from the `firebaseConfig` object into `.env.local`:
 
    ```bash
@@ -130,25 +130,40 @@ To try roles by hand, use three verified accounts in three browser profiles (or 
 one private window per account): the owner invites the others as editor and viewer, then turns
 the link on and opens it in a window without an account.
 
-## 6. Vercel
+## 6. Cloudflare Workers
 
-**Project → Settings → Environment Variables:** add every `VITE_FIREBASE_*` variable and
-`TMDB_TOKEN` (the TMDB read access token, server only: the `api/tmdb` function adds it to
-requests, so it never reaches the browser) for Production, Preview and Development, then
-**redeploy**. Vite inlines `VITE_*` variables at build time, so an old build doesn't see new
-values. An existing `VITE_TMDB_TOKEN` keeps working as a fallback for the function.
+The site is one Worker with static assets (`wrangler.jsonc`): the build (`npm run build`) writes
+`dist/`, and the Worker serves it, runs `/api/*` and proxies `/__/*` to Firebase. The Cloudflare
+project is connected to the repository and builds `main`.
+
+- **Plain settings** are `vars` in `wrangler.jsonc` (`SITE_URL`, `RESEND_FROM`, `VAPID_SUBJECT`,
+  `FIREBASE_AUTH_HOST`, and the public `VITE_*` values the endpoints need). A deploy replaces any
+  variable that was set in the dashboard, so only secrets live there.
+- **Secrets** (Worker → Settings → Variables and Secrets): `TMDB_TOKEN` (the TMDB read access
+  token, server only: `api/tmdb` adds it to requests, so it never reaches the browser),
+  `RESEND_API_KEY`, `VAPID_PRIVATE_KEY`, `FIREBASE_SERVICE_ACCOUNT`.
+- **Build variables** (Settings → Build → Variables): every `VITE_FIREBASE_*` value, because Vite
+  inlines `VITE_*` variables at build time, so an old build doesn't see new values. Redeploy
+  after changing them.
+- **Custom domain**: `avleron.com` is a zone on Cloudflare and a Custom Domain of the Worker.
+  The edge cache for the TMDB proxy works only there, not on `*.workers.dev`.
+- **Rules in front of the Worker** (rate limit, challenge, blocks) are set in the Cloudflare
+  dashboard and are described in [PROTECTION.md](PROTECTION.md). Keep `/__/*` out of them.
+- Firestore rules and indexes are not part of the Worker deploy: run `firebase deploy --only
+firestore` by hand from an up-to-date `main`.
 
 ## 7. Email (Resend)
 
-Invitations, role-change notices and the welcome email are sent by Vercel functions in
+Invitations, role-change notices and the welcome email are sent by Worker endpoints in
 `api/` through [Resend](https://resend.com). The browser never sees the key.
 
 1. In Resend, add your domain (**Domains → Add domain**) and put the SPF and DKIM records it
    shows into your DNS. Until the domain is **Verified**, Resend delivers only to the owner of
    the Resend account.
 2. Create an API key (**API Keys**, sending access).
-3. In Vercel add `RESEND_API_KEY` and `RESEND_FROM` (for example
-   `Movietime <invites@avleron.com>`, an address on the verified domain), then redeploy. The
+3. In Cloudflare add the secret `RESEND_API_KEY`; `RESEND_FROM` (for example
+   `Avleron <invites@avleron.com>`, an address on the verified domain) is a `var` in
+   `wrangler.jsonc`. Then redeploy. The
    functions also read `VITE_FIREBASE_API_KEY` and `VITE_FIREBASE_PROJECT_ID`, which are already
    there for the build.
 4. Deploy the rules again (`firebase deploy --only firestore:rules`): `users/{uid}` gained the
@@ -157,7 +172,7 @@ Invitations, role-change notices and the welcome email are sent by Vercel functi
 The functions verify the caller's Firebase ID token and read Firestore with it, so the
 security rules apply: invites and role-change notices go only to members of a list or plan the
 caller owns, and the welcome email only to the caller's own verified address. `npm run dev`
-serves `api/` too (`vite.dev-api.ts` runs the same handlers as Vercel, with the server-side keys
+serves `api/` too (`vite.dev-api.ts` runs the same handlers as the Worker, with the server-side keys
 from `.env.local`); `/api/tmdb` stays with the dev proxy.
 
 ## 8. Push notifications
@@ -172,7 +187,7 @@ permission only then.
 2. Subscriptions are stored in `pushSubscriptions/{id}`, a collection no client can read (see
    `firestore.rules`): only the server may look up someone else's browsers. The server therefore
    needs **Firebase Admin**: Firebase console → Project settings → Service accounts → _Generate
-   new private key_, then paste the whole JSON, as one line, into the Vercel variable
+   new private key_, then paste the whole JSON, as one line, into the Worker secret
    `FIREBASE_SERVICE_ACCOUNT`. Never commit this file.
 3. Deploy the rules again and redeploy the app.
 
@@ -189,7 +204,8 @@ subscription that the browser reports as gone (404/410) is deleted on the next p
 - [ ] `avleron.com` in authorized domains
 - [ ] Firestore created in production mode
 - [ ] Rules and indexes deployed
-- [ ] Env variables in Vercel, redeployed
-- [ ] VAPID keys and `FIREBASE_SERVICE_ACCOUNT` in Vercel (push), rules deployed
-- [ ] Resend domain verified, `RESEND_API_KEY` and `RESEND_FROM` in Vercel
+- [ ] Build variables and secrets set in Cloudflare, redeployed
+- [ ] VAPID keys and `FIREBASE_SERVICE_ACCOUNT` in Cloudflare (push), rules deployed
+- [ ] Resend domain verified, `RESEND_API_KEY` in Cloudflare, `RESEND_FROM` in `wrangler.jsonc`
+- [ ] `/__/*` and `/api/*` rules in Cloudflare checked ([PROTECTION.md](PROTECTION.md))
 - [ ] Sign up, sign in with Google, sign out on the deployed site

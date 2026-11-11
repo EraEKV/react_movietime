@@ -257,6 +257,38 @@ Days are `"YYYY-MM-DD"` in local time; day math runs on UTC dates, so DST never 
 | `toIcs(name, events, now, timeZone?)`                             | iCalendar text (RFC 5545: escaping, 75-octet folding, CRLF); UTC times, or `TZID` wall-clock times with a zone (the server feed). Lives in `api/_lib/ics.ts`, shared with the browser |
 | `monthGrid(month)`, `addDays`, `weekdayOf`, `localToday`          | Calendar-day helpers (`utils/calendar.ts`)                                                                                                                                            |
 
+### `marathonVotesService.ts` ✅
+
+Likes and film suggestions on a shared movie marathon (a plan of kind `list`). Collections
+`plans/{id}/likes` and `plans/{id}/proposals` (docs/DATA_MODEL.md).
+
+| Function                                                               | Returns                    | Notes                                                                               |
+| ---------------------------------------------------------------------- | -------------------------- | ----------------------------------------------------------------------------------- |
+| `watchLikes(planId, …)` / `watchProposals(planId, …)`                  | `Unsubscribe`              | Live; a viewer sees their own suggestions and the owner sees all                    |
+| `setLike(plan, session, by, on)`                                       | `Promise<void>`            | One like per person and session (`likes/{sessionId}_{uid}`)                         |
+| `loadFilmUnit(tmdbId, signal?)`                                        | `PlanUnit`                 | `/movie/{id}` with the runtime, as a plan unit                                      |
+| `suggestFilm(plan, session, by, unit)`                                 | `Promise<string \| null>`  | A viewer proposes another film for an evening (the proposal id); notifies the owner |
+| `withdrawProposal(plan, proposalId)`                                   | `Promise<void>`            | The author takes it back                                                            |
+| `decideProposal(plan, proposal, session, siblings, likes, accept, by)` | `'accepted' \| 'rejected'` | The owner accepts (the session takes the film, its likes are cleared) or declines   |
+| `replaceFilm(plan, session, unit, proposals, likes)`                   | `Promise<void>`            | The owner swaps a film directly; open suggestions for that evening are closed       |
+
+### `mailService.ts`, `pushService.ts` ✅
+
+Thin clients of the Worker endpoints below; each sends the caller's Firebase ID token.
+
+| Function                                                                  | Notes                                                                                                                           |
+| ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `sendInviteEmail`, `sendRoleChangeEmail`, `sendWelcomeEmail(locale)`      | Mail through Resend; the welcome mail is sent once per account                                                                  |
+| `sendPushNotice`, `sendSuggestionPush`                                    | Ask the server to push to a member's browsers                                                                                   |
+| `pushState()`, `enablePush(locale)`, `disablePush()`, `refreshPushLocale` | Permission, subscription and its language; the state is `unsupported`, `needs-install`, `unconfigured`, `denied`, `off` or `on` |
+
+Planner additions: `rescheduleSession(plan, session, date, shiftLater, time?)` also changes the
+time of the moved session; `createPlan` takes `draft.sessions` (the previewed, edited sessions)
+and an optional own time per weekday (`options.times`). Pure helpers: `missedSessions(sessions,
+today)` and `bySchedule` in `utils/schedule.ts`; `WEEKDAY_PRESETS` and `sameDays` in
+`utils/planner.ts`; `applyMoves`, `applyTimes`, `canMoveTo`, `removeFilm`, `moveFilmTo` in
+`utils/previewEdits.ts`.
+
 ## Statistics: `src/utils/stats.ts` ✅
 
 Pure functions for the dashboard; inputs are library entries and `PlannedSession`s.
@@ -327,4 +359,23 @@ Thunks call the services above; reducers stay pure. The store only holds seriali
 
 ## Calendar feed: `api/ics.ts` ✅
 
-`GET /api/calendar/<token>.ics` (Vercel rewrites it to `/api/ics?file=<token>.ics`; `?token=` works too). The token is `users/{uid}.icsToken`; there is no other credential, because Google Calendar fetches the file without signing in. Unknown or malformed tokens get 404, a missing `FIREBASE_SERVICE_ACCOUNT` gets 503. The response is `text/calendar` with `Cache-Control: private, no-store`: one event per pending session of the user's own plans and of plans shared with the user's verified email (archived plans left out), named `Plan title · S1E3–E4` like the plan page's export, in the zone saved with the link. Google refreshes subscribed calendars only every few hours.
+`GET /api/calendar/<token>.ics` (the Worker, `worker/index.ts`, rewrites it to `/api/ics?file=<token>.ics`; `?token=` works too). The token is `users/{uid}.icsToken`; there is no other credential, because Google Calendar fetches the file without signing in. Unknown or malformed tokens get 404, a missing `FIREBASE_SERVICE_ACCOUNT` gets 503. The response is `text/calendar` with `Cache-Control: private, no-store`: one event per pending session of the user's own plans and of plans shared with the user's verified email (archived plans left out), named `Plan title · S1E3–E4` like the plan page's export, in the zone saved with the link. Google refreshes subscribed calendars only every few hours.
+
+## Worker endpoints: `api/`
+
+Each file exports `GET` or `POST`: a function from `Request` to `Response`. `worker/index.ts`
+routes `/api/<name>` to the file (a name outside its list is `404`, a missing method `405`),
+and `vite.dev-api.ts` does the same under `npm run dev`. Files starting with `_` are helpers.
+
+| Endpoint                    | Method       | Caller                       | What it does                                                               |
+| --------------------------- | ------------ | ---------------------------- | -------------------------------------------------------------------------- |
+| `/api/tmdb/<path>`          | GET          | The app (any visitor)        | TMDB proxy: allow-list of paths and parameters, token added, edge cache    |
+| `/api/calendar/<token>.ics` | GET          | Anyone with the secret token | The calendar feed (above)                                                  |
+| `/api/send-invite`          | POST         | Signed-in owner              | Invite email to a member of the owner's list or plan                       |
+| `/api/send-role-change`     | POST         | Signed-in owner              | Email about a role change                                                  |
+| `/api/send-welcome`         | POST         | Signed-in user               | One welcome email to the user's own verified address                       |
+| `/api/push`                 | POST, DELETE | Signed-in user               | Save or remove a Web Push subscription (at most 10 browsers per user)      |
+| `/api/push-notify`          | POST         | Signed-in user               | Push to the members' browsers after a share, a role change or a suggestion |
+
+Bodies are read with `readJson`, which refuses anything over 8 KB. Why these limits exist and
+what else guards the site: [PROTECTION.md](PROTECTION.md).

@@ -23,8 +23,9 @@ src/
 │   ├── i18n/       i18next setup, languages list, Intl helpers (JSON lives in `public/locales/`)
 │   ├── styles/     global.css, design tokens, themes
 │   └── types/      Option, RequestStatus, Language, ThemePreference
-├── services/       firebase.ts, authService, profileService, libraryService,
-│                   listsService, sharingService, plannerService
+├── services/       firebase.ts, authService, profileService, libraryService, listsService,
+│                   sharingService, plannerService, marathonVotesService, notificationsService,
+│                   pushService, mailService, activityService
 ├── storage/        localStorage modules (guest library, preferences)
 ├── store/          store.ts, hooks.ts (typed useAppDispatch / useAppSelector),
 │                   authSlice, librarySlice, preferencesSlice, listeners.ts
@@ -38,6 +39,11 @@ src/
 ├── pages/          one file per route
 ├── sw.ts           service worker (Workbox)
 └── utils/          pure domain functions: media, filters, schedule, stats, calendar, sharing
+api/                server handlers (Request in, Response out): tmdb, ics, push, push-notify,
+                    send-invite, send-role-change, send-welcome; `_lib/` holds the helpers
+worker/             the Cloudflare Worker: routes /api/* and /__/*, edge cache for the TMDB proxy
+public/             icons, locales, robots.txt, `_headers` (cache lifetimes of static files)
+firestore.rules, firestore.indexes.json, wrangler.jsonc
 ```
 
 Rule of thumb: **pages and components render and handle events; hooks connect React state to
@@ -148,10 +154,13 @@ the first load a page switch keeps the old page on screen until the new chunk is
 - Each section has its own state: skeleton tiles while the library loads, an error with retry
   per card (library sync, TMDB genres, plans), an empty state for a new user, and for guests a
   banner plus "Plans need an account" in the plan sections.
-- Charts are CSS, not a library: ranked bars and legend rows are links with the value as text
-  (`aria-label` = "Drama: 3 titles. Open in library"), weekday columns are a list with a
-  screen-reader sentence per day. Two chart colours (`--chart-1`, `--chart-2` in `global.css`)
-  were checked for colour-blind separation and ≥ 3:1 contrast in both themes.
+- Charts use **Recharts** (rings for status and movies vs series with a tooltip, the weekday
+  columns, a twelve-week area graph) and **@number-flow/react** for animated numbers. Ranked
+  bars, legend rows and the month activity grid stay plain markup: links with the value as text
+  (`aria-label` = "Drama: 3 titles. Open in library") and a screen-reader sentence per chart.
+  Colours (`--chart-*` in `global.css`) were checked for colour-blind separation and ≥ 3:1
+  contrast in both themes. Recharts does not measure in jsdom, so tests give
+  `ResponsiveContainer` an `initialDimension`.
 
 ### Sharing and roles in the UI
 
@@ -204,6 +213,17 @@ exists, or put into a `mailto:` with a subject and body from the `sharing` dicti
   768–1023 px, an agenda by day below. Month and filter live in the URL (`?month=2026-11&show=mine`).
 - Session actions are awaited batches; the snapshot updates the page, failures come back as a
   toast. Skip has no confirm dialog because it can be undone (toast and row).
+- The schedule step offers one-tap weekday presets (`WEEKDAY_PRESETS` in `utils/planner.ts`), an
+  own time for some weekdays and a line with the number of sessions and the finish date, taken
+  from the same `planSummary` as the preview. In the preview, edits (move a session to another
+  day, change a time, leave a film out, reorder films) are pure functions in
+  `utils/previewEdits.ts` over the built sessions, so "Reset changes" just drops them.
+- A plan page with pending sessions before today shows a banner built from `missedSessions`;
+  "Continue from today" calls `rescheduleSession(plan, firstMissed, today, true)`, which moves
+  that session and every later pending one by the same number of days.
+- A movie list is a plan of kind `list`: viewers like films and suggest another film for an
+  evening (`marathonVotesService`); the owner accepts or replaces it, and the notice goes
+  through the same notification and push path as sharing.
 - Home "Up next" and the header "Tonight" chip are lazy components (`useUpcoming`), so the
   planner hooks and Firestore never load for guests.
 
@@ -237,23 +257,28 @@ exists, or put into a `mailto:` with a subject and body from the `sharing` dicti
 
 ### Code splitting
 
-| Chunk                   | Size (min) | Loaded                                                                  |
-| ----------------------- | ---------- | ----------------------------------------------------------------------- |
-| `index` (main)          | ~385 kB    | Always: React, Redux (incl. library slice), Firebase Auth, layout, Home |
-| shared vendor chunk     | ~40 kB     | Always (preloaded); code that lazy pages share with main (react-redux…) |
-| `router`                | ~47 kB     | Always; own group in `vite.config.ts`, cached across deploys            |
-| One chunk per lazy page | 1–15 kB    | First visit to that route                                               |
-| Firestore SDK           | ~545 kB    | Lazy pages that read data, and the profile sync after sign-in           |
+`vite.config.ts` gives Rolldown two groups and lets it split the rest per lazy page:
+
+| Chunk                   | Size (min) | Loaded                                                              |
+| ----------------------- | ---------- | ------------------------------------------------------------------- |
+| `index` (main)          | ~240 kB    | Always: React, Redux, Firebase Auth, layout, Home                   |
+| `router`                | ~47 kB     | Always; its own group, so it stays cached across deploys            |
+| `shared`                | big        | Modules used by two or more pages (and over 30 kB together), merged |
+| One chunk per lazy page | 1–15 kB    | First visit to that route                                           |
+| Fonts (`woff2`)         | 10–120 kB  | By unicode range: a Latin page loads two files, Cyrillic adds more  |
+
+Before the `shared` group, every module used by a few pages became its own file of a few hundred
+bytes: the build was 230 files and one view of the home page took about 82 requests. Now the
+build is 66 JS and CSS files (plus the font files) and the home page takes about 16. Static files
+cost no Worker call, but each one is still a request a bot can repeat; see
+[PROTECTION.md](PROTECTION.md).
 
 Firebase Auth is needed on every page (header, route guards), Firestore is not. So
 `services/firebase.ts` creates only the app and `auth`, `services/firestore.ts` creates `db`,
-and the sign-in thunks load the profile service with `await import(...)`. Before this split the
-whole app was one 1 019 kB chunk. `build.chunkSizeWarningLimit` is 600 because the only chunk
-above 500 kB is the lazily loaded Firestore SDK: cutting it with Rolldown `codeSplitting` groups
-builds, but breaks the SDK's module init order at runtime. First-load JS (main + preloaded
-chunks) is ~481 kB (Home's "Shared with you", "Up next" list and the header "Tonight" chip are
-their own lazy chunks; the planner service is ~9 kB lazy); the bundler names the shared chunk after one of its modules, so its file name
-(`firebaseErrors-*.js`) says little about its content.
+and the sign-in thunks load the profile service with `await import(...)`. Splitting the
+Firestore SDK itself by hand with `codeSplitting` groups builds but breaks its module init order
+at runtime (it was tried), so it stays as the bundler puts it and `build.chunkSizeWarningLimit` is 600. Home's "Shared with you", "Up next"
+list and the header "Tonight" chip are their own lazy chunks.
 
 ### State map
 
@@ -281,19 +306,22 @@ confirms later. A failed write (for example `permission-denied`) is shown as an 
 
 ### Caching layers
 
-| Layer                      | What                            | Strategy / invalidation                            |
-| -------------------------- | ------------------------------- | -------------------------------------------------- |
-| Service worker precache    | App shell, JS/CSS chunks, icons | Versioned by the build; new SW activates on update |
-| Service worker runtime     | TMDB API responses              | Network-first, fallback to cache offline           |
-| Service worker runtime     | TMDB images                     | Cache-first, max entries + max age                 |
-| Firestore persistent cache | User data                       | Kept in sync by snapshots; offline writes queued   |
-| `localStorage`             | Guest library, preferences      | Written on change                                  |
+| Layer                      | What                            | Strategy / invalidation                                         |
+| -------------------------- | ------------------------------- | --------------------------------------------------------------- |
+| Browser, `_headers`        | `/assets/*` (hashed names)      | `immutable`, one year; `index.html` and `sw.js` are revalidated |
+| Cloudflare edge            | `/api/tmdb/*` answers           | Normalised key, 10 min to 7 days by path (`worker/cache.ts`)    |
+| Service worker precache    | App shell, JS/CSS chunks, icons | Versioned by the build; new SW activates on update              |
+| Service worker runtime     | TMDB API responses              | Network-first, fallback to cache offline                        |
+| Service worker runtime     | TMDB images                     | Cache-first, max entries + max age                              |
+| Firestore persistent cache | User data                       | Kept in sync by snapshots; offline writes queued                |
+| `localStorage`             | Guest library, preferences      | Written on change                                               |
 
 ## Current implementation
 
 All planned phases are in place: TypeScript, UI foundation, auth, routing, movies, library,
-lists, sharing, planner, dashboard, profile, i18n, PWA and tests. Web push is out of scope;
-sharing sends in-app notifications instead (see "Notifications and invitations"). The sections above describe the design; the ones below show how it maps to the code.
+lists, sharing, planner, dashboard, profile, i18n, PWA and tests. Web push, email through Resend,
+the calendar feed, people and franchise pages, shared marathons and the Cloudflare Worker came
+after (see "Hosting and the Worker" below). The sections above describe the design; the ones below show how it maps to the code.
 
 ### Routes and render tree
 
@@ -304,6 +332,8 @@ sharing sends in-app notifications instead (see "Notifications and invitations")
 | `/login`, `/signup`                       | `LoginPage`, `SignupPage`        | guests only               |
 | `/movies`, `/series`                      | `CatalogPage mediaType`          | public                    |
 | `/movies/:id`, `/series/:id`              | `MoviePage`, `SeriesPage`        | public                    |
+| `/person/:id`, `/collection/:id`          | `PersonPage`, `CollectionPage`   | public                    |
+| `/verify-email`                           | `VerifyEmailPage`                | signed in, not verified   |
 | `/library`, `/library/:mediaKey/edit`     | `LibraryPage`, `LibraryEditPage` | public (local for guests) |
 | `/lists`, `/lists/new`, `/lists/:id/edit` | lists management                 | signed in                 |
 | `/lists/:id`                              | `ListPage`                       | owner, members, link      |
@@ -509,10 +539,30 @@ _waits_; `UpdatePrompt` (`useRegisterSW`) shows a toast, and "Reload" sends `SKI
 the page reloads under the new worker. A reload never swaps assets under a page the user is
 working in. The old caches are removed when the new worker activates.
 
+### Hosting and the Worker
+
+The site is served by one Cloudflare Worker (`wrangler.jsonc`). The built `dist/` is its static
+asset bundle; `not_found_handling: single-page-application` answers any path that is not a file
+with `index.html`, so deep links work on refresh. Only the paths in `run_worker_first` run code:
+
+- `/api/*` goes to `worker/index.ts`, which imports the matching handler from `api/` on demand
+  (a handler that cannot start only breaks its own route). The TMDB proxy is wrapped in the edge
+  cache. `/api/calendar/<file>` is rewritten to `/api/ics?file=<file>`.
+- `/__/*` is forwarded to `FIREBASE_AUTH_HOST` (`<project-id>.firebaseapp.com`), so Firebase's
+  sign-in helper pages are served from our own domain and Google sign-in survives browsers that
+  block third-party storage. The app uses its own host as `authDomain` on production
+  (`src/utils/authDomain.ts`).
+
+`vite.dev-api.ts` runs the same `api/` handlers in `npm run dev`, and the Vite dev proxy serves
+`/api/tmdb`. Bots, scrapers and the rules against them are described in
+[PROTECTION.md](PROTECTION.md).
+
 ### Tests
 
-Vitest + Testing Library in `jsdom` (`vitest.config.ts`, `src/test/setup.ts`). Test files sit
-next to the code: planner schedule, dashboard stats, catalog filters, validation, Redux slices,
-`useFetch` (race condition), `useDebouncedValue`, `Pagination`, `ProtectedRoute` and the signup
-form. They need no network, no Firebase and no environment variables. Firestore security rules
-were checked separately against the emulator (not part of `npm test`).
+Vitest + Testing Library in `jsdom` (`vitest.config.ts`, `src/test/setup.ts`): 527 tests in 75
+files. Test files sit next to the code: planner schedule and preview edits, dashboard stats,
+catalog filters, validation, Redux slices, `useFetch` (race condition), `useDebouncedValue`,
+`Pagination`, `ProtectedRoute`, the signup form and the schedule step, plus the server side
+(`api/` handlers, the TMDB proxy allow-list, the edge cache in `worker/`). They need no network,
+no Firebase and no environment variables. Firestore security rules were checked separately
+against the emulator (not part of `npm test`).
