@@ -17,6 +17,7 @@ import BackButton from '../../shared/ui/BackButton/BackButton'
 import ButtonLink from '../../shared/ui/ButtonLink/ButtonLink'
 import CastList from '../CastList/CastList'
 import CrewList from '../CrewList/CrewList'
+import FullCrew from '../FullCrew/FullCrew'
 import ErrorState from '../../shared/ui/EmptyState/ErrorState'
 import MediaGrid from '../MediaGrid/MediaGrid'
 import EpisodeHeatmap from '../EpisodeHeatmap/EpisodeHeatmap'
@@ -146,6 +147,7 @@ export default function SeriesDetails({ seriesId }: { seriesId: string }) {
       {crew.length > 0 && (
         <Section title={tPerson('crewLabel')}>
           <CrewList crew={crew} />
+          <FullCrew crew={credits.crew} />
         </Section>
       )}
 
