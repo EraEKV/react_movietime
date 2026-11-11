@@ -140,14 +140,14 @@
 .cell[data-mark]::after {
   content: attr(data-mark);
   position: absolute;
-  top: -6px;
-  right: -6px;
-  width: 14px;
+  top: -8px;
+  right: -8px;
+  width: 16px;
   border-radius: 50%;
   background: var(--text);
   color: var(--bg);
-  font-size: 9px;
-  line-height: 14px;
+  font-size: 11px;
+  line-height: 16px;
 }
 
 .cell[data-step='0'],
