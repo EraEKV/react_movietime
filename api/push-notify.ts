@@ -1,5 +1,5 @@
 import { adminDb, SUBSCRIPTIONS, type Snapshot } from './_lib/admin.js'
-import { json } from './_lib/firebase.js'
+import { json, readJson } from './_lib/firebase.js'
 import { isLocale, type Locale } from './_lib/layout.js'
 import { resolveMember } from './_lib/memberMail.js'
 import { pushMessage, suggestionMessage, type PushKind } from './_lib/pushText.js'
@@ -19,8 +19,7 @@ export async function POST(request: Request): Promise<Response> {
     return json({ error: 'not-configured' }, 503)
   }
 
-  const copy = request.clone()
-  const input = (await copy.json().catch(() => ({}))) as {
+  const input = ((await readJson(request.clone())) ?? {}) as {
     kind?: unknown
     id?: unknown
     proposalId?: unknown

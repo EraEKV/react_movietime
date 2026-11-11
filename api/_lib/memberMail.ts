@@ -1,5 +1,5 @@
 import { Resend } from 'resend'
-import { bearer, json, readEnv, readDoc, verifyToken, type MailEnv } from './firebase.js'
+import { bearer, json, readEnv, readDoc, readJson, verifyToken, type MailEnv } from './firebase.js'
 import { isLocale, type Locale } from './layout.js'
 import { siteOrigin } from './site.js'
 import type { Role } from './templates.js'
@@ -37,12 +37,13 @@ export async function resolveMember(
   const idToken = bearer(request)
   if (!idToken) return json({ error: 'unauthenticated' }, 401)
 
-  let input: { collection?: unknown; id?: unknown; email?: unknown; locale?: unknown }
-  try {
-    input = (await request.json()) as typeof input
-  } catch {
-    return json({ error: 'bad-request' }, 400)
-  }
+  const input = (await readJson(request)) as {
+    collection?: unknown
+    id?: unknown
+    email?: unknown
+    locale?: unknown
+  } | null
+  if (!input) return json({ error: 'bad-request' }, 400)
   const { collection, id } = input
   const email = typeof input.email === 'string' ? input.email.trim().toLowerCase() : ''
   if (

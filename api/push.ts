@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto'
 import { adminDb, SUBSCRIPTIONS } from './_lib/admin.js'
-import { bearer, json, readEnv, verifyToken } from './_lib/firebase.js'
+import { bearer, json, readEnv, readJson, verifyToken } from './_lib/firebase.js'
 import { isLocale } from './_lib/layout.js'
 
 // POST /api/push { subscription, locale }: remember this browser for push notifications.
@@ -24,6 +24,9 @@ const isSubscription = (value: unknown): value is Subscription => {
   )
 }
 
+/** Browsers one account may subscribe. */
+const MAX_BROWSERS = 10
+
 const docId = (endpoint: string) => createHash('sha256').update(endpoint).digest('hex')
 
 async function signedIn(request: Request) {
@@ -43,13 +46,23 @@ export async function POST(request: Request): Promise<Response> {
   // Same rule as for sharing: only a verified address can receive anything about it.
   if (!caller.emailVerified || !caller.email) return json({ error: 'unverified' }, 403)
 
-  const body = (await request.json().catch(() => null)) as {
+  const body = (await readJson(request)) as {
     subscription?: unknown
     locale?: unknown
   } | null
   if (!isSubscription(body?.subscription)) return json({ error: 'bad-request' }, 400)
 
   const { endpoint, keys } = body.subscription
+  // A person has a few browsers; more subscriptions from one account is somebody filling
+  // the table. A browser that is already stored may always renew itself.
+  const own = await db
+    .collection(SUBSCRIPTIONS)
+    .where('uid', '==', caller.uid)
+    .limit(MAX_BROWSERS + 1)
+    .get()
+  const known = own.docs.some((doc) => doc.id === docId(endpoint))
+  if (!known && own.docs.length >= MAX_BROWSERS) return json({ error: 'too-many' }, 429)
+
   await db
     .collection(SUBSCRIPTIONS)
     .doc(docId(endpoint))
@@ -68,7 +81,7 @@ export async function DELETE(request: Request): Promise<Response> {
   if (auth instanceof Response) return auth
   const { db, caller } = auth
 
-  const body = (await request.json().catch(() => null)) as { endpoint?: unknown } | null
+  const body = (await readJson(request)) as { endpoint?: unknown } | null
   if (typeof body?.endpoint !== 'string') return json({ error: 'bad-request' }, 400)
 
   const ref = db.collection(SUBSCRIPTIONS).doc(docId(body.endpoint))

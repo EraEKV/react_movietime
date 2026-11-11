@@ -49,8 +49,27 @@ export function readEnv(): MailEnv | null {
 export const bearer = (request: Request) =>
   request.headers.get('authorization')?.replace(/^Bearer /, '') ?? ''
 
+/** Three base64url parts, as every ID token is: junk is refused without asking Google. */
+const ID_TOKEN = /^[\w-]{10,2048}\.[\w-]{10,4096}\.[\w-]{10,2048}$/
+
+/**
+ * The JSON body of a request, or null when it is missing, malformed or larger than `maxBytes`.
+ * The endpoints take a few short fields, so a big body is never a real caller.
+ */
+export async function readJson(request: Request, maxBytes = 8192): Promise<unknown> {
+  const declared = Number(request.headers.get('content-length') ?? 0)
+  if (declared > maxBytes) return null
+  try {
+    const text = await request.text()
+    return text.length > maxBytes ? null : JSON.parse(text)
+  } catch {
+    return null
+  }
+}
+
 /** Who is calling: Firebase checks the token's signature and expiry. */
 export async function verifyToken(env: MailEnv, idToken: string): Promise<Caller | null> {
+  if (!ID_TOKEN.test(idToken)) return null
   const response = await fetch(
     `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${env.apiKey}`,
     {
