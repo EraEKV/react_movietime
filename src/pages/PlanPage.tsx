@@ -20,6 +20,7 @@ import ReorderFilmsDialog from '../components/Planner/ReorderFilmsDialog'
 import MarathonVotes from '../components/Planner/MarathonVotes'
 import ProposalsPanel from '../components/Planner/ProposalsPanel'
 import SessionRow from '../components/Planner/SessionRow'
+import WatchDisclosure from '../components/WhereToWatch/WatchDisclosure'
 import SuggestFilmDialog from '../components/Planner/SuggestFilmDialog'
 import ProgressBar from '../shared/ui/ProgressBar/ProgressBar'
 import ShareDialog from '../components/ShareDialog/ShareDialog'
@@ -330,6 +331,7 @@ function PlanView({ id }: { id: string }) {
                   )}
                   onUndo={act(() => actions.undo(plan, s))}
                   onReschedule={() => setMoving(s)}
+                  watchHere={plan.kind !== 'series'}
                   extra={
                     s.status === 'pending' && plan.kind === 'list' ? (
                       <MarathonVotes
@@ -431,6 +433,10 @@ function PlanView({ id }: { id: string }) {
         </div>
         <div className={styles.actions}>{actionsBar}</div>
       </header>
+
+      {plan.kind === 'series' && plan.media && !finished && (
+        <WatchDisclosure mediaType="tv" tmdbId={plan.media.tmdbId} />
+      )}
 
       {finished && (
         <EmptyState
