@@ -57,3 +57,26 @@ describe('ScheduleStep own times', () => {
     expect(latest().times).toBeUndefined()
   })
 })
+
+describe('ScheduleStep day presets', () => {
+  it('sets the weekdays in one tap and marks the matching preset', async () => {
+    const user = userEvent.setup()
+    render(<Harness initial={base} />)
+    expect(screen.getByRole('button', { name: 'Weekends' })).toHaveAttribute(
+      'aria-pressed',
+      'false',
+    )
+    await user.click(screen.getByRole('button', { name: 'Weekends' }))
+    expect(latest().weekdays).toEqual([0, 6])
+    expect(screen.getByRole('button', { name: 'Weekends' })).toHaveAttribute('aria-pressed', 'true')
+    await user.click(screen.getByRole('button', { name: 'Every day' }))
+    expect(latest().weekdays).toEqual([0, 1, 2, 3, 4, 5, 6])
+  })
+
+  it('drops the own time of a day the preset leaves out', async () => {
+    const user = userEvent.setup()
+    render(<Harness initial={{ ...base, times: { 5: '22:30' } }} />)
+    await user.click(screen.getByRole('button', { name: 'Weekends' }))
+    expect(latest().times).toBeUndefined()
+  })
+})

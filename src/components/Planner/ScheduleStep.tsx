@@ -1,13 +1,14 @@
 import { useTranslation } from 'react-i18next'
 import { useId, useState } from 'react'
 import type { ScheduleOptions, Weekday } from '../../types/plan'
+import Chip from '../../shared/ui/Chip/Chip'
 import Button from '../../shared/ui/Button/Button'
 import DatePicker from '../DatePicker/DatePicker'
 import Icon from '../../shared/ui/Icon/Icon'
 import SelectField from '../../shared/ui/SelectField/SelectField'
 import WeekdayToggle from '../WeekdayToggle/WeekdayToggle'
 import { WEEK_ORDER, weekdayLong } from '../../utils/calendar'
-import { timeOptions } from '../../utils/planner'
+import { sameDays, timeOptions, WEEKDAY_PRESETS } from '../../utils/planner'
 import styles from './Planner.module.css'
 
 interface ScheduleStepProps {
@@ -25,6 +26,16 @@ export default function ScheduleStep({ kind, options, onChange, today }: Schedul
   const noDays = options.weekdays.length === 0
   const [ownTimes, setOwnTimes] = useState(Object.keys(options.times ?? {}).length > 0)
   const days = WEEK_ORDER.filter((day) => options.weekdays.includes(day))
+
+  // Days that drop out of the plan take their own times with them.
+  function setWeekdays(weekdays: Weekday[]) {
+    const times = Object.fromEntries(
+      Object.entries(options.times ?? {}).filter(([day]) =>
+        weekdays.includes(Number(day) as Weekday),
+      ),
+    )
+    set({ weekdays, times: Object.keys(times).length > 0 ? times : undefined })
+  }
 
   // A weekday that matches the usual time needs no entry of its own.
   function setDayTime(day: Weekday, time: string) {
@@ -56,16 +67,20 @@ export default function ScheduleStep({ kind, options, onChange, today }: Schedul
         <WeekdayToggle
           legend={t('schedule.watchOn')}
           value={options.weekdays}
-          onChange={(weekdays) => {
-            const times = Object.fromEntries(
-              Object.entries(options.times ?? {}).filter(([day]) =>
-                weekdays.includes(Number(day) as Weekday),
-              ),
-            )
-            set({ weekdays, times: Object.keys(times).length > 0 ? times : undefined })
-          }}
+          onChange={setWeekdays}
           errorId={noDays ? errorId : undefined}
         />
+        <div className={styles.presets} role="group" aria-label={t('schedule.presets')}>
+          {WEEKDAY_PRESETS.map(({ key, days: preset }) => (
+            <Chip
+              key={key}
+              selected={sameDays(options.weekdays, preset)}
+              onClick={() => setWeekdays(preset)}
+            >
+              {t(`schedule.preset.${key}`)}
+            </Chip>
+          ))}
+        </div>
         {noDays && (
           <p id={errorId} className={styles.error} role="alert">
             <Icon name="alert" size={16} />

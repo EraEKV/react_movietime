@@ -205,6 +205,14 @@
   "schedule": {
     "startDate": "Start date",
     "watchOn": "Watch on",
+    "presets": "Quick pick",
+    "preset": {
+      "everyday": "Every day",
+      "workdays": "Weekdays",
+      "weekends": "Weekends",
+      "monWedFri": "Mon · Wed · Fri",
+      "tueThu": "Tue · Thu"
+    },
     "time": "Time",
     "ownTimes": "Different time on some days",
     "sameTime": "Same time on every day",
