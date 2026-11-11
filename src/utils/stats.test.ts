@@ -9,6 +9,7 @@ import {
   parsePeriod,
   periodStart,
   planStats,
+  sessionsByWeek,
   sessionsByWeekday,
   topGenres,
   upcomingSessions,
@@ -130,6 +131,14 @@ describe('plan stats', () => {
   it('groups finished sessions by weekday, Monday first', () => {
     expect(sessionsByWeekday(list, null, '2026-11-06').map((b) => b.count)).toEqual([
       1, 0, 0, 0, 0, 0, 0,
+    ])
+  })
+  it('counts finished sessions per week, oldest week first, ending with this week', () => {
+    const weeks = sessionsByWeek(list, '2026-11-06', 3)
+    expect(weeks).toEqual([
+      { week: '2026-10-19', count: 0 },
+      { week: '2026-10-26', count: 0 },
+      { week: '2026-11-02', count: 1 },
     ])
   })
   it('lists upcoming sessions of active plans only', () => {

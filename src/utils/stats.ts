@@ -197,6 +197,28 @@ export function sessionsByWeekday(
   }))
 }
 
+export interface WeekPoint {
+  /** Monday of the week, "YYYY-MM-DD". */
+  week: string
+  count: number
+}
+
+/** Watched sessions per week (Monday to Sunday) for the last `weeks` weeks, oldest first. */
+export function sessionsByWeek(sessions: PlannedSession[], today: string, weeks = 12): WeekPoint[] {
+  const last = weekStart(today)
+  const first = addDays(last, -7 * (weeks - 1))
+  const counts = new Map<string, number>()
+  for (const { session } of sessions) {
+    if (session.status !== 'done' || session.date > today || session.date < first) continue
+    const week = weekStart(session.date)
+    counts.set(week, (counts.get(week) ?? 0) + 1)
+  }
+  return Array.from({ length: weeks }, (_, i) => {
+    const week = addDays(first, 7 * i)
+    return { week, count: counts.get(week) ?? 0 }
+  })
+}
+
 /** The next pending sessions from today on, soonest first. */
 export function upcomingSessions(
   sessions: PlannedSession[],
