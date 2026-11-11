@@ -6,7 +6,17 @@ import type { Option } from '../shared/types/common'
 import type { LibraryEntry, LibraryStatus } from '../types/library'
 import type { MediaType } from '../types/media'
 import type { Plan, PlannedSession, Weekday } from '../types/plan'
-import { addDays, localToday, weekdayOf, weekdayShort, weekStart, WEEK_ORDER } from './calendar'
+import {
+  addDays,
+  localToday,
+  monthGrid,
+  monthKey,
+  weekdayOf,
+  weekdayShort,
+  weekStart,
+  WEEK_ORDER,
+  type MonthRef,
+} from './calendar'
 import { LIBRARY_STATUSES } from './library'
 
 export type StatsPeriod = 'all' | '30d' | 'year'
@@ -217,6 +227,37 @@ export function sessionsByWeek(sessions: PlannedSession[], today: string, weeks 
     const week = addDays(first, 7 * i)
     return { week, count: counts.get(week) ?? 0 }
   })
+}
+
+export interface DayPoint {
+  /** "YYYY-MM-DD". */
+  day: string
+  count: number
+}
+
+/** Watched sessions on every day of the month (zeros included), the 1st first. */
+export function sessionsByDay(
+  sessions: PlannedSession[],
+  month: MonthRef,
+  today = localToday(),
+): DayPoint[] {
+  const prefix = `${monthKey(month)}-`
+  const counts = new Map<string, number>()
+  for (const { session } of sessions) {
+    if (session.status !== 'done' || session.date > today || !session.date.startsWith(prefix)) {
+      continue
+    }
+    counts.set(session.date, (counts.get(session.date) ?? 0) + 1)
+  }
+  return monthGrid(month)
+    .filter((day) => day.startsWith(prefix))
+    .map((day) => ({ day, count: counts.get(day) ?? 0 }))
+}
+
+/** Shade 0–4 of a day against the busiest day of the month; 0 only for an empty day. */
+export function activityLevel(count: number, max: number): 0 | 1 | 2 | 3 | 4 {
+  if (count <= 0 || max <= 0) return 0
+  return Math.min(4, Math.max(1, Math.ceil((count / max) * 4))) as 1 | 2 | 3 | 4
 }
 
 /** The next pending sessions from today on, soonest first. */

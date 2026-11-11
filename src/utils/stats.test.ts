@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { LibraryEntry } from '../types/library'
 import {
+  activityLevel,
   byStatus,
   entriesInPeriod,
   hoursValue,
@@ -9,6 +10,7 @@ import {
   parsePeriod,
   periodStart,
   planStats,
+  sessionsByDay,
   sessionsByWeek,
   sessionsByWeekday,
   topGenres,
@@ -140,6 +142,28 @@ describe('plan stats', () => {
       { week: '2026-10-26', count: 0 },
       { week: '2026-11-02', count: 1 },
     ])
+  })
+  it('counts finished sessions per day of one month, zeros included', () => {
+    const days = sessionsByDay(
+      [
+        session(a, '2026-11-02', 'done'),
+        session(a, '2026-11-02', 'done'),
+        session(a, '2026-11-03', 'pending'),
+        session(a, '2026-10-31', 'done'),
+        session(a, '2026-11-20', 'done'),
+      ],
+      { year: 2026, month: 10 },
+      '2026-11-06',
+    )
+    expect(days).toHaveLength(30)
+    expect(days[0]).toEqual({ day: '2026-11-01', count: 0 })
+    expect(days[1]).toEqual({ day: '2026-11-02', count: 2 })
+    expect(days.reduce((sum, d) => sum + d.count, 0)).toBe(2)
+  })
+  it('shades a day against the busiest one', () => {
+    expect([0, 1, 2, 3, 4, 8].map((n) => activityLevel(n, 8))).toEqual([0, 1, 1, 2, 2, 4])
+    expect(activityLevel(1, 1)).toBe(4)
+    expect(activityLevel(0, 0)).toBe(0)
   })
   it('lists upcoming sessions of active plans only', () => {
     expect(upcomingSessions(list, '2026-11-06').map((s) => s.session.date)).toEqual([
