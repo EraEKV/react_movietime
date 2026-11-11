@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import type { ReactNode } from 'react'
 import { imageUrl } from '../../shared/api/tmdb'
+import { useImageFailed } from '../../shared/hooks/useImageFailed'
 import type { Genre } from '../../types/tmdb'
 import Icon from '../../shared/ui/Icon/Icon'
 import type { IconName } from '../../shared/ui/Icon/icons'
@@ -53,6 +54,7 @@ export default function TitleHero({
   const { t } = useTranslation()
   const backdrop = imageUrl(backdropPath, 'w1280')
   const poster = imageUrl(posterPath, 'w342')
+  const posterState = useImageFailed(poster)
   const metaLine = meta.filter(Boolean).join(' · ')
 
   return (
@@ -64,8 +66,12 @@ export default function TitleHero({
 
         <div className={styles.content}>
           <div className={styles.poster}>
-            {poster ? (
-              <img src={poster} alt={t('title.poster', { title })} />
+            {!posterState.failed ? (
+              <img
+                src={poster ?? ''}
+                alt={t('title.poster', { title })}
+                onError={posterState.onError}
+              />
             ) : (
               <div className={styles.posterFallback}>
                 <Icon name={fallbackIcon} size={32} />
