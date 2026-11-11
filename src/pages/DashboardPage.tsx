@@ -34,10 +34,10 @@ import styles from './DashboardPage.module.css'
 const SIGN_IN = '/login?redirect=/dashboard'
 
 const STATUS_COLOR: Record<LibraryStatus, string> = {
-  plan: 'var(--chart-2)',
+  plan: 'var(--chart-4)',
   watching: 'var(--chart-1)',
   completed: 'var(--chart-3)',
-  dropped: 'var(--chart-4)',
+  dropped: 'var(--chart-5)',
 }
 const TYPE_COLOR: Record<MediaType, string> = { tv: 'var(--chart-1)', movie: 'var(--chart-2)' }
 
@@ -326,7 +326,7 @@ export default function DashboardPage() {
           )}
         </DashboardCard>
 
-        <DashboardCard title={t('cards.weeks')} hint={t('cards.weeksHint')} className={styles.wide}>
+        <DashboardCard title={t('cards.weeks')} hint={t('cards.weeksHint')}>
           {plansChart(() =>
             plans.weeks?.some((w) => w.count > 0) ? (
               <WeeklyActivity weeks={plans.weeks} />
@@ -335,15 +335,13 @@ export default function DashboardPage() {
             ),
           )}
         </DashboardCard>
-      </div>
 
-      {plans.status !== 'guest' && (
         <DashboardCard title={t('cards.activity')} hint={t('cards.activityHint')}>
           {plansChart(() =>
             plans.sessions ? <ActivityCalendar sessions={plans.sessions} today={today} /> : null,
           )}
         </DashboardCard>
-      )}
+      </div>
 
       {plans.status !== 'guest' && (
         <section className={styles.upcoming} aria-labelledby="upcoming-title">

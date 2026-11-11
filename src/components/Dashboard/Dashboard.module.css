@@ -273,7 +273,8 @@
   flex-direction: column;
   gap: var(--space-2);
   width: 100%;
-  max-width: 22rem;
+  max-width: 21rem;
+  margin-inline: auto;
 }
 
 .monthSwitch {
@@ -325,10 +326,12 @@
 
 .tile[data-level='1'] {
   --level: 30%;
+  color: var(--text-muted);
 }
 
 .tile[data-level='2'] {
   --level: 55%;
+  color: var(--text);
 }
 
 .tile[data-level='3'] {
