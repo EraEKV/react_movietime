@@ -5,7 +5,7 @@ import type { LookupFunction } from 'node:net'
 import react from '@vitejs/plugin-react'
 import { defineConfig, loadEnv, type ProxyOptions } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
-import devApi from './vite.dev-api'
+import devApi from './vite.dev-api.ts'
 
 // Some networks (corporate DNS, ISPs) answer api.themoviedb.org with 127.0.0.1 or nothing.
 // The dev proxy asks public resolvers first and only then the system one.
