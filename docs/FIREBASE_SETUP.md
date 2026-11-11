@@ -43,27 +43,34 @@ avleron.com
 `localhost` and `<project-id>.firebaseapp.com` are there by default. Without the production
 domain, Google sign-in on the deployed site fails with `auth/unauthorized-domain`.
 
-Vercel preview deployments get random domains, so Google sign-in only works on production and
-on localhost. Email/password works everywhere.
+Preview deployments get random domains, so Google sign-in only works on production and on
+localhost. Email/password works everywhere.
 
 **Popup on desktop, redirect on phones and in the installed app.** A popup in an installed
 iPhone app is blocked or opens inside the app without an account chooser, so phones and the
 installed app use `signInWithRedirect`. Redirect relies on third-party storage between the app
 domain and `*.firebaseapp.com`, which browsers block unless both are the same site. The fix is
-Firebase's "proxy" option: `vercel.json` forwards `/__/auth/*` to
-`https://<project-id>.firebaseapp.com/__/auth/*`, and the app uses its own domain as
-`authDomain`. This needs a Vercel domain only, not a custom one. Setup for production, in this order:
+Firebase's "proxy" option: the Cloudflare Worker (`worker/index.ts`, `run_worker_first` in
+`wrangler.jsonc`) forwards `/__/*` to `FIREBASE_AUTH_HOST` (`<project-id>.firebaseapp.com`), and
+the app uses its own domain as `authDomain`. On `avleron.com` the app takes that value from the
+page's own host (`src/utils/authDomain.ts`), so it does not depend on the build variable.
+Setup for production:
 
 1. **Google Cloud Console → APIs & Services → Credentials → OAuth 2.0 Client IDs** (the "Web
    client (auto created by Google Service)"): under **Authorized redirect URIs** add
    `https://avleron.com/__/auth/handler` (keep the existing
    `https://<project-id>.firebaseapp.com/__/auth/handler`).
-2. Deploy the `vercel.json` rewrite (merge to `main`).
-3. In Vercel set `VITE_FIREBASE_AUTH_DOMAIN=avleron.com` (Production) and redeploy.
-   Doing this before step 1 breaks Google sign-in with `redirect_uri_mismatch`, popup included.
+2. **Firebase → Authentication → Settings → Authorized domains** lists `avleron.com`.
+3. Keep `/__/*` out of any Cloudflare rule that challenges or blocks (Managed Challenge, Bot
+   Fight Mode, Rocket Loader, Email Obfuscation, Browser Integrity Check): the handler page must
+   reach the browser untouched. `https://avleron.com/__/auth/handler` should show a plain
+   Firebase page, not the app.
+4. `VITE_FIREBASE_AUTH_DOMAIN` is only used off the production domain (localhost keeps
+   `<project-id>.firebaseapp.com`). `www.avleron.com` has no redirect URI registered: redirect it to
+   `avleron.com` in Cloudflare.
 
-Locally keep `<project-id>.firebaseapp.com` (or leave it as is): desktop uses the popup, which
-works with it. Vercel preview deployments are not supported for Google sign-in.
+If a phone sign-in ends with "Google sign-in didn't finish", the browser console shows
+`Google redirect returned without a user` with the host and `authDomain` it ran with.
 
 **Optional, Authentication → Templates:** set the sender name and the email verification /
 password reset texts.
