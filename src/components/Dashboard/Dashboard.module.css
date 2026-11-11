@@ -281,6 +281,7 @@
 .monthsRow {
   display: flex;
   flex-wrap: wrap;
+  align-items: stretch;
   justify-content: center;
   gap: var(--space-8);
   width: 100%;
@@ -376,7 +377,9 @@
 
 .tileCaption {
   min-height: 1.5em;
-  margin: var(--space-1) 0 0;
+  /* Panels of two months differ in rows (5 vs 6): the line sticks to the bottom of both. */
+  margin: auto 0 0;
+  padding-top: var(--space-2);
   color: var(--text-muted);
   font-size: 13px;
   text-align: center;
@@ -553,6 +556,7 @@
 
 .yearFoot .tileCaption {
   margin: 0;
+  padding-top: 0;
   text-align: left;
 }
 
