@@ -7,6 +7,7 @@ import BarList from '../components/Dashboard/BarList'
 import DashboardCard from '../components/Dashboard/DashboardCard'
 import SplitBar from '../components/Dashboard/SplitBar'
 import WeekdayColumns from '../components/Dashboard/WeekdayColumns'
+import WeeklyActivity from '../components/Dashboard/WeeklyActivity'
 import dash from '../components/Dashboard/Dashboard.module.css'
 import EmptyState from '../shared/ui/EmptyState/EmptyState'
 import ErrorState from '../shared/ui/EmptyState/ErrorState'
@@ -304,6 +305,16 @@ export default function DashboardPage() {
               />
             ) : (
               <p className={dash.note}>{t('cards.noWatched')}</p>
+            ),
+          )}
+        </DashboardCard>
+
+        <DashboardCard title={t('cards.weeks')} hint={t('cards.weeksHint')} className={styles.wide}>
+          {plansChart(() =>
+            plans.weeks?.some((w) => w.count > 0) ? (
+              <WeeklyActivity weeks={plans.weeks} />
+            ) : (
+              <p className={dash.note}>{t('cards.noWeeks')}</p>
             ),
           )}
         </DashboardCard>

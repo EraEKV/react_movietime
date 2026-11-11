@@ -7,7 +7,7 @@
   padding: 0 5px;
   border-radius: var(--radius-pill);
   background: var(--accent);
-  color: var(--on-accent);
+  color: var(--on-accent-solid);
   font-size: 11px;
   font-weight: 700;
   line-height: 18px;

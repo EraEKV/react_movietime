@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import NumberFlow from '@number-flow/react'
 import { Link } from 'react-router'
 import type { IconName } from '../Icon/icons'
 import Icon from '../Icon/Icon'
@@ -41,13 +42,18 @@ export default function StatTile({
     <>
       <span className={styles.top}>
         <span>{label}</span>
-        {icon && <Icon name={icon} size={18} />}
+        {icon && (
+          <span className={styles.icon}>
+            <Icon name={icon} size={18} />
+          </span>
+        )}
       </span>
       {loading ? (
         <Skeleton width="60%" height={size === 'sm' ? 28 : 40} />
       ) : (
         <span className={styles.value}>
-          {value}
+          {/* Whole numbers count up to their value; text such as "—" or "Nov 13" is shown as is. */}
+          {typeof value === 'number' ? <NumberFlow value={value} /> : value}
           {unit && <small>{unit}</small>}
         </span>
       )}

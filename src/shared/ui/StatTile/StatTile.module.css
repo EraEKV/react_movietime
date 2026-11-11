@@ -8,7 +8,13 @@
   padding: var(--space-4);
   border-radius: var(--radius-md);
   border: 1px solid var(--border);
-  background: var(--surface);
+  background:
+    radial-gradient(
+      90% 120% at 100% 0%,
+      color-mix(in srgb, var(--accent) 10%, transparent),
+      transparent 65%
+    ),
+    var(--surface);
 }
 
 /* Links and buttons look like the plain tile; hover lifts the surface (focus ring is global). */
@@ -21,12 +27,14 @@
   cursor: pointer;
   transition:
     background-color var(--dur-fast) var(--ease-out),
-    border-color var(--dur-fast) var(--ease-out);
+    border-color var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
 }
 
 .tile[data-interactive]:hover {
   background: var(--surface-hover);
   border-color: var(--border-strong);
+  transform: translateY(-1px);
 }
 
 .top {
@@ -37,6 +45,20 @@
   color: var(--text-muted);
   font-size: 13px;
   font-weight: 500;
+}
+
+.icon {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.tile[data-size='sm'] .icon {
+  display: none;
 }
 
 .value {
