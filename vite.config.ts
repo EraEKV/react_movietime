@@ -112,7 +112,18 @@ export default defineConfig(({ mode }) => {
             // React Router is needed on first load either way; as its own chunk it stays
             // cached across app deploys, and the bundler's automatic grouping can't fold it
             // back into the main chunk when the set of lazy pages changes.
-            groups: [{ name: 'router', test: /node_modules[\\/]react-router/ }],
+            groups: [
+              { name: 'router', test: /node_modules[\\/]react-router/, priority: 20 },
+              // Modules shared by several pages would each become a file of a few hundred
+              // bytes (a page view was ~80 requests); merge them into a few bigger ones.
+              {
+                name: 'shared',
+                test: /[\\/]src[\\/]/,
+                minShareCount: 2,
+                minSize: 30_000,
+                priority: 5,
+              },
+            ],
           },
         },
       },
