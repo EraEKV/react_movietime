@@ -45,7 +45,7 @@
   "periodNote": "Library figures cover titles added or changed in this period; sessions count by their date. “This week” and active plans are always current.",
   "cards": {
     "status": "Titles by status",
-    "statusHint": "Bars open the library",
+    "statusHint": "Slices open the library",
     "genres": "Top genres",
     "genresHint": "A title counts in each of its genres",
     "genresError": "Couldn’t load genre names",
@@ -57,7 +57,18 @@
     "noWatched": "No watched sessions in this period yet.",
     "weeks": "Last 12 weeks",
     "weeksHint": "Watched sessions per week",
-    "noWeeks": "No watched sessions in the last 12 weeks."
+    "noWeeks": "No watched sessions in the last 12 weeks.",
+    "activity": "Activity calendar",
+    "activityHint": "Watched sessions per day",
+    "plansHint": "Progress and the next session",
+    "nextSession": "Next: {{day}}",
+    "noNext": "No sessions left",
+    "noPlans": "No active plans yet.",
+    "activityYear": "Year",
+    "activityMonth": "Month",
+    "activityLast12": "Last 12 months",
+    "activityLess": "Less",
+    "activityMore": "More"
   },
   "upcoming": {
     "title": "Upcoming sessions",
@@ -81,7 +92,8 @@
     "sessions_one": "{{day}}: {{count}} session",
     "sessions_other": "{{day}}: {{count}} sessions",
     "weekOf_one": "Week of {{week}}: {{count}} session",
-    "weekOf_other": "Week of {{week}}: {{count}} sessions"
+    "weekOf_other": "Week of {{week}}: {{count}} sessions",
+    "planProgress": "{{label}}: {{done}} of {{total}}"
   },
   "scored_one": "From {{count}} scored title",
   "scored_other": "From {{count}} scored titles",

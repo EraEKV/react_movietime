@@ -3,14 +3,16 @@ import type { ReactNode } from 'react'
 import { useSearchParams } from 'react-router'
 import Banner from '../shared/ui/Banner/Banner'
 import ButtonLink from '../shared/ui/ButtonLink/ButtonLink'
+import ActivityCalendar from '../components/Dashboard/ActivityCalendar'
 import BarList from '../components/Dashboard/BarList'
 import DashboardCard from '../components/Dashboard/DashboardCard'
-import SplitBar from '../components/Dashboard/SplitBar'
+import Donut from '../components/Dashboard/Donut'
 import WeekdayColumns from '../components/Dashboard/WeekdayColumns'
 import WeeklyActivity from '../components/Dashboard/WeeklyActivity'
 import dash from '../components/Dashboard/Dashboard.module.css'
 import EmptyState from '../shared/ui/EmptyState/EmptyState'
 import ErrorState from '../shared/ui/EmptyState/ErrorState'
+import PlanProgress from '../components/Dashboard/PlanProgress'
 import SectionHeader from '../shared/ui/SectionHeader/SectionHeader'
 import SectionLink from '../shared/ui/SectionHeader/SectionLink'
 import SegmentedControl from '../shared/ui/SegmentedControl/SegmentedControl'
@@ -25,10 +27,20 @@ import { hoursValue, parsePeriod, STATS_PERIODS, type StatsPeriod } from '../uti
 import { formatRating } from '../shared/lib/format'
 import { statusLabel } from '../utils/library'
 import { weekdayShort } from '../utils/calendar'
+import type { LibraryStatus } from '../types/library'
+import type { MediaType } from '../types/media'
 import type { Weekday } from '../types/plan'
 import styles from './DashboardPage.module.css'
 
 const SIGN_IN = '/login?redirect=/dashboard'
+
+const STATUS_COLOR: Record<LibraryStatus, string> = {
+  plan: 'var(--chart-4)',
+  watching: 'var(--chart-1)',
+  completed: 'var(--chart-3)',
+  dropped: 'var(--chart-5)',
+}
+const TYPE_COLOR: Record<MediaType, string> = { tv: 'var(--chart-1)', movie: 'var(--chart-2)' }
 
 function ChartSkeleton() {
   const { t } = useTranslation('dashboard')
@@ -142,7 +154,7 @@ export default function DashboardPage() {
   const plansTile = (
     label: string,
     icon: 'calendar' | 'list',
-    value: () => { value: ReactNode; unit?: string; detail: string },
+    value: () => { value: ReactNode; unit?: string; detail: string; gauge?: number },
   ) => {
     if (plans.status === 'guest') {
       return (
@@ -199,6 +211,7 @@ export default function DashboardPage() {
         <StatTile
           label={t('tiles.completed')}
           icon="check"
+          gauge={stats.titles ? stats.completedShare : undefined}
           loading={libLoading}
           value={libError ? '—' : stats.completed}
           detail={
@@ -234,6 +247,7 @@ export default function DashboardPage() {
         />
         {plansTile(t('tiles.week'), 'calendar', () => ({
           value: week?.weekDone ?? 0,
+          gauge: week?.weekPlanned ? week.weekDone / week.weekPlanned : undefined,
           unit: t('tiles.weekOf', { count: week?.weekPlanned ?? 0 }),
           detail: week?.tonight
             ? t('tiles.tonight', { count: week.tonight })
@@ -256,10 +270,53 @@ export default function DashboardPage() {
       <div className={styles.charts}>
         <DashboardCard title={t('cards.status')} hint={t('cards.statusHint')}>
           {libraryChart(
-            <BarList
-              bars={library.byStatus.map((bar) => ({ ...bar, label: statusLabel(bar.value) }))}
-              hrefOf={(status) => `/library?status=${status}`}
+            <Donut
+              parts={library.byStatus.map((bar) => ({
+                ...bar,
+                label: statusLabel(bar.value),
+                color: STATUS_COLOR[bar.value],
+                href: `/library?status=${bar.value}`,
+              }))}
             />,
+          )}
+        </DashboardCard>
+
+        <DashboardCard title={t('cards.weekday')} hint={t('cards.weekdayHint')}>
+          {plansChart(() =>
+            plans.weekdays?.some((d) => d.count > 0) ? (
+              <WeekdayColumns
+                days={plans.weekdays.map((day) => ({
+                  ...day,
+                  label: weekdayShort(Number(day.value) as Weekday),
+                }))}
+                today={todayWeekday}
+              />
+            ) : (
+              <p className={dash.note}>{t('cards.noWatched')}</p>
+            ),
+          )}
+        </DashboardCard>
+
+        <DashboardCard title={t('cards.split')}>
+          {libraryChart(
+            <Donut
+              parts={library.byType.map((part) => ({
+                ...part,
+                label: t(part.value === 'tv' ? 'library:types.tv' : 'library:types.movie'),
+                color: TYPE_COLOR[part.value],
+                href: `/library?type=${part.value}`,
+              }))}
+            />,
+          )}
+        </DashboardCard>
+
+        <DashboardCard title={t('cards.weeks')} hint={t('cards.weeksHint')}>
+          {plansChart(() =>
+            plans.weeks?.some((w) => w.count > 0) ? (
+              <WeeklyActivity weeks={plans.weeks} />
+            ) : (
+              <p className={dash.note}>{t('cards.noWeeks')}</p>
+            ),
           )}
         </DashboardCard>
 
@@ -282,40 +339,23 @@ export default function DashboardPage() {
           )}
         </DashboardCard>
 
-        <DashboardCard title={t('cards.split')}>
-          {libraryChart(
-            <SplitBar
-              parts={library.byType.map((part) => ({
-                ...part,
-                label: t(part.value === 'tv' ? 'library:types.tv' : 'library:types.movie'),
-              }))}
-            />,
-          )}
-        </DashboardCard>
-
-        <DashboardCard title={t('cards.weekday')} hint={t('cards.weekdayHint')}>
+        <DashboardCard title={t('tiles.active')} hint={t('cards.plansHint')}>
           {plansChart(() =>
-            plans.weekdays?.some((d) => d.count > 0) ? (
-              <WeekdayColumns
-                days={plans.weekdays.map((day) => ({
-                  ...day,
-                  label: weekdayShort(Number(day.value) as Weekday),
-                }))}
-                today={todayWeekday}
-              />
+            plans.active?.length ? (
+              <PlanProgress plans={plans.active} today={today} />
             ) : (
-              <p className={dash.note}>{t('cards.noWatched')}</p>
+              <p className={dash.note}>{t('cards.noPlans')}</p>
             ),
           )}
         </DashboardCard>
 
-        <DashboardCard title={t('cards.weeks')} hint={t('cards.weeksHint')} className={styles.wide}>
+        <DashboardCard
+          title={t('cards.activity')}
+          hint={t('cards.activityHint')}
+          className={styles.wide}
+        >
           {plansChart(() =>
-            plans.weeks?.some((w) => w.count > 0) ? (
-              <WeeklyActivity weeks={plans.weeks} />
-            ) : (
-              <p className={dash.note}>{t('cards.noWeeks')}</p>
-            ),
+            plans.sessions ? <ActivityCalendar sessions={plans.sessions} today={today} /> : null,
           )}
         </DashboardCard>
       </div>

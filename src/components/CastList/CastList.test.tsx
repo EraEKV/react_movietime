@@ -141,7 +141,7 @@ describe('CrewList preview', () => {
     expect(toggle).toHaveAttribute('aria-expanded', 'false')
     await userEvent.click(toggle)
     expect(screen.getAllByRole('link')).toHaveLength(15)
-    expect(screen.getByRole('button', { name: 'Show fewer' })).toHaveAttribute(
+    expect(screen.getByRole('button', { name: 'Show less' })).toHaveAttribute(
       'aria-expanded',
       'true',
     )

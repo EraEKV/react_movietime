@@ -68,7 +68,8 @@
     "edit": "Өзгерту",
     "showLess": "Жасыру",
     "more_one": "тағы {{count}}",
-    "more_other": "тағы {{count}}"
+    "more_other": "тағы {{count}}",
+    "showAll": "Барлығын көрсету: {{count}}"
   },
   "states": {
     "loading": "Жүктелуде…",

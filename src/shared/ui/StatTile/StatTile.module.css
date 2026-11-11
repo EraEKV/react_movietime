@@ -57,6 +57,16 @@
   color: var(--accent);
 }
 
+.gauge {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  /* The ring is taller than the 32px icon box: pull it up so the tile keeps its height. */
+  margin: -6px -6px -6px 0;
+}
+
+.tile[data-size='sm'] .gauge,
 .tile[data-size='sm'] .icon {
   display: none;
 }

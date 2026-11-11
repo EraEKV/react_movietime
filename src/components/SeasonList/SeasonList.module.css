@@ -55,3 +55,7 @@
   line-height: 18px;
   font-variant-numeric: tabular-nums;
 }
+
+.toggle {
+  margin-top: var(--space-3);
+}

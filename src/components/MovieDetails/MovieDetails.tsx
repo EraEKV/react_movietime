@@ -85,8 +85,8 @@ export default function MovieDetails({ movieId }: { movieId: string }) {
       {/* React 19 hoists <title> into <head> — no document.title side effect needed. */}
       <title>{t('details.pageTitle', { title: movie.title })}</title>
 
-      <BackButton />
       <TitleHero
+        back={<BackButton />}
         title={movie.title}
         originalTitle={movie.original_title}
         tagline={movie.tagline}
@@ -94,6 +94,7 @@ export default function MovieDetails({ movieId }: { movieId: string }) {
         backdropPath={movie.backdrop_path}
         fallbackIcon="film"
         genres={movie.genres}
+        genreTo={(id) => `/movies?genre=${id}`}
         rating={movie.vote_average}
         votes={movie.vote_count}
         meta={[

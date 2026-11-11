@@ -265,3 +265,317 @@
   gap: var(--space-4);
   padding: var(--space-2) 0;
 }
+
+/* ---------- Activity calendar (a month of tiles) ---------- */
+
+.activity {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 100%;
+  max-width: 24rem;
+  min-width: 0;
+}
+
+/* Two months side by side on a wide screen, one on a phone; centred in the card. */
+.monthsRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  justify-content: center;
+  gap: var(--space-8);
+  width: 100%;
+}
+
+.arrowGap {
+  width: 36px;
+  flex: none;
+}
+
+.monthSwitch {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.monthName {
+  composes: titleM from '../../shared/styles/typography.module.css';
+  margin: 0;
+  font-size: 15px;
+  text-align: center;
+}
+
+.tileHead,
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.tileHead span {
+  color: var(--text-subtle);
+  font-size: 11px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+/* Shade = share of the busiest day; level 0 is the sunken surface, 4 the full hue. */
+.tile {
+  --level: 0%;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--chart-1) var(--level), var(--surface-sunken));
+  color: var(--text-subtle);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  cursor: default;
+  transition:
+    transform var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out);
+}
+
+.tile[data-level='1'] {
+  --level: 30%;
+  color: var(--text-muted);
+}
+
+.tile[data-level='2'] {
+  --level: 55%;
+  color: var(--text);
+}
+
+.tile[data-level='3'] {
+  --level: 80%;
+}
+
+.tile[data-level='4'] {
+  --level: 100%;
+  color: var(--on-accent-solid);
+}
+
+.tile[data-level='3'] {
+  color: var(--on-accent-solid);
+}
+
+.tile:hover {
+  transform: scale(1.12);
+}
+
+.tile:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+
+.tileToday {
+  box-shadow: inset 0 0 0 1.5px var(--text-muted);
+}
+
+.tileCaption {
+  min-height: 1.5em;
+  /* Panels of two months differ in rows (5 vs 6): the line sticks to the bottom of both. */
+  margin: auto 0 0;
+  padding-top: var(--space-2);
+  color: var(--text-muted);
+  font-size: 13px;
+  text-align: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tile {
+    transition: none;
+  }
+
+  .tile:hover {
+    transform: none;
+  }
+}
+
+/* ---------- Active plans (progress rows) ---------- */
+
+.plans {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.planRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px var(--space-3);
+  padding: var(--space-2);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  text-decoration: none;
+  transition: background-color var(--dur-fast) var(--ease-out);
+}
+
+.planRow:hover {
+  background: var(--surface-hover);
+}
+
+.planTitle {
+  overflow: hidden;
+  font-size: 15px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.planCount {
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+.planRow .track {
+  grid-column: 1 / -1;
+}
+
+.planFill {
+  display: block;
+  height: 100%;
+  min-width: 6px;
+  border-radius: var(--radius-pill);
+  background: var(--plan);
+  transform-origin: left center;
+  animation: grow var(--dur-slow, 320ms) var(--ease-out) both;
+}
+
+.planNext {
+  grid-column: 1 / -1;
+  color: var(--text-subtle);
+  font-size: 12px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .planFill {
+    animation: none;
+  }
+}
+
+/* ---------- Activity: year graph ---------- */
+
+.activityRoot {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-4);
+}
+
+.activityRoot > :last-child {
+  align-self: stretch;
+}
+
+.year {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.yearScroll {
+  overflow-x: auto;
+  padding-bottom: var(--space-2);
+}
+
+/* 53 week columns: tiles keep at least 13px, so a phone scrolls sideways (starting at today). */
+.yearBox {
+  display: grid;
+  grid-template-columns: 2.25rem minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  column-gap: var(--space-2);
+  row-gap: 6px;
+  min-width: calc(2.25rem + 53 * 17px + var(--space-2));
+  max-width: 74rem;
+}
+
+.yearMonths {
+  grid-column: 2;
+  display: grid;
+  grid-template-columns: repeat(53, minmax(0, 1fr));
+  color: var(--text-subtle);
+  font-size: 11px;
+  line-height: 14px;
+}
+
+.yearMonths span {
+  overflow: visible;
+  white-space: nowrap;
+}
+
+.yearDays {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--surface);
+  grid-column: 1;
+  grid-row: 2;
+  display: grid;
+  grid-template-rows: repeat(7, minmax(0, 1fr));
+  gap: 4px;
+  color: var(--text-subtle);
+  font-size: 11px;
+  line-height: 1;
+}
+
+.yearDays span {
+  display: flex;
+  align-items: center;
+}
+
+.yearGrid {
+  grid-column: 2;
+  grid-row: 2;
+  display: grid;
+  grid-template-rows: repeat(7, auto);
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: 4px;
+}
+
+.cell {
+  min-width: 13px;
+  border-radius: 4px;
+}
+
+.cell:hover {
+  transform: none;
+  outline: 1px solid var(--text-muted);
+}
+
+.yearFoot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-4);
+}
+
+.yearFoot .tileCaption {
+  margin: 0;
+  padding-top: 0;
+  text-align: left;
+}
+
+.legendScale {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--text-subtle);
+  font-size: 11px;
+}
+
+.legendScale .cell {
+  width: 14px;
+  height: 14px;
+  min-width: 0;
+  flex: none;
+  aspect-ratio: auto;
+}
+
+.legendScale span {
+  margin-inline: 2px;
+}

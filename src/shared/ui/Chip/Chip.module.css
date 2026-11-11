@@ -85,3 +85,23 @@ button.chip:hover {
     inset: -8px;
   }
 }
+
+/* A chip that has to stand out on a photo (title hero): brand-tinted glass with a bright edge. */
+.onImage {
+  min-height: 36px;
+  padding: 0 var(--space-4);
+  border-color: rgba(60, 198, 234, 0.7);
+  background: rgba(60, 198, 234, 0.2);
+  color: #fff;
+  font-weight: 600;
+  backdrop-filter: blur(6px);
+  transition:
+    background-color var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+
+a.onImage:hover {
+  background: rgba(60, 198, 234, 0.4);
+  color: #fff;
+  transform: translateY(-1px);
+}

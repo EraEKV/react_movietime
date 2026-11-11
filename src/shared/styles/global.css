@@ -24,7 +24,7 @@
 
 /*
  * Dashboard chart colours (not in tokens.json). One hue for ranked bars (--chart-1) and a
- * second for the movies/series split. Checked for colour-blind separation, lightness and
+ * second for the movies/series split; green, slate and red join them for the four statuses. Checked for colour-blind separation, lightness and
  * ≥3:1 contrast against --surface in each theme; the dark pair is a step darker than
  * --accent, which is too light for a large filled mark on the dark surface.
  */
@@ -32,11 +32,17 @@
 [data-theme='dark'] {
   --chart-1: #1fa3cc;
   --chart-2: #c9813f;
+  --chart-3: #43b283;
+  --chart-4: #8a93a6;
+  --chart-5: #d4675f;
 }
 
 [data-theme='light'] {
-  --chart-1: #00739a;
-  --chart-2: #ad6420;
+  --chart-1: #0a8fba;
+  --chart-2: #d2761a;
+  --chart-3: #2f9e6b;
+  --chart-4: #7a84a0;
+  --chart-5: #d5584d;
 }
 
 @media (min-width: 1024px) {

@@ -6,7 +6,18 @@ import type { Option } from '../shared/types/common'
 import type { LibraryEntry, LibraryStatus } from '../types/library'
 import type { MediaType } from '../types/media'
 import type { Plan, PlannedSession, Weekday } from '../types/plan'
-import { addDays, localToday, weekdayOf, weekdayShort, weekStart, WEEK_ORDER } from './calendar'
+import {
+  addDays,
+  localToday,
+  monthGrid,
+  monthKey,
+  monthOf,
+  weekdayOf,
+  weekdayShort,
+  weekStart,
+  WEEK_ORDER,
+  type MonthRef,
+} from './calendar'
 import { LIBRARY_STATUSES } from './library'
 
 export type StatsPeriod = 'all' | '30d' | 'year'
@@ -217,6 +228,78 @@ export function sessionsByWeek(sessions: PlannedSession[], today: string, weeks 
     const week = addDays(first, 7 * i)
     return { week, count: counts.get(week) ?? 0 }
   })
+}
+
+export interface DayPoint {
+  /** "YYYY-MM-DD". */
+  day: string
+  count: number
+}
+
+/** Watched sessions on every day of the month (zeros included), the 1st first. */
+export function sessionsByDay(
+  sessions: PlannedSession[],
+  month: MonthRef,
+  today = localToday(),
+): DayPoint[] {
+  const prefix = `${monthKey(month)}-`
+  const counts = new Map<string, number>()
+  for (const { session } of sessions) {
+    if (session.status !== 'done' || session.date > today || !session.date.startsWith(prefix)) {
+      continue
+    }
+    counts.set(session.date, (counts.get(session.date) ?? 0) + 1)
+  }
+  return monthGrid(month)
+    .filter((day) => day.startsWith(prefix))
+    .map((day) => ({ day, count: counts.get(day) ?? 0 }))
+}
+
+/**
+ * The days of a "last year" graph as weeks (columns), Monday to Sunday, from the week
+ * 52 weeks before today's to today's week. Days after today are part of the last week;
+ * the caller leaves them empty.
+ */
+export function activityWeeks(today: string, weeks = 53): string[][] {
+  const first = addDays(weekStart(today), -7 * (weeks - 1))
+  return Array.from({ length: weeks }, (_, w) =>
+    Array.from({ length: 7 }, (_, d) => addDays(first, 7 * w + d)),
+  )
+}
+
+/** Watched sessions per day ("YYYY-MM-DD") from `from` up to today; days without any are absent. */
+export function countSessionsByDay(
+  sessions: PlannedSession[],
+  from: string,
+  today: string,
+): Map<string, number> {
+  const counts = new Map<string, number>()
+  for (const { session } of sessions) {
+    if (session.status !== 'done' || session.date > today || session.date < from) continue
+    counts.set(session.date, (counts.get(session.date) ?? 0) + 1)
+  }
+  return counts
+}
+
+/**
+ * Where month names go above the weeks: the week that holds a 1st. The first week gets its
+ * month too unless the next label would be too close (under 3 weeks away).
+ */
+export function monthLabels(weeks: string[][]): { index: number; month: MonthRef }[] {
+  const labels: { index: number; month: MonthRef }[] = []
+  weeks.forEach((week, index) => {
+    const first = week.find((day) => day.endsWith('-01'))
+    if (first) labels.push({ index, month: monthOf(first) })
+  })
+  const start = weeks[0]?.[0]
+  if (start && (labels[0]?.index ?? 0) >= 3) labels.unshift({ index: 0, month: monthOf(start) })
+  return labels
+}
+
+/** Shade 0–4 of a day against the busiest day of the month; 0 only for an empty day. */
+export function activityLevel(count: number, max: number): 0 | 1 | 2 | 3 | 4 {
+  if (count <= 0 || max <= 0) return 0
+  return Math.min(4, Math.max(1, Math.ceil((count / max) * 4))) as 1 | 2 | 3 | 4
 }
 
 /** The next pending sessions from today on, soonest first. */

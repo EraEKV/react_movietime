@@ -2,10 +2,17 @@
   position: relative;
   display: flex;
   align-items: flex-end;
-  min-height: 360px;
-  /* No overflow: hidden here — the library status menu opens below the hero's edge.
-     The backdrop and the scrim round their own corners instead. */
-  border-radius: var(--radius-lg);
+  min-height: calc(360px + var(--cover-top));
+  /* Full-bleed like the TMDB page: the band runs edge to edge of the window while the
+     content below stays in the page container. (Layout clips the 100vw overflow.)
+     No overflow: hidden — the library status menu opens below the hero's edge. */
+  width: 100vw;
+  margin-inline: calc(50% - 50vw);
+  /* The cover also runs up under the translucent header and the page's top padding, so the
+     picture starts at the very top of the window (the Back button sits on it). */
+  --cover-top: calc(var(--header-height-mobile) + var(--space-5));
+  margin-top: calc(-1 * var(--cover-top));
+  padding-top: var(--cover-top);
   background: var(--surface-sunken);
   color: var(--text-on-backdrop);
 }
@@ -13,9 +20,38 @@
 .backdrop {
   position: absolute;
   inset: 0;
-  border-radius: inherit;
   background-size: cover;
-  background-position: center top;
+  background-position: right top;
+}
+
+/* Back button row: spans the grid, light text since it is always over the dark scrim. */
+.bar {
+  position: absolute;
+  z-index: 2;
+  top: var(--cover-top);
+  left: 0;
+  right: 0;
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: var(--page-gutter);
+}
+
+.bar button {
+  /* Posters differ, so the button carries its own backing: dark glass with a light edge
+     reads on any picture, in both themes. */
+  margin: 0;
+  padding-inline: var(--space-4) var(--space-4);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: var(--radius-pill);
+  background: rgba(8, 10, 14, 0.55);
+  color: #fff;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+}
+
+.bar button:hover {
+  background: rgba(8, 10, 14, 0.75);
+  color: #fff;
 }
 
 /* Text over imagery always sits on the dark scrim, in both themes. */
@@ -23,7 +59,6 @@
   content: '';
   position: absolute;
   inset: 0;
-  border-radius: inherit;
   background: var(--scrim-backdrop);
 }
 
@@ -33,19 +68,36 @@
   display: grid;
   gap: var(--space-5);
   width: 100%;
-  padding: var(--space-5);
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding: var(--space-5) var(--page-gutter);
 }
 
 @media (min-width: 768px) {
   .hero {
-    min-height: 420px;
+    --cover-top: calc(var(--header-height) + var(--space-10));
+    min-height: calc(420px + var(--cover-top));
+  }
+
+  /* Like the TMDB page: the poster and text sit on a dark tint that thins out to the right,
+     so the backdrop shows through on the far side. */
+  .hero::after {
+    background:
+      linear-gradient(
+        90deg,
+        rgba(5, 8, 14, 0.96) 0%,
+        rgba(5, 8, 14, 0.88) 32%,
+        rgba(5, 8, 14, 0.5) 68%,
+        rgba(5, 8, 14, 0.28) 100%
+      ),
+      var(--scrim-backdrop);
   }
 
   .content {
     grid-template-columns: 200px minmax(0, 1fr);
     align-items: end;
     gap: var(--space-8);
-    padding: var(--space-8);
+    padding: var(--space-8) var(--page-gutter);
   }
 }
 
@@ -88,16 +140,6 @@
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-2);
-}
-
-.genres li {
-  padding: 2px var(--space-3);
-  border-radius: var(--radius-pill);
-  background: var(--overlay);
-  color: var(--text-on-backdrop);
-  font-size: 13px;
-  font-weight: 500;
-  line-height: 20px;
 }
 
 .title {

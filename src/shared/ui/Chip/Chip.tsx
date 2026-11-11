@@ -9,7 +9,7 @@ interface ChipProps {
   children: ReactNode
   icon?: IconName
   selected?: boolean
-  tone?: 'tonight'
+  tone?: 'tonight' | 'onImage'
   /** With onClick the chip is a toggle button; without it, a plain label. */
   onClick?: () => void
   /** With `to` the chip is a link (header "Tonight"). */
@@ -30,6 +30,7 @@ export default function Chip({
     styles.chip,
     selected && styles.selected,
     tone === 'tonight' && styles.tonight,
+    tone === 'onImage' && styles.onImage,
   )
   const content = (
     <>
