@@ -14,6 +14,7 @@ import EmptyState from '../shared/ui/EmptyState/EmptyState'
 import ErrorState from '../shared/ui/EmptyState/ErrorState'
 import Icon from '../shared/ui/Icon/Icon'
 import IconButton from '../shared/ui/IconButton/IconButton'
+import type { IconName } from '../shared/ui/Icon/icons'
 import Menu from '../shared/ui/Menu/Menu'
 import RescheduleDialog from '../components/Planner/RescheduleDialog'
 import ReorderFilmsDialog from '../components/Planner/ReorderFilmsDialog'
@@ -32,6 +33,7 @@ import { canVote, useMarathonVotes, useVoteActions } from '../hooks/useMarathonV
 import { loadPlannerService, usePlan, usePlanActions } from '../hooks/usePlanner'
 import { useSharing } from '../hooks/useSharing'
 import { useTimedState } from '../shared/hooks/useTimedState'
+import { useImageFailed } from '../shared/hooks/useImageFailed'
 import type { Plan, PlanRole, PlanSession } from '../types/plan'
 import { formatDay, localToday } from '../utils/calendar'
 import { offlineMessage } from '../utils/listErrors'
@@ -386,13 +388,7 @@ function PlanView({ id }: { id: string }) {
       )}
 
       <header className={styles.header}>
-        <span className={styles.poster} aria-hidden="true">
-          {poster ? (
-            <img src={poster} alt="" />
-          ) : (
-            <Icon name={plan.kind === 'series' ? 'tv' : 'film'} size={28} />
-          )}
-        </span>
+        <PlanPoster src={poster} icon={plan.kind === 'series' ? 'tv' : 'film'} />
         <div className={styles.heading}>
           <span className={styles.kickerRow}>
             <span
@@ -655,6 +651,20 @@ function PlanView({ id }: { id: string }) {
 }
 
 /** The picker's words for each of its three jobs. */
+/** The plan's poster; the kind's icon stands in when there is none or it does not load. */
+function PlanPoster({ src, icon }: { src: string | null; icon: IconName }) {
+  const image = useImageFailed(src)
+  return (
+    <span className={styles.poster} aria-hidden="true">
+      {image.failed ? (
+        <Icon name={icon} size={28} />
+      ) : (
+        <img src={src ?? ''} alt="" onError={image.onError} />
+      )}
+    </span>
+  )
+}
+
 function pickerTexts(
   picking: { mode: 'suggest' | 'replace'; session: PlanSession } | { mode: 'add' },
   ownerName: string,
