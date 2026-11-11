@@ -1,6 +1,8 @@
 .group {
   display: inline-flex;
   gap: 2px;
+  /* As wide as its options even inside a column (flex or grid), where a plain box stretches. */
+  width: fit-content;
   max-width: 100%;
   padding: 3px;
   border-radius: var(--radius-pill);
