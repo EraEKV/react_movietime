@@ -16,6 +16,7 @@ import ButtonLink from '../../shared/ui/ButtonLink/ButtonLink'
 import CastList from '../CastList/CastList'
 import CollectionBlock from '../CollectionDetails/CollectionBlock'
 import CrewList from '../CrewList/CrewList'
+import FullCrew from '../FullCrew/FullCrew'
 import DetailsSkeleton from '../DetailsSkeleton/DetailsSkeleton'
 import ErrorState from '../../shared/ui/EmptyState/ErrorState'
 import FactTiles from '../../shared/ui/FactTiles/FactTiles'
@@ -142,6 +143,7 @@ export default function MovieDetails({ movieId }: { movieId: string }) {
       {crew.length > 0 && (
         <Section title={tPerson('crewLabel')}>
           <CrewList crew={crew} />
+          <FullCrew crew={movie.credits.crew} />
         </Section>
       )}
 

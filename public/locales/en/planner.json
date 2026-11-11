@@ -104,7 +104,10 @@
     "leaveTitle": "Leave “{{title}}”?",
     "leaveBody": "You’ll lose access to this plan. Your own library progress stays. To come back, ask {{owner}} to invite you again.",
     "loadingSessions": "Loading sessions",
-    "loading": "Loading plan"
+    "loading": "Loading plan",
+    "rename": "Rename plan",
+    "nameLabel": "Plan name",
+    "renamed": "Plan renamed to “{{title}}”."
   },
   "errors": {
     "permission": "You don’t have permission to change this plan.",
@@ -133,7 +136,8 @@
     "pick": "Pick a title",
     "start": "Start from",
     "schedule": "Schedule",
-    "preview": "Preview"
+    "preview": "Preview",
+    "when": "When"
   },
   "new": {
     "pageTitle": "New watch plan · Avleron",
@@ -174,7 +178,13 @@
     "listsError": "We couldn’t load your lists",
     "loadingLists": "Loading lists",
     "newList": "New list",
-    "noLists": "You don’t have any lists yet. Make one with the movies for your marathon."
+    "noLists": "You don’t have any lists yet. Make one with the movies for your marathon.",
+    "movie": "A movie",
+    "searchMovie": "Search movies",
+    "placeholderMovie": "Search movies by title",
+    "noMatchMovie": "No movies match “{{query}}”.",
+    "hintMovie": "Search for a movie to plan, for example “Dune”.",
+    "selectedMovie": "Selected movie"
   },
   "start": {
     "continue": "Continue from {{code}}",

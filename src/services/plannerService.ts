@@ -9,6 +9,7 @@ import {
   query,
   serverTimestamp,
   Timestamp,
+  updateDoc,
   where,
   writeBatch,
   type DocumentData,
@@ -337,6 +338,22 @@ export interface ListSource {
   skipped: number
 }
 
+/** One film for a plan of its own: its snapshot (title, poster, runtime) and its single unit. */
+export async function loadMovie(
+  movieId: number,
+  signal?: AbortSignal,
+): Promise<ListSource & { media: LibraryMedia }> {
+  const movie = await tmdbGet<MovieBase>(endpoints.movieSummary(movieId), { signal })
+  const media = movieToLibraryMedia(movie)
+  return {
+    name: movie.title,
+    posterPath: movie.poster_path,
+    media,
+    units: [movieToUnit(media)],
+    skipped: 0,
+  }
+}
+
 /** The movies of a list in list order, each with its runtime from /movie/{id}. */
 export async function loadListMovies(listId: string, signal?: AbortSignal): Promise<ListSource> {
   // The list first: a missing or unreadable list fails here with one clear error.
@@ -570,6 +587,19 @@ export async function createPlan(
 
   await commitInChunks(writes)
   return ref.id
+}
+
+/**
+ * Gives a plan a new name. Only the owner may (the rules check it); sessions and progress
+ * stay as they are.
+ */
+export async function renamePlan(planId: string, title: string): Promise<void> {
+  const name = title.trim()
+  if (name.length === 0) throw new PlanError(i18n.t('planner:new.nameRequired'))
+  await updateDoc(doc(db, 'plans', planId), {
+    title: name.slice(0, 120),
+    updatedAt: serverTimestamp(),
+  })
 }
 
 /** The plan's counters as they follow from its sessions (after a change). */

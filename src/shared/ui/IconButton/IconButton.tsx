@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes } from 'react'
+import type { ButtonHTMLAttributes, Ref } from 'react'
 import { buttonClass } from '../Button/variants'
 import type { IconName } from '../Icon/icons'
 import Icon from '../Icon/Icon'
@@ -10,6 +10,8 @@ interface IconButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 
   variant?: 'ghost' | 'secondary'
   size?: 'sm' | 'md'
   pressed?: boolean
+  /** React 19 passes ref as a normal prop; it goes to the <button>. */
+  ref?: Ref<HTMLButtonElement>
 }
 
 export default function IconButton({

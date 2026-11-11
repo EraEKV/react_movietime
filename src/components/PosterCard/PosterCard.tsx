@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import type { ReactNode } from 'react'
 import { Link } from 'react-router'
+import { useImageFailed } from '../../shared/hooks/useImageFailed'
 import Icon from '../../shared/ui/Icon/Icon'
 import type { IconName } from '../../shared/ui/Icon/icons'
 import RatingBadge from '../../shared/ui/RatingBadge/RatingBadge'
@@ -37,13 +38,14 @@ export default function PosterCard({
   placeholderIcon = 'film',
 }: PosterCardProps) {
   const { t } = useTranslation()
+  const poster = useImageFailed(posterUrl)
   const metaLine = [year, meta].filter(Boolean).join(' · ')
 
   return (
     <div className={styles.card}>
       <div className={styles.art}>
-        {posterUrl ? (
-          <img src={posterUrl} alt="" loading="lazy" />
+        {!poster.failed ? (
+          <img src={posterUrl ?? ''} alt="" loading="lazy" onError={poster.onError} />
         ) : (
           <div className={styles.placeholder}>
             <Icon name={placeholderIcon} size={28} />

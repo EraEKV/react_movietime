@@ -84,5 +84,20 @@
   "profileLink": "{{name}}: профиль",
   "showAll": "Показать всех: {{count}}",
   "showFewer": "Свернуть",
+  "fullCrew": "Вся группа ({{count}})",
+  "hideFullCrew": "Скрыть всю группу",
+  "departments": {
+    "directing": "Режиссура",
+    "writing": "Сценарий",
+    "production": "Продюсирование",
+    "camera": "Операторская работа",
+    "editing": "Монтаж",
+    "sound": "Звук",
+    "art": "Художественный отдел",
+    "costumeMakeUp": "Костюмы и грим",
+    "visualEffects": "Визуальные эффекты",
+    "lighting": "Свет",
+    "crew": "Прочая группа"
+  },
   "planMarathon": "Запланировать марафон всех фильмов"
 }

@@ -80,5 +80,20 @@
   "profileLink": "{{name}}: profile",
   "showAll": "Show all {{count}}",
   "showFewer": "Show fewer",
+  "fullCrew": "Full crew ({{count}})",
+  "hideFullCrew": "Hide full crew",
+  "departments": {
+    "directing": "Directing",
+    "writing": "Writing",
+    "production": "Production",
+    "camera": "Camera",
+    "editing": "Editing",
+    "sound": "Sound",
+    "art": "Art",
+    "costumeMakeUp": "Costume & make-up",
+    "visualEffects": "Visual effects",
+    "lighting": "Lighting",
+    "crew": "Other crew"
+  },
   "planMarathon": "Plan a marathon of all films"
 }

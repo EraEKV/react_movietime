@@ -80,5 +80,20 @@
   "profileLink": "{{name}}: профилі",
   "showAll": "Барлығын көрсету: {{count}}",
   "showFewer": "Жасыру",
+  "fullCrew": "Бүкіл топ ({{count}})",
+  "hideFullCrew": "Бүкіл топты жасыру",
+  "departments": {
+    "directing": "Режиссура",
+    "writing": "Сценарий",
+    "production": "Продюсерлік жұмыс",
+    "camera": "Операторлық жұмыс",
+    "editing": "Монтаж",
+    "sound": "Дыбыс",
+    "art": "Көркемдік бөлім",
+    "costumeMakeUp": "Костюм және грим",
+    "visualEffects": "Визуалды эффектілер",
+    "lighting": "Жарық",
+    "crew": "Басқа топ мүшелері"
+  },
   "planMarathon": "Барлық фильмдерден марафон жоспарлау"
 }

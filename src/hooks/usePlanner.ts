@@ -241,5 +241,6 @@ export function usePlanActions() {
     ) => run((s) => s.rescheduleSession(plan, session, date, shiftLater, time)),
     reorderFilms: (plan: Plan, order: string[]) => run((s) => s.reorderFilms(plan, order)),
     addFilm: (plan: Plan, unit: PlanUnit) => run((s) => s.addFilm(plan, unit)),
+    rename: (plan: Plan, title: string) => run((s) => s.renamePlan(plan.id, title)),
   }
 }

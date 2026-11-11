@@ -4,10 +4,12 @@ import type { PlanSession } from '../../types/plan'
 import { daysBetween, formatDay, relativeDay } from '../../utils/calendar'
 import { cx } from '../../shared/lib/cx'
 import { formatRuntime } from '../../shared/lib/format'
+import { parseMediaKey } from '../../utils/media'
 import { unitsLabel } from '../../utils/schedule'
 import Badge from '../../shared/ui/Badge/Badge'
 import Button from '../../shared/ui/Button/Button'
 import IconButton from '../../shared/ui/IconButton/IconButton'
+import WatchDisclosure from '../WhereToWatch/WatchDisclosure'
 import styles from './SessionRow.module.css'
 
 interface SessionRowProps {
@@ -24,6 +26,8 @@ interface SessionRowProps {
   onReschedule: () => void
   /** Under the film: the marathon's 👍 and suggestions. */
   extra?: ReactNode
+  /** Films have a "Where to watch" button; a series shows it once, at the top of the plan. */
+  watchHere?: boolean
 }
 
 /** One session on the plan page: when, what, status, and what you can do with it. */
@@ -38,12 +42,15 @@ export default function SessionRow({
   onUndo,
   onReschedule,
   extra,
+  watchHere = false,
 }: SessionRowProps) {
   const { t } = useTranslation(['planner', 'common'])
   const [busy, setBusy] = useState<'complete' | 'skip' | 'undo' | null>(null)
   const isToday = session.date === today
   const by = session.doneBy && (session.doneBy.uid === ownUid ? t('you') : session.doneBy.name)
   const single = session.units.length === 1 ? session.units[0] : undefined
+  const film =
+    watchHere && single && session.status === 'pending' ? parseMediaKey(single.mediaKey) : null
 
   // The row stays mounted while the batch runs; the snapshot then changes its status.
   const run = (kind: 'complete' | 'skip' | 'undo', action: () => Promise<void>) => {
@@ -79,6 +86,7 @@ export default function SessionRow({
         <span className={styles.units}>{unitsLabel(session.units)}</span>
         {single && single.season !== null && <span className={styles.muted}>{single.title}</span>}
         {extra}
+        {film && <WatchDisclosure mediaType={film.mediaType} tmdbId={film.id} />}
       </div>
       <div className={styles.status}>
         {session.status === 'done' ? (

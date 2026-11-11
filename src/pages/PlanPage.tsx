@@ -14,12 +14,15 @@ import EmptyState from '../shared/ui/EmptyState/EmptyState'
 import ErrorState from '../shared/ui/EmptyState/ErrorState'
 import Icon from '../shared/ui/Icon/Icon'
 import IconButton from '../shared/ui/IconButton/IconButton'
+import type { IconName } from '../shared/ui/Icon/icons'
 import Menu from '../shared/ui/Menu/Menu'
 import RescheduleDialog from '../components/Planner/RescheduleDialog'
 import ReorderFilmsDialog from '../components/Planner/ReorderFilmsDialog'
+import PlanTitle from '../components/Planner/PlanTitle'
 import MarathonVotes from '../components/Planner/MarathonVotes'
 import ProposalsPanel from '../components/Planner/ProposalsPanel'
 import SessionRow from '../components/Planner/SessionRow'
+import WatchDisclosure from '../components/WhereToWatch/WatchDisclosure'
 import SuggestFilmDialog from '../components/Planner/SuggestFilmDialog'
 import ProgressBar from '../shared/ui/ProgressBar/ProgressBar'
 import ShareDialog from '../components/ShareDialog/ShareDialog'
@@ -31,6 +34,7 @@ import { canVote, useMarathonVotes, useVoteActions } from '../hooks/useMarathonV
 import { loadPlannerService, usePlan, usePlanActions } from '../hooks/usePlanner'
 import { useSharing } from '../hooks/useSharing'
 import { useTimedState } from '../shared/hooks/useTimedState'
+import { useImageFailed } from '../shared/hooks/useImageFailed'
 import type { Plan, PlanRole, PlanSession } from '../types/plan'
 import { formatDay, localToday } from '../utils/calendar'
 import { offlineMessage } from '../utils/listErrors'
@@ -330,6 +334,7 @@ function PlanView({ id }: { id: string }) {
                   )}
                   onUndo={act(() => actions.undo(plan, s))}
                   onReschedule={() => setMoving(s)}
+                  watchHere={plan.kind !== 'series'}
                   extra={
                     s.status === 'pending' && plan.kind === 'list' ? (
                       <MarathonVotes
@@ -384,13 +389,7 @@ function PlanView({ id }: { id: string }) {
       )}
 
       <header className={styles.header}>
-        <span className={styles.poster} aria-hidden="true">
-          {poster ? (
-            <img src={poster} alt="" />
-          ) : (
-            <Icon name={plan.kind === 'series' ? 'tv' : 'film'} size={28} />
-          )}
-        </span>
+        <PlanPoster src={poster} icon={plan.kind === 'series' ? 'tv' : 'film'} />
         <div className={styles.heading}>
           <span className={styles.kickerRow}>
             <span
@@ -404,9 +403,14 @@ function PlanView({ id }: { id: string }) {
               })}
             </span>
           </span>
-          <h1 id="plan-title" className={styles.title}>
-            {plan.title}
-          </h1>
+          <PlanTitle
+            title={plan.title}
+            canRename={role === 'owner'}
+            onRename={async (name) => {
+              await actions.rename(plan, name)
+              showToast({ text: t('plan.renamed', { title: name }) })
+            }}
+          />
           <div className={styles.progress}>
             <ProgressBar
               value={progress}
@@ -431,6 +435,10 @@ function PlanView({ id }: { id: string }) {
         </div>
         <div className={styles.actions}>{actionsBar}</div>
       </header>
+
+      {plan.kind === 'series' && plan.media && !finished && (
+        <WatchDisclosure mediaType="tv" tmdbId={plan.media.tmdbId} />
+      )}
 
       {finished && (
         <EmptyState
@@ -649,6 +657,20 @@ function PlanView({ id }: { id: string }) {
 }
 
 /** The picker's words for each of its three jobs. */
+/** The plan's poster; the kind's icon stands in when there is none or it does not load. */
+function PlanPoster({ src, icon }: { src: string | null; icon: IconName }) {
+  const image = useImageFailed(src)
+  return (
+    <span className={styles.poster} aria-hidden="true">
+      {image.failed ? (
+        <Icon name={icon} size={28} />
+      ) : (
+        <img src={src ?? ''} alt="" onError={image.onError} />
+      )}
+    </span>
+  )
+}
+
 function pickerTexts(
   picking: { mode: 'suggest' | 'replace'; session: PlanSession } | { mode: 'add' },
   ownerName: string,

@@ -191,6 +191,10 @@ export const endpoints = {
       include_video_language: videoLanguages(language),
     }),
 
+  /** Where one title can be watched, without the rest of its details (the plan page). */
+  watchProviders: (mediaType: MediaType, id: Id) =>
+    buildPath(`/${mediaType}/${id}`, { append_to_response: 'watch/providers' }),
+
   /** Just the movie (runtime, genres): the planner needs one per list item. */
   movieSummary: (id: Id) => buildPath(`/movie/${id}`),
 

@@ -23,7 +23,7 @@ interface SourceStepProps {
   onPick: (pick: SourcePick) => void
 }
 
-/** Step 1: a series (search or your library) or one of your lists. */
+/** Step 1: a series or a movie (search or your library) or one of your lists. */
 export default function SourceStep({ kind, onKindChange, pick, onPick }: SourceStepProps) {
   const { t } = useTranslation('planner')
   return (
@@ -34,20 +34,29 @@ export default function SourceStep({ kind, onKindChange, pick, onPick }: SourceS
         onChange={onKindChange}
         options={[
           { value: 'series', label: t('source.series'), icon: 'tv' },
+          { value: 'movie', label: t('source.movie'), icon: 'film' },
           { value: 'list', label: t('source.list'), icon: 'list' },
         ]}
       />
-      {kind === 'series' ? (
-        <SeriesPicker pick={pick} onPick={onPick} />
-      ) : (
+      {kind === 'list' ? (
         <ListPicker pick={pick} onPick={onPick} />
+      ) : (
+        <TitlePicker kind={kind} pick={pick} onPick={onPick} />
       )}
     </div>
   )
 }
 
-function SeriesPicker({ pick, onPick }: Pick<SourceStepProps, 'pick' | 'onPick'>) {
+/** Search (or your library) for one title: the series or the film to plan. */
+function TitlePicker({
+  kind,
+  pick,
+  onPick,
+}: Pick<SourceStepProps, 'pick' | 'onPick'> & { kind: 'series' | 'movie' }) {
   const { t } = useTranslation(['planner', 'common', 'library'])
+  const mediaType = kind === 'movie' ? 'movie' : 'tv'
+  // Keys of the copy that differs between the two kinds.
+  const word = kind === 'movie' ? 'Movie' : ''
   const [query, setQuery] = useState('')
   const search = useTitleSearch(query)
   const { entries } = useLibrary()
@@ -55,11 +64,11 @@ function SeriesPicker({ pick, onPick }: Pick<SourceStepProps, 'pick' | 'onPick'>
   // Without a query: series from your library, the ones you're watching first.
   const order = { watching: 0, plan: 1, dropped: 2, completed: 3 }
   const fromLibrary = entries
-    .filter((e) => e.mediaType === 'tv')
+    .filter((e) => e.mediaType === mediaType)
     .toSorted((a, b) => order[a.status] - order[b.status])
     .slice(0, SHOWN)
     .map((e) => ({
-      pick: { kind: 'series', id: e.tmdbId, title: e.title, posterPath: e.posterPath } as const,
+      pick: { kind, id: e.tmdbId, title: e.title, posterPath: e.posterPath } as const,
       description: [
         e.year,
         t('source.inLibrary'),
@@ -74,34 +83,34 @@ function SeriesPicker({ pick, onPick }: Pick<SourceStepProps, 'pick' | 'onPick'>
   const found =
     search.status === 'success'
       ? search.data
-          .filter((m) => m.mediaType === 'tv')
+          .filter((m) => m.mediaType === mediaType)
           .slice(0, SHOWN)
           .map((m) => ({
-            pick: { kind: 'series', id: m.id, title: m.title, posterPath: m.posterPath } as const,
-            description: getYear(m.date) ?? t('library:series'),
+            pick: { kind, id: m.id, title: m.title, posterPath: m.posterPath } as const,
+            description: getYear(m.date) ?? t(`library:${kind}`),
           }))
       : []
   const choices = searching ? found : fromLibrary
   // The picked series stays visible even when it isn't in the current results.
-  if (pick?.kind === 'series' && !choices.some((c) => c.pick.id === pick.id)) {
+  if (pick?.kind === kind && !choices.some((c) => c.pick.id === pick.id)) {
     choices.unshift({ pick, description: t('source.selected') })
   }
 
   const options: RadioCardOption<string>[] = choices.map((c) => ({
     value: String(c.pick.id),
-    label: c.pick.title || t('source.selectedSeries'),
+    label: c.pick.title || t(`source.selected${kind === 'movie' ? 'Movie' : 'Series'}`),
     description: c.description,
-    icon: 'tv',
+    icon: kind === 'movie' ? 'film' : 'tv',
   }))
 
   return (
     <>
       <TextField
-        label={t('source.search')}
+        label={t(`source.search${word}`)}
         hideLabel
         icon="search"
         type="search"
-        placeholder={t('source.placeholder')}
+        placeholder={t(`source.placeholder${word}`)}
         value={query}
         onChange={setQuery}
       />
@@ -120,14 +129,16 @@ function SeriesPicker({ pick, onPick }: Pick<SourceStepProps, 'pick' | 'onPick'>
         />
       )}
       {searching && search.status === 'success' && found.length === 0 && (
-        <p className={styles.muted}>{t('source.noMatch', { query: query.trim() })}</p>
+        <p className={styles.muted}>{t(`source.noMatch${word}`, { query: query.trim() })}</p>
       )}
-      {!searching && options.length === 0 && <p className={styles.muted}>{t('source.hint')}</p>}
+      {!searching && options.length === 0 && (
+        <p className={styles.muted}>{t(`source.hint${word}`)}</p>
+      )}
       {options.length > 0 && (
         <RadioCards
           legend={searching ? t('source.results') : t('source.fromLibrary')}
           options={options}
-          value={pick?.kind === 'series' ? String(pick.id) : ''}
+          value={pick?.kind === kind ? String(pick.id) : ''}
           onChange={(value) => {
             const choice = choices.find((c) => String(c.pick.id) === value)
             if (choice) onPick(choice.pick)

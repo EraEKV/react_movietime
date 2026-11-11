@@ -62,12 +62,6 @@
   color: var(--text-muted);
 }
 
-.title {
-  composes: displayL from '../shared/styles/typography.module.css';
-  margin: 0;
-  overflow-wrap: anywhere;
-}
-
 .progress {
   max-width: 480px;
 }
