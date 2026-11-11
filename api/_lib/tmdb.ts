@@ -175,6 +175,10 @@ export function parseTmdbRequest(pathname: string, search: string): TmdbRequest 
   }
 }
 
+/** What a browser is told about a successful answer. */
+export const browserCacheControl = (target: TmdbRequest) =>
+  `public, max-age=${target.browserSeconds}, stale-while-revalidate=${target.browserSeconds}`
+
 /** The request URL → the proxied request, or null. */
 export function proxyTarget(requestUrl: string): TmdbRequest | null {
   const url = new URL(requestUrl)

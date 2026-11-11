@@ -1,5 +1,5 @@
 import { json } from './_lib/firebase.js'
-import { proxyTarget, tmdbToken } from './_lib/tmdb.js'
+import { browserCacheControl, proxyTarget, tmdbToken } from './_lib/tmdb.js'
 
 // GET /api/tmdb/<a TMDB v3 path the app uses>?<query>: forwards the request with the server's
 // token (see _lib/tmdb.ts for what is accepted). The Worker (worker/index.ts) keeps the
@@ -26,9 +26,7 @@ export async function GET(request: Request): Promise<Response> {
     headers: {
       'Content-Type': 'application/json',
       // Errors are never cached; a 404 for a new title must not stick.
-      'Cache-Control': upstream.ok
-        ? `public, max-age=${target.browserSeconds}, stale-while-revalidate=${target.browserSeconds}`
-        : 'no-store',
+      'Cache-Control': upstream.ok ? browserCacheControl(target) : 'no-store',
     },
   })
 }
