@@ -1,5 +1,6 @@
 import { useMemo, useRef, useState, type KeyboardEvent } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useMediaQuery } from '../../shared/hooks/useMediaQuery'
 import IconButton from '../../shared/ui/IconButton/IconButton'
 import { cx } from '../../shared/lib/cx'
 import {
@@ -19,11 +20,9 @@ import { activityLevel, sessionsByDay } from '../../utils/stats'
 import styles from './Dashboard.module.css'
 
 /**
- * A month of watched sessions as GitHub-style tiles: one tile per day, shade = sessions
- * that day against the busiest day of the month. Arrows switch months (not past the
- * current one). Tiles are buttons with the day and count as their name; the line under
- * the grid shows the hovered, focused or tapped day (or the month's total). The grid is
- * one tab stop; arrow keys move between days.
+ * Months of watched sessions as day tiles: the chosen month and, on a wide screen, the one
+ * before it beside it (a two-month range). Arrows sit on the outer edges and move both
+ * months; the later month never goes past the current one.
  */
 export default function ActivityMonth({
   sessions,
@@ -32,9 +31,47 @@ export default function ActivityMonth({
   sessions: PlannedSession[]
   today: string
 }) {
-  const { t } = useTranslation(['dashboard', 'common'])
   const current = monthOf(today)
-  const [month, setMonth] = useState<MonthRef>(current)
+  const wide = useMediaQuery('(min-width: 1024px)')
+  const [last, setLast] = useState<MonthRef>(current)
+  const atCurrent = monthKey(last) === monthKey(current)
+  const months = wide ? [shiftMonth(last, -1), last] : [last]
+  const go = (by: number) => setLast((m) => shiftMonth(m, by))
+
+  return (
+    <div className={styles.monthsRow}>
+      {months.map((month, i) => (
+        <MonthPanel
+          key={monthKey(month)}
+          month={month}
+          sessions={sessions}
+          today={today}
+          onPrev={i === 0 ? () => go(-1) : undefined}
+          onNext={i === months.length - 1 && !atCurrent ? () => go(1) : undefined}
+          nextDisabled={i === months.length - 1 && atCurrent}
+        />
+      ))}
+    </div>
+  )
+}
+
+interface MonthPanelProps {
+  month: MonthRef
+  sessions: PlannedSession[]
+  today: string
+  onPrev?: () => void
+  onNext?: () => void
+  nextDisabled?: boolean
+}
+
+/**
+ * One month: a title with the arrows that belong to it, weekday letters, one tile per day
+ * (shade = sessions that day against the busiest day of the month) and a line that shows
+ * the hovered, focused or tapped day (or the month's total). Tiles are buttons named by day
+ * and count; the grid is one tab stop and arrow keys move between days.
+ */
+function MonthPanel({ month, sessions, today, onPrev, onNext, nextDisabled }: MonthPanelProps) {
+  const { t } = useTranslation(['dashboard', 'common'])
   const [active, setActive] = useState<string | null>(null)
   const [focusDay, setFocusDay] = useState<string | null>(null)
   const gridRef = useRef<HTMLDivElement>(null)
@@ -43,18 +80,12 @@ export default function ActivityMonth({
   const max = Math.max(0, ...days.map((d) => d.count))
   const total = days.reduce((sum, d) => sum + d.count, 0)
   const counts = new Map(days.map((d) => [d.day, d.count]))
-  const offset = (WEEK_ORDER.indexOf(weekdayOf(days[0]?.day ?? today)) + 7) % 7
-  const atCurrent = monthKey(month) === monthKey(current)
+  const offset = WEEK_ORDER.indexOf(weekdayOf(days[0]?.day ?? today))
+  const isCurrent = monthKey(month) === monthKey(monthOf(today))
 
   // The one tab stop: the chosen day, else today (this month) or the 1st.
   const stop =
-    focusDay && counts.has(focusDay) ? focusDay : atCurrent ? today : (days[0]?.day ?? today)
-
-  const goMonth = (by: number) => {
-    setMonth((m) => shiftMonth(m, by))
-    setActive(null)
-    setFocusDay(null)
-  }
+    focusDay && counts.has(focusDay) ? focusDay : isCurrent ? today : (days[0]?.day ?? today)
 
   const label = (day: string, count: number) =>
     t('chart.sessions', {
@@ -81,22 +112,28 @@ export default function ActivityMonth({
   return (
     <div className={styles.activity}>
       <div className={styles.monthSwitch}>
-        <IconButton
-          icon="chevron-left"
-          size="sm"
-          label={t('common:calendar.previousMonth')}
-          onClick={() => goMonth(-1)}
-        />
-        <h3 className={styles.monthName} aria-live="polite">
-          {formatMonth(month)}
-        </h3>
-        <IconButton
-          icon="chevron-right"
-          size="sm"
-          label={t('common:calendar.nextMonth')}
-          disabled={atCurrent}
-          onClick={() => goMonth(1)}
-        />
+        {onPrev ? (
+          <IconButton
+            icon="chevron-left"
+            size="sm"
+            label={t('common:calendar.previousMonth')}
+            onClick={onPrev}
+          />
+        ) : (
+          <span className={styles.arrowGap} />
+        )}
+        <h3 className={styles.monthName}>{formatMonth(month)}</h3>
+        {onNext || nextDisabled ? (
+          <IconButton
+            icon="chevron-right"
+            size="sm"
+            label={t('common:calendar.nextMonth')}
+            disabled={nextDisabled}
+            onClick={onNext}
+          />
+        ) : (
+          <span className={styles.arrowGap} />
+        )}
       </div>
       <div className={styles.tileHead} aria-hidden="true">
         {WEEK_ORDER.map((d) => (
