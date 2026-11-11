@@ -68,7 +68,8 @@
     "edit": "Edit",
     "showLess": "Show less",
     "more_one": "+{{count}} more",
-    "more_other": "+{{count}} more"
+    "more_other": "+{{count}} more",
+    "showAll": "Show all {{count}}"
   },
   "states": {
     "loading": "Loading…",

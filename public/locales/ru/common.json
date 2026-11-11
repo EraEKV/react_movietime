@@ -72,7 +72,8 @@
     "more_one": "ещё {{count}}",
     "more_few": "ещё {{count}}",
     "more_many": "ещё {{count}}",
-    "more_other": "ещё {{count}}"
+    "more_other": "ещё {{count}}",
+    "showAll": "Показать все {{count}}"
   },
   "states": {
     "loading": "Загрузка…",

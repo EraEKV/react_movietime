@@ -1,7 +1,9 @@
 import { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
+import { useShowMore } from '../../shared/hooks/useShowMore'
 import Button from '../../shared/ui/Button/Button'
+import ShowMore from '../../shared/ui/ShowMore/ShowMore'
 import type { CrewMember } from '../../types/tmdb'
 import { crewByDepartment, crewSize } from '../../utils/fullCrew'
 import styles from './FullCrew.module.css'
@@ -49,19 +51,34 @@ export default function FullCrew({ crew }: { crew: CrewMember[] }) {
                 : department.name}
               <span className={styles.count}>{department.people.length}</span>
             </h3>
-            <ul className={styles.people}>
-              {department.people.map((person) => (
-                <li key={person.id}>
-                  <Link to={`/person/${person.id}`} className={styles.person}>
-                    <span className={styles.name}>{person.name}</span>
-                    <span className={styles.jobs}>{person.jobs.join(', ')}</span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            <DepartmentPeople people={department.people} />
           </section>
         ))}
       </div>
     </div>
+  )
+}
+
+type Person = ReturnType<typeof crewByDepartment>[number]['people'][number]
+
+/** One department's people; a big department folds after 5 (phone) or 12 names. */
+function DepartmentPeople({ people }: { people: Person[] }) {
+  const more = useShowMore(people)
+  return (
+    <>
+      <ul className={styles.people}>
+        {more.visible.map((person) => (
+          <li key={person.id}>
+            <Link to={`/person/${person.id}`} className={styles.person}>
+              <span className={styles.name}>{person.name}</span>
+              <span className={styles.jobs}>{person.jobs.join(', ')}</span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+      {more.collapsible && (
+        <ShowMore expanded={more.expanded} total={people.length} onToggle={more.toggle} />
+      )}
+    </>
   )
 }
