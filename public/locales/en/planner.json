@@ -104,7 +104,10 @@
     "leaveTitle": "Leave “{{title}}”?",
     "leaveBody": "You’ll lose access to this plan. Your own library progress stays. To come back, ask {{owner}} to invite you again.",
     "loadingSessions": "Loading sessions",
-    "loading": "Loading plan"
+    "loading": "Loading plan",
+    "rename": "Rename plan",
+    "nameLabel": "Plan name",
+    "renamed": "Plan renamed to “{{title}}”."
   },
   "errors": {
     "permission": "You don’t have permission to change this plan.",

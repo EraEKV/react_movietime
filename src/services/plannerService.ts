@@ -9,6 +9,7 @@ import {
   query,
   serverTimestamp,
   Timestamp,
+  updateDoc,
   where,
   writeBatch,
   type DocumentData,
@@ -586,6 +587,19 @@ export async function createPlan(
 
   await commitInChunks(writes)
   return ref.id
+}
+
+/**
+ * Gives a plan a new name. Only the owner may (the rules check it); sessions and progress
+ * stay as they are.
+ */
+export async function renamePlan(planId: string, title: string): Promise<void> {
+  const name = title.trim()
+  if (name.length === 0) throw new PlanError(i18n.t('planner:new.nameRequired'))
+  await updateDoc(doc(db, 'plans', planId), {
+    title: name.slice(0, 120),
+    updatedAt: serverTimestamp(),
+  })
 }
 
 /** The plan's counters as they follow from its sessions (after a change). */

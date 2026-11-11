@@ -18,6 +18,7 @@ import type { IconName } from '../shared/ui/Icon/icons'
 import Menu from '../shared/ui/Menu/Menu'
 import RescheduleDialog from '../components/Planner/RescheduleDialog'
 import ReorderFilmsDialog from '../components/Planner/ReorderFilmsDialog'
+import PlanTitle from '../components/Planner/PlanTitle'
 import MarathonVotes from '../components/Planner/MarathonVotes'
 import ProposalsPanel from '../components/Planner/ProposalsPanel'
 import SessionRow from '../components/Planner/SessionRow'
@@ -402,9 +403,14 @@ function PlanView({ id }: { id: string }) {
               })}
             </span>
           </span>
-          <h1 id="plan-title" className={styles.title}>
-            {plan.title}
-          </h1>
+          <PlanTitle
+            title={plan.title}
+            canRename={role === 'owner'}
+            onRename={async (name) => {
+              await actions.rename(plan, name)
+              showToast({ text: t('plan.renamed', { title: name }) })
+            }}
+          />
           <div className={styles.progress}>
             <ProgressBar
               value={progress}

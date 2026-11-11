@@ -1,0 +1,32 @@
+.root {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.title {
+  composes: displayL from '../../shared/styles/typography.module.css';
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.title[hidden] {
+  display: none;
+}
+
+.form {
+  display: flex;
+  flex: 1 1 320px;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-width: 560px;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
