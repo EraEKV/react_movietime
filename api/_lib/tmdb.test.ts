@@ -1,14 +1,23 @@
 import { describe, expect, it } from 'vitest'
-import { proxyTarget, upstreamUrl } from './tmdb'
+import { parseTmdbRequest, proxyTarget } from './tmdb'
 
-describe('upstreamUrl', () => {
+const BASE = 'https://avleron.com'
+describe('parseTmdbRequest', () => {
   it('maps a proxy path and its query onto the TMDB v3 API', () => {
-    expect(upstreamUrl('/api/tmdb/movie/550', '?language=en-US&page=2')).toBe(
-      'https://api.themoviedb.org/3/movie/550?language=en-US&page=2',
+    expect(parseTmdbRequest('/api/tmdb/discover/movie', '?language=en-US&page=2')?.upstream).toBe(
+      'https://api.themoviedb.org/3/discover/movie?language=en-US&page=2',
     )
-    expect(upstreamUrl('/api/tmdb/discover/tv', '')).toBe(
+    expect(parseTmdbRequest('/api/tmdb/discover/tv', '')?.upstream).toBe(
       'https://api.themoviedb.org/3/discover/tv',
     )
+  })
+
+  it('gives every spelling of one request the same key', () => {
+    const a = parseTmdbRequest('/api/tmdb/discover/movie', '?page=2&language=ru-RU')
+    const b = parseTmdbRequest('/api/tmdb/discover/movie', '?language=ru-RU&page=2&junk=1&x=2')
+    expect(a?.key).toBe('/discover/movie?language=ru-RU&page=2')
+    expect(b?.key).toBe(a?.key)
+    expect(b?.upstream).toBe(a?.upstream)
   })
 
   it.each([
@@ -20,38 +29,59 @@ describe('upstreamUrl', () => {
     '/api/tmdb/@evil.com/x',
     '/api/tmdb/movie/550.json',
     '/api/other/movie/550',
-  ])('rejects %s', (pathname) => {
-    expect(upstreamUrl(pathname, '')).toBeNull()
+    // Valid TMDB paths the app never calls.
+    '/api/tmdb/configuration',
+    '/api/tmdb/account',
+    '/api/tmdb/movie/550/images',
+    '/api/tmdb/movie/popular',
+    '/api/tmdb/authentication/token/new',
+    '/api/tmdb/movie/1234567890',
+    '/api/tmdb/trending/movie/day',
+  ])('rejects the path %s', (pathname) => {
+    expect(parseTmdbRequest(pathname, '')).toBeNull()
+  })
+
+  it.each([
+    ['/api/tmdb/search/movie', '?page=0'],
+    ['/api/tmdb/search/movie', '?page=501'],
+    ['/api/tmdb/search/movie', '?page=1&page=2'],
+    ['/api/tmdb/search/movie', '?page=abc'],
+    ['/api/tmdb/search/movie', '?language=xx_yy'],
+    ['/api/tmdb/search/movie', '?language=en-US%0d%0a'],
+    ['/api/tmdb/search/movie', `?query=${'a'.repeat(101)}`],
+    ['/api/tmdb/search/movie', '?query='],
+    ['/api/tmdb/discover/movie', '?primary_release_date.lte=yesterday'],
+    ['/api/tmdb/movie/550', '?append_to_response=images'],
+    ['/api/tmdb/movie/550', '?append_to_response=credits,credits'],
+    [
+      '/api/tmdb/tv/1399',
+      `?append_to_response=${Array.from({ length: 21 }, (_, i) => `season/${i}`).join(',')}`,
+    ],
+  ])('rejects %s%s', (pathname, search) => {
+    expect(parseTmdbRequest(pathname, search)).toBeNull()
+  })
+
+  it('drops parameters the app never sends instead of passing them on', () => {
+    const result = parseTmdbRequest(
+      '/api/tmdb/movie/550',
+      '?language=en-US&api_key=1&sort_by=a&page=7',
+    )
+    expect(result?.upstream).toBe('https://api.themoviedb.org/3/movie/550?language=en-US')
+  })
+
+  it('caches stable data longer than moving data', () => {
+    const genres = parseTmdbRequest('/api/tmdb/genre/tv/list', '')
+    const trending = parseTmdbRequest('/api/tmdb/trending/tv/week', '')
+    expect(genres?.edgeSeconds).toBeGreaterThan(trending?.edgeSeconds ?? 0)
+    expect(trending?.browserSeconds).toBeLessThanOrEqual(trending?.edgeSeconds ?? 0)
   })
 })
 
 describe('proxyTarget', () => {
-  const base = 'https://www.avleron.com/api/tmdb'
-
-  it('rebuilds the TMDB URL from the rewritten request', () => {
-    expect(proxyTarget(`${base}?path=discover/movie&page=2&sort_by=popularity.desc`)).toBe(
-      'https://api.themoviedb.org/3/discover/movie?page=2&sort_by=popularity.desc',
-    )
-    expect(proxyTarget(`${base}?path=movie/550`)).toBe('https://api.themoviedb.org/3/movie/550')
-  })
-
-  it('reads the path from the URL when the rewrite parameter is absent', () => {
-    expect(proxyTarget(`${base}/discover/movie?page=2&language=en-US`)).toBe(
-      'https://api.themoviedb.org/3/discover/movie?page=2&language=en-US',
-    )
-    expect(proxyTarget(`${base}/configuration`)).toBe('https://api.themoviedb.org/3/configuration')
-  })
-
-  it('falls back to the URL when the parameter is not a real path', () => {
-    expect(proxyTarget(`${base}/genre/tv/list?path=:path*&language=en-US`)).toBe(
-      'https://api.themoviedb.org/3/genre/tv/list?language=en-US',
+  it('reads the path and query from a request URL', () => {
+    expect(proxyTarget(`${BASE}/api/tmdb/configuration`)).toBeNull()
+    expect(proxyTarget(`${BASE}/api/tmdb/person/287?language=ru-RU`)?.key).toBe(
+      '/person/287?language=ru-RU',
     )
   })
-
-  it.each(['', '?path=', '?path=../movie', '?path=//evil.com', '?path=movie/550.json'])(
-    'rejects %s',
-    (query) => {
-      expect(proxyTarget(`${base}${query}`)).toBeNull()
-    },
-  )
 })

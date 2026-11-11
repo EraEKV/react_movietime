@@ -1,5 +1,13 @@
 import { Resend } from 'resend'
-import { bearer, json, markWelcomed, readDoc, readEnv, verifyToken } from './_lib/firebase.js'
+import {
+  bearer,
+  json,
+  markWelcomed,
+  readDoc,
+  readEnv,
+  readJson,
+  verifyToken,
+} from './_lib/firebase.js'
 import { isLocale } from './_lib/layout.js'
 import { siteOrigin } from './_lib/site.js'
 import { welcomeEmail } from './_lib/templates.js'
@@ -18,12 +26,7 @@ export async function POST(request: Request): Promise<Response> {
   if (!caller) return json({ error: 'unauthenticated' }, 401)
   if (!caller.emailVerified || !caller.email) return json({ error: 'unverified' }, 403)
 
-  let locale: unknown
-  try {
-    locale = ((await request.json()) as { locale?: unknown }).locale
-  } catch {
-    locale = undefined
-  }
+  const locale = ((await readJson(request)) as { locale?: unknown } | null)?.locale
 
   const profile = await readDoc(env, idToken, `users/${caller.uid}`)
   if (!profile) return json({ ok: false, reason: 'no-profile' })

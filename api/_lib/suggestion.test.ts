@@ -103,7 +103,7 @@ describe('resolveSuggestion', () => {
       }),
     )
   }
-  const req = (body: object, token = 'tok') =>
+  const req = (body: object, token = 'header0000.payload0000.signature00') =>
     new Request('http://localhost/api/push-notify', {
       method: 'POST',
       headers: { authorization: `Bearer ${token}` },

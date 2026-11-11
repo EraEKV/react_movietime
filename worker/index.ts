@@ -5,8 +5,14 @@
 //   /__/*    Firebase's auth helper pages, proxied so that sign-in works on our own domain.
 // Handlers are imported on demand, so one that cannot start here only fails its own route.
 
+import { cachedTmdb } from './cache.js'
+
 type Handler = (request: Request) => Response | Promise<Response>
 type Module = Partial<Record<string, Handler>>
+
+interface ExecutionContext {
+  waitUntil(promise: Promise<unknown>): void
+}
 
 interface Env {
   ASSETS: { fetch: (request: Request) => Promise<Response> }
@@ -38,7 +44,7 @@ function route(url: URL): { name: string; url: URL } | null {
 }
 
 export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
+  async fetch(request: Request, env: Env, context: ExecutionContext): Promise<Response> {
     const url = new URL(request.url)
 
     if (url.pathname.startsWith('/__/')) {
@@ -56,7 +62,8 @@ export default {
     try {
       const handler = (await routes[target.name]?.())?.[request.method]
       if (!handler) return Response.json({ error: 'method-not-allowed' }, { status: 405 })
-      return await handler(target.url === url ? request : new Request(target.url, request))
+      const run = () => handler(target.url === url ? request : new Request(target.url, request))
+      return target.name === 'tmdb' ? await cachedTmdb(request, context, run) : await run()
     } catch (error) {
       console.error(`/api/${target.name} failed`, error)
       return Response.json({ error: 'server-error' }, { status: 500 })
