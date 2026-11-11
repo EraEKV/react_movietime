@@ -47,6 +47,8 @@ const SHOWS = [
   translatedOption<Show>('shared', 'planner:show.shared'),
 ]
 
+const isCollectionPlan = (plan: Plan) => plan.sourceListId?.startsWith('collection:') === true
+
 const chipTitle = (plan: Plan) => plan.media?.title ?? plan.title
 
 function toItem({ plan, session }: PlannedSession, editable = false): CalendarItem {
@@ -107,7 +109,10 @@ export default function PlannerPage() {
   const included = (plan: Plan) =>
     show === 'all' || (show === 'shared') === plans.sharedIds.has(plan.id)
   const shownPlans = plans.plans?.filter(included) ?? null
-  const monthSessions = visible.sessions?.filter((s) => included(s.plan)) ?? null
+  // Collection marathons are listed in "Active plans" already; their evenings would only
+  // crowd the month grid next to the series and films.
+  const monthSessions =
+    visible.sessions?.filter((s) => included(s.plan) && !isCollectionPlan(s.plan)) ?? null
   // Every plan counts for overlaps, whatever the Mine/Shared filter shows.
   const bookings = useMemo(() => bookingsOf(visible.sessions ?? []), [visible.sessions])
   const todaySessions = todays.sessions?.filter((s) => included(s.plan)) ?? null
