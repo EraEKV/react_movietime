@@ -377,3 +377,64 @@
     transform: none;
   }
 }
+
+/* ---------- Active plans (progress rows) ---------- */
+
+.plans {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.planRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px var(--space-3);
+  padding: var(--space-2);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  text-decoration: none;
+  transition: background-color var(--dur-fast) var(--ease-out);
+}
+
+.planRow:hover {
+  background: var(--surface-hover);
+}
+
+.planTitle {
+  overflow: hidden;
+  font-size: 15px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.planCount {
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+.planRow .track {
+  grid-column: 1 / -1;
+}
+
+.planFill {
+  display: block;
+  height: 100%;
+  min-width: 6px;
+  border-radius: var(--radius-pill);
+  background: var(--plan);
+  transform-origin: left center;
+  animation: grow var(--dur-slow, 320ms) var(--ease-out) both;
+}
+
+.planNext {
+  grid-column: 1 / -1;
+  color: var(--text-subtle);
+  font-size: 12px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .planFill {
+    animation: none;
+  }
+}

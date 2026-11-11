@@ -12,7 +12,7 @@ import WeeklyActivity from '../components/Dashboard/WeeklyActivity'
 import dash from '../components/Dashboard/Dashboard.module.css'
 import EmptyState from '../shared/ui/EmptyState/EmptyState'
 import ErrorState from '../shared/ui/EmptyState/ErrorState'
-import ProgressRings, { type ProgressRing } from '../components/Dashboard/ProgressRings'
+import PlanProgress from '../components/Dashboard/PlanProgress'
 import SectionHeader from '../shared/ui/SectionHeader/SectionHeader'
 import SectionLink from '../shared/ui/SectionHeader/SectionLink'
 import SegmentedControl from '../shared/ui/SegmentedControl/SegmentedControl'
@@ -151,34 +151,10 @@ export default function DashboardPage() {
   }
 
   const week = plans.stats
-  // Outer ring: this week. Then the active plans that end soonest, at most four, so the
-  // rings stay wide enough to read.
-  const rings: ProgressRing[] = [
-    ...(week?.weekPlanned
-      ? [
-          {
-            key: 'week',
-            label: t('cards.thisWeek'),
-            done: week.weekDone,
-            total: week.weekPlanned,
-            color: 'var(--text)',
-            to: '/planner',
-          },
-        ]
-      : []),
-    ...(plans.active ?? []).slice(0, 4).map((plan) => ({
-      key: plan.id,
-      label: plan.media?.title ?? plan.title,
-      done: plan.doneUnits,
-      total: plan.totalUnits,
-      color: `var(--plan-${plan.color})`,
-      to: `/planner/${plan.id}`,
-    })),
-  ]
   const plansTile = (
     label: string,
     icon: 'calendar' | 'list',
-    value: () => { value: ReactNode; unit?: string; detail: string },
+    value: () => { value: ReactNode; unit?: string; detail: string; gauge?: number },
   ) => {
     if (plans.status === 'guest') {
       return (
@@ -235,6 +211,7 @@ export default function DashboardPage() {
         <StatTile
           label={t('tiles.completed')}
           icon="check"
+          gauge={stats.titles ? stats.completedShare : undefined}
           loading={libLoading}
           value={libError ? '—' : stats.completed}
           detail={
@@ -270,6 +247,7 @@ export default function DashboardPage() {
         />
         {plansTile(t('tiles.week'), 'calendar', () => ({
           value: week?.weekDone ?? 0,
+          gauge: week?.weekPlanned ? week.weekDone / week.weekPlanned : undefined,
           unit: t('tiles.weekOf', { count: week?.weekPlanned ?? 0 }),
           detail: week?.tonight
             ? t('tiles.tonight', { count: week.tonight })
@@ -361,12 +339,12 @@ export default function DashboardPage() {
           )}
         </DashboardCard>
 
-        <DashboardCard title={t('cards.progress')} hint={t('cards.progressHint')}>
+        <DashboardCard title={t('tiles.active')} hint={t('cards.plansHint')}>
           {plansChart(() =>
-            rings.length ? (
-              <ProgressRings rings={rings} />
+            plans.active?.length ? (
+              <PlanProgress plans={plans.active} today={today} />
             ) : (
-              <p className={dash.note}>{t('cards.noProgress')}</p>
+              <p className={dash.note}>{t('cards.noPlans')}</p>
             ),
           )}
         </DashboardCard>

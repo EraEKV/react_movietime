@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 import NumberFlow from '@number-flow/react'
 import { Link } from 'react-router'
 import type { IconName } from '../Icon/icons'
+import Gauge from './Gauge'
 import Icon from '../Icon/Icon'
 import Skeleton from '../Skeleton/Skeleton'
 import styles from './StatTile.module.css'
@@ -11,6 +12,8 @@ interface StatTileProps {
   value: ReactNode
   unit?: string
   icon?: IconName
+  /** A progress ring (0…1) in place of the icon, e.g. sessions done this week. */
+  gauge?: number
   detail?: ReactNode
   loading?: boolean
   /** Smaller numeral for narrow tiles (live preview). */
@@ -32,6 +35,7 @@ export default function StatTile({
   value,
   unit,
   icon,
+  gauge,
   detail,
   loading,
   size = 'md',
@@ -42,10 +46,14 @@ export default function StatTile({
     <>
       <span className={styles.top}>
         <span>{label}</span>
-        {icon && (
-          <span className={styles.icon}>
-            <Icon name={icon} size={18} />
-          </span>
+        {gauge !== undefined ? (
+          <Gauge value={gauge} />
+        ) : (
+          icon && (
+            <span className={styles.icon}>
+              <Icon name={icon} size={18} />
+            </span>
+          )
         )}
       </span>
       {loading ? (
