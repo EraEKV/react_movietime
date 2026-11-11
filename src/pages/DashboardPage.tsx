@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import { useSearchParams } from 'react-router'
 import Banner from '../shared/ui/Banner/Banner'
 import ButtonLink from '../shared/ui/ButtonLink/ButtonLink'
+import ActivityCalendar from '../components/Dashboard/ActivityCalendar'
 import BarList from '../components/Dashboard/BarList'
 import DashboardCard from '../components/Dashboard/DashboardCard'
 import Donut from '../components/Dashboard/Donut'
@@ -335,6 +336,14 @@ export default function DashboardPage() {
           )}
         </DashboardCard>
       </div>
+
+      {plans.status !== 'guest' && (
+        <DashboardCard title={t('cards.activity')} hint={t('cards.activityHint')}>
+          {plansChart(() =>
+            plans.sessions ? <ActivityCalendar sessions={plans.sessions} today={today} /> : null,
+          )}
+        </DashboardCard>
+      )}
 
       {plans.status !== 'guest' && (
         <section className={styles.upcoming} aria-labelledby="upcoming-title">

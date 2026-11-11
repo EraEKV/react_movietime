@@ -61,6 +61,7 @@ export function useDashboardStats(period: StatsPeriod) {
   const planned = useMemo(() => {
     if (!plans.plans || !sessions) return null
     return {
+      sessions,
       stats: planStats(plans.plans, sessions, plans.sharedIds, today),
       weekdays: sessionsByWeekday(sessions, start, today),
       weeks: sessionsByWeek(sessions, today),

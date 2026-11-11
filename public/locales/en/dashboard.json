@@ -57,7 +57,9 @@
     "noWatched": "No watched sessions in this period yet.",
     "weeks": "Last 12 weeks",
     "weeksHint": "Watched sessions per week",
-    "noWeeks": "No watched sessions in the last 12 weeks."
+    "noWeeks": "No watched sessions in the last 12 weeks.",
+    "activity": "Activity calendar",
+    "activityHint": "Watched sessions per day"
   },
   "upcoming": {
     "title": "Upcoming sessions",

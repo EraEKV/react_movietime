@@ -265,3 +265,112 @@
   gap: var(--space-4);
   padding: var(--space-2) 0;
 }
+
+/* ---------- Activity calendar (a month of tiles) ---------- */
+
+.activity {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 100%;
+  max-width: 22rem;
+}
+
+.monthSwitch {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.monthName {
+  composes: titleM from '../../shared/styles/typography.module.css';
+  margin: 0;
+  font-size: 15px;
+  text-align: center;
+}
+
+.tileHead,
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.tileHead span {
+  color: var(--text-subtle);
+  font-size: 11px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+/* Shade = share of the busiest day; level 0 is the sunken surface, 4 the full hue. */
+.tile {
+  --level: 0%;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--chart-1) var(--level), var(--surface-sunken));
+  color: var(--text-subtle);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  cursor: default;
+  transition:
+    transform var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out);
+}
+
+.tile[data-level='1'] {
+  --level: 30%;
+}
+
+.tile[data-level='2'] {
+  --level: 55%;
+}
+
+.tile[data-level='3'] {
+  --level: 80%;
+}
+
+.tile[data-level='4'] {
+  --level: 100%;
+  color: var(--on-accent-solid);
+}
+
+.tile[data-level='3'] {
+  color: var(--on-accent-solid);
+}
+
+.tile:hover {
+  transform: scale(1.12);
+}
+
+.tile:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+
+.tileToday {
+  box-shadow: inset 0 0 0 1.5px var(--text-muted);
+}
+
+.tileCaption {
+  min-height: 1.5em;
+  margin: var(--space-1) 0 0;
+  color: var(--text-muted);
+  font-size: 13px;
+  text-align: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tile {
+    transition: none;
+  }
+
+  .tile:hover {
+    transform: none;
+  }
+}
