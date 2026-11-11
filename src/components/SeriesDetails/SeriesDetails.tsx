@@ -89,8 +89,8 @@ export default function SeriesDetails({ seriesId }: { seriesId: string }) {
       {/* React 19 hoists <title> into <head> — no document.title side effect needed. */}
       <title>{t('details.pageTitle', { title: series.name })}</title>
 
-      <BackButton />
       <TitleHero
+        back={<BackButton />}
         title={series.name}
         originalTitle={series.original_name}
         tagline={series.tagline}

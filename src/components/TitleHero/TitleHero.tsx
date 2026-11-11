@@ -37,6 +37,8 @@ interface TitleHeroProps {
   overview: string
   facts?: TitleFact[]
   actions?: ReactNode
+  /** The Back button: it sits on the cover, under the header, like the rest of the hero. */
+  back?: ReactNode
 }
 
 export default function TitleHero({
@@ -54,6 +56,7 @@ export default function TitleHero({
   overview,
   facts = [],
   actions,
+  back,
 }: TitleHeroProps) {
   const { t } = useTranslation()
   const backdrop = imageUrl(backdropPath, 'w1280')
@@ -67,6 +70,8 @@ export default function TitleHero({
         {backdrop && (
           <div className={styles.backdrop} style={{ backgroundImage: `url(${backdrop})` }} />
         )}
+
+        {back && <div className={styles.bar}>{back}</div>}
 
         <div className={styles.content}>
           <div className={styles.poster}>
