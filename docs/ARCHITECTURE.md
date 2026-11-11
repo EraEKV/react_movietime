@@ -500,7 +500,7 @@ the results for the current query.
 | Navigations                 | `NavigationRoute`              | Answered with the cached `/index.html`; falls back to `/offline`                     |
 | `/api/tmdb/*` (same origin) | `tmdb-api`, NetworkFirst       | 5 s network timeout, 200 entries, max age 1 day                                      |
 | `image.tmdb.org`            | `tmdb-images`, CacheFirst      | 300 entries, 30 days, opaque responses accepted                                      |
-| Google Fonts                | SWR (css), CacheFirst (files)  | Stylesheet revalidated, font files cached for a year                                 |
+| `/assets/*` (chunks, fonts) | `app-chunks`, CacheFirst       | Hashed file names; fonts are self-hosted (`@fontsource-variable`), no Google Fonts   |
 | Firestore                   | Persistent local cache         | Multi-tab; snapshots come from IndexedDB first, offline writes are queued and synced |
 | Guest library, preferences  | `localStorage`                 | Written on change; `storage` events keep tabs in sync                                |
 

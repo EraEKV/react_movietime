@@ -7,6 +7,8 @@ import { initI18n } from './shared/i18n'
 import { registerLibraryListeners } from './store/libraryListeners'
 import { registerPreferenceListeners, startAuthSync } from './store/listeners'
 import { store } from './store/store'
+import '@fontsource-variable/onest'
+import '@fontsource-variable/unbounded'
 import './shared/styles/global.css'
 
 // Listeners are registered once, before the first render, and live as long as the store.

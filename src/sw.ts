@@ -7,7 +7,7 @@ import {
   precacheAndRoute,
 } from 'workbox-precaching'
 import { NavigationRoute, registerRoute } from 'workbox-routing'
-import { CacheFirst, NetworkFirst, StaleWhileRevalidate } from 'workbox-strategies'
+import { CacheFirst, NetworkFirst } from 'workbox-strategies'
 
 declare const self: ServiceWorkerGlobalScope
 
@@ -87,22 +87,6 @@ registerRoute(
     plugins: [
       new CacheableResponsePlugin({ statuses: [0, 200] }),
       new ExpirationPlugin({ maxEntries: 300, maxAgeSeconds: 30 * DAY, purgeOnQuotaError: true }),
-    ],
-  }),
-)
-
-// Google Fonts: the stylesheet changes rarely, the font files never.
-registerRoute(
-  ({ url }) => url.hostname === 'fonts.googleapis.com',
-  new StaleWhileRevalidate({ cacheName: 'google-fonts-css' }),
-)
-registerRoute(
-  ({ url }) => url.hostname === 'fonts.gstatic.com',
-  new CacheFirst({
-    cacheName: 'google-fonts-files',
-    plugins: [
-      new CacheableResponsePlugin({ statuses: [0, 200] }),
-      new ExpirationPlugin({ maxEntries: 30, maxAgeSeconds: 365 * DAY }),
     ],
   }),
 )
