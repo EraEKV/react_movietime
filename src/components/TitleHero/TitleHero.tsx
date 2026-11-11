@@ -88,7 +88,9 @@ export default function TitleHero({
               <ul className={styles.genres} aria-label={t('title.genres')}>
                 {genres.map((genre) => (
                   <li key={genre.id}>
-                    <Chip to={genreTo(genre.id)}>{genre.name}</Chip>
+                    <Chip to={genreTo(genre.id)} tone="onImage">
+                      {genre.name}
+                    </Chip>
                   </li>
                 ))}
               </ul>
