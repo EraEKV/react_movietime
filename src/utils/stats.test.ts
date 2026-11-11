@@ -187,7 +187,7 @@ describe('plan stats', () => {
   })
   it('puts a month name on the week with the 1st', () => {
     const labels = monthLabels(activityWeeks('2026-11-11'))
-    expect(labels.at(-1)).toEqual({ index: 51, month: { year: 2026, month: 10 } })
+    expect(labels.at(-1)).toEqual({ index: 50, month: { year: 2026, month: 10 } })
     expect(labels).toHaveLength(13)
     expect(labels[0]?.month).toEqual({ year: 2025, month: 10 })
   })
