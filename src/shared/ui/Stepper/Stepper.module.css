@@ -60,7 +60,30 @@
     white-space: nowrap;
   }
 
+  /* One row at any width: the separators shrink and a long current label is cut with an
+     ellipsis instead of wrapping the circles onto a second line. */
+  .stepper {
+    flex-wrap: nowrap;
+    gap: var(--space-1);
+  }
+
   .separator {
-    width: 12px;
+    flex: 0 1 12px;
+    min-width: 4px;
+  }
+
+  .step {
+    flex: none;
+  }
+
+  .current {
+    flex: 0 1 auto;
+    min-width: 0;
+  }
+
+  .current .label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }
