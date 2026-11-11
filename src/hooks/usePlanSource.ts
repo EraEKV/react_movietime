@@ -4,11 +4,12 @@ import { loadPlannerService } from './usePlanner'
 import { useRequest } from '../shared/hooks/useRequest'
 
 /**
- * What the stepper plans: a series, the movies of a list, the films of a collection or the
+ * What the stepper plans: a series, one movie, the movies of a list, the films of a collection or the
  * films a person directed.
  */
 export type SourcePick =
   | { kind: 'series'; id: number; title: string; posterPath: string | null }
+  | { kind: 'movie'; id: number; title: string; posterPath: string | null }
   | { kind: 'list'; id: string; title: string; posterPath: string | null }
   | { kind: 'collection'; id: number; title: string; posterPath: string | null }
   | { kind: 'person'; id: number; title: string; posterPath: string | null }
@@ -40,6 +41,7 @@ export function usePlanSource(pick: SourcePick | null) {
       const { media, units } = await service.loadSeriesEpisodes(pick.id, signal)
       return { name: media.title, posterPath: media.posterPath, media, units, skipped: 0 }
     }
+    if (pick.kind === 'movie') return service.loadMovie(pick.id, signal)
     const source =
       pick.kind === 'collection'
         ? await service.loadCollectionMovies(pick.id, signal)

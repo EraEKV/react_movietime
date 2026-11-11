@@ -6,6 +6,7 @@ import Button from '../shared/ui/Button/Button'
 import ButtonLink from '../shared/ui/ButtonLink/ButtonLink'
 import ErrorState from '../shared/ui/EmptyState/ErrorState'
 import { LivePreview, PreviewStep } from '../components/Planner/PlanPreview'
+import MovieWhenStep from '../components/Planner/MovieWhenStep'
 import ScheduleStep from '../components/Planner/ScheduleStep'
 import SourceStep from '../components/Planner/SourceStep'
 import StartStep from '../components/Planner/StartStep'
@@ -22,6 +23,7 @@ import type { MediaKey } from '../types/media'
 import { mediaKey } from '../utils/media'
 import {
   defaultPlanTitle,
+  moviePlanDraft,
   nextPlanColor,
   applyOrder,
   isSourceOrder,
@@ -46,6 +48,8 @@ import { buildSchedule, planSummary, scheduleProblem, timeOn, unitsLabel } from 
 import styles from '../components/Planner/Planner.module.css'
 
 const STEP_KEYS = ['steps.pick', 'steps.start', 'steps.schedule', 'steps.preview'] as const
+/** One film has no schedule to build: pick it, then say when. */
+const MOVIE_STEP_KEYS = ['steps.pick', 'steps.when'] as const
 
 /**
  * ?series=1396, ?list=abc, ?collection=10 or ?person=525 from the entry points ("Plan watching",
@@ -80,7 +84,12 @@ export default function CreatePlanPage() {
   const today = localToday()
 
   const [pick, setPick] = useState<SourcePick | null>(() => pickFromUrl(params))
-  const [kind, setKind] = useState<PickerKind>(pick?.kind === 'list' ? 'list' : 'series')
+  const [kind, setKind] = useState<PickerKind>(
+    pick?.kind === 'list' ? 'list' : pick?.kind === 'movie' ? 'movie' : 'series',
+  )
+  // A one-film plan: the evening and the time instead of a schedule.
+  const [movieDate, setMovieDate] = useState(today)
+  const [movieTime, setMovieTime] = useState('21:00')
   // Coming from a title page, the title is already chosen: start on step 2.
   const [step, setStep] = useState(pick ? 1 : 0)
   // The evenings my other plans already take, looked at once the preview is open.
@@ -111,8 +120,9 @@ export default function CreatePlanPage() {
 
   const name = loaded?.name || pick?.title || ''
   const posterPath = loaded?.posterPath ?? pick?.posterPath ?? null
+  const isMovie = pick?.kind === 'movie'
   // A list and a collection are both movie marathons: one film per evening.
-  const isList = pick?.kind !== 'series' && pick !== null
+  const isList = pick !== null && pick.kind !== 'series' && !isMovie
   // Movies: one per night. Memoized so the schedule below isn't rebuilt on every render.
   const effective = useMemo<ScheduleOptions>(
     () => (isList ? { ...options, perSession: 1 } : options),
@@ -166,18 +176,23 @@ export default function CreatePlanPage() {
   }, [sessions, bookings, isList])
   const summary = planSummary(sessions, effective.weekdays)
   const title = (customTitle ?? defaultPlanTitle(isList ? 'list' : 'series', name, units[0])).trim()
-  const range = units.length
-    ? `${unitsLabel(units.slice(0, 1))} → ${unitsLabel(units.slice(-1))}`
-    : ''
+  const range =
+    units.length && !isMovie
+      ? `${unitsLabel(units.slice(0, 1))} → ${unitsLabel(units.slice(-1))}`
+      : ''
   const color = nextPlanColor(plans.plans ?? [])
   const problem = scheduleProblem(effective)
 
-  const canContinue = [
-    loaded !== null && loaded.units.length > 0,
-    units.length > 0,
-    problem === null && sessions.length > 0,
-    title.length > 0,
-  ][step]
+  const canContinue = (
+    isMovie
+      ? [loaded !== null && loaded.units.length > 0, movieDate >= today && title.length > 0]
+      : [
+          loaded !== null && loaded.units.length > 0,
+          units.length > 0,
+          problem === null && sessions.length > 0,
+          title.length > 0,
+        ]
+  )[step]
 
   function changePick(next: SourcePick) {
     setPick(next)
@@ -232,6 +247,18 @@ export default function CreatePlanPage() {
     setSaveError(null)
     try {
       const service = await loadPlannerService()
+      if (isMovie && loaded.media) {
+        const id = await service.createPlan(
+          author,
+          { ...moviePlanDraft(loaded.media, movieDate, movieTime), title },
+          color,
+        )
+        navigate(`/planner/${id}`, {
+          replace: true,
+          state: { notice: t('movie.created', { title: loaded.media.title }) },
+        })
+        return
+      }
       const id = await service.createPlan(
         author,
         {
@@ -265,7 +292,7 @@ export default function CreatePlanPage() {
     }
   }
 
-  const steps = STEP_KEYS.map((key) => t(key))
+  const steps = (isMovie ? MOVIE_STEP_KEYS : STEP_KEYS).map((key) => t(key))
   const errorKey =
     pick?.kind === 'collection'
       ? 'new.collectionError'
@@ -315,6 +342,19 @@ export default function CreatePlanPage() {
       <Banner tone="warning" icon="alert">
         {t(emptyKey)}
       </Banner>
+    )
+  } else if (isMovie) {
+    body = (
+      <MovieWhenStep
+        title={customTitle ?? title}
+        onTitleChange={setCustomTitle}
+        titleError={title.length === 0 ? t('new.nameRequired') : null}
+        date={movieDate}
+        onDateChange={setMovieDate}
+        time={movieTime}
+        onTimeChange={setMovieTime}
+        today={today}
+      />
     )
   } else if (step === 1) {
     body = (
@@ -379,7 +419,7 @@ export default function CreatePlanPage() {
           name={name}
           posterPath={posterPath}
           range={range}
-          summary={pick ? summary : null}
+          summary={pick && !isMovie ? summary : null}
         />
       </div>
 
@@ -415,7 +455,11 @@ export default function CreatePlanPage() {
             loading={saving}
             onClick={() => void handleCreate()}
           >
-            {t('new.submit', { sessions: t('common:count.sessions', { count: sessions.length }) })}
+            {isMovie
+              ? t('movie.submit')
+              : t('new.submit', {
+                  sessions: t('common:count.sessions', { count: sessions.length }),
+                })}
           </Button>
         )}
       </div>

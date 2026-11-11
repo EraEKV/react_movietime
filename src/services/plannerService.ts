@@ -337,6 +337,22 @@ export interface ListSource {
   skipped: number
 }
 
+/** One film for a plan of its own: its snapshot (title, poster, runtime) and its single unit. */
+export async function loadMovie(
+  movieId: number,
+  signal?: AbortSignal,
+): Promise<ListSource & { media: LibraryMedia }> {
+  const movie = await tmdbGet<MovieBase>(endpoints.movieSummary(movieId), { signal })
+  const media = movieToLibraryMedia(movie)
+  return {
+    name: movie.title,
+    posterPath: movie.poster_path,
+    media,
+    units: [movieToUnit(media)],
+    skipped: 0,
+  }
+}
+
 /** The movies of a list in list order, each with its runtime from /movie/{id}. */
 export async function loadListMovies(listId: string, signal?: AbortSignal): Promise<ListSource> {
   // The list first: a missing or unreadable list fails here with one clear error.

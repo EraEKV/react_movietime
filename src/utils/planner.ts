@@ -205,9 +205,9 @@ export function timeOptions(current: string) {
  * ask for a string on list plans). Series plans keep null.
  */
 export function sourceIdOf(
-  pick: { kind: 'series' | 'list' | 'collection' | 'person'; id: number | string } | null,
+  pick: { kind: 'series' | 'movie' | 'list' | 'collection' | 'person'; id: number | string } | null,
 ): string | null {
-  if (!pick || pick.kind === 'series') return null
+  if (!pick || pick.kind === 'series' || pick.kind === 'movie') return null
   return pick.kind === 'collection' || pick.kind === 'person'
     ? `${pick.kind}:${pick.id}`
     : String(pick.id)
