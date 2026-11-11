@@ -7,7 +7,7 @@ import DatePicker from '../DatePicker/DatePicker'
 import Icon from '../../shared/ui/Icon/Icon'
 import SelectField from '../../shared/ui/SelectField/SelectField'
 import WeekdayToggle from '../WeekdayToggle/WeekdayToggle'
-import { WEEK_ORDER, weekdayLong } from '../../utils/calendar'
+import { WEEK_ORDER, formatDay, weekdayLong } from '../../utils/calendar'
 import { sameDays, timeOptions, WEEKDAY_PRESETS } from '../../utils/planner'
 import styles from './Planner.module.css'
 
@@ -16,11 +16,19 @@ interface ScheduleStepProps {
   options: ScheduleOptions
   onChange: (options: ScheduleOptions) => void
   today: string
+  /** What the options add up to: shown under the settings so the effect is visible at once. */
+  outcome?: { sessions: number; finishDate: string | null }
 }
 
 /** Step 3: start date, weekdays, time, episodes per session. */
-export default function ScheduleStep({ kind, options, onChange, today }: ScheduleStepProps) {
-  const { t } = useTranslation('planner')
+export default function ScheduleStep({
+  kind,
+  options,
+  onChange,
+  today,
+  outcome,
+}: ScheduleStepProps) {
+  const { t } = useTranslation(['planner', 'common'])
   const errorId = useId()
   const set = (changes: Partial<ScheduleOptions>) => onChange({ ...options, ...changes })
   const noDays = options.weekdays.length === 0
@@ -103,6 +111,19 @@ export default function ScheduleStep({ kind, options, onChange, today }: Schedul
             />
           )}
         </div>
+        {outcome?.finishDate && (
+          <p className={styles.outcome} role="status">
+            {t('schedule.outcome', {
+              sessions: t('common:count.sessions', { count: outcome.sessions }),
+              date: formatDay(outcome.finishDate, {
+                weekday: 'short',
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric',
+              }),
+            })}
+          </p>
+        )}
         {days.length > 1 && (
           <>
             <Button

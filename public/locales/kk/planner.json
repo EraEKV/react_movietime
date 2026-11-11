@@ -210,6 +210,7 @@
   "schedule": {
     "startDate": "Басталу күні",
     "watchOn": "Көру күндері",
+    "outcome": "{{sessions}} · {{date}} аяқталады",
     "presets": "Жылдам таңдау",
     "preset": {
       "everyday": "Күн сайын",

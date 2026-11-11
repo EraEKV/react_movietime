@@ -214,6 +214,7 @@
   "schedule": {
     "startDate": "Дата начала",
     "watchOn": "Смотреть по",
+    "outcome": "{{sessions}} · закончите {{date}}",
     "presets": "Быстрый выбор",
     "preset": {
       "everyday": "Каждый день",

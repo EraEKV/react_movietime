@@ -80,3 +80,18 @@ describe('ScheduleStep day presets', () => {
     expect(latest().times).toBeUndefined()
   })
 })
+
+describe('ScheduleStep outcome', () => {
+  it('says how many sessions the plan needs and when it ends', () => {
+    render(
+      <ScheduleStep
+        kind="series"
+        options={base}
+        onChange={() => {}}
+        today="2026-11-10"
+        outcome={{ sessions: 12, finishDate: '2027-01-14' }}
+      />,
+    )
+    expect(screen.getByRole('status')).toHaveTextContent(/12 sessions · finishes .*Jan 14, 2027/)
+  })
+})
