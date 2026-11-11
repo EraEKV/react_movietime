@@ -163,3 +163,11 @@
 .inlineButton:hover {
   color: var(--text);
 }
+
+@media (pointer: coarse) {
+  .inlineButton {
+    min-width: var(--touch-min);
+    min-height: var(--touch-min);
+    margin-right: calc(var(--space-2) * -1);
+  }
+}

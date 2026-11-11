@@ -25,6 +25,7 @@ a.link {
 }
 
 @media (pointer: coarse) {
+  button.chip,
   a.link {
     min-height: 44px;
   }

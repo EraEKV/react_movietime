@@ -56,6 +56,12 @@
   background: var(--skeleton-shine);
 }
 
+@media (pointer: coarse) {
+  .action {
+    min-height: var(--touch-min);
+  }
+}
+
 @keyframes pop {
   from {
     opacity: 0;
