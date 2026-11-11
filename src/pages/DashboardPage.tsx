@@ -281,21 +281,18 @@ export default function DashboardPage() {
           )}
         </DashboardCard>
 
-        <DashboardCard title={t('cards.genres')} hint={t('cards.genresHint')}>
-          {libraryChart(
-            genres.status === 'loading' ? (
-              <ChartSkeleton />
-            ) : genres.status === 'error' ? (
-              <ErrorState
-                headingLevel="h3"
-                title={t('cards.genresError')}
-                body={t('cards.genresErrorBody')}
-                onRetry={genres.retry}
+        <DashboardCard title={t('cards.weekday')} hint={t('cards.weekdayHint')}>
+          {plansChart(() =>
+            plans.weekdays?.some((d) => d.count > 0) ? (
+              <WeekdayColumns
+                days={plans.weekdays.map((day) => ({
+                  ...day,
+                  label: weekdayShort(Number(day.value) as Weekday),
+                }))}
+                today={todayWeekday}
               />
-            ) : genres.bars.length === 0 ? (
-              <p className={dash.note}>{t('cards.noGenres')}</p>
             ) : (
-              <BarList bars={genres.bars} hrefOf={(genre) => `/library?genre=${genre}`} />
+              <p className={dash.note}>{t('cards.noWatched')}</p>
             ),
           )}
         </DashboardCard>
@@ -313,28 +310,31 @@ export default function DashboardPage() {
           )}
         </DashboardCard>
 
-        <DashboardCard title={t('cards.weekday')} hint={t('cards.weekdayHint')}>
-          {plansChart(() =>
-            plans.weekdays?.some((d) => d.count > 0) ? (
-              <WeekdayColumns
-                days={plans.weekdays.map((day) => ({
-                  ...day,
-                  label: weekdayShort(Number(day.value) as Weekday),
-                }))}
-                today={todayWeekday}
-              />
-            ) : (
-              <p className={dash.note}>{t('cards.noWatched')}</p>
-            ),
-          )}
-        </DashboardCard>
-
         <DashboardCard title={t('cards.weeks')} hint={t('cards.weeksHint')}>
           {plansChart(() =>
             plans.weeks?.some((w) => w.count > 0) ? (
               <WeeklyActivity weeks={plans.weeks} />
             ) : (
               <p className={dash.note}>{t('cards.noWeeks')}</p>
+            ),
+          )}
+        </DashboardCard>
+
+        <DashboardCard title={t('cards.genres')} hint={t('cards.genresHint')}>
+          {libraryChart(
+            genres.status === 'loading' ? (
+              <ChartSkeleton />
+            ) : genres.status === 'error' ? (
+              <ErrorState
+                headingLevel="h3"
+                title={t('cards.genresError')}
+                body={t('cards.genresErrorBody')}
+                onRetry={genres.retry}
+              />
+            ) : genres.bars.length === 0 ? (
+              <p className={dash.note}>{t('cards.noGenres')}</p>
+            ) : (
+              <BarList bars={genres.bars} hrefOf={(genre) => `/library?genre=${genre}`} />
             ),
           )}
         </DashboardCard>
