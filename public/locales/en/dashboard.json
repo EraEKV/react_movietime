@@ -45,7 +45,7 @@
   "periodNote": "Library figures cover titles added or changed in this period; sessions count by their date. “This week” and active plans are always current.",
   "cards": {
     "status": "Titles by status",
-    "statusHint": "Bars open the library",
+    "statusHint": "Slices open the library",
     "genres": "Top genres",
     "genresHint": "A title counts in each of its genres",
     "genresError": "Couldn’t load genre names",

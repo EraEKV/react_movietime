@@ -5,7 +5,7 @@ import Banner from '../shared/ui/Banner/Banner'
 import ButtonLink from '../shared/ui/ButtonLink/ButtonLink'
 import BarList from '../components/Dashboard/BarList'
 import DashboardCard from '../components/Dashboard/DashboardCard'
-import SplitBar from '../components/Dashboard/SplitBar'
+import Donut from '../components/Dashboard/Donut'
 import WeekdayColumns from '../components/Dashboard/WeekdayColumns'
 import WeeklyActivity from '../components/Dashboard/WeeklyActivity'
 import dash from '../components/Dashboard/Dashboard.module.css'
@@ -25,10 +25,20 @@ import { hoursValue, parsePeriod, STATS_PERIODS, type StatsPeriod } from '../uti
 import { formatRating } from '../shared/lib/format'
 import { statusLabel } from '../utils/library'
 import { weekdayShort } from '../utils/calendar'
+import type { LibraryStatus } from '../types/library'
+import type { MediaType } from '../types/media'
 import type { Weekday } from '../types/plan'
 import styles from './DashboardPage.module.css'
 
 const SIGN_IN = '/login?redirect=/dashboard'
+
+const STATUS_COLOR: Record<LibraryStatus, string> = {
+  plan: 'var(--chart-2)',
+  watching: 'var(--chart-1)',
+  completed: 'var(--chart-3)',
+  dropped: 'var(--chart-4)',
+}
+const TYPE_COLOR: Record<MediaType, string> = { tv: 'var(--chart-1)', movie: 'var(--chart-2)' }
 
 function ChartSkeleton() {
   const { t } = useTranslation('dashboard')
@@ -256,9 +266,13 @@ export default function DashboardPage() {
       <div className={styles.charts}>
         <DashboardCard title={t('cards.status')} hint={t('cards.statusHint')}>
           {libraryChart(
-            <BarList
-              bars={library.byStatus.map((bar) => ({ ...bar, label: statusLabel(bar.value) }))}
-              hrefOf={(status) => `/library?status=${status}`}
+            <Donut
+              parts={library.byStatus.map((bar) => ({
+                ...bar,
+                label: statusLabel(bar.value),
+                color: STATUS_COLOR[bar.value],
+                href: `/library?status=${bar.value}`,
+              }))}
             />,
           )}
         </DashboardCard>
@@ -284,10 +298,12 @@ export default function DashboardPage() {
 
         <DashboardCard title={t('cards.split')}>
           {libraryChart(
-            <SplitBar
+            <Donut
               parts={library.byType.map((part) => ({
                 ...part,
                 label: t(part.value === 'tv' ? 'library:types.tv' : 'library:types.movie'),
+                color: TYPE_COLOR[part.value],
+                href: `/library?type=${part.value}`,
               }))}
             />,
           )}

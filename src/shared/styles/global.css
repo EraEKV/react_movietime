@@ -32,11 +32,15 @@
 [data-theme='dark'] {
   --chart-1: #1fa3cc;
   --chart-2: #c9813f;
+  --chart-3: #43b283;
+  --chart-4: #8a93a6;
 }
 
 [data-theme='light'] {
   --chart-1: #00739a;
   --chart-2: #ad6420;
+  --chart-3: #1f8a5c;
+  --chart-4: #66708a;
 }
 
 @media (min-width: 1024px) {
