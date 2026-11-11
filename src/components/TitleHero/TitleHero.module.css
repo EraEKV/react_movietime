@@ -3,9 +3,11 @@
   display: flex;
   align-items: flex-end;
   min-height: 360px;
-  /* No overflow: hidden here — the library status menu opens below the hero's edge.
-     The backdrop and the scrim round their own corners instead. */
-  border-radius: var(--radius-lg);
+  /* Full-bleed like the TMDB page: the band runs edge to edge of the window while the
+     content below stays in the page container. (Layout clips the 100vw overflow.)
+     No overflow: hidden — the library status menu opens below the hero's edge. */
+  width: 100vw;
+  margin-inline: calc(50% - 50vw);
   background: var(--surface-sunken);
   color: var(--text-on-backdrop);
 }
@@ -13,7 +15,6 @@
 .backdrop {
   position: absolute;
   inset: 0;
-  border-radius: inherit;
   background-size: cover;
   background-position: right top;
 }
@@ -23,7 +24,6 @@
   content: '';
   position: absolute;
   inset: 0;
-  border-radius: inherit;
   background: var(--scrim-backdrop);
 }
 
@@ -33,7 +33,9 @@
   display: grid;
   gap: var(--space-5);
   width: 100%;
-  padding: var(--space-5);
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding: var(--space-5) var(--page-gutter);
 }
 
 @media (min-width: 768px) {
@@ -59,7 +61,7 @@
     grid-template-columns: 200px minmax(0, 1fr);
     align-items: end;
     gap: var(--space-8);
-    padding: var(--space-8);
+    padding: var(--space-8) var(--page-gutter);
   }
 }
 

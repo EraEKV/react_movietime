@@ -2,6 +2,8 @@
   display: flex;
   flex-direction: column;
   min-height: 100dvh;
+  /* A full-bleed hero is 100vw wide, which counts the scrollbar: clip, don't scroll. */
+  overflow-x: clip;
   /* Room for the fixed tab bar on small screens. */
   padding-bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom));
 }
