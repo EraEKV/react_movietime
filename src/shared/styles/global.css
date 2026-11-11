@@ -38,11 +38,11 @@
 }
 
 [data-theme='light'] {
-  --chart-1: #00739a;
-  --chart-2: #ad6420;
-  --chart-3: #1f8a5c;
-  --chart-4: #66708a;
-  --chart-5: #b5443a;
+  --chart-1: #0a8fba;
+  --chart-2: #d2761a;
+  --chart-3: #2f9e6b;
+  --chart-4: #7a84a0;
+  --chart-5: #d5584d;
 }
 
 @media (min-width: 1024px) {
