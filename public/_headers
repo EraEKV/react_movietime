@@ -1,0 +1,31 @@
+# Cache rules for the static files (Cloudflare Workers assets read this file; it is not served).
+# Without it every asset answers "max-age=0, must-revalidate", so each page view asks the
+# server about every one of its ~80-110 files again, even though the files never change
+# under the same name.
+
+# Hashed build output: the name changes with the content, so cache it for a year.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Dictionaries are requested as /locales/xx/ns.json?v=<build id>.
+/locales/*
+  Cache-Control: public, max-age=86400
+
+/icons/*
+  Cache-Control: public, max-age=604800
+
+/favicon.svg
+  Cache-Control: public, max-age=86400
+
+/manifest.webmanifest
+  Cache-Control: public, max-age=86400
+
+/robots.txt
+  Cache-Control: public, max-age=3600
+
+# The page and the service worker must always be checked: they point at the current build.
+/index.html
+  Cache-Control: no-cache
+
+/sw.js
+  Cache-Control: no-cache
