@@ -1,0 +1,4 @@
+# The pages may be indexed; the API (the TMDB proxy, calendar feeds, push and mail
+# endpoints) is for the app only and every call to it is billed by the host.
+User-agent: *
+Disallow: /api/

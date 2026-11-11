@@ -239,8 +239,9 @@ Full reference: **[docs/API.md](docs/API.md)** (service functions) and
 
 - **Install:** open the deployed site in Chrome or Edge and use the install icon in the address
   bar, or "Add to Home Screen" on Android and iOS. The manifest has 192/512 and maskable icons.
-- **Offline:** the app shell, all JS/CSS chunks and the dictionaries are precached, so the app
-  opens and routes without a network. TMDB responses use network-first (the last response is
+- **Offline:** the app shell is precached (15 files) and every other chunk and dictionary is
+  cached the first time it is used, so the app opens and routes without a network once a page
+  has been visited. TMDB responses use network-first (the last response is
   shown offline), poster images use cache-first, and Firestore keeps user data in its persistent
   cache and queues writes. An "Offline" pill appears in the header; `/offline` is the fallback
   page for a navigation that nothing can serve.

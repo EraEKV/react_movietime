@@ -56,15 +56,17 @@ export default defineConfig(({ mode }) => {
         registerType: 'prompt',
         injectRegister: false,
         injectManifest: {
-          // public/locales/**/*.json is copied to dist, so it is listed here and precached.
-          globPatterns: ['**/*.{js,css,html,svg,png,woff2,json}'],
-          // The install downloads everything listed here at once (that was 232 requests), so
-          // the list is kept to what a first offline start needs: only `common` of each
-          // language, and not the pages that make no sense offline (sign-up, creating a plan,
-          // the dashboard…). Both are cached on first use instead, see src/sw.ts.
-          globIgnores: [
-            'locales/*/!(common).json',
-            'assets/{About,CreatePlan,Dashboard,ListForm,LibraryEdit,Signup,VerifyEmail,Login,Settings}Page-*.{js,css}',
+          // The install downloads everything listed here at once, and a full list was 222
+          // requests per install: crawlers and every new visitor paid it, and so did every
+          // returning one after a deploy. So only the shell is listed: the page, the entry
+          // script and stylesheet, the icons and the `common` dictionary of each language.
+          // Chunks and the other dictionaries are cached on first use, see src/sw.ts.
+          globPatterns: [
+            'index.html',
+            'favicon.svg',
+            'icons/*.png',
+            'assets/index-*.{js,css}',
+            'locales/*/common.json',
           ],
           // Everything the app loads at start fits; the Firestore chunk (~540 kB) must too.
           maximumFileSizeToCacheInBytes: 2 * 1024 * 1024,
