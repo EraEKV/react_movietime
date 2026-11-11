@@ -94,6 +94,7 @@ export default function MovieDetails({ movieId }: { movieId: string }) {
         backdropPath={movie.backdrop_path}
         fallbackIcon="film"
         genres={movie.genres}
+        genreTo={(id) => `/movies?genre=${id}`}
         rating={movie.vote_average}
         votes={movie.vote_count}
         meta={[

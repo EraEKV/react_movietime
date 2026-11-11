@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import { imageUrl } from '../../shared/api/tmdb'
 import { useImageFailed } from '../../shared/hooks/useImageFailed'
 import type { Genre } from '../../types/tmdb'
+import Chip from '../../shared/ui/Chip/Chip'
 import Icon from '../../shared/ui/Icon/Icon'
 import type { IconName } from '../../shared/ui/Icon/icons'
 import RatingBadge from '../../shared/ui/RatingBadge/RatingBadge'
@@ -27,6 +28,8 @@ interface TitleHeroProps {
   /** Shown when there is no poster. */
   fallbackIcon: IconName
   genres: Genre[]
+  /** Where a genre chip leads: the catalog filtered by that genre. */
+  genreTo: (genreId: number) => string
   rating: number
   votes: number
   /** "1999 · 2h 16m · Released" — falsy parts are skipped. */
@@ -44,6 +47,7 @@ export default function TitleHero({
   backdropPath,
   fallbackIcon,
   genres,
+  genreTo,
   rating,
   votes,
   meta,
@@ -83,7 +87,9 @@ export default function TitleHero({
             {genres.length > 0 && (
               <ul className={styles.genres} aria-label={t('title.genres')}>
                 {genres.map((genre) => (
-                  <li key={genre.id}>{genre.name}</li>
+                  <li key={genre.id}>
+                    <Chip to={genreTo(genre.id)}>{genre.name}</Chip>
+                  </li>
                 ))}
               </ul>
             )}

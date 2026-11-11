@@ -98,6 +98,7 @@ export default function SeriesDetails({ seriesId }: { seriesId: string }) {
         backdropPath={series.backdrop_path}
         fallbackIcon="tv"
         genres={series.genres}
+        genreTo={(id) => `/series?genre=${id}`}
         rating={series.vote_average}
         votes={series.vote_count}
         meta={[

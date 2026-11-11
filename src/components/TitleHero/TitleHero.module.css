@@ -15,7 +15,7 @@
   inset: 0;
   border-radius: inherit;
   background-size: cover;
-  background-position: center top;
+  background-position: right top;
 }
 
 /* Text over imagery always sits on the dark scrim, in both themes. */
@@ -39,6 +39,20 @@
 @media (min-width: 768px) {
   .hero {
     min-height: 420px;
+  }
+
+  /* Like the TMDB page: the poster and text sit on a dark tint that thins out to the right,
+     so the backdrop shows through on the far side. */
+  .hero::after {
+    background:
+      linear-gradient(
+        90deg,
+        rgba(5, 8, 14, 0.96) 0%,
+        rgba(5, 8, 14, 0.88) 32%,
+        rgba(5, 8, 14, 0.5) 68%,
+        rgba(5, 8, 14, 0.28) 100%
+      ),
+      var(--scrim-backdrop);
   }
 
   .content {
@@ -88,16 +102,6 @@
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-2);
-}
-
-.genres li {
-  padding: 2px var(--space-3);
-  border-radius: var(--radius-pill);
-  background: var(--overlay);
-  color: var(--text-on-backdrop);
-  font-size: 13px;
-  font-weight: 500;
-  line-height: 20px;
 }
 
 .title {
