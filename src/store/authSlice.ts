@@ -3,6 +3,7 @@ import type { User } from 'firebase/auth'
 import type { AuthError, AuthStatus, AuthUser, UserAvatar } from '../types/auth'
 import { loadAuthService } from '../services/loadAuthService'
 import { toAuthError } from '../utils/firebaseErrors'
+import { describeRedirect } from '../utils/redirectDiagnostics'
 import { takeRedirectMark } from '../utils/signInMode'
 import type { RootState } from './store'
 
@@ -116,14 +117,18 @@ export const completeGoogleRedirect = createAuthThunk(
       // the auth domain, or the result landed in another browser context): say so instead
       // of leaving the login page as if nothing had happened.
       if (!user) {
-        // What to look at when this shows up: the page's host against the auth domain (they
-        // must be the same site) and whether this is the installed app.
-        console.warn('Google redirect returned without a user', {
+        // The facts go on screen with the message: a phone has no console at hand. They name
+        // the host against the auth domain (same site or not), the mode and where we came from.
+        const details = describeRedirect({
           host: location.host,
           authDomain: authService.configuredAuthDomain(),
           standalone: matchMedia('(display-mode: standalone)').matches,
+          referrer: document.referrer,
+          userAgent: navigator.userAgent,
         })
-        return rejectWithValue(toAuthError({ code: 'app/google-redirect-incomplete' }))
+        console.warn('Google redirect returned without a user:', details)
+        const error = toAuthError({ code: 'app/google-redirect-incomplete' })
+        return rejectWithValue({ ...error, message: `${error.message} (${details})` })
       }
       await syncProfile(user, getState())
       return authService.toAuthUser(user)
