@@ -37,7 +37,7 @@ export async function GET(request: Request): Promise<Response> {
       'Content-Type': 'application/json',
       // Errors are never cached; a 404 for a new title must not stick.
       'Cache-Control': upstream.ok
-        ? 'public, s-maxage=300, stale-while-revalidate=3600'
+        ? 'public, max-age=300, s-maxage=300, stale-while-revalidate=3600'
         : 'no-store',
     },
   })
