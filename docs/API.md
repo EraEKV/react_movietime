@@ -54,6 +54,15 @@ types in `src/types/`.
 | `endpoints.trending(mediaType)`                 |   ✅   | `/trending/{movie,tv}/week`                                                                                 |
 | `tmdbGetAll(paths, { signal })`                 |   ✅   | Several paths in parallel (`Promise.all`), one shared signal                                                |
 
+**The proxy is not open.** `api/_lib/tmdb.ts` lists the paths the app uses, the query
+parameters each one takes and a shape for every value; anything else gets 400, and unknown
+parameters are dropped. The Worker (`worker/cache.ts`) keeps successful answers in
+Cloudflare's cache under the normalised key (genres 7 days, one title, person or collection
+6 hours, charts and catalogue pages 1 hour, search 10 minutes) and tells browsers a shorter
+lifetime (`Cache-Control`). The cache works on the custom domain; on `*.workers.dev` it stores
+nothing. A new endpoint in `endpoints` needs a line in the list (`src/utils/proxyAllowlist.test.ts`
+fails until it has one).
+
 ✅ Every request carries `language=en-US | ru-RU | kk-KZ` for the current UI language
 (`tmdbGet` appends it unless the path already has one). The hooks (`useFetch`, `useCatalog`,
 `useTitleSearch`, `useEpisodeRatings`) put the language into their request key through
