@@ -1,11 +1,10 @@
-import type { QueryDocumentSnapshot } from 'firebase-admin/firestore'
-import * as webPush from 'web-push'
-import { adminDb, SUBSCRIPTIONS } from './_lib/admin.js'
+import { adminDb, SUBSCRIPTIONS, type Snapshot } from './_lib/admin.js'
 import { json } from './_lib/firebase.js'
 import { isLocale, type Locale } from './_lib/layout.js'
 import { resolveMember } from './_lib/memberMail.js'
 import { pushMessage, suggestionMessage, type PushKind } from './_lib/pushText.js'
 import { resolveSuggestion } from './_lib/suggestion.js'
+import { sendNotification, type PushSubscription, type Vapid } from './_lib/webPush.js'
 
 // POST /api/push-notify { collection, id, email, kind: 'shared' | 'role' }: a push to every
 // browser the member has subscribed. Same checks as the emails (resolveMember): the caller
@@ -26,7 +25,11 @@ export async function POST(request: Request): Promise<Response> {
     id?: unknown
     proposalId?: unknown
   }
-  webPush.setVapidDetails(VAPID_SUBJECT, VITE_VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY)
+  const vapid: Vapid = {
+    subject: VAPID_SUBJECT,
+    publicKey: VITE_VAPID_PUBLIC_KEY,
+    privateKey: VAPID_PRIVATE_KEY,
+  }
 
   if (input.kind === 'proposal' || input.kind === 'answer') {
     const push = await resolveSuggestion(request, input.kind, input)
@@ -36,7 +39,9 @@ export async function POST(request: Request): Promise<Response> {
       .where('uid', '==', push.uid)
       .limit(10)
       .get()
-    return deliver(subscriptions.docs, (locale) => suggestionMessage(locale, push.kind, push))
+    return deliver(subscriptions.docs, vapid, (locale) =>
+      suggestionMessage(locale, push.kind, push),
+    )
   }
 
   const resolved = await resolveMember(request)
@@ -51,7 +56,7 @@ export async function POST(request: Request): Promise<Response> {
     .limit(10)
     .get()
   const path = new URL(context.openUrl).pathname
-  return deliver(subscriptions.docs, (locale) =>
+  return deliver(subscriptions.docs, vapid, (locale) =>
     pushMessage(locale, kind as PushKind, {
       owner: context.owner,
       name: context.name,
@@ -64,25 +69,26 @@ export async function POST(request: Request): Promise<Response> {
 
 /** Sends one message per subscribed browser, in the language it subscribed with. */
 async function deliver(
-  docs: QueryDocumentSnapshot[],
+  docs: Snapshot[],
+  vapid: Vapid,
   build: (locale: Locale) => object,
 ): Promise<Response> {
   let sent = 0
   await Promise.all(
     docs.map(async (doc) => {
-      const stored = doc.get('subscription') as webPush.PushSubscription
+      const stored = doc.get('subscription') as PushSubscription
       const storedLocale: unknown = doc.get('locale')
       const message = build(isLocale(storedLocale) ? storedLocale : 'en')
       try {
-        await webPush.sendNotification(stored, JSON.stringify(message), {
-          TTL: 24 * 60 * 60,
+        const status = await sendNotification(stored, JSON.stringify(message), vapid, {
+          ttl: 24 * 60 * 60,
           timeout: 8000,
         })
-        sent += 1
-      } catch (error) {
+        if (status >= 200 && status < 300) sent += 1
         // 404 / 410: the browser unsubscribed or the subscription expired. Forget it.
-        const status = error instanceof webPush.WebPushError ? error.statusCode : 0
-        if (status === 404 || status === 410) await doc.ref.delete()
+        else if (status === 404 || status === 410) await doc.ref.delete()
+      } catch {
+        // The push service did not answer in time; the next message tries again.
       }
     }),
   )
