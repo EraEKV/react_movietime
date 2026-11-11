@@ -66,7 +66,7 @@ export default function TitleHero({
 
   return (
     <>
-      <div className={back ? `${styles.hero} ${styles.withBack}` : styles.hero}>
+      <div className={styles.hero}>
         {backdrop && (
           <div className={styles.backdrop} style={{ backgroundImage: `url(${backdrop})` }} />
         )}

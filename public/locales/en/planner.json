@@ -97,11 +97,6 @@
     "finishedSeries": "Every session is done. New episodes? Plan the next season.",
     "next": "Plan next season",
     "moved": "Moved {{units}} to {{date}}",
-    "behind_one": "You are {{count}} session behind.",
-    "behind_other": "You are {{count}} sessions behind.",
-    "continueToday": "Continue from today",
-    "pickDate": "Pick a date",
-    "caughtUp": "Plan moved: it continues {{date}}",
     "deleteTitle": "Delete this plan?",
     "keep": "Keep plan",
     "deleteBody": "All {{sessions}} will be removed. Library progress stays.",
@@ -210,15 +205,6 @@
   "schedule": {
     "startDate": "Start date",
     "watchOn": "Watch on",
-    "outcome": "{{sessions}} · finishes {{date}}",
-    "presets": "Quick pick",
-    "preset": {
-      "everyday": "Every day",
-      "workdays": "Weekdays",
-      "weekends": "Weekends",
-      "monWedFri": "Mon · Wed · Fri",
-      "tueThu": "Tue · Thu"
-    },
     "time": "Time",
     "ownTimes": "Different time on some days",
     "sameTime": "Same time on every day",

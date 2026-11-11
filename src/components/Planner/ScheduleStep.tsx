@@ -1,14 +1,13 @@
 import { useTranslation } from 'react-i18next'
 import { useId, useState } from 'react'
 import type { ScheduleOptions, Weekday } from '../../types/plan'
-import Chip from '../../shared/ui/Chip/Chip'
 import Button from '../../shared/ui/Button/Button'
 import DatePicker from '../DatePicker/DatePicker'
 import Icon from '../../shared/ui/Icon/Icon'
 import SelectField from '../../shared/ui/SelectField/SelectField'
 import WeekdayToggle from '../WeekdayToggle/WeekdayToggle'
-import { WEEK_ORDER, formatDay, weekdayLong } from '../../utils/calendar'
-import { sameDays, timeOptions, WEEKDAY_PRESETS } from '../../utils/planner'
+import { WEEK_ORDER, weekdayLong } from '../../utils/calendar'
+import { timeOptions } from '../../utils/planner'
 import styles from './Planner.module.css'
 
 interface ScheduleStepProps {
@@ -16,34 +15,16 @@ interface ScheduleStepProps {
   options: ScheduleOptions
   onChange: (options: ScheduleOptions) => void
   today: string
-  /** What the options add up to: shown under the settings so the effect is visible at once. */
-  outcome?: { sessions: number; finishDate: string | null }
 }
 
 /** Step 3: start date, weekdays, time, episodes per session. */
-export default function ScheduleStep({
-  kind,
-  options,
-  onChange,
-  today,
-  outcome,
-}: ScheduleStepProps) {
-  const { t } = useTranslation(['planner', 'common'])
+export default function ScheduleStep({ kind, options, onChange, today }: ScheduleStepProps) {
+  const { t } = useTranslation('planner')
   const errorId = useId()
   const set = (changes: Partial<ScheduleOptions>) => onChange({ ...options, ...changes })
   const noDays = options.weekdays.length === 0
   const [ownTimes, setOwnTimes] = useState(Object.keys(options.times ?? {}).length > 0)
   const days = WEEK_ORDER.filter((day) => options.weekdays.includes(day))
-
-  // Days that drop out of the plan take their own times with them.
-  function setWeekdays(weekdays: Weekday[]) {
-    const times = Object.fromEntries(
-      Object.entries(options.times ?? {}).filter(([day]) =>
-        weekdays.includes(Number(day) as Weekday),
-      ),
-    )
-    set({ weekdays, times: Object.keys(times).length > 0 ? times : undefined })
-  }
 
   // A weekday that matches the usual time needs no entry of its own.
   function setDayTime(day: Weekday, time: string) {
@@ -75,20 +56,16 @@ export default function ScheduleStep({
         <WeekdayToggle
           legend={t('schedule.watchOn')}
           value={options.weekdays}
-          onChange={setWeekdays}
+          onChange={(weekdays) => {
+            const times = Object.fromEntries(
+              Object.entries(options.times ?? {}).filter(([day]) =>
+                weekdays.includes(Number(day) as Weekday),
+              ),
+            )
+            set({ weekdays, times: Object.keys(times).length > 0 ? times : undefined })
+          }}
           errorId={noDays ? errorId : undefined}
         />
-        <div className={styles.presets} role="group" aria-label={t('schedule.presets')}>
-          {WEEKDAY_PRESETS.map(({ key, days: preset }) => (
-            <Chip
-              key={key}
-              selected={sameDays(options.weekdays, preset)}
-              onClick={() => setWeekdays(preset)}
-            >
-              {t(`schedule.preset.${key}`)}
-            </Chip>
-          ))}
-        </div>
         {noDays && (
           <p id={errorId} className={styles.error} role="alert">
             <Icon name="alert" size={16} />
@@ -111,19 +88,6 @@ export default function ScheduleStep({
             />
           )}
         </div>
-        {outcome?.finishDate && (
-          <p className={styles.outcome} role="status">
-            {t('schedule.outcome', {
-              sessions: t('common:count.sessions', { count: outcome.sessions }),
-              date: formatDay(outcome.finishDate, {
-                weekday: 'short',
-                month: 'short',
-                day: 'numeric',
-                year: 'numeric',
-              }),
-            })}
-          </p>
-        )}
         {days.length > 1 && (
           <>
             <Button

@@ -251,17 +251,3 @@ export function moveUnit(units: PlanUnit[], movedKey: MediaKey, overKey: MediaKe
 export function isSourceOrder(units: PlanUnit[], source: PlanUnit[]): boolean {
   return units.length === source.length && units.every((u, i) => u.mediaKey === source[i]?.mediaKey)
 }
-
-/** One-tap day sets for the schedule step; Weekday numbers are Date.getDay() (0 = Sunday). */
-export type WeekdayPresetKey = 'everyday' | 'workdays' | 'weekends' | 'monWedFri' | 'tueThu'
-
-export const WEEKDAY_PRESETS: { key: WeekdayPresetKey; days: Weekday[] }[] = [
-  { key: 'everyday', days: [0, 1, 2, 3, 4, 5, 6] },
-  { key: 'workdays', days: [1, 2, 3, 4, 5] },
-  { key: 'weekends', days: [0, 6] },
-  { key: 'monWedFri', days: [1, 3, 5] },
-  { key: 'tueThu', days: [2, 4] },
-]
-
-export const sameDays = (a: Weekday[], b: Weekday[]) =>
-  a.length === b.length && a.every((day) => b.includes(day))

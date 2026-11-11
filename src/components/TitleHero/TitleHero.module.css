@@ -24,11 +24,6 @@
   background-position: right top;
 }
 
-/* The Back row is out of the flow, so the content starts below it instead of under it. */
-.withBack {
-  padding-top: calc(var(--cover-top) + var(--touch-min) + var(--space-3));
-}
-
 /* Back button row: spans the grid, light text since it is always over the dark scrim. */
 .bar {
   position: absolute;

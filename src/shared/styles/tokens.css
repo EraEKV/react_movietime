@@ -114,8 +114,8 @@
 }
 
 :root {
-  --font-display: 'Unbounded Variable', 'Onest Variable', system-ui, sans-serif;
-  --font-sans: 'Onest Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: 'Unbounded', 'Onest', system-ui, sans-serif;
+  --font-sans: 'Onest', system-ui, -apple-system, 'Segoe UI', sans-serif;
 
   --space-1: 4px;
   --space-2: 8px;

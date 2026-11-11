@@ -48,7 +48,7 @@ import {
 } from '../utils/planner'
 import { loginPath } from '../shared/lib/redirect'
 import { likesOf, myProposal, openProposals } from '../utils/marathonVotes'
-import { groupByWeek, missedSessions, toIcs, unitsLabel, weekLabel } from '../utils/schedule'
+import { groupByWeek, toIcs, unitsLabel, weekLabel } from '../utils/schedule'
 import { memberName, membersOf, roleLabel, shareUrl } from '../utils/sharing'
 import type { MemberRole } from '../types/sharing'
 import NotFoundPage from './NotFoundPage'
@@ -214,7 +214,6 @@ function PlanView({ id }: { id: string }) {
     sessions?.some((c) => c.copyOf === s.id && c.status === 'pending') ?? false
 
   // A movie marathon's remaining films can be reordered by whoever may edit the plan.
-  const missed = missedSessions(sessions ?? [], today)
   const pendingFilms = sessions?.filter((s) => s.status === 'pending') ?? []
   const canReorder =
     plan.kind === 'list' && (role === 'owner' || role === 'editor') && pendingFilms.length > 1
@@ -383,44 +382,6 @@ function PlanView({ id }: { id: string }) {
           {t(plan.kind === 'list' ? 'votes.viewerBanner' : 'plan.viewerBanner', {
             owner: plan.ownerName,
           })}
-        </Banner>
-      )}
-      {editable && missed[0] && (
-        <Banner
-          tone="warning"
-          icon="clock"
-          action={
-            <>
-              <Button
-                size="sm"
-                variant="secondary"
-                onClick={() => {
-                  const first = missed[0]
-                  if (!first) return
-                  void actions.reschedule(plan, first, today, true, first.time).then(
-                    () =>
-                      showToast({
-                        text: t('plan.caughtUp', {
-                          date: formatDay(today, {
-                            weekday: 'short',
-                            month: 'short',
-                            day: 'numeric',
-                          }),
-                        }),
-                      }),
-                    report,
-                  )
-                }}
-              >
-                {t('plan.continueToday')}
-              </Button>
-              <Button size="sm" variant="ghost" onClick={() => setMoving(missed[0] ?? null)}>
-                {t('plan.pickDate')}
-              </Button>
-            </>
-          }
-        >
-          {t('plan.behind', { count: missed.length })}
         </Banner>
       )}
       {role === 'link' && (

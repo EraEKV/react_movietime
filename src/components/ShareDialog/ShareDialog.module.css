@@ -42,9 +42,9 @@
   flex: 0 0 128px;
 }
 
-/* Lines the button up with the inputs, under their 20px label + the field gap. */
+/* Lines the button up with the inputs, under their 20px label + 6px gap. */
 .inviteButton {
-  margin-top: calc(20px + var(--space-2));
+  margin-top: 26px;
 }
 
 .note {

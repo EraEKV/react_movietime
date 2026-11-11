@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest'
 import type { PlanUnit } from '../types/plan'
 import { addDays, daysBetween, monthGrid, weekdayOf } from './calendar'
 import {
-  missedSessions,
   buildSchedule,
   groupByWeek,
   nextSlot,
@@ -153,25 +152,5 @@ describe('weekLabel', () => {
 
   it('spans two months when the week does', () => {
     expect(weekLabel('2026-11-30', '2026-11-11')).toContain('Nov 30–Dec 6')
-  })
-})
-
-describe('missedSessions', () => {
-  const s = (date: string, index: number, status: 'pending' | 'done' | 'skipped') => ({
-    date,
-    index,
-    status,
-  })
-
-  it('lists pending sessions before today in viewing order', () => {
-    const sessions = [
-      s('2026-11-09', 1, 'pending'),
-      s('2026-11-08', 0, 'pending'),
-      s('2026-11-07', 2, 'done'),
-      s('2026-11-06', 3, 'skipped'),
-      s('2026-11-10', 4, 'pending'),
-      s('2026-11-12', 5, 'pending'),
-    ]
-    expect(missedSessions(sessions, '2026-11-10').map((x) => x.index)).toEqual([0, 1])
   })
 })

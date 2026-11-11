@@ -374,7 +374,6 @@ export default function CreatePlanPage() {
         options={effective}
         onChange={setOptions}
         today={today}
-        outcome={summary}
       />
     )
   } else {

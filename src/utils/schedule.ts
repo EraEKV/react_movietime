@@ -180,9 +180,3 @@ export function totalHours(minutes: number): { value: string; unit: string } {
 }
 
 export { unitsLabel, toIcs, localMoment, type IcsEvent } from '../../api/_lib/ics'
-
-/** Pending sessions whose day has passed, in viewing order: what the plan is behind on. */
-export const missedSessions = <T extends Pick<PlanSession, 'date' | 'index' | 'status'>>(
-  sessions: T[],
-  today: string,
-): T[] => sessions.filter((s) => s.status === 'pending' && s.date < today).toSorted(bySchedule)

@@ -1,7 +1,7 @@
 .field {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: 6px;
   min-width: 0;
 }
 
@@ -52,7 +52,7 @@
   background: transparent;
   color: var(--text);
   outline: none;
-  padding: var(--space-2) 0;
+  padding: 10px 0;
 }
 
 .control input::placeholder,
@@ -162,12 +162,4 @@
 
 .inlineButton:hover {
   color: var(--text);
-}
-
-@media (pointer: coarse) {
-  .inlineButton {
-    min-width: var(--touch-min);
-    min-height: var(--touch-min);
-    margin-right: calc(var(--space-2) * -1);
-  }
 }
