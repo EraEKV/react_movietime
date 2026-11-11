@@ -59,14 +59,14 @@ function renderStep(kind: 'series' | 'movie' | 'list', onPick = vi.fn(), onKindC
 describe('SourceStep', () => {
   it('offers a series, a movie and a list of movies', () => {
     renderStep('series')
-    expect(screen.getByRole('radio', { name: 'A series' })).toBeInTheDocument()
-    expect(screen.getByRole('radio', { name: 'A movie' })).toBeInTheDocument()
-    expect(screen.getByRole('radio', { name: 'A list of movies' })).toBeInTheDocument()
+    expect(screen.getByRole('radio', { name: 'Series' })).toBeInTheDocument()
+    expect(screen.getByRole('radio', { name: 'Movie' })).toBeInTheDocument()
+    expect(screen.getByRole('radio', { name: 'Movie list' })).toBeInTheDocument()
   })
 
   it('switches to the movie search', async () => {
     const { onKindChange } = renderStep('series')
-    await userEvent.setup().click(screen.getByRole('radio', { name: 'A movie' }))
+    await userEvent.setup().click(screen.getByRole('radio', { name: 'Movie' }))
     expect(onKindChange).toHaveBeenCalledWith('movie')
   })
 

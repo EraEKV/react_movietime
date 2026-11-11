@@ -30,6 +30,7 @@ export default function SourceStep({ kind, onKindChange, pick, onPick }: SourceS
     <div className={styles.stack}>
       <SegmentedControl
         label={t('source.what')}
+        stacked
         value={kind}
         onChange={onKindChange}
         options={[

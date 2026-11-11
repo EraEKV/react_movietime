@@ -1,3 +1,4 @@
+import { cx } from '../../lib/cx'
 import type { KeyboardEvent } from 'react'
 import { focusItem, nextIndexForKey } from '../../lib/rovingFocus'
 import type { IconName } from '../Icon/icons'
@@ -17,6 +18,8 @@ interface SegmentedControlProps<V extends string> {
   value: V
   onChange: (value: V) => void
   label: string
+  /** On phones the options share the row and show the icon above the label (long labels). */
+  stacked?: boolean
 }
 
 /** Switches a filter or presentation in place (Movies/Series, grid/list). A radio group. */
@@ -25,6 +28,7 @@ export default function SegmentedControl<V extends string>({
   value,
   onChange,
   label,
+  stacked = false,
 }: SegmentedControlProps<V>) {
   const selectedIndex = options.findIndex((o) => o.value === value)
 
@@ -37,7 +41,12 @@ export default function SegmentedControl<V extends string>({
   }
 
   return (
-    <div className={styles.group} role="radiogroup" aria-label={label} onKeyDown={handleKeyDown}>
+    <div
+      className={cx(styles.group, stacked && styles.stacked)}
+      role="radiogroup"
+      aria-label={label}
+      onKeyDown={handleKeyDown}
+    >
       {options.map((option) => {
         const checked = option.value === value
         return (
