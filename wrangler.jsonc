@@ -13,11 +13,15 @@
     // The worker sees only these; everything else is static and never runs code.
     "run_worker_first": ["/api/*", "/__/*"],
   },
+  // Plain settings live here: a deploy replaces any variable set in the dashboard, so the
+  // dashboard only holds secrets (TMDB_TOKEN, RESEND_API_KEY, VAPID_PRIVATE_KEY,
+  // FIREBASE_SERVICE_ACCOUNT, VITE_FIREBASE_API_KEY).
   "vars": {
     "FIREBASE_AUTH_HOST": "movietime-c83d7.firebaseapp.com",
-    // Set SITE_URL (the app's address) and the secrets in the Cloudflare dashboard:
-    // TMDB_TOKEN, RESEND_API_KEY, RESEND_FROM, VAPID_PRIVATE_KEY, VAPID_SUBJECT,
-    // FIREBASE_SERVICE_ACCOUNT, VITE_FIREBASE_API_KEY, VITE_FIREBASE_PROJECT_ID,
-    // VITE_VAPID_PUBLIC_KEY.
+    "RESEND_FROM": "Avleron <invites@avleron.com>",
+    "SITE_URL": "https://avleron.com",
+    "VAPID_SUBJECT": "mailto:invites@avleron.com",
+    "VITE_VAPID_PUBLIC_KEY": "BBq_YDAnGdUby1_BZ-a37pWCJHIannFkzyCI8V2u9RdxlWIYFXPcDJl_H095IzyWmczZbxVrE6oV8AhDhXqwf1E",
+    "VITE_FIREBASE_PROJECT_ID": "movietime-c83d7",
   },
 }

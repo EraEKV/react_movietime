@@ -6,6 +6,7 @@
 
 export function siteOrigin(request: Request): string {
   const configured = process.env.SITE_URL?.trim().replace(/\/+$/, '')
-  if (configured) return configured
+  // "avleron.com" without a scheme would make every link relative, so https is assumed.
+  if (configured) return /^https?:\/\//i.test(configured) ? configured : `https://${configured}`
   return new URL(request.url).origin
 }

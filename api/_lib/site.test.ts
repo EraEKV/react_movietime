@@ -17,6 +17,11 @@ describe('siteOrigin', () => {
     expect(at('https://x.test/api/ics')).toBe('https://avleron.example')
   })
 
+  it('assumes https when SITE_URL has no scheme', () => {
+    vi.stubEnv('SITE_URL', 'avleron.com')
+    expect(at('https://x.test/api/ics')).toBe('https://avleron.com')
+  })
+
   it('falls back to the origin of the request when SITE_URL is unset or empty', () => {
     vi.stubEnv('SITE_URL', '')
     expect(at('https://avleron.example/api/send-welcome')).toBe('https://avleron.example')
