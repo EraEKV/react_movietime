@@ -63,7 +63,12 @@
     "plansHint": "Progress and the next session",
     "nextSession": "Next: {{day}}",
     "noNext": "No sessions left",
-    "noPlans": "No active plans yet."
+    "noPlans": "No active plans yet.",
+    "activityYear": "Year",
+    "activityMonth": "Month",
+    "activityLast12": "Last 12 months",
+    "activityLess": "Less",
+    "activityMore": "More"
   },
   "upcoming": {
     "title": "Upcoming sessions",

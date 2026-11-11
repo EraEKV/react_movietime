@@ -63,7 +63,12 @@
     "plansHint": "Прогресс және келесі сеанс",
     "nextSession": "Келесі: {{day}}",
     "noNext": "Сеанстар қалмады",
-    "noPlans": "Белсенді жоспар әзірге жоқ."
+    "noPlans": "Белсенді жоспар әзірге жоқ.",
+    "activityYear": "Жыл",
+    "activityMonth": "Ай",
+    "activityLast12": "Соңғы 12 ай",
+    "activityLess": "Аз",
+    "activityMore": "Көп"
   },
   "upcoming": {
     "title": "Жақын сеанстар",

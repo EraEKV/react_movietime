@@ -329,7 +329,7 @@ export default function DashboardPage() {
           )}
         </DashboardCard>
 
-        <DashboardCard title={t('cards.weeks')} hint={t('cards.weeksHint')} className={styles.wide}>
+        <DashboardCard title={t('cards.weeks')} hint={t('cards.weeksHint')}>
           {plansChart(() =>
             plans.weeks?.some((w) => w.count > 0) ? (
               <WeeklyActivity weeks={plans.weeks} />
@@ -349,7 +349,11 @@ export default function DashboardPage() {
           )}
         </DashboardCard>
 
-        <DashboardCard title={t('cards.activity')} hint={t('cards.activityHint')}>
+        <DashboardCard
+          title={t('cards.activity')}
+          hint={t('cards.activityHint')}
+          className={styles.wide}
+        >
           {plansChart(() =>
             plans.sessions ? <ActivityCalendar sessions={plans.sessions} today={today} /> : null,
           )}

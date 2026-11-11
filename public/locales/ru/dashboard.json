@@ -63,7 +63,12 @@
     "plansHint": "Прогресс и следующий сеанс",
     "nextSession": "Дальше: {{day}}",
     "noNext": "Сеансов не осталось",
-    "noPlans": "Активных планов пока нет."
+    "noPlans": "Активных планов пока нет.",
+    "activityYear": "Год",
+    "activityMonth": "Месяц",
+    "activityLast12": "Последние 12 месяцев",
+    "activityLess": "Меньше",
+    "activityMore": "Больше"
   },
   "upcoming": {
     "title": "Ближайшие сеансы",

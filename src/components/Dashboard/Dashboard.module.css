@@ -438,3 +438,126 @@
     animation: none;
   }
 }
+
+/* ---------- Activity: year graph ---------- */
+
+.activityRoot {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-4);
+}
+
+.activityRoot > :last-child {
+  align-self: stretch;
+}
+
+.year {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.yearScroll {
+  overflow-x: auto;
+  padding-bottom: var(--space-2);
+}
+
+/* 53 week columns: tiles keep at least 11px, so a phone scrolls sideways (starting at today). */
+.yearBox {
+  display: grid;
+  grid-template-columns: 2.25rem minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  column-gap: var(--space-2);
+  row-gap: 6px;
+  min-width: calc(2.25rem + 53 * 14px + var(--space-2));
+  max-width: 64rem;
+}
+
+.yearMonths {
+  grid-column: 2;
+  display: grid;
+  grid-template-columns: repeat(53, minmax(0, 1fr));
+  color: var(--text-subtle);
+  font-size: 11px;
+  line-height: 14px;
+}
+
+.yearMonths span {
+  overflow: visible;
+  white-space: nowrap;
+}
+
+.yearDays {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--surface);
+  grid-column: 1;
+  grid-row: 2;
+  display: grid;
+  grid-template-rows: repeat(7, minmax(0, 1fr));
+  gap: 3px;
+  color: var(--text-subtle);
+  font-size: 11px;
+  line-height: 1;
+}
+
+.yearDays span {
+  display: flex;
+  align-items: center;
+}
+
+.yearGrid {
+  grid-column: 2;
+  grid-row: 2;
+  display: grid;
+  grid-template-rows: repeat(7, auto);
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: 3px;
+}
+
+.cell {
+  min-width: 11px;
+  border-radius: 3px;
+}
+
+.cell:hover {
+  transform: none;
+  outline: 1px solid var(--text-muted);
+}
+
+.yearFoot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-4);
+}
+
+.yearFoot .tileCaption {
+  margin: 0;
+  text-align: left;
+}
+
+.legendScale {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--text-subtle);
+  font-size: 11px;
+}
+
+.legendScale .cell {
+  width: 11px;
+  height: 11px;
+  min-width: 0;
+  flex: none;
+  aspect-ratio: auto;
+}
+
+.legendScale span {
+  margin-inline: 2px;
+}
