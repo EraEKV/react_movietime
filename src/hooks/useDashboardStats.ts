@@ -6,6 +6,7 @@ import { localToday, weekdayOf } from '../utils/calendar'
 import {
   periodStart,
   planStats,
+  sessionsByWeek,
   sessionsByWeekday,
   topGenres,
   upcomingSessions,
@@ -62,6 +63,7 @@ export function useDashboardStats(period: StatsPeriod) {
     return {
       stats: planStats(plans.plans, sessions, plans.sharedIds, today),
       weekdays: sessionsByWeekday(sessions, start, today),
+      weeks: sessionsByWeek(sessions, today),
       upcoming: upcomingSessions(sessions, today),
     }
   }, [plans.plans, plans.sharedIds, sessions, start, today])

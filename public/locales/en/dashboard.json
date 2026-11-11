@@ -54,7 +54,10 @@
     "split": "Movies vs series",
     "weekday": "Sessions by weekday",
     "weekdayHint": "Watched sessions",
-    "noWatched": "No watched sessions in this period yet."
+    "noWatched": "No watched sessions in this period yet.",
+    "weeks": "Last 12 weeks",
+    "weeksHint": "Watched sessions per week",
+    "noWeeks": "No watched sessions in the last 12 weeks."
   },
   "upcoming": {
     "title": "Upcoming sessions",
@@ -69,7 +72,16 @@
   },
   "chart": {
     "bar": "{{label}}: {{count}}. Open in library",
-    "part": "{{label}}: {{count}}, {{percent}}. Open in library"
+    "part": "{{label}}: {{count}}, {{percent}}. Open in library",
+    "sessionsShort_one": "{{count}} session",
+    "sessionsShort_other": "{{count}} sessions",
+    "today": "today",
+    "weekStarting": "Week of {{week}}",
+    "titles": "titles",
+    "sessions_one": "{{day}}: {{count}} session",
+    "sessions_other": "{{day}}: {{count}} sessions",
+    "weekOf_one": "Week of {{week}}: {{count}} session",
+    "weekOf_other": "Week of {{week}}: {{count}} sessions"
   },
   "scored_one": "From {{count}} scored title",
   "scored_other": "From {{count}} scored titles",

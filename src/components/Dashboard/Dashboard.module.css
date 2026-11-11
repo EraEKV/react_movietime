@@ -5,6 +5,12 @@
   flex-direction: column;
   gap: var(--space-4);
   min-width: 0;
+  /* A faint wash of the chart hue in the corner: depth without a second surface colour. */
+  background-image: radial-gradient(
+    120% 80% at 100% 0%,
+    color-mix(in srgb, var(--chart-1) 9%, transparent),
+    transparent 60%
+  );
 }
 
 .cardHeader {
@@ -66,17 +72,34 @@
 
 .track {
   height: 10px;
-  border-radius: var(--radius-xs);
+  border-radius: var(--radius-pill);
   background: var(--surface-sunken);
+  overflow: hidden;
 }
 
 /* Square start on the baseline, rounded data end. */
 .fill {
   display: block;
   height: 100%;
-  min-width: 4px;
-  border-radius: 0 var(--radius-xs) var(--radius-xs) 0;
-  background: var(--chart-1);
+  min-width: 6px;
+  border-radius: var(--radius-pill);
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--chart-1) 55%, transparent),
+    var(--chart-1)
+  );
+  transform-origin: left center;
+  animation: grow var(--dur-slow, 320ms) var(--ease-out) both;
+}
+
+@keyframes grow {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+.barRow:hover .fill {
+  filter: brightness(1.15);
 }
 
 .barValue {
@@ -94,19 +117,47 @@
   gap: var(--space-4);
 }
 
-/* 2px gaps of the card surface between segments, no borders. */
-.splitBar {
-  display: flex;
-  gap: 2px;
-  height: 12px;
-  border-radius: var(--radius-xs);
-  background: var(--surface-sunken);
-  overflow: hidden;
+@media (min-width: 480px) {
+  .split {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .split .legend {
+    flex: 1;
+    min-width: 0;
+  }
 }
 
-.segment {
-  flex-basis: 0;
-  min-width: 4px;
+/* Ring with the total in the middle, legend beside it (below on narrow cards). */
+.donut {
+  position: relative;
+  flex: none;
+  align-self: center;
+  width: 148px;
+  height: 148px;
+}
+
+.donutTotal {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.donutTotal strong {
+  font-family: var(--font-display);
+  font-size: 28px;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.donutTotal small {
+  color: var(--text-muted);
+  font-size: 12px;
 }
 
 .legend {
@@ -154,56 +205,48 @@
   text-align: right;
 }
 
-/* ---------- Sessions by weekday ---------- */
+/* ---------- Recharts plots (weekday columns, weekly area) ---------- */
 
-.columns {
-  display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: var(--space-2);
+.plot {
+  min-width: 0;
 }
 
-.column {
+.chartBox {
+  width: 100%;
+  min-width: 0;
+}
+
+.chartBox :global(.recharts-surface),
+.chartBox :global(.recharts-wrapper) {
+  outline: none;
+}
+
+.tooltip {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: var(--space-1);
+  gap: 2px;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface-raised);
+  box-shadow: var(--shadow-2);
+  pointer-events: none;
 }
 
-.columnValue {
-  font-size: 12px;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-}
-
-/* The plot has its own height; value and label rows sit outside it. */
-.columnPlot {
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  width: 100%;
-  height: 120px;
-  border-bottom: 1px solid var(--border);
-}
-
-.columnFill {
-  width: 100%;
-  max-width: 32px;
-  min-height: 4px;
-  border-radius: var(--radius-xs) var(--radius-xs) 0 0;
-  background: var(--chart-1);
-}
-
-.columnLabel {
+.tooltipTitle {
   color: var(--text-muted);
   font-size: 12px;
 }
 
-/* Today is marked in text weight and an underline, not by a second colour. */
-.today .columnLabel {
-  color: var(--text);
-  font-weight: 700;
-  text-decoration: underline;
-  text-underline-offset: 3px;
+.tooltipValue {
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fill {
+    animation: none;
+  }
 }
 
 /* ---------- States inside a card ---------- */

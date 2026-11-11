@@ -54,7 +54,10 @@
     "split": "Фильмы и сериалы",
     "weekday": "Сеансы по дням недели",
     "weekdayHint": "Просмотренные сеансы",
-    "noWatched": "В этом периоде пока нет просмотренных сеансов."
+    "noWatched": "В этом периоде пока нет просмотренных сеансов.",
+    "weeks": "Последние 12 недель",
+    "weeksHint": "Просмотренные сеансы по неделям",
+    "noWeeks": "За последние 12 недель нет просмотренных сеансов."
   },
   "upcoming": {
     "title": "Ближайшие сеансы",
@@ -69,7 +72,22 @@
   },
   "chart": {
     "bar": "{{label}}: {{count}}. Открыть в библиотеке",
-    "part": "{{label}}: {{count}}, {{percent}}. Открыть в библиотеке"
+    "part": "{{label}}: {{count}}, {{percent}}. Открыть в библиотеке",
+    "sessionsShort_one": "{{count}} сеанс",
+    "sessionsShort_few": "{{count}} сеанса",
+    "sessionsShort_many": "{{count}} сеансов",
+    "sessionsShort_other": "{{count}} сеанса",
+    "today": "сегодня",
+    "weekStarting": "Неделя с {{week}}",
+    "titles": "тайтлов",
+    "sessions_one": "{{day}}: {{count}} сеанс",
+    "sessions_few": "{{day}}: {{count}} сеанса",
+    "sessions_many": "{{day}}: {{count}} сеансов",
+    "sessions_other": "{{day}}: {{count}} сеанса",
+    "weekOf_one": "Неделя с {{week}}: {{count}} сеанс",
+    "weekOf_few": "Неделя с {{week}}: {{count}} сеанса",
+    "weekOf_many": "Неделя с {{week}}: {{count}} сеансов",
+    "weekOf_other": "Неделя с {{week}}: {{count}} сеанса"
   },
   "scored_one": "По {{count}} оценённому тайтлу",
   "scored_few": "По {{count}} оценённым тайтлам",
