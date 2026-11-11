@@ -277,6 +277,12 @@ const KEY_JOB_ORDER: KeyJob[] = [
   'sound',
 ]
 
+/** How senior a crew job is: 0 for the creator, up; Infinity for jobs that are not key ones. */
+export function keyJobRank(job: string): number {
+  const key = KEY_JOB[job]
+  return key ? KEY_JOB_ORDER.indexOf(key) : Infinity
+}
+
 export interface KeyCrewMember {
   id: number
   name: string

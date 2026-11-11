@@ -1,4 +1,5 @@
 import type { CrewMember } from '../types/tmdb'
+import { keyJobRank } from './person'
 
 // The whole crew of a title, grouped the way TMDB groups it (by department) for the
 // "Full crew" panel. The short list of key people lives in utils/person.ts.
@@ -49,12 +50,15 @@ export interface Department {
   people: DepartmentPerson[]
 }
 
+const seniority = (jobs: string[]) => Math.min(...jobs.map(keyJobRank))
+
 export const departmentKey = (name: string): DepartmentKey | null =>
   (DEPARTMENT_KEY as Record<string, DepartmentKey>)[name] ?? null
 
 /**
  * Crew → departments with one entry per person (a director who also wrote is in both
- * departments, once in each). People keep TMDB's order, which puts the senior ones first.
+ * departments, once in each). Inside a department the people with a key job (director,
+ * writer, composer…) come first, the rest keep TMDB's order.
  * Departments follow `DEPARTMENT_ORDER`; ones the list does not know come last, A to Z.
  */
 export function crewByDepartment(crew: Pick<CrewMember, 'id' | 'name' | 'job' | 'department'>[]) {
@@ -77,7 +81,10 @@ export function crewByDepartment(crew: Pick<CrewMember, 'id' | 'name' | 'job' | 
     .map(([name, people]): Department => ({
       name,
       departmentKey: departmentKey(name),
-      people: [...people.values()],
+      // Stable sort: people with the same standing keep TMDB's order.
+      people: [...people.values()].sort(
+        (a, b) => Math.sign(seniority(a.jobs) - seniority(b.jobs)) || 0,
+      ),
     }))
 }
 

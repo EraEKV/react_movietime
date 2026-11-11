@@ -41,6 +41,15 @@ describe('crewByDepartment', () => {
     expect(directing?.people.map((p) => p.name)).toEqual(['Lana', 'Lilly'])
   })
 
+  it('puts people with a key job first inside a department', () => {
+    const list = [
+      member(1, 'Tom', 'Second Assistant Director', 'Directing'),
+      member(2, 'Sue', 'Script Supervisor', 'Directing'),
+      member(3, 'Lana', 'Director', 'Directing'),
+    ]
+    expect(crewByDepartment(list)[0]?.people.map((p) => p.name)).toEqual(['Lana', 'Tom', 'Sue'])
+  })
+
   it('puts a person who works in two departments in both', () => {
     const names = (department: string) =>
       crewByDepartment(crew)
