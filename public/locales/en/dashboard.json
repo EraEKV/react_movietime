@@ -59,7 +59,11 @@
     "weeksHint": "Watched sessions per week",
     "noWeeks": "No watched sessions in the last 12 weeks.",
     "activity": "Activity calendar",
-    "activityHint": "Watched sessions per day"
+    "activityHint": "Watched sessions per day",
+    "progress": "Progress",
+    "progressHint": "This week and active plans",
+    "thisWeek": "This week",
+    "noProgress": "No active plans or sessions this week."
   },
   "upcoming": {
     "title": "Upcoming sessions",
@@ -83,7 +87,8 @@
     "sessions_one": "{{day}}: {{count}} session",
     "sessions_other": "{{day}}: {{count}} sessions",
     "weekOf_one": "Week of {{week}}: {{count}} session",
-    "weekOf_other": "Week of {{week}}: {{count}} sessions"
+    "weekOf_other": "Week of {{week}}: {{count}} sessions",
+    "progress": "{{label}}: {{done}} of {{total}}"
   },
   "scored_one": "From {{count}} scored title",
   "scored_other": "From {{count}} scored titles",

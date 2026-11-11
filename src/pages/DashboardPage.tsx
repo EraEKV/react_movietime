@@ -12,6 +12,7 @@ import WeeklyActivity from '../components/Dashboard/WeeklyActivity'
 import dash from '../components/Dashboard/Dashboard.module.css'
 import EmptyState from '../shared/ui/EmptyState/EmptyState'
 import ErrorState from '../shared/ui/EmptyState/ErrorState'
+import ProgressRings, { type ProgressRing } from '../components/Dashboard/ProgressRings'
 import SectionHeader from '../shared/ui/SectionHeader/SectionHeader'
 import SectionLink from '../shared/ui/SectionHeader/SectionLink'
 import SegmentedControl from '../shared/ui/SegmentedControl/SegmentedControl'
@@ -150,6 +151,30 @@ export default function DashboardPage() {
   }
 
   const week = plans.stats
+  // Outer ring: this week. Then the active plans that end soonest, at most four, so the
+  // rings stay wide enough to read.
+  const rings: ProgressRing[] = [
+    ...(week?.weekPlanned
+      ? [
+          {
+            key: 'week',
+            label: t('cards.thisWeek'),
+            done: week.weekDone,
+            total: week.weekPlanned,
+            color: 'var(--text)',
+            to: '/planner',
+          },
+        ]
+      : []),
+    ...(plans.active ?? []).slice(0, 4).map((plan) => ({
+      key: plan.id,
+      label: plan.media?.title ?? plan.title,
+      done: plan.doneUnits,
+      total: plan.totalUnits,
+      color: `var(--plan-${plan.color})`,
+      to: `/planner/${plan.id}`,
+    })),
+  ]
   const plansTile = (
     label: string,
     icon: 'calendar' | 'list',
@@ -326,12 +351,22 @@ export default function DashboardPage() {
           )}
         </DashboardCard>
 
-        <DashboardCard title={t('cards.weeks')} hint={t('cards.weeksHint')}>
+        <DashboardCard title={t('cards.weeks')} hint={t('cards.weeksHint')} className={styles.wide}>
           {plansChart(() =>
             plans.weeks?.some((w) => w.count > 0) ? (
               <WeeklyActivity weeks={plans.weeks} />
             ) : (
               <p className={dash.note}>{t('cards.noWeeks')}</p>
+            ),
+          )}
+        </DashboardCard>
+
+        <DashboardCard title={t('cards.progress')} hint={t('cards.progressHint')}>
+          {plansChart(() =>
+            rings.length ? (
+              <ProgressRings rings={rings} />
+            ) : (
+              <p className={dash.note}>{t('cards.noProgress')}</p>
             ),
           )}
         </DashboardCard>

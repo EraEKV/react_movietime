@@ -59,7 +59,11 @@
     "weeksHint": "Просмотренные сеансы по неделям",
     "noWeeks": "За последние 12 недель нет просмотренных сеансов.",
     "activity": "Календарь активности",
-    "activityHint": "Просмотренные сеансы по дням"
+    "activityHint": "Просмотренные сеансы по дням",
+    "progress": "Прогресс",
+    "progressHint": "Неделя и активные планы",
+    "thisWeek": "Эта неделя",
+    "noProgress": "Нет активных планов и сеансов на этой неделе."
   },
   "upcoming": {
     "title": "Ближайшие сеансы",
@@ -89,7 +93,8 @@
     "weekOf_one": "Неделя с {{week}}: {{count}} сеанс",
     "weekOf_few": "Неделя с {{week}}: {{count}} сеанса",
     "weekOf_many": "Неделя с {{week}}: {{count}} сеансов",
-    "weekOf_other": "Неделя с {{week}}: {{count}} сеанса"
+    "weekOf_other": "Неделя с {{week}}: {{count}} сеанса",
+    "progress": "{{label}}: {{done}} из {{total}}"
   },
   "scored_one": "По {{count}} оценённому тайтлу",
   "scored_few": "По {{count}} оценённым тайтлам",

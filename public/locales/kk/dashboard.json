@@ -59,7 +59,11 @@
     "weeksHint": "Аптасына көрілген сеанстар",
     "noWeeks": "Соңғы 12 аптада көрілген сеанс жоқ.",
     "activity": "Белсенділік күнтізбесі",
-    "activityHint": "Күн сайын көрілген сеанстар"
+    "activityHint": "Күн сайын көрілген сеанстар",
+    "progress": "Прогресс",
+    "progressHint": "Осы апта және белсенді жоспарлар",
+    "thisWeek": "Осы апта",
+    "noProgress": "Белсенді жоспар жоқ, осы аптада сеанс жоқ."
   },
   "upcoming": {
     "title": "Жақын сеанстар",
@@ -83,7 +87,8 @@
     "sessions_one": "{{day}}: {{count}} сеанс",
     "sessions_other": "{{day}}: {{count}} сеанс",
     "weekOf_one": "{{week}} аптасы: {{count}} сеанс",
-    "weekOf_other": "{{week}} аптасы: {{count}} сеанс"
+    "weekOf_other": "{{week}} аптасы: {{count}} сеанс",
+    "progress": "{{label}}: {{done}} / {{total}}"
   },
   "scored_one": "{{count}} бағаланған туынды бойынша",
   "scored_other": "{{count}} бағаланған туынды бойынша",

@@ -62,6 +62,7 @@ export function useDashboardStats(period: StatsPeriod) {
     if (!plans.plans || !sessions) return null
     return {
       sessions,
+      active: plans.plans.filter((plan) => plan.status === 'active'),
       stats: planStats(plans.plans, sessions, plans.sharedIds, today),
       weekdays: sessionsByWeekday(sessions, start, today),
       weeks: sessionsByWeek(sessions, today),
