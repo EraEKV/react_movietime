@@ -1,30 +1,20 @@
 import { json } from './_lib/firebase.js'
 import { proxyTarget, tmdbToken } from './_lib/tmdb.js'
 
-// GET /api/tmdb/<any TMDB v3 path>?<query>, which vercel.json rewrites to
-// /api/tmdb?path=<path>&<query>: forwards the request with the server's token.
-// Successful answers are cached at Vercel's edge for a few minutes, so the same page opened
-// by many people costs TMDB one request.
+// GET /api/tmdb/<a TMDB v3 path the app uses>?<query>: forwards the request with the server's
+// token (see _lib/tmdb.ts for what is accepted). The Worker (worker/index.ts) keeps the
+// answers in Cloudflare's cache, so the same page opened by many people costs TMDB one request.
 
 export async function GET(request: Request): Promise<Response> {
   const token = tmdbToken()
   if (!token) return json({ status_message: 'The TMDB token is not configured.' }, 503)
 
   const target = proxyTarget(request.url)
-  if (!target) {
-    // Temporary: what the function sees after Vercel's routing, to fix the rewrite.
-    const seen = Object.fromEntries(
-      ['x-matched-path', 'x-vercel-original-path', 'x-forwarded-uri', 'x-invoke-path'].map((h) => [
-        h,
-        request.headers.get(h),
-      ]),
-    )
-    return json({ status_message: 'Not a TMDB path.', url: request.url, seen }, 400)
-  }
+  if (!target) return json({ status_message: 'Not a TMDB path.' }, 400)
 
   let upstream: Response
   try {
-    upstream = await fetch(target, {
+    upstream = await fetch(target.upstream, {
       headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
     })
   } catch {
@@ -37,7 +27,7 @@ export async function GET(request: Request): Promise<Response> {
       'Content-Type': 'application/json',
       // Errors are never cached; a 404 for a new title must not stick.
       'Cache-Control': upstream.ok
-        ? 'public, max-age=300, s-maxage=300, stale-while-revalidate=3600'
+        ? `public, max-age=${target.browserSeconds}, stale-while-revalidate=${target.browserSeconds}`
         : 'no-store',
     },
   })
