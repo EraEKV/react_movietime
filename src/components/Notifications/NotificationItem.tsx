@@ -1,8 +1,8 @@
 import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router'
 import { cx } from '../../shared/lib/cx'
 import { relativeTime } from '../../shared/lib/relativeTime'
 import Button from '../../shared/ui/Button/Button'
+import ButtonLink from '../../shared/ui/ButtonLink/ButtonLink'
 import type { AppNotification } from '../../types/notifications'
 import styles from './Notifications.module.css'
 
@@ -43,9 +43,9 @@ export default function NotificationItem({
           {relativeTime(item.createdAt)}
         </time>
         <div className={styles.actions}>
-          <Link to={to} className={styles.open} onClick={onOpen}>
+          <ButtonLink to={to} variant="primary" size="sm" onClick={onOpen}>
             {t('open')}
-          </Link>
+          </ButtonLink>
           {!item.read && (
             <Button size="sm" variant="ghost" onClick={onMarkRead}>
               {t('markRead')}

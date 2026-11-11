@@ -27,6 +27,8 @@
   --accent: #3cc6ea;
   --accent-soft: #0f2c35;
   --on-accent: #04212a;
+  /* Text on a flat --accent fill (badges); --on-accent is for the brand gradient. */
+  --on-accent-solid: #04212a;
   --focus-ring: #7fdcf5;
   --danger: #ff7a6e;
   --danger-soft: #3a1714;
@@ -79,6 +81,7 @@
   --accent: #00739a;
   --accent-soft: #dcf0f5;
   --on-accent: #04212a;
+  --on-accent-solid: #ffffff;
   --focus-ring: #005f80;
   --danger: #b42318;
   --danger-soft: #fdecea;
