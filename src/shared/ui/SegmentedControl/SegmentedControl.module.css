@@ -42,6 +42,23 @@
   box-shadow: var(--shadow-1);
 }
 
+/* Phones, long labels: three options share the whole row and the icon sits above its label,
+   so nothing wraps mid-word and nothing overflows at 320px. */
+@media (max-width: 479px) {
+  .stacked {
+    display: flex;
+    width: 100%;
+  }
+
+  .stacked .option {
+    flex: 1 1 0;
+    flex-direction: column;
+    gap: 2px;
+    padding: var(--space-1) var(--space-2);
+    font-size: 13px;
+  }
+}
+
 /* Fingers need 44px; a mouse keeps the compact 38px control. */
 @media (pointer: coarse) {
   .option {

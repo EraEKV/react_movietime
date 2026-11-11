@@ -92,6 +92,18 @@
   margin-left: auto;
 }
 
+/* The wrappers add no box of their own. On phones a signed-in user gets a four-item bar
+   (logo, Tonight, search, bell): theme, language and the account are in Profile → Settings. */
+.account {
+  display: contents;
+}
+
+@media (max-width: 767px) {
+  .compactTools .account {
+    display: none;
+  }
+}
+
 .search {
   display: none;
   /* Six nav items leave little room at 1024px: the field grows to full width from 1280px. */

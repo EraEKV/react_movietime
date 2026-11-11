@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { lazy, Suspense, useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router'
+import { cx } from '../../shared/lib/cx'
 import { useAuth } from '../../hooks/useAuth'
 import { useTheme } from '../../hooks/useTheme'
 import UserMenu from '../auth/UserMenu'
@@ -24,7 +25,9 @@ export default function Header() {
   const { pathname } = useLocation()
   const { theme, toggleTheme } = useTheme()
   const nextTheme = theme === 'dark' ? 'light' : 'dark'
-  const { user } = useAuth()
+  const { user, status } = useAuth()
+  // Signed in (or still being restored): theme, language and account live in Profile on phones.
+  const compact = Boolean(user) || status === 'loading'
   const [searchOpen, setSearchOpen] = useState(false)
   const searchButton = useRef<HTMLButtonElement>(null)
 
@@ -53,7 +56,7 @@ export default function Header() {
           ))}
         </nav>
 
-        <div className={styles.tools}>
+        <div className={cx(styles.tools, compact && styles.compactTools)}>
           <OfflinePill />
           {user && (
             <Suspense fallback={null}>
@@ -72,19 +75,23 @@ export default function Header() {
           >
             <Icon name="search" size={20} />
           </button>
-          <IconButton
-            icon={theme === 'dark' ? 'sun' : 'moon'}
-            label={t(nextTheme === 'dark' ? 'header.toDark' : 'header.toLight')}
-            onClick={toggleTheme}
-          />
-          <LanguageMenu />
+          <span className={styles.account}>
+            <IconButton
+              icon={theme === 'dark' ? 'sun' : 'moon'}
+              label={t(nextTheme === 'dark' ? 'header.toDark' : 'header.toLight')}
+              onClick={toggleTheme}
+            />
+            <LanguageMenu />
+          </span>
           {/* Unverified emails get nothing: the rules answer them with permission-denied. */}
           {user?.emailVerified && (
             <Suspense fallback={null}>
               <NotificationBell />
             </Suspense>
           )}
-          <UserMenu />
+          <span className={styles.account}>
+            <UserMenu />
+          </span>
         </div>
       </div>
       {searchOpen && <HeaderSearchOverlay onClose={closeSearch} />}
