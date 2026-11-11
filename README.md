@@ -190,6 +190,7 @@ project, which is handy for trying security rules without touching production da
 | Name                                | Required | Description                                    |
 | ----------------------------------- | :------: | ---------------------------------------------- |
 | `TMDB_TOKEN`                        |   yes    | TMDB read access token, used by the TMDB proxy |
+| `SITE_URL`                          |   yes    | Address of the app, used in email and calendar |
 | `VITE_FIREBASE_API_KEY`             |   yes    | Firebase web app config                        |
 | `VITE_FIREBASE_AUTH_DOMAIN`         |   yes    | `<project-id>.firebaseapp.com`                 |
 | `VITE_FIREBASE_PROJECT_ID`          |   yes    |                                                |

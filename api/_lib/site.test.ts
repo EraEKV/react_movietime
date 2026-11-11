@@ -1,21 +1,25 @@
-import { describe, expect, it } from 'vitest'
-import { SITE_URL, siteOrigin } from './site.js'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { siteOrigin } from './site.js'
 
 const at = (url: string) => siteOrigin(new Request(url))
 
 describe('siteOrigin', () => {
-  it('sends vercel.app visitors to the main domain', () => {
-    expect(at('https://react-movietime.vercel.app/api/send-invite')).toBe(SITE_URL)
-    expect(at('https://react-movietime-git-feat-x.vercel.app/api/ics')).toBe(SITE_URL)
+  afterEach(() => vi.unstubAllEnvs())
+
+  it('uses SITE_URL whatever address the request came to', () => {
+    vi.stubEnv('SITE_URL', 'https://avleron.example')
+    expect(at('https://app.pages.dev/api/send-invite')).toBe('https://avleron.example')
+    expect(at('http://localhost:5173/api/ics')).toBe('https://avleron.example')
   })
 
-  it('keeps the main domain, a custom domain and localhost as they are', () => {
-    expect(at('https://avleron.com/api/send-welcome')).toBe('https://avleron.com')
-    expect(at('https://www.avleron.com/api/send-welcome')).toBe('https://www.avleron.com')
+  it('drops trailing slashes and spaces from SITE_URL', () => {
+    vi.stubEnv('SITE_URL', ' https://avleron.example/ ')
+    expect(at('https://x.test/api/ics')).toBe('https://avleron.example')
+  })
+
+  it('falls back to the origin of the request when SITE_URL is unset or empty', () => {
+    vi.stubEnv('SITE_URL', '')
+    expect(at('https://avleron.example/api/send-welcome')).toBe('https://avleron.example')
     expect(at('http://localhost:5173/api/send-welcome')).toBe('http://localhost:5173')
-  })
-
-  it('is not fooled by a lookalike host', () => {
-    expect(at('https://vercel.app.evil.test/api/x')).toBe('https://vercel.app.evil.test')
   })
 })

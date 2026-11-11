@@ -1,10 +1,11 @@
-// The address people are sent to from emails and calendar events. Requests that arrive on
-// the default *.vercel.app address (the old demo link, preview deployments) still produce
-// links to the main domain; a custom domain or localhost keeps its own origin.
-
-export const SITE_URL = 'https://avleron.com'
+// The address people are sent to from emails and calendar events. It is one setting, the
+// SITE_URL environment variable ("https://example.com", no trailing slash needed): change it
+// there when the app moves to another domain or host. Without it, the origin of the request
+// is used, which is right for localhost and for a deployment that is only reached by one
+// address.
 
 export function siteOrigin(request: Request): string {
-  const { origin, hostname } = new URL(request.url)
-  return hostname.endsWith('.vercel.app') ? SITE_URL : origin
+  const configured = process.env.SITE_URL?.trim().replace(/\/+$/, '')
+  if (configured) return configured
+  return new URL(request.url).origin
 }
