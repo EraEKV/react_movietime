@@ -103,6 +103,9 @@ export async function finishGoogleRedirect(): Promise<User | null> {
   return auth.currentUser
 }
 
+/** The `authDomain` this page's Firebase app was started with (for diagnostics). */
+export const configuredAuthDomain = (): string | undefined => auth.config.authDomain
+
 export function signOutUser(): Promise<void> {
   return signOut(auth)
 }

@@ -1,5 +1,6 @@
 import { initializeApp, type FirebaseOptions } from 'firebase/app'
 import { connectAuthEmulator, getAuth } from 'firebase/auth'
+import { resolveAuthDomain } from '../utils/authDomain'
 
 const env = import.meta.env
 
@@ -7,7 +8,10 @@ const env = import.meta.env
 // access is controlled by Firestore security rules and Authorized domains.
 const required = {
   apiKey: env.VITE_FIREBASE_API_KEY,
-  authDomain: env.VITE_FIREBASE_AUTH_DOMAIN,
+  authDomain: resolveAuthDomain(
+    env.VITE_FIREBASE_AUTH_DOMAIN,
+    typeof location === 'undefined' ? undefined : location,
+  ),
   projectId: env.VITE_FIREBASE_PROJECT_ID,
   storageBucket: env.VITE_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: env.VITE_FIREBASE_MESSAGING_SENDER_ID,

@@ -115,7 +115,16 @@ export const completeGoogleRedirect = createAuthThunk(
       // A redirect was started but nothing came back (storage blocked between the app and
       // the auth domain, or the result landed in another browser context): say so instead
       // of leaving the login page as if nothing had happened.
-      if (!user) return rejectWithValue(toAuthError({ code: 'app/google-redirect-incomplete' }))
+      if (!user) {
+        // What to look at when this shows up: the page's host against the auth domain (they
+        // must be the same site) and whether this is the installed app.
+        console.warn('Google redirect returned without a user', {
+          host: location.host,
+          authDomain: authService.configuredAuthDomain(),
+          standalone: matchMedia('(display-mode: standalone)').matches,
+        })
+        return rejectWithValue(toAuthError({ code: 'app/google-redirect-incomplete' }))
+      }
       await syncProfile(user, getState())
       return authService.toAuthUser(user)
     } catch (error) {
