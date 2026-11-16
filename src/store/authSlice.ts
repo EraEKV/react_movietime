@@ -142,6 +142,12 @@ export const signOut = createAuthThunk('auth/signOut', async (_: void, { rejectW
   try {
     const authService = await loadAuthService()
     await authService.signOutUser()
+    // The Firestore cache in IndexedDB outlives the session, so it is deleted here. The
+    // database is stopped by that, and the page reloads (on the route the caller moved to)
+    // to start clean, with nothing of the account left in memory either.
+    const { clearAccountData } = await import('../services/localData')
+    await clearAccountData()
+    window.location.reload()
   } catch (error) {
     return rejectWithValue(toAuthError(error))
   }
