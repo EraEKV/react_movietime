@@ -1,5 +1,6 @@
 import { useRegisterSW } from 'virtual:pwa-register/react'
 import { useTranslation } from 'react-i18next'
+import { recoverOnce } from '../../shared/lib/staleApp'
 import Toast from '../../shared/ui/Toast/Toast'
 
 /**
@@ -15,8 +16,19 @@ export default function UpdatePrompt() {
     updateServiceWorker,
   } = useRegisterSW({
     onRegisteredSW(_url, registration) {
+      if (!registration) return
+      const check = () => void registration.update().catch(() => undefined)
       // A long-open tab never navigates, so ask for a new worker once an hour.
-      if (registration) setInterval(() => void registration.update(), 60 * 60 * 1000)
+      setInterval(check, 60 * 60 * 1000)
+      // Safari checks for a new worker rarely, and an installed app is mostly resumed, not
+      // opened: ask whenever the app comes back to the screen.
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') check()
+      })
+      // A worker already waiting when the app opens was downloaded earlier and never
+      // accepted. Nothing is being edited yet, so take it now instead of showing an old
+      // version until someone taps the toast.
+      if (registration.waiting) recoverOnce()
     },
   })
 
