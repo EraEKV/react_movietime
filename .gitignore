@@ -32,3 +32,6 @@ dist-ssr
 coverage
 
 .wrangler/
+
+# Personal notes for the defence
+docs/DEFENSE_GUIDE.md
