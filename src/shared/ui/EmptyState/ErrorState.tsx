@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import type { ReactNode } from 'react'
+import { useOnlineStatus } from '../../hooks/useOnlineStatus'
 import { cx } from '../../lib/cx'
 import Button from '../Button/Button'
 import type { IconName } from '../Icon/icons'
@@ -24,17 +25,27 @@ export default function ErrorState({
   onRetry,
   retrying = false,
   secondary,
-  icon = 'alert',
+  icon: iconProp,
   headingLevel: Heading = 'h2',
 }: ErrorStateProps) {
   const { t } = useTranslation()
+  const online = useOnlineStatus()
+  // A load error without a network is an offline notice, not a fault of the page.
+  const offline = !online && title === undefined && body === undefined
+  const icon = iconProp ?? (offline ? 'wifi-off' : 'alert')
   return (
     <div className={cx(styles.state, styles.error)} role="alert">
       <div className={styles.icon}>
         <Icon name={icon} size={28} />
       </div>
-      <Heading className={styles.title}>{title ?? t('states.errorTitle')}</Heading>
-      {body !== null && <p className={styles.body}>{body ?? t('states.errorBody')}</p>}
+      <Heading className={styles.title}>
+        {title ?? (offline ? t('states.offlineTitle') : t('states.errorTitle'))}
+      </Heading>
+      {body !== null && (
+        <p className={styles.body}>
+          {body ?? (offline ? t('states.offlineBody') : t('states.errorBody'))}
+        </p>
+      )}
       {(onRetry || secondary) && (
         <div className={styles.actions}>
           {onRetry && (
