@@ -159,3 +159,27 @@ ol {
 :root:has(dialog[open]) {
   overflow: hidden;
 }
+
+/* A poster or photo that is still loading: a shimmer behind the image (the loaded picture
+   covers it). src/shared/lib/imageLoading.ts sets data-loaded when the file has arrived. */
+img[loading='lazy']:not([data-loaded]) {
+  background: var(--surface-sunken)
+    linear-gradient(90deg, transparent, var(--skeleton-shine), transparent) no-repeat;
+  background-size: 50% 100%;
+  animation: img-shimmer 1.4s infinite;
+}
+
+@keyframes img-shimmer {
+  from {
+    background-position: -100% 0;
+  }
+  to {
+    background-position: 200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  img[loading='lazy']:not([data-loaded]) {
+    animation: none;
+  }
+}

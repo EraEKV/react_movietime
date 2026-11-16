@@ -76,7 +76,9 @@
     "loadingTitles": "Loading titles",
     "errorTitle": "Something went wrong",
     "errorBody": "We couldn’t load this right now. Check your connection and try again.",
-    "unknown": "Unknown"
+    "unknown": "Unknown",
+    "offlineTitle": "You’re offline",
+    "offlineBody": "This page needs a connection. Reconnect and try again."
   },
   "pagination": {
     "label": "Pagination",
@@ -252,5 +254,10 @@
     "updateReady": "A new version of Avleron is ready.",
     "reload": "Reload",
     "offlineReady": "Ready to work offline."
+  },
+  "loadError": {
+    "title": "The app was updated",
+    "text": "This page belongs to an older version of Avleron and could not be loaded. Reload to get the latest one.",
+    "reload": "Reload"
   }
 }
